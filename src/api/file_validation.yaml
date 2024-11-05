@@ -1,8 +1,12 @@
-#TODO: Change to the required and/or optional fields of the anndata
 type: file
 example: "resources_test/task_cyto_batch_integration/cxg_mouse_pancreas_atlas/solution.h5ad"
-label: "Validation"
-summary: "Validation dataset"
+label: Validation
+summary: Hold-out dataset for validation. 
+description: |
+  Samples that were held out and will later be used only to assess whether
+  the batch integration was successful. E.g. if a donor from batch 2 was corrected towards batch 1,
+  but also actually measured in batch 1 (without being used as input to the algorithm).
+  
 info:
   format:
     type: h5ad

@@ -1,4 +1,3 @@
-#TODO: Change to the required and/or optional fields of the anndata
 type: file
 example: "resources_test/task_cyto_batch_integration/cxg_mouse_pancreas_atlas/prediction.h5ad"
 label: Integrated
@@ -6,10 +5,10 @@ summary: "Integrated dataset"
 info:
   format:
     type: h5ad
-    obs:
-      - type: string
-        name: label_pred
-        description: Predicted labels for the test cells.
+    layers:
+      - type: double
+        name: integrated
+        description: The integrated data as returned by a batch correction method
         required: true
     uns:
       - type: string
@@ -17,10 +16,10 @@ info:
         description: "A unique identifier for the dataset"
         required: true
       - type: string
-        name: normalization_id
-        description: "Which normalization was used"
-        required: true
-      - type: string
         name: method_id
         description: "A unique identifier for the method"
         required: true
+      - type: object
+        name: parameters
+        description: "The parameters used for the integration"
+        required: false

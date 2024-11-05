@@ -115,12 +115,12 @@ Arguments:
 
 <div class="small">
 
-| Name                             | Type   | Description                      |
-|:---------------------------------|:-------|:---------------------------------|
-| `--input`                        | `file` | A subset of the common dataset.  |
+| Name | Type | Description |
+|:---|:---|:---|
+| `--input` | `file` | A subset of the common dataset. |
 | `--output_unintegrated_censored` | `file` | (*Output*) Unintegrated dataset. |
-| `--output_unintegrated`          | `file` | (*Output*) Unintegrated dataset. |
-| `--output_validation`            | `file` | (*Output*) Validation dataset.   |
+| `--output_unintegrated` | `file` | (*Output*) Unintegrated dataset. |
+| `--output_validation` | `file` | (*Output*) Hold-out dataset for validation. |
 
 </div>
 
@@ -216,10 +216,17 @@ Data structure:
 
 ## File format: Validation
 
-Validation dataset
+Hold-out dataset for validation.
 
 Example file:
 `resources_test/task_cyto_batch_integration/cxg_mouse_pancreas_atlas/solution.h5ad`
+
+Description:
+
+Samples that were held out and will later be used only to assess whether
+the batch integration was successful. E.g. if a donor from batch 2 was
+corrected towards batch 1, but also actually measured in batch 1
+(without being used as input to the algorithm).
 
 Format:
 
@@ -283,11 +290,11 @@ Arguments:
 
 <div class="small">
 
-| Name                   | Type   | Description                    |
-|:-----------------------|:-------|:-------------------------------|
-| `--input_unintegrated` | `file` | Unintegrated dataset.          |
-| `--input_validation`   | `file` | Validation dataset.            |
-| `--output`             | `file` | (*Output*) Integrated dataset. |
+| Name                   | Type   | Description                      |
+|:-----------------------|:-------|:---------------------------------|
+| `--input_unintegrated` | `file` | Unintegrated dataset.            |
+| `--input_validation`   | `file` | Hold-out dataset for validation. |
+| `--output`             | `file` | (*Output*) Integrated dataset.   |
 
 </div>
 
@@ -301,7 +308,7 @@ Arguments:
 
 | Name | Type | Description |
 |:---|:---|:---|
-| `--input_validation` | `file` | Validation dataset. |
+| `--input_validation` | `file` | Hold-out dataset for validation. |
 | `--input_unintegrated` | `file` | Unintegrated dataset. |
 | `--input_integrated` | `file` | Integrated dataset. |
 | `--output` | `file` | (*Output*) File indicating the score of a metric. |
@@ -320,8 +327,8 @@ Format:
 <div class="small">
 
     AnnData object
-     obs: 'label_pred'
-     uns: 'dataset_id', 'normalization_id', 'method_id'
+     layers: 'integrated'
+     uns: 'dataset_id', 'method_id', 'parameters'
 
 </div>
 
@@ -329,12 +336,12 @@ Data structure:
 
 <div class="small">
 
-| Slot                      | Type     | Description                          |
-|:--------------------------|:---------|:-------------------------------------|
-| `obs["label_pred"]`       | `string` | Predicted labels for the test cells. |
-| `uns["dataset_id"]`       | `string` | A unique identifier for the dataset. |
-| `uns["normalization_id"]` | `string` | Which normalization was used.        |
-| `uns["method_id"]`        | `string` | A unique identifier for the method.  |
+| Slot | Type | Description |
+|:---|:---|:---|
+| `layers["integrated"]` | `double` | The integrated data as returned by a batch correction method. |
+| `uns["dataset_id"]` | `string` | A unique identifier for the dataset. |
+| `uns["method_id"]` | `string` | A unique identifier for the method. |
+| `uns["parameters"]` | `object` | (*Optional*) The parameters used for the integration. |
 
 </div>
 
