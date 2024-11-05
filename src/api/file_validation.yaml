@@ -1,43 +1,63 @@
 #TODO: Change to the required and/or optional fields of the anndata
 type: file
 example: "resources_test/task_cyto_batch_integration/cxg_mouse_pancreas_atlas/solution.h5ad"
-label: "Solution"
-summary: "The solution for the test data"
+label: "Validation"
+summary: "Validation dataset"
 info:
   format:
     type: h5ad
-    layers: 
-      - type: integer
-        name: counts
-        description: Raw counts
-        required: true
+    layers:
       - type: double
-        name: normalized
-        description: Normalized counts
+        name: preprocessed
+        description: preprocessed data, e.g. already compensated, transformed and debris/doublets removed
         required: true
     obs:
       - type: string
-        name: label
-        description: Ground truth cell type labels
+        name: cell_type
+        description: Cell type information
         required: true
       - type: string
         name: batch
         description: Batch information
         required: true
+      - type: string
+        name: sample
+        description: Sample ID
+        required: true
+      - type: string
+        name: donor
+        description: Donor ID
+        required: true
+      - type: string
+        name: group
+        description: Biological group of the donor
+        required: true
     var:
+      - type: integer
+        name: numeric_id
+        description: Numeric ID associated with each marker
+        required: true
+      - type: string
+        name: channel
+        description: The channel / detector of the instrument
+        required: true
+      - type: string
+        name: marker
+        description: The marker name associated with the channel
+        required: false
+      - type: string
+        name: marker_type
+        description: Whether the marker is a functional or lineage marker
+        required: true
       - type: boolean
-        name: hvg
-        description: Whether or not the feature is considered to be a 'highly variable gene'
+        name: to_correct
+        description: Whether the marker will be batch corrected
         required: true
-      - type: double
-        name: hvg_score
-        description: A ranking of the features by hvg.
-        required: true
-    obsm:
-      - type: double
-        name: X_pca
-        description: The resulting PCA embedding.
-        required: true
+    # obsm:
+    #   - type: double
+    #     name: X_pca
+    #     description: The resulting PCA embedding.
+    #     required: true
     uns:
       - type: string
         name: dataset_id
@@ -67,7 +87,3 @@ info:
         type: string
         description: The organism of the sample in the dataset.
         required: false
-      - type: string
-        name: normalization_id
-        description: "Which normalization was used"
-        required: true
