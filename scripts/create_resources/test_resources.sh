@@ -32,15 +32,13 @@ del ad.X
 ad.write_h5ad("$DATASET_DIR/common_dataset.h5ad")
 HERE
 
-
-
-
-# # process dataset
-# viash run src/data_processors/process_dataset/config.vsh.yaml -- \
-#   --input $RAW_DATA/cxg_mouse_pancreas_atlas/dataset.h5ad \
-#   --output_train $DATASET_DIR/cxg_mouse_pancreas_atlas/train.h5ad \
-#   --output_test $DATASET_DIR/cxg_mouse_pancreas_atlas/test.h5ad \
-#   --output_solution $DATASET_DIR/cxg_mouse_pancreas_atlas/solution.h5ad
+# process dataset
+viash run src/data_processors/process_dataset/config.vsh.yaml -- \
+  --input $RAW_DATA/common_dataset.h5ad \
+  --output_unintegrated $DATASET_DIR/unintegrated.h5ad \
+  --output_unintegrated_censored $DATASET_DIR/unintegrated_censored.h5ad \
+  --output_validation $DATASET_DIR/validation.h5ad \
+  --validation_sample_names "sample1;sample2;sample3"
 
 # # run one method
 # viash run src/methods/logistic_regression/config.vsh.yaml -- \
