@@ -2821,15 +2821,9 @@ meta = [
               "type" : "h5ad",
               "layers" : [
                 {
-                  "type" : "integer",
-                  "name" : "counts",
-                  "description" : "Raw counts",
-                  "required" : true
-                },
-                {
                   "type" : "double",
-                  "name" : "normalized",
-                  "description" : "Normalized expression values",
+                  "name" : "preprocessed",
+                  "description" : "preprocessed data, e.g. already compensated, transformed and debris/doublets removed",
                   "required" : true
                 }
               ],
@@ -2845,27 +2839,55 @@ meta = [
                   "name" : "batch",
                   "description" : "Batch information",
                   "required" : true
+                },
+                {
+                  "type" : "string",
+                  "name" : "sample",
+                  "description" : "Sample ID",
+                  "required" : true
+                },
+                {
+                  "type" : "string",
+                  "name" : "donor",
+                  "description" : "Donor ID",
+                  "required" : true
+                },
+                {
+                  "type" : "string",
+                  "name" : "group",
+                  "description" : "Biological group of the donor",
+                  "required" : true
                 }
               ],
               "var" : [
                 {
-                  "type" : "boolean",
-                  "name" : "hvg",
-                  "description" : "Whether or not the feature is considered to be a 'highly variable gene'",
+                  "type" : "integer",
+                  "name" : "numeric_id",
+                  "description" : "Numeric ID associated with each marker",
                   "required" : true
                 },
                 {
-                  "type" : "double",
-                  "name" : "hvg_score",
-                  "description" : "A ranking of the features by hvg.",
+                  "type" : "string",
+                  "name" : "channel",
+                  "description" : "The channel / detector of the instrument",
                   "required" : true
-                }
-              ],
-              "obsm" : [
+                },
                 {
-                  "type" : "double",
-                  "name" : "X_pca",
-                  "description" : "The resulting PCA embedding.",
+                  "type" : "string",
+                  "name" : "marker",
+                  "description" : "The marker name associated with the channel",
+                  "required" : false
+                },
+                {
+                  "type" : "string",
+                  "name" : "marker_type",
+                  "description" : "Whether the marker is a functional or lineage marker",
+                  "required" : true
+                },
+                {
+                  "type" : "boolean",
+                  "name" : "to_correct",
+                  "description" : "Whether the marker will be batch corrected",
                   "required" : true
                 }
               ],
@@ -2911,18 +2933,12 @@ meta = [
                   "type" : "string",
                   "description" : "The organism of the sample in the dataset.",
                   "required" : false
-                },
-                {
-                  "type" : "string",
-                  "name" : "normalization_id",
-                  "description" : "Which normalization was used",
-                  "required" : true
                 }
               ]
             }
           },
           "example" : [
-            "resources_test/common/cxg_mouse_pancreas_atlas/dataset.h5ad"
+            "resources_test/task_cyto_batch_integration/starter_file/common_dataset.h5ad"
           ],
           "must_exist" : true,
           "create_parent" : true,
@@ -3011,7 +3027,7 @@ meta = [
             }
           },
           "example" : [
-            "resources_test/task_template/cxg_mouse_pancreas_atlas/train.h5ad"
+            "resources_test/task_cyto_batch_integration/cxg_mouse_pancreas_atlas/train.h5ad"
           ],
           "must_exist" : true,
           "create_parent" : true,
@@ -3089,7 +3105,7 @@ meta = [
             }
           },
           "example" : [
-            "resources_test/task_template/cxg_mouse_pancreas_atlas/test.h5ad"
+            "resources_test/task_cyto_batch_integration/cxg_mouse_pancreas_atlas/test.h5ad"
           ],
           "must_exist" : true,
           "create_parent" : true,
@@ -3209,7 +3225,7 @@ meta = [
             }
           },
           "example" : [
-            "resources_test/task_template/cxg_mouse_pancreas_atlas/solution.h5ad"
+            "resources_test/task_cyto_batch_integration/cxg_mouse_pancreas_atlas/solution.h5ad"
           ],
           "must_exist" : true,
           "create_parent" : true,
@@ -3262,7 +3278,7 @@ meta = [
   ],
   "license" : "MIT",
   "links" : {
-    "repository" : "https://github.com/openproblems-bio/task_template",
+    "repository" : "https://github.com/openproblems-bio/task_cyto_batch_integration",
     "docker_registry" : "ghcr.io"
   },
   "runners" : [
@@ -3308,13 +3324,13 @@ meta = [
     "engine" : "native",
     "output" : "target/nextflow/workflows/process_datasets",
     "viash_version" : "0.9.0",
-    "git_commit" : "2f5cf1bfaa73a6df74437398a5a31dcc483b5009",
+    "git_commit" : "d9de3b5bae4e61e5212bc2332ef604a38980b119",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
-    "name" : "task_template",
+    "name" : "task_cyto_batch_integration",
     "version" : "build_main",
-    "label" : "Template",
+    "label" : "Cyto Batch Integration",
     "summary" : "A one sentence summary of purpose and methodology. Used for creating an overview tables.",
     "description" : "Provide a clear and concise description of your task, detailing the specific problem it aims\nto solve. Outline the input data types, the expected output, and any assumptions or constraints.\nBe sure to explain any terminology or concepts that are essential for understanding the task.\n\nExplain the motivation behind your proposed task. Describe the biological or computational \nproblem you aim to address and why it's important. Discuss the current state of research in\nthis area and any gaps or challenges that your task could help address. This section \nshould convince readers of the significance and relevance of your task.\n",
     "info" : {
@@ -3322,13 +3338,8 @@ meta = [
       "test_resources" : [
         {
           "type" : "s3",
-          "path" : "s3://openproblems-data/resources_test/common/",
-          "dest" : "resources_test/common"
-        },
-        {
-          "type" : "s3",
-          "path" : "s3://openproblems-data/resources_test/task_template/",
-          "dest" : "resources_test/task_template"
+          "path" : "s3://openproblems-data/resources_test/task_cyto_batch_integration/",
+          "dest" : "resources_test/task_cyto_batch_integration"
         }
       ]
     },
@@ -3370,15 +3381,10 @@ meta = [
     ],
     "license" : "MIT",
     "organization" : "openproblems-bio",
-    "references" : {
-      "doi" : [
-        "10.21203/rs.3.rs-4181617/v1"
-      ]
-    },
     "links" : {
-      "repository" : "https://github.com/openproblems-bio/task_template",
+      "repository" : "https://github.com/openproblems-bio/task_cyto_batch_integration",
       "docker_registry" : "ghcr.io",
-      "issue_tracker" : "https://github.com/openproblems-bio/task_template/issues"
+      "issue_tracker" : "https://github.com/openproblems-bio/task_cyto_batch_integration/issues"
     }
   }
 }'''))

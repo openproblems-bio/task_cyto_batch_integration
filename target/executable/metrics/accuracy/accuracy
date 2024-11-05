@@ -177,17 +177,17 @@ function ViashHelp {
   echo "    --input_solution"
   echo "        type: file, required parameter, file must exist"
   echo "        example:"
-  echo "resources_test/task_template/cxg_mouse_pancreas_atlas/solution.h5ad"
+  echo "resources_test/task_cyto_batch_integration/cxg_mouse_pancreas_atlas/solution.h5ad"
   echo ""
   echo "    --input_prediction"
   echo "        type: file, required parameter, file must exist"
   echo "        example:"
-  echo "resources_test/task_template/cxg_mouse_pancreas_atlas/prediction.h5ad"
+  echo "resources_test/task_cyto_batch_integration/cxg_mouse_pancreas_atlas/prediction.h5ad"
   echo ""
   echo "    --output"
   echo "        type: file, required parameter, output, file must exist"
   echo "        example:"
-  echo "resources_test/task_template/cxg_mouse_pancreas_atlas/score.h5ad"
+  echo "resources_test/task_cyto_batch_integration/cxg_mouse_pancreas_atlas/score.h5ad"
 }
 
 # initialise variables
@@ -469,9 +469,9 @@ RUN pip install --upgrade pip && \
   pip install --upgrade --no-cache-dir "scikit-learn"
 
 LABEL org.opencontainers.image.description="Companion container for running component metrics accuracy"
-LABEL org.opencontainers.image.created="2024-11-05T08:47:20Z"
-LABEL org.opencontainers.image.source="https://github.com/openproblems-bio/task_template"
-LABEL org.opencontainers.image.revision="2f5cf1bfaa73a6df74437398a5a31dcc483b5009"
+LABEL org.opencontainers.image.created="2024-11-05T09:42:12Z"
+LABEL org.opencontainers.image.source="https://github.com/openproblems-bio/task_cyto_batch_integration"
+LABEL org.opencontainers.image.revision="d9de3b5bae4e61e5212bc2332ef604a38980b119"
 LABEL org.opencontainers.image.version="build_main"
 
 VIASHDOCKER
@@ -730,7 +730,7 @@ if [[ "$VIASH_ENGINE_TYPE" == "docker" ]]; then
 
   # determine docker image id
   if [[ "$VIASH_ENGINE_ID" == 'docker' ]]; then
-    VIASH_DOCKER_IMAGE_ID='ghcr.io/openproblems-bio/task_template/metrics/accuracy:build_main'
+    VIASH_DOCKER_IMAGE_ID='ghcr.io/openproblems-bio/task_cyto_batch_integration/metrics/accuracy:build_main'
   fi
 
   # print dockerfile

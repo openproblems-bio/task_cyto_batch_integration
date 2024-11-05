@@ -1,6 +1,6 @@
 #TODO: Change to the required and/or optional fields of the anndata
 type: file
-example: "resources_test/task_template/cxg_mouse_pancreas_atlas/train.h5ad"
+example: "resources_test/task_cyto_batch_integration/cxg_mouse_pancreas_atlas/train.h5ad"
 label: "Training data"
 summary: "The training data in h5ad format"
 info:

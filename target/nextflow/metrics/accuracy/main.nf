@@ -2922,7 +2922,7 @@ meta = [
             }
           },
           "example" : [
-            "resources_test/task_template/cxg_mouse_pancreas_atlas/solution.h5ad"
+            "resources_test/task_cyto_batch_integration/cxg_mouse_pancreas_atlas/solution.h5ad"
           ],
           "must_exist" : true,
           "create_parent" : true,
@@ -2970,7 +2970,7 @@ meta = [
             }
           },
           "example" : [
-            "resources_test/task_template/cxg_mouse_pancreas_atlas/prediction.h5ad"
+            "resources_test/task_cyto_batch_integration/cxg_mouse_pancreas_atlas/prediction.h5ad"
           ],
           "must_exist" : true,
           "create_parent" : true,
@@ -3024,7 +3024,7 @@ meta = [
             }
           },
           "example" : [
-            "resources_test/task_template/cxg_mouse_pancreas_atlas/score.h5ad"
+            "resources_test/task_cyto_batch_integration/cxg_mouse_pancreas_atlas/score.h5ad"
           ],
           "must_exist" : true,
           "create_parent" : true,
@@ -3041,23 +3041,6 @@ meta = [
       "type" : "python_script",
       "path" : "script.py",
       "is_executable" : true
-    }
-  ],
-  "test_resources" : [
-    {
-      "type" : "python_script",
-      "path" : "/common/component_tests/run_and_check_output.py",
-      "is_executable" : true
-    },
-    {
-      "type" : "python_script",
-      "path" : "/common/component_tests/check_config.py",
-      "is_executable" : true
-    },
-    {
-      "type" : "file",
-      "path" : "/resources_test/task_template/cxg_mouse_pancreas_atlas",
-      "dest" : "resources_test/task_template/cxg_mouse_pancreas_atlas"
     }
   ],
   "info" : {
@@ -3094,7 +3077,7 @@ meta = [
   ],
   "license" : "MIT",
   "links" : {
-    "repository" : "https://github.com/openproblems-bio/task_template",
+    "repository" : "https://github.com/openproblems-bio/task_cyto_batch_integration",
     "docker_registry" : "ghcr.io"
   },
   "runners" : [
@@ -3162,13 +3145,13 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/metrics/accuracy",
     "viash_version" : "0.9.0",
-    "git_commit" : "2f5cf1bfaa73a6df74437398a5a31dcc483b5009",
+    "git_commit" : "d9de3b5bae4e61e5212bc2332ef604a38980b119",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
-    "name" : "task_template",
+    "name" : "task_cyto_batch_integration",
     "version" : "build_main",
-    "label" : "Template",
+    "label" : "Cyto Batch Integration",
     "summary" : "A one sentence summary of purpose and methodology. Used for creating an overview tables.",
     "description" : "Provide a clear and concise description of your task, detailing the specific problem it aims\nto solve. Outline the input data types, the expected output, and any assumptions or constraints.\nBe sure to explain any terminology or concepts that are essential for understanding the task.\n\nExplain the motivation behind your proposed task. Describe the biological or computational \nproblem you aim to address and why it's important. Discuss the current state of research in\nthis area and any gaps or challenges that your task could help address. This section \nshould convince readers of the significance and relevance of your task.\n",
     "info" : {
@@ -3176,13 +3159,8 @@ meta = [
       "test_resources" : [
         {
           "type" : "s3",
-          "path" : "s3://openproblems-data/resources_test/common/",
-          "dest" : "resources_test/common"
-        },
-        {
-          "type" : "s3",
-          "path" : "s3://openproblems-data/resources_test/task_template/",
-          "dest" : "resources_test/task_template"
+          "path" : "s3://openproblems-data/resources_test/task_cyto_batch_integration/",
+          "dest" : "resources_test/task_cyto_batch_integration"
         }
       ]
     },
@@ -3224,15 +3202,10 @@ meta = [
     ],
     "license" : "MIT",
     "organization" : "openproblems-bio",
-    "references" : {
-      "doi" : [
-        "10.21203/rs.3.rs-4181617/v1"
-      ]
-    },
     "links" : {
-      "repository" : "https://github.com/openproblems-bio/task_template",
+      "repository" : "https://github.com/openproblems-bio/task_cyto_batch_integration",
       "docker_registry" : "ghcr.io",
-      "issue_tracker" : "https://github.com/openproblems-bio/task_template/issues"
+      "issue_tracker" : "https://github.com/openproblems-bio/task_cyto_batch_integration/issues"
     }
   }
 }'''))
@@ -3674,7 +3647,7 @@ meta["defaults"] = [
   directives: readJsonBlob('''{
   "container" : {
     "registry" : "ghcr.io",
-    "image" : "openproblems-bio/task_template/metrics/accuracy",
+    "image" : "openproblems-bio/task_cyto_batch_integration/metrics/accuracy",
     "tag" : "build_main"
   },
   "label" : [

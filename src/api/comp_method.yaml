@@ -19,10 +19,10 @@ arguments:
     __merge__: file_prediction.yaml
     required: true
     direction: output
-test_resources:
-  - type: python_script
-    path: /common/component_tests/run_and_check_output.py
-  - type: python_script
-    path: /common/component_tests/check_config.py
-  - path: /resources_test/task_template/cxg_mouse_pancreas_atlas
-    dest: resources_test/task_template/cxg_mouse_pancreas_atlas
+# test_resources:
+#   - type: python_script
+#     path: /common/component_tests/run_and_check_output.py
+#   - type: python_script
+#     path: /common/component_tests/check_config.py
+#   - path: /resources_test/task_cyto_batch_integration/cxg_mouse_pancreas_atlas
+#     dest: resources_test/task_cyto_batch_integration/cxg_mouse_pancreas_atlas

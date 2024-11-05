@@ -13,41 +13,58 @@ cd "$REPO_ROOT"
 
 set -e
 
-RAW_DATA=resources_test/common
-DATASET_DIR=resources_test/task_template
+DATASET_DIR=resources_test/task_cyto_batch_integration/starter_file
 
 mkdir -p $DATASET_DIR
 
-# process dataset
-viash run src/data_processors/process_dataset/config.vsh.yaml -- \
-  --input $RAW_DATA/cxg_mouse_pancreas_atlas/dataset.h5ad \
-  --output_train $DATASET_DIR/cxg_mouse_pancreas_atlas/train.h5ad \
-  --output_test $DATASET_DIR/cxg_mouse_pancreas_atlas/test.h5ad \
-  --output_solution $DATASET_DIR/cxg_mouse_pancreas_atlas/solution.h5ad
+wget https://zenodo.org/records/13928969/files/ID1_Panel1_TP1.fcs?download=1 \
+  -O $DATASET_DIR/ID1_Panel1_TP1.fcs
 
-# run one method
-viash run src/methods/logistic_regression/config.vsh.yaml -- \
-    --input_train $DATASET_DIR/cxg_mouse_pancreas_atlas/train.h5ad \
-    --input_test $DATASET_DIR/cxg_mouse_pancreas_atlas/test.h5ad \
-    --output $DATASET_DIR/cxg_mouse_pancreas_atlas/prediction.h5ad
+python << HERE
+import readfcs
 
-# run one metric
-viash run src/metrics/accuracy/config.vsh.yaml -- \
-    --input_prediction $DATASET_DIR/cxg_mouse_pancreas_atlas/prediction.h5ad \
-    --input_solution $DATASET_DIR/cxg_mouse_pancreas_atlas/solution.h5ad \
-    --output $DATASET_DIR/cxg_mouse_pancreas_atlas/score.h5ad
+ad = readfcs.read("$DATASET_DIR/ID1_Panel1_TP1.fcs")
+ad.layers["transformed"] = ad.X
+del ad.X
 
-# write manual state.yaml. this is not actually necessary but you never know it might be useful
-cat > $DATASET_DIR/cxg_mouse_pancreas_atlas/state.yaml << HERE
-id: cxg_mouse_pancreas_atlas
-train: !file train.h5ad
-test: !file test.h5ad
-solution: !file solution.h5ad
-prediction: !file prediction.h5ad
-score: !file score.h5ad
+# todo: add other preprocessing steps to make sure the dataset is a common dataset
+
+ad.write_h5ad("$DATASET_DIR/common_dataset.h5ad")
 HERE
 
-# only run this if you have access to the openproblems-data bucket
-aws s3 sync --profile op \
-  "$DATASET_DIR" s3://openproblems-data/resources_test/task_template \
-  --delete --dryrun
+
+
+
+# # process dataset
+# viash run src/data_processors/process_dataset/config.vsh.yaml -- \
+#   --input $RAW_DATA/cxg_mouse_pancreas_atlas/dataset.h5ad \
+#   --output_train $DATASET_DIR/cxg_mouse_pancreas_atlas/train.h5ad \
+#   --output_test $DATASET_DIR/cxg_mouse_pancreas_atlas/test.h5ad \
+#   --output_solution $DATASET_DIR/cxg_mouse_pancreas_atlas/solution.h5ad
+
+# # run one method
+# viash run src/methods/logistic_regression/config.vsh.yaml -- \
+#     --input_train $DATASET_DIR/cxg_mouse_pancreas_atlas/train.h5ad \
+#     --input_test $DATASET_DIR/cxg_mouse_pancreas_atlas/test.h5ad \
+#     --output $DATASET_DIR/cxg_mouse_pancreas_atlas/prediction.h5ad
+
+# # run one metric
+# viash run src/metrics/accuracy/config.vsh.yaml -- \
+#     --input_prediction $DATASET_DIR/cxg_mouse_pancreas_atlas/prediction.h5ad \
+#     --input_solution $DATASET_DIR/cxg_mouse_pancreas_atlas/solution.h5ad \
+#     --output $DATASET_DIR/cxg_mouse_pancreas_atlas/score.h5ad
+
+# # write manual state.yaml. this is not actually necessary but you never know it might be useful
+# cat > $DATASET_DIR/cxg_mouse_pancreas_atlas/state.yaml << HERE
+# id: cxg_mouse_pancreas_atlas
+# train: !file train.h5ad
+# test: !file test.h5ad
+# solution: !file solution.h5ad
+# prediction: !file prediction.h5ad
+# score: !file score.h5ad
+# HERE
+
+# # only run this if you have access to the openproblems-data bucket
+# aws s3 sync --profile op \
+#   "$DATASET_DIR" s3://openproblems-data/resources_test/task_cyto_batch_integration \
+#   --delete --dryrun

@@ -176,21 +176,23 @@ function ViashHelp {
   echo "Arguments:"
   echo "    --input"
   echo "        type: file, required parameter, file must exist"
-  echo "        example: resources_test/common/cxg_mouse_pancreas_atlas/dataset.h5ad"
+  echo "        example:"
+  echo "resources_test/task_cyto_batch_integration/starter_file/common_dataset.h5ad"
   echo ""
   echo "    --output_train"
   echo "        type: file, required parameter, output, file must exist"
   echo "        example:"
-  echo "resources_test/task_template/cxg_mouse_pancreas_atlas/train.h5ad"
+  echo "resources_test/task_cyto_batch_integration/cxg_mouse_pancreas_atlas/train.h5ad"
   echo ""
   echo "    --output_test"
   echo "        type: file, required parameter, output, file must exist"
-  echo "        example: resources_test/task_template/cxg_mouse_pancreas_atlas/test.h5ad"
+  echo "        example:"
+  echo "resources_test/task_cyto_batch_integration/cxg_mouse_pancreas_atlas/test.h5ad"
   echo ""
   echo "    --output_solution"
   echo "        type: file, required parameter, output, file must exist"
   echo "        example:"
-  echo "resources_test/task_template/cxg_mouse_pancreas_atlas/solution.h5ad"
+  echo "resources_test/task_cyto_batch_integration/cxg_mouse_pancreas_atlas/solution.h5ad"
   echo ""
   echo "    --method"
   echo "        type: string"
@@ -490,9 +492,9 @@ function ViashDockerfile {
 FROM openproblems/base_python:1.0.0
 ENTRYPOINT []
 LABEL org.opencontainers.image.description="Companion container for running component data_processors process_dataset"
-LABEL org.opencontainers.image.created="2024-11-05T08:47:21Z"
-LABEL org.opencontainers.image.source="https://github.com/openproblems-bio/task_template"
-LABEL org.opencontainers.image.revision="2f5cf1bfaa73a6df74437398a5a31dcc483b5009"
+LABEL org.opencontainers.image.created="2024-11-05T09:42:13Z"
+LABEL org.opencontainers.image.source="https://github.com/openproblems-bio/task_cyto_batch_integration"
+LABEL org.opencontainers.image.revision="d9de3b5bae4e61e5212bc2332ef604a38980b119"
 LABEL org.opencontainers.image.version="build_main"
 
 VIASHDOCKER
@@ -806,7 +808,7 @@ if [[ "$VIASH_ENGINE_TYPE" == "docker" ]]; then
 
   # determine docker image id
   if [[ "$VIASH_ENGINE_ID" == 'docker' ]]; then
-    VIASH_DOCKER_IMAGE_ID='ghcr.io/openproblems-bio/task_template/data_processors/process_dataset:build_main'
+    VIASH_DOCKER_IMAGE_ID='ghcr.io/openproblems-bio/task_cyto_batch_integration/data_processors/process_dataset:build_main'
   fi
 
   # print dockerfile
