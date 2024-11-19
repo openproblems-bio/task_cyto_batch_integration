@@ -1,21 +1,20 @@
 name: run_benchmark
 namespace: workflows
-
 argument_groups:
   - name: Inputs
     arguments:
-      - name: "--input_train"
-        __merge__: /src/api/file_train.yaml
+      - name: "--input_unintegrated_censored"
+        __merge__: /src/api/file_unintegrated_censored.yaml
         type: file
         direction: input
         required: true
-      - name: "--input_test"
-        __merge__: /src/api/file_test.yaml
+      - name: "--input_unintegrated"
+        __merge__: /src/api/file_unintegrated.yaml
         type: file
         direction: input
         required: true
-      - name: "--input_solution"
-        __merge__: /src/api/file_solution.yaml
+      - name: "--input_validation"
+        __merge__: /src/api/file_validation.yaml
         type: file
         direction: input
         required: true

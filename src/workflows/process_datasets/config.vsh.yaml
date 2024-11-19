@@ -6,22 +6,22 @@ argument_groups:
     arguments:
       - name: "--input"
         __merge__: /src/api/file_common_dataset.yaml
-        required: true
         direction: input
+        required: true
   - name: Outputs
     arguments:
-      - name: "--output_train"
-        __merge__: /src/api/file_train.yaml
-        required: true
+      - name: "--output_unintegrated_censored"
+        __merge__: /src/api/file_unintegrated_censored.yaml
         direction: output
-      - name: "--output_test"
-        __merge__: /src/api/file_test.yaml
         required: true
+      - name: "--output_unintegrated"
+        __merge__: /src/api/file_unintegrated.yaml
         direction: output
-      - name: "--output_solution"
-        __merge__: /src/api/file_solution.yaml
         required: true
+      - name: "--output_validation"
+        __merge__: /src/api/file_validation.yaml
         direction: output
+        required: true
 
 resources:
   - type: nextflow_script
