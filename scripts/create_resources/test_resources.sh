@@ -109,6 +109,6 @@ viash run src/data_processors/process_dataset/config.vsh.yaml -- \
 # HERE
 
 # # only run this if you have access to the openproblems-data bucket
-# aws s3 sync --profile op \
-#   "$DATASET_DIR" s3://openproblems-data/resources_test/task_cyto_batch_integration \
-#   --delete --dryrun
+aws s3 sync --profile op \
+  "$DATASET_DIR" s3://openproblems-data/resources_test/task_cyto_batch_integration \
+  --delete --dryrun

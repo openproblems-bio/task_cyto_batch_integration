@@ -1,5 +1,5 @@
 type: file
-example: "resources_test/task_cyto_batch_integration/cxg_mouse_pancreas_atlas/solution.h5ad"
+example: "resources_test/task_cyto_batch_integration/starter_file/validation.h5ad"
 label: Validation
 summary: Hold-out dataset for validation. 
 description: |
