@@ -1,5 +1,6 @@
 name: run_benchmark
 namespace: workflows
+status: disabled
 argument_groups:
   - name: Inputs
     arguments:
@@ -63,9 +64,9 @@ resources:
 dependencies:
   - name: h5ad/extract_uns_metadata
     repository: core
-  - name: control_methods/true_labels
-  - name: methods/logistic_regression
-  - name: metrics/accuracy
+  # - name: control_methods/true_labels
+  # - name: methods/logistic_regression
+  # - name: metrics/accuracy
 
 runners:
   - type: nextflow
