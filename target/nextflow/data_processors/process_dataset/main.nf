@@ -2949,107 +2949,17 @@ meta = [
         },
         {
           "type" : "file",
-          "name" : "--output_train",
-          "label" : "Training data",
-          "summary" : "The training data in h5ad format",
+          "name" : "--output_unintegrated_censored",
+          "label" : "Unintegrated Censored",
+          "summary" : "Unintegrated dataset",
           "info" : {
             "format" : {
               "type" : "h5ad",
               "layers" : [
                 {
-                  "type" : "integer",
-                  "name" : "counts",
-                  "description" : "Raw counts",
-                  "required" : true
-                },
-                {
                   "type" : "double",
-                  "name" : "normalized",
-                  "description" : "Normalized counts",
-                  "required" : true
-                }
-              ],
-              "obs" : [
-                {
-                  "type" : "string",
-                  "name" : "label",
-                  "description" : "Ground truth cell type labels",
-                  "required" : true
-                },
-                {
-                  "type" : "string",
-                  "name" : "batch",
-                  "description" : "Batch information",
-                  "required" : true
-                }
-              ],
-              "var" : [
-                {
-                  "type" : "boolean",
-                  "name" : "hvg",
-                  "description" : "Whether or not the feature is considered to be a 'highly variable gene'",
-                  "required" : true
-                },
-                {
-                  "type" : "double",
-                  "name" : "hvg_score",
-                  "description" : "A ranking of the features by hvg.",
-                  "required" : true
-                }
-              ],
-              "obsm" : [
-                {
-                  "type" : "double",
-                  "name" : "X_pca",
-                  "description" : "The resulting PCA embedding.",
-                  "required" : true
-                }
-              ],
-              "uns" : [
-                {
-                  "type" : "string",
-                  "name" : "dataset_id",
-                  "description" : "A unique identifier for the dataset",
-                  "required" : true
-                },
-                {
-                  "type" : "string",
-                  "name" : "normalization_id",
-                  "description" : "Which normalization was used",
-                  "required" : true
-                }
-              ]
-            }
-          },
-          "example" : [
-            "resources_test/task_cyto_batch_integration/cxg_mouse_pancreas_atlas/train.h5ad"
-          ],
-          "must_exist" : true,
-          "create_parent" : true,
-          "required" : true,
-          "direction" : "output",
-          "multiple" : false,
-          "multiple_sep" : ";"
-        },
-        {
-          "type" : "file",
-          "name" : "--output_test",
-          "label" : "Test data",
-          "summary" : "The subset of molecules used for the test dataset",
-          "info" : {
-            "format" : {
-              "type" : "h5ad",
-              "layers" : [
-                {
-                  "type" : "integer",
-                  "name" : "counts",
-                  "description" : "Raw counts",
-                  "required" : true
-                },
-                {
-                  "type" : "double",
-                  "name" : "normalized",
-                  "description" : "Normalized counts",
+                  "name" : "preprocessed",
+                  "description" : "preprocessed data, e.g. already compensated, transformed and debris/doublets removed",
                   "required" : true
                 }
               ],
@@ -3059,111 +2969,49 @@ meta = [
                   "name" : "batch",
                   "description" : "Batch information",
                   "required" : true
+                },
+                {
+                  "type" : "string",
+                  "name" : "sample",
+                  "description" : "Sample ID",
+                  "required" : true
+                },
+                {
+                  "type" : "string",
+                  "name" : "donor",
+                  "description" : "Donor ID",
+                  "required" : false
                 }
               ],
               "var" : [
-                {
-                  "type" : "boolean",
-                  "name" : "hvg",
-                  "description" : "Whether or not the feature is considered to be a 'highly variable gene'",
-                  "required" : true
-                },
-                {
-                  "type" : "double",
-                  "name" : "hvg_score",
-                  "description" : "A ranking of the features by hvg.",
-                  "required" : true
-                }
-              ],
-              "obsm" : [
-                {
-                  "type" : "double",
-                  "name" : "X_pca",
-                  "description" : "The resulting PCA embedding.",
-                  "required" : true
-                }
-              ],
-              "uns" : [
-                {
-                  "type" : "string",
-                  "name" : "dataset_id",
-                  "description" : "A unique identifier for the dataset",
-                  "required" : true
-                },
-                {
-                  "type" : "string",
-                  "name" : "normalization_id",
-                  "description" : "Which normalization was used",
-                  "required" : true
-                }
-              ]
-            }
-          },
-          "example" : [
-            "resources_test/task_cyto_batch_integration/cxg_mouse_pancreas_atlas/test.h5ad"
-          ],
-          "must_exist" : true,
-          "create_parent" : true,
-          "required" : true,
-          "direction" : "output",
-          "multiple" : false,
-          "multiple_sep" : ";"
-        },
-        {
-          "type" : "file",
-          "name" : "--output_solution",
-          "label" : "Solution",
-          "summary" : "The solution for the test data",
-          "info" : {
-            "format" : {
-              "type" : "h5ad",
-              "layers" : [
                 {
                   "type" : "integer",
-                  "name" : "counts",
-                  "description" : "Raw counts",
-                  "required" : true
-                },
-                {
-                  "type" : "double",
-                  "name" : "normalized",
-                  "description" : "Normalized counts",
-                  "required" : true
-                }
-              ],
-              "obs" : [
-                {
-                  "type" : "string",
-                  "name" : "label",
-                  "description" : "Ground truth cell type labels",
+                  "name" : "numeric_id",
+                  "description" : "Numeric ID associated with each marker",
                   "required" : true
                 },
                 {
                   "type" : "string",
-                  "name" : "batch",
-                  "description" : "Batch information",
+                  "name" : "channel",
+                  "description" : "The channel / detector of the instrument",
                   "required" : true
-                }
-              ],
-              "var" : [
+                },
+                {
+                  "type" : "string",
+                  "name" : "marker",
+                  "description" : "The marker name associated with the channel",
+                  "required" : false
+                },
+                {
+                  "type" : "string",
+                  "name" : "marker_type",
+                  "description" : "Whether the marker is a functional or lineage marker",
+                  "required" : true
+                },
                 {
                   "type" : "boolean",
-                  "name" : "hvg",
-                  "description" : "Whether or not the feature is considered to be a 'highly variable gene'",
-                  "required" : true
-                },
-                {
-                  "type" : "double",
-                  "name" : "hvg_score",
-                  "description" : "A ranking of the features by hvg.",
-                  "required" : true
-                }
-              ],
-              "obsm" : [
-                {
-                  "type" : "double",
-                  "name" : "X_pca",
-                  "description" : "The resulting PCA embedding.",
+                  "name" : "to_correct",
+                  "description" : "Whether the marker will be batch corrected",
                   "required" : true
                 }
               ],
@@ -3209,18 +3057,285 @@ meta = [
                   "type" : "string",
                   "description" : "The organism of the sample in the dataset.",
                   "required" : false
-                },
-                {
-                  "type" : "string",
-                  "name" : "normalization_id",
-                  "description" : "Which normalization was used",
-                  "required" : true
                 }
               ]
             }
           },
           "example" : [
-            "resources_test/task_cyto_batch_integration/cxg_mouse_pancreas_atlas/solution.h5ad"
+            "resources_test/task_cyto_batch_integration/starter_file/unintegrated_censored.h5ad"
+          ],
+          "must_exist" : true,
+          "create_parent" : true,
+          "required" : true,
+          "direction" : "output",
+          "multiple" : false,
+          "multiple_sep" : ";"
+        },
+        {
+          "type" : "file",
+          "name" : "--output_unintegrated",
+          "label" : "Unintegrated",
+          "summary" : "Unintegrated dataset",
+          "info" : {
+            "format" : {
+              "type" : "h5ad",
+              "layers" : [
+                {
+                  "type" : "double",
+                  "name" : "preprocessed",
+                  "description" : "preprocessed data, e.g. already compensated, transformed and debris/doublets removed",
+                  "required" : true
+                }
+              ],
+              "obs" : [
+                {
+                  "type" : "string",
+                  "name" : "cell_type",
+                  "description" : "Cell type information",
+                  "required" : true
+                },
+                {
+                  "type" : "string",
+                  "name" : "batch",
+                  "description" : "Batch information",
+                  "required" : true
+                },
+                {
+                  "type" : "string",
+                  "name" : "sample",
+                  "description" : "Sample ID",
+                  "required" : true
+                },
+                {
+                  "type" : "string",
+                  "name" : "donor",
+                  "description" : "Donor ID",
+                  "required" : true
+                },
+                {
+                  "type" : "string",
+                  "name" : "group",
+                  "description" : "Biological group of the donor",
+                  "required" : true
+                }
+              ],
+              "var" : [
+                {
+                  "type" : "integer",
+                  "name" : "numeric_id",
+                  "description" : "Numeric ID associated with each marker",
+                  "required" : true
+                },
+                {
+                  "type" : "string",
+                  "name" : "channel",
+                  "description" : "The channel / detector of the instrument",
+                  "required" : true
+                },
+                {
+                  "type" : "string",
+                  "name" : "marker",
+                  "description" : "The marker name associated with the channel",
+                  "required" : false
+                },
+                {
+                  "type" : "string",
+                  "name" : "marker_type",
+                  "description" : "Whether the marker is a functional or lineage marker",
+                  "required" : true
+                },
+                {
+                  "type" : "boolean",
+                  "name" : "to_correct",
+                  "description" : "Whether the marker will be batch corrected",
+                  "required" : true
+                }
+              ],
+              "uns" : [
+                {
+                  "type" : "string",
+                  "name" : "dataset_id",
+                  "description" : "A unique identifier for the dataset",
+                  "required" : true
+                },
+                {
+                  "name" : "dataset_name",
+                  "type" : "string",
+                  "description" : "Nicely formatted name.",
+                  "required" : true
+                },
+                {
+                  "type" : "string",
+                  "name" : "dataset_url",
+                  "description" : "Link to the original source of the dataset.",
+                  "required" : false
+                },
+                {
+                  "name" : "dataset_reference",
+                  "type" : "string",
+                  "description" : "Bibtex reference of the paper in which the dataset was published.",
+                  "required" : false
+                },
+                {
+                  "name" : "dataset_summary",
+                  "type" : "string",
+                  "description" : "Short description of the dataset.",
+                  "required" : true
+                },
+                {
+                  "name" : "dataset_description",
+                  "type" : "string",
+                  "description" : "Long description of the dataset.",
+                  "required" : true
+                },
+                {
+                  "name" : "dataset_organism",
+                  "type" : "string",
+                  "description" : "The organism of the sample in the dataset.",
+                  "required" : false
+                }
+              ]
+            }
+          },
+          "example" : [
+            "resources_test/task_cyto_batch_integration/starter_file/unintegrated.h5ad"
+          ],
+          "must_exist" : true,
+          "create_parent" : true,
+          "required" : true,
+          "direction" : "output",
+          "multiple" : false,
+          "multiple_sep" : ";"
+        },
+        {
+          "type" : "file",
+          "name" : "--output_validation",
+          "label" : "Validation",
+          "summary" : "Hold-out dataset for validation.",
+          "description" : "Samples that were held out and will later be used only to assess whether\nthe batch integration was successful. E.g. if a donor from batch 2 was corrected towards batch 1,\nbut also actually measured in batch 1 (without being used as input to the algorithm).\n",
+          "info" : {
+            "format" : {
+              "type" : "h5ad",
+              "layers" : [
+                {
+                  "type" : "double",
+                  "name" : "preprocessed",
+                  "description" : "preprocessed data, e.g. already compensated, transformed and debris/doublets removed",
+                  "required" : true
+                }
+              ],
+              "obs" : [
+                {
+                  "type" : "string",
+                  "name" : "cell_type",
+                  "description" : "Cell type information",
+                  "required" : true
+                },
+                {
+                  "type" : "string",
+                  "name" : "batch",
+                  "description" : "Batch information",
+                  "required" : true
+                },
+                {
+                  "type" : "string",
+                  "name" : "sample",
+                  "description" : "Sample ID",
+                  "required" : true
+                },
+                {
+                  "type" : "string",
+                  "name" : "donor",
+                  "description" : "Donor ID",
+                  "required" : true
+                },
+                {
+                  "type" : "string",
+                  "name" : "group",
+                  "description" : "Biological group of the donor",
+                  "required" : true
+                }
+              ],
+              "var" : [
+                {
+                  "type" : "integer",
+                  "name" : "numeric_id",
+                  "description" : "Numeric ID associated with each marker",
+                  "required" : true
+                },
+                {
+                  "type" : "string",
+                  "name" : "channel",
+                  "description" : "The channel / detector of the instrument",
+                  "required" : true
+                },
+                {
+                  "type" : "string",
+                  "name" : "marker",
+                  "description" : "The marker name associated with the channel",
+                  "required" : false
+                },
+                {
+                  "type" : "string",
+                  "name" : "marker_type",
+                  "description" : "Whether the marker is a functional or lineage marker",
+                  "required" : true
+                },
+                {
+                  "type" : "boolean",
+                  "name" : "to_correct",
+                  "description" : "Whether the marker will be batch corrected",
+                  "required" : true
+                }
+              ],
+              "uns" : [
+                {
+                  "type" : "string",
+                  "name" : "dataset_id",
+                  "description" : "A unique identifier for the dataset",
+                  "required" : true
+                },
+                {
+                  "name" : "dataset_name",
+                  "type" : "string",
+                  "description" : "Nicely formatted name.",
+                  "required" : true
+                },
+                {
+                  "type" : "string",
+                  "name" : "dataset_url",
+                  "description" : "Link to the original source of the dataset.",
+                  "required" : false
+                },
+                {
+                  "name" : "dataset_reference",
+                  "type" : "string",
+                  "description" : "Bibtex reference of the paper in which the dataset was published.",
+                  "required" : false
+                },
+                {
+                  "name" : "dataset_summary",
+                  "type" : "string",
+                  "description" : "Short description of the dataset.",
+                  "required" : true
+                },
+                {
+                  "name" : "dataset_description",
+                  "type" : "string",
+                  "description" : "Long description of the dataset.",
+                  "required" : true
+                },
+                {
+                  "name" : "dataset_organism",
+                  "type" : "string",
+                  "description" : "The organism of the sample in the dataset.",
+                  "required" : false
+                }
+              ]
+            }
+          },
+          "example" : [
+            "resources_test/task_cyto_batch_integration/starter_file/validation.h5ad"
           ],
           "must_exist" : true,
           "create_parent" : true,
@@ -3231,54 +3346,11 @@ meta = [
         },
         {
           "type" : "string",
-          "name" : "--method",
+          "name" : "--validation_sample_names",
           "description" : "The process method to assign train/test.",
-          "default" : [
-            "batch"
-          ],
-          "required" : false,
-          "choices" : [
-            "batch",
-            "random"
-          ],
-          "direction" : "input",
-          "multiple" : false,
-          "multiple_sep" : ";"
-        },
-        {
-          "type" : "string",
-          "name" : "--obs_label",
-          "description" : "Which .obs slot to use as label.",
-          "default" : [
-            "cell_type"
-          ],
           "required" : false,
           "direction" : "input",
-          "multiple" : false,
-          "multiple_sep" : ";"
-        },
-        {
-          "type" : "string",
-          "name" : "--obs_batch",
-          "description" : "Which .obs slot to use as batch covariate.",
-          "default" : [
-            "batch"
-          ],
-          "required" : false,
-          "direction" : "input",
-          "multiple" : false,
-          "multiple_sep" : ";"
-        },
-        {
-          "type" : "integer",
-          "name" : "--seed",
-          "description" : "A seed for the subsampling.",
-          "example" : [
-            123
-          ],
-          "required" : false,
-          "direction" : "input",
-          "multiple" : false,
+          "multiple" : true,
           "multiple_sep" : ";"
         }
       ]
@@ -3373,7 +3445,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/data_processors/process_dataset",
     "viash_version" : "0.9.0",
-    "git_commit" : "d9de3b5bae4e61e5212bc2332ef604a38980b119",
+    "git_commit" : "0f077b130c1c129309f7c85bfa02779dcd00aee2",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3449,8 +3521,6 @@ def innerWorkflowFactory(args) {
 tempscript=".viash_script.sh"
 cat > "$tempscript" << VIASHMAIN
 import sys
-import random
-import numpy as np
 import anndata as ad
 import openproblems as op
 
@@ -3458,13 +3528,10 @@ import openproblems as op
 # The following code has been auto-generated by Viash.
 par = {
   'input': $( if [ ! -z ${VIASH_PAR_INPUT+x} ]; then echo "r'${VIASH_PAR_INPUT//\\'/\\'\\"\\'\\"r\\'}'"; else echo None; fi ),
-  'output_train': $( if [ ! -z ${VIASH_PAR_OUTPUT_TRAIN+x} ]; then echo "r'${VIASH_PAR_OUTPUT_TRAIN//\\'/\\'\\"\\'\\"r\\'}'"; else echo None; fi ),
-  'output_test': $( if [ ! -z ${VIASH_PAR_OUTPUT_TEST+x} ]; then echo "r'${VIASH_PAR_OUTPUT_TEST//\\'/\\'\\"\\'\\"r\\'}'"; else echo None; fi ),
-  'output_solution': $( if [ ! -z ${VIASH_PAR_OUTPUT_SOLUTION+x} ]; then echo "r'${VIASH_PAR_OUTPUT_SOLUTION//\\'/\\'\\"\\'\\"r\\'}'"; else echo None; fi ),
-  'method': $( if [ ! -z ${VIASH_PAR_METHOD+x} ]; then echo "r'${VIASH_PAR_METHOD//\\'/\\'\\"\\'\\"r\\'}'"; else echo None; fi ),
-  'obs_label': $( if [ ! -z ${VIASH_PAR_OBS_LABEL+x} ]; then echo "r'${VIASH_PAR_OBS_LABEL//\\'/\\'\\"\\'\\"r\\'}'"; else echo None; fi ),
-  'obs_batch': $( if [ ! -z ${VIASH_PAR_OBS_BATCH+x} ]; then echo "r'${VIASH_PAR_OBS_BATCH//\\'/\\'\\"\\'\\"r\\'}'"; else echo None; fi ),
-  'seed': $( if [ ! -z ${VIASH_PAR_SEED+x} ]; then echo "int(r'${VIASH_PAR_SEED//\\'/\\'\\"\\'\\"r\\'}')"; else echo None; fi )
+  'output_unintegrated_censored': $( if [ ! -z ${VIASH_PAR_OUTPUT_UNINTEGRATED_CENSORED+x} ]; then echo "r'${VIASH_PAR_OUTPUT_UNINTEGRATED_CENSORED//\\'/\\'\\"\\'\\"r\\'}'"; else echo None; fi ),
+  'output_unintegrated': $( if [ ! -z ${VIASH_PAR_OUTPUT_UNINTEGRATED+x} ]; then echo "r'${VIASH_PAR_OUTPUT_UNINTEGRATED//\\'/\\'\\"\\'\\"r\\'}'"; else echo None; fi ),
+  'output_validation': $( if [ ! -z ${VIASH_PAR_OUTPUT_VALIDATION+x} ]; then echo "r'${VIASH_PAR_OUTPUT_VALIDATION//\\'/\\'\\"\\'\\"r\\'}'"; else echo None; fi ),
+  'validation_sample_names': $( if [ ! -z ${VIASH_PAR_VALIDATION_SAMPLE_NAMES+x} ]; then echo "r'${VIASH_PAR_VALIDATION_SAMPLE_NAMES//\\'/\\'\\"\\'\\"r\\'}'.split(';')"; else echo None; fi )
 }
 meta = {
   'name': $( if [ ! -z ${VIASH_META_NAME+x} ]; then echo "r'${VIASH_META_NAME//\\'/\\'\\"\\'\\"r\\'}'"; else echo None; fi ),
@@ -3498,63 +3565,43 @@ from subset_h5ad_by_format import subset_h5ad_by_format
 
 config = op.project.read_viash_config(meta["config"])
 
-# set seed if need be
-if par["seed"]:
-    print(f">> Setting seed to {par['seed']}")
-    random.seed(par["seed"])
 
 print(">> Load data", flush=True)
 adata = ad.read_h5ad(par["input"])
 print("input:", adata)
 
-print(f">> Process data using {par['method']} method")
-if par["method"] == "batch":
-    batch_info = adata.obs[par["obs_batch"]]
-    batch_categories = batch_info.dtype.categories
-    test_batches = random.sample(list(batch_categories), 1)
-    is_test = [ x in test_batches for x in batch_info ]
-elif par["method"] == "random":
-    train_ix = np.random.choice(adata.n_obs, round(adata.n_obs * 0.8), replace=False)
-    is_test = [ not x in train_ix for x in range(0, adata.n_obs) ]
+validation_names = par["validation_sample_names"] or []
+is_validation = adata.obs["sample"].isin(validation_names)
 
-# subset the different adatas
-print(">> Figuring which data needs to be copied to which output file", flush=True)
-# use par arguments to look for label and batch value in different slots
-slot_mapping = {
-    "obs": {
-        "label": par["obs_label"],
-        "batch": par["obs_batch"],
-    }
-}
 
 print(">> Creating train data", flush=True)
-output_train = subset_h5ad_by_format(
-    adata[[not x for x in is_test]],
+output_unintegrated = subset_h5ad_by_format(
+    adata[[not x for x in is_validation]],
     config,
-    "output_train",
-    slot_mapping
+    "output_unintegrated"
 )
+print(f"output_unintegrated: {output_unintegrated}")
 
 print(">> Creating test data", flush=True)
-output_test = subset_h5ad_by_format(
-    adata[is_test],
+output_unintegrated_censored = subset_h5ad_by_format(
+    adata[[not x for x in is_validation]],
     config,
-    "output_test",
-    slot_mapping
+    "output_unintegrated_censored"
 )
+print(f"output_unintegrated_censored: {output_unintegrated_censored}")
 
 print(">> Creating solution data", flush=True)
-output_solution = subset_h5ad_by_format(
-    adata[is_test],
+output_validation = subset_h5ad_by_format(
+    adata[is_validation],
     config,
-    "output_solution",
-    slot_mapping
+    "output_validation"
 )
+print(f"output_validation: {output_validation}")
 
 print(">> Writing data", flush=True)
-output_train.write_h5ad(par["output_train"])
-output_test.write_h5ad(par["output_test"])
-output_solution.write_h5ad(par["output_solution"])
+output_unintegrated.write_h5ad(par["output_unintegrated"], compression="gzip")
+output_unintegrated_censored.write_h5ad(par["output_unintegrated_censored"], compression="gzip")
+output_validation.write_h5ad(par["output_validation"], compression="gzip")
 VIASHMAIN
 python -B "$tempscript"
 '''

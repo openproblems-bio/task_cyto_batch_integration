@@ -38,28 +38,27 @@ should convince readers of the significance and relevance of your task.
 flowchart TB
   file_common_dataset("<a href='https://github.com/openproblems-bio/task_cyto_batch_integration#file-format-common-dataset'>Common Dataset</a>")
   comp_data_processor[/"<a href='https://github.com/openproblems-bio/task_cyto_batch_integration#component-type-data-processor'>Data processor</a>"/]
-  file_solution("<a href='https://github.com/openproblems-bio/task_cyto_batch_integration#file-format-solution'>Solution</a>")
-  file_test("<a href='https://github.com/openproblems-bio/task_cyto_batch_integration#file-format-test-data'>Test data</a>")
-  file_train("<a href='https://github.com/openproblems-bio/task_cyto_batch_integration#file-format-training-data'>Training data</a>")
+  file_unintegrated_censored("<a href='https://github.com/openproblems-bio/task_cyto_batch_integration#file-format-unintegrated-censored'>Unintegrated Censored</a>")
+  file_unintegrated("<a href='https://github.com/openproblems-bio/task_cyto_batch_integration#file-format-unintegrated'>Unintegrated</a>")
+  file_validation("<a href='https://github.com/openproblems-bio/task_cyto_batch_integration#file-format-validation'>Validation</a>")
+  comp_method[/"<a href='https://github.com/openproblems-bio/task_cyto_batch_integration#component-type-method'>Method</a>"/]
   comp_control_method[/"<a href='https://github.com/openproblems-bio/task_cyto_batch_integration#component-type-control-method'>Control Method</a>"/]
   comp_metric[/"<a href='https://github.com/openproblems-bio/task_cyto_batch_integration#component-type-metric'>Metric</a>"/]
-  comp_method[/"<a href='https://github.com/openproblems-bio/task_cyto_batch_integration#component-type-method'>Method</a>"/]
-  file_prediction("<a href='https://github.com/openproblems-bio/task_cyto_batch_integration#file-format-predicted-data'>Predicted data</a>")
+  file_integrated("<a href='https://github.com/openproblems-bio/task_cyto_batch_integration#file-format-integrated'>Integrated</a>")
   file_score("<a href='https://github.com/openproblems-bio/task_cyto_batch_integration#file-format-score'>Score</a>")
   file_common_dataset---comp_data_processor
-  comp_data_processor-->file_solution
-  comp_data_processor-->file_test
-  comp_data_processor-->file_train
-  file_solution---comp_control_method
-  file_solution---comp_metric
-  file_test---comp_control_method
-  file_test---comp_method
-  file_train---comp_control_method
-  file_train---comp_method
-  comp_control_method-->file_prediction
+  comp_data_processor-->file_unintegrated_censored
+  comp_data_processor-->file_unintegrated
+  comp_data_processor-->file_validation
+  file_unintegrated_censored---comp_method
+  file_unintegrated---comp_control_method
+  file_unintegrated---comp_metric
+  file_validation---comp_control_method
+  file_validation---comp_metric
+  comp_method-->file_integrated
+  comp_control_method-->file_integrated
   comp_metric-->file_score
-  comp_method-->file_prediction
-  file_prediction---comp_metric
+  file_integrated---comp_metric
 ```
 
 ## File format: Common Dataset
@@ -119,96 +118,15 @@ Arguments:
 | Name | Type | Description |
 |:---|:---|:---|
 | `--input` | `file` | A subset of the common dataset. |
-| `--output_train` | `file` | (*Output*) The training data in h5ad format. |
-| `--output_test` | `file` | (*Output*) The subset of molecules used for the test dataset. |
-| `--output_solution` | `file` | (*Output*) The solution for the test data. |
+| `--output_unintegrated_censored` | `file` | (*Output*) Unintegrated dataset. |
+| `--output_unintegrated` | `file` | (*Output*) Unintegrated dataset. |
+| `--output_validation` | `file` | (*Output*) Hold-out dataset for validation. |
 
 </div>
 
-## File format: Solution
+## File format: Unintegrated Censored
 
-The solution for the test data
-
-Example file:
-`resources_test/task_cyto_batch_integration/cxg_mouse_pancreas_atlas/solution.h5ad`
-
-Format:
-
-<div class="small">
-
-    AnnData object
-     obs: 'label', 'batch'
-     var: 'hvg', 'hvg_score'
-     obsm: 'X_pca'
-     layers: 'counts', 'normalized'
-     uns: 'dataset_id', 'dataset_name', 'dataset_url', 'dataset_reference', 'dataset_summary', 'dataset_description', 'dataset_organism', 'normalization_id'
-
-</div>
-
-Data structure:
-
-<div class="small">
-
-| Slot | Type | Description |
-|:---|:---|:---|
-| `obs["label"]` | `string` | Ground truth cell type labels. |
-| `obs["batch"]` | `string` | Batch information. |
-| `var["hvg"]` | `boolean` | Whether or not the feature is considered to be a ‘highly variable gene’. |
-| `var["hvg_score"]` | `double` | A ranking of the features by hvg. |
-| `obsm["X_pca"]` | `double` | The resulting PCA embedding. |
-| `layers["counts"]` | `integer` | Raw counts. |
-| `layers["normalized"]` | `double` | Normalized counts. |
-| `uns["dataset_id"]` | `string` | A unique identifier for the dataset. |
-| `uns["dataset_name"]` | `string` | Nicely formatted name. |
-| `uns["dataset_url"]` | `string` | (*Optional*) Link to the original source of the dataset. |
-| `uns["dataset_reference"]` | `string` | (*Optional*) Bibtex reference of the paper in which the dataset was published. |
-| `uns["dataset_summary"]` | `string` | Short description of the dataset. |
-| `uns["dataset_description"]` | `string` | Long description of the dataset. |
-| `uns["dataset_organism"]` | `string` | (*Optional*) The organism of the sample in the dataset. |
-| `uns["normalization_id"]` | `string` | Which normalization was used. |
-
-</div>
-
-## File format: Test data
-
-The subset of molecules used for the test dataset
-
-Example file:
-`resources_test/task_cyto_batch_integration/cxg_mouse_pancreas_atlas/test.h5ad`
-
-Format:
-
-<div class="small">
-
-    AnnData object
-     obs: 'batch'
-     var: 'hvg', 'hvg_score'
-     obsm: 'X_pca'
-     layers: 'counts', 'normalized'
-     uns: 'dataset_id', 'normalization_id'
-
-</div>
-
-Data structure:
-
-<div class="small">
-
-| Slot | Type | Description |
-|:---|:---|:---|
-| `obs["batch"]` | `string` | Batch information. |
-| `var["hvg"]` | `boolean` | Whether or not the feature is considered to be a ‘highly variable gene’. |
-| `var["hvg_score"]` | `double` | A ranking of the features by hvg. |
-| `obsm["X_pca"]` | `double` | The resulting PCA embedding. |
-| `layers["counts"]` | `integer` | Raw counts. |
-| `layers["normalized"]` | `double` | Normalized counts. |
-| `uns["dataset_id"]` | `string` | A unique identifier for the dataset. |
-| `uns["normalization_id"]` | `string` | Which normalization was used. |
-
-</div>
-
-## File format: Training data
-
-The training data in h5ad format
+Unintegrated dataset
 
 Example file:
 `resources_test/task_cyto_batch_integration/cxg_mouse_pancreas_atlas/train.h5ad`
@@ -218,11 +136,10 @@ Format:
 <div class="small">
 
     AnnData object
-     obs: 'label', 'batch'
-     var: 'hvg', 'hvg_score'
-     obsm: 'X_pca'
-     layers: 'counts', 'normalized'
-     uns: 'dataset_id', 'normalization_id'
+     obs: 'batch', 'sample', 'donor'
+     var: 'numeric_id', 'channel', 'marker', 'marker_type', 'to_correct'
+     layers: 'preprocessed'
+     uns: 'dataset_id', 'dataset_name', 'dataset_url', 'dataset_reference', 'dataset_summary', 'dataset_description', 'dataset_organism'
 
 </div>
 
@@ -232,15 +149,136 @@ Data structure:
 
 | Slot | Type | Description |
 |:---|:---|:---|
-| `obs["label"]` | `string` | Ground truth cell type labels. |
 | `obs["batch"]` | `string` | Batch information. |
-| `var["hvg"]` | `boolean` | Whether or not the feature is considered to be a ‘highly variable gene’. |
-| `var["hvg_score"]` | `double` | A ranking of the features by hvg. |
-| `obsm["X_pca"]` | `double` | The resulting PCA embedding. |
-| `layers["counts"]` | `integer` | Raw counts. |
-| `layers["normalized"]` | `double` | Normalized counts. |
+| `obs["sample"]` | `string` | Sample ID. |
+| `obs["donor"]` | `string` | (*Optional*) Donor ID. |
+| `var["numeric_id"]` | `integer` | Numeric ID associated with each marker. |
+| `var["channel"]` | `string` | The channel / detector of the instrument. |
+| `var["marker"]` | `string` | (*Optional*) The marker name associated with the channel. |
+| `var["marker_type"]` | `string` | Whether the marker is a functional or lineage marker. |
+| `var["to_correct"]` | `boolean` | Whether the marker will be batch corrected. |
+| `layers["preprocessed"]` | `double` | preprocessed data, e.g. already compensated, transformed and debris/doublets removed. |
 | `uns["dataset_id"]` | `string` | A unique identifier for the dataset. |
-| `uns["normalization_id"]` | `string` | Which normalization was used. |
+| `uns["dataset_name"]` | `string` | Nicely formatted name. |
+| `uns["dataset_url"]` | `string` | (*Optional*) Link to the original source of the dataset. |
+| `uns["dataset_reference"]` | `string` | (*Optional*) Bibtex reference of the paper in which the dataset was published. |
+| `uns["dataset_summary"]` | `string` | Short description of the dataset. |
+| `uns["dataset_description"]` | `string` | Long description of the dataset. |
+| `uns["dataset_organism"]` | `string` | (*Optional*) The organism of the sample in the dataset. |
+
+</div>
+
+## File format: Unintegrated
+
+Unintegrated dataset
+
+Example file:
+`resources_test/task_cyto_batch_integration/cxg_mouse_pancreas_atlas/train.h5ad`
+
+Format:
+
+<div class="small">
+
+    AnnData object
+     obs: 'cell_type', 'batch', 'sample', 'donor', 'group'
+     var: 'numeric_id', 'channel', 'marker', 'marker_type', 'to_correct'
+     layers: 'preprocessed'
+     uns: 'dataset_id', 'dataset_name', 'dataset_url', 'dataset_reference', 'dataset_summary', 'dataset_description', 'dataset_organism'
+
+</div>
+
+Data structure:
+
+<div class="small">
+
+| Slot | Type | Description |
+|:---|:---|:---|
+| `obs["cell_type"]` | `string` | Cell type information. |
+| `obs["batch"]` | `string` | Batch information. |
+| `obs["sample"]` | `string` | Sample ID. |
+| `obs["donor"]` | `string` | Donor ID. |
+| `obs["group"]` | `string` | Biological group of the donor. |
+| `var["numeric_id"]` | `integer` | Numeric ID associated with each marker. |
+| `var["channel"]` | `string` | The channel / detector of the instrument. |
+| `var["marker"]` | `string` | (*Optional*) The marker name associated with the channel. |
+| `var["marker_type"]` | `string` | Whether the marker is a functional or lineage marker. |
+| `var["to_correct"]` | `boolean` | Whether the marker will be batch corrected. |
+| `layers["preprocessed"]` | `double` | preprocessed data, e.g. already compensated, transformed and debris/doublets removed. |
+| `uns["dataset_id"]` | `string` | A unique identifier for the dataset. |
+| `uns["dataset_name"]` | `string` | Nicely formatted name. |
+| `uns["dataset_url"]` | `string` | (*Optional*) Link to the original source of the dataset. |
+| `uns["dataset_reference"]` | `string` | (*Optional*) Bibtex reference of the paper in which the dataset was published. |
+| `uns["dataset_summary"]` | `string` | Short description of the dataset. |
+| `uns["dataset_description"]` | `string` | Long description of the dataset. |
+| `uns["dataset_organism"]` | `string` | (*Optional*) The organism of the sample in the dataset. |
+
+</div>
+
+## File format: Validation
+
+Hold-out dataset for validation.
+
+Example file:
+`resources_test/task_cyto_batch_integration/cxg_mouse_pancreas_atlas/solution.h5ad`
+
+Description:
+
+Samples that were held out and will later be used only to assess whether
+the batch integration was successful. E.g. if a donor from batch 2 was
+corrected towards batch 1, but also actually measured in batch 1
+(without being used as input to the algorithm).
+
+Format:
+
+<div class="small">
+
+    AnnData object
+     obs: 'cell_type', 'batch', 'sample', 'donor', 'group'
+     var: 'numeric_id', 'channel', 'marker', 'marker_type', 'to_correct'
+     layers: 'preprocessed'
+     uns: 'dataset_id', 'dataset_name', 'dataset_url', 'dataset_reference', 'dataset_summary', 'dataset_description', 'dataset_organism'
+
+</div>
+
+Data structure:
+
+<div class="small">
+
+| Slot | Type | Description |
+|:---|:---|:---|
+| `obs["cell_type"]` | `string` | Cell type information. |
+| `obs["batch"]` | `string` | Batch information. |
+| `obs["sample"]` | `string` | Sample ID. |
+| `obs["donor"]` | `string` | Donor ID. |
+| `obs["group"]` | `string` | Biological group of the donor. |
+| `var["numeric_id"]` | `integer` | Numeric ID associated with each marker. |
+| `var["channel"]` | `string` | The channel / detector of the instrument. |
+| `var["marker"]` | `string` | (*Optional*) The marker name associated with the channel. |
+| `var["marker_type"]` | `string` | Whether the marker is a functional or lineage marker. |
+| `var["to_correct"]` | `boolean` | Whether the marker will be batch corrected. |
+| `layers["preprocessed"]` | `double` | preprocessed data, e.g. already compensated, transformed and debris/doublets removed. |
+| `uns["dataset_id"]` | `string` | A unique identifier for the dataset. |
+| `uns["dataset_name"]` | `string` | Nicely formatted name. |
+| `uns["dataset_url"]` | `string` | (*Optional*) Link to the original source of the dataset. |
+| `uns["dataset_reference"]` | `string` | (*Optional*) Bibtex reference of the paper in which the dataset was published. |
+| `uns["dataset_summary"]` | `string` | Short description of the dataset. |
+| `uns["dataset_description"]` | `string` | Long description of the dataset. |
+| `uns["dataset_organism"]` | `string` | (*Optional*) The organism of the sample in the dataset. |
+
+</div>
+
+## Component type: Method
+
+A method.
+
+Arguments:
+
+<div class="small">
+
+| Name       | Type   | Description                    |
+|:-----------|:-------|:-------------------------------|
+| `--input`  | `file` | Unintegrated dataset.          |
+| `--output` | `file` | (*Output*) Integrated dataset. |
 
 </div>
 
@@ -252,12 +290,11 @@ Arguments:
 
 <div class="small">
 
-| Name | Type | Description |
-|:---|:---|:---|
-| `--input_train` | `file` | The training data in h5ad format. |
-| `--input_test` | `file` | The subset of molecules used for the test dataset. |
-| `--input_solution` | `file` | The solution for the test data. |
-| `--output` | `file` | (*Output*) A predicted dataset as output by a method. |
+| Name                   | Type   | Description                      |
+|:-----------------------|:-------|:---------------------------------|
+| `--input_unintegrated` | `file` | Unintegrated dataset.            |
+| `--input_validation`   | `file` | Hold-out dataset for validation. |
+| `--output`             | `file` | (*Output*) Integrated dataset.   |
 
 </div>
 
@@ -271,31 +308,16 @@ Arguments:
 
 | Name | Type | Description |
 |:---|:---|:---|
-| `--input_solution` | `file` | The solution for the test data. |
-| `--input_prediction` | `file` | A predicted dataset as output by a method. |
+| `--input_validation` | `file` | Hold-out dataset for validation. |
+| `--input_unintegrated` | `file` | Unintegrated dataset. |
+| `--input_integrated` | `file` | Integrated dataset. |
 | `--output` | `file` | (*Output*) File indicating the score of a metric. |
 
 </div>
 
-## Component type: Method
+## File format: Integrated
 
-A method.
-
-Arguments:
-
-<div class="small">
-
-| Name | Type | Description |
-|:---|:---|:---|
-| `--input_train` | `file` | The training data in h5ad format. |
-| `--input_test` | `file` | The subset of molecules used for the test dataset. |
-| `--output` | `file` | (*Output*) A predicted dataset as output by a method. |
-
-</div>
-
-## File format: Predicted data
-
-A predicted dataset as output by a method.
+Integrated dataset
 
 Example file:
 `resources_test/task_cyto_batch_integration/cxg_mouse_pancreas_atlas/prediction.h5ad`
@@ -305,8 +327,8 @@ Format:
 <div class="small">
 
     AnnData object
-     obs: 'label_pred'
-     uns: 'dataset_id', 'normalization_id', 'method_id'
+     layers: 'integrated'
+     uns: 'dataset_id', 'method_id', 'parameters'
 
 </div>
 
@@ -314,12 +336,12 @@ Data structure:
 
 <div class="small">
 
-| Slot                      | Type     | Description                          |
-|:--------------------------|:---------|:-------------------------------------|
-| `obs["label_pred"]`       | `string` | Predicted labels for the test cells. |
-| `uns["dataset_id"]`       | `string` | A unique identifier for the dataset. |
-| `uns["normalization_id"]` | `string` | Which normalization was used.        |
-| `uns["method_id"]`        | `string` | A unique identifier for the method.  |
+| Slot | Type | Description |
+|:---|:---|:---|
+| `layers["integrated"]` | `double` | The integrated data as returned by a batch correction method. |
+| `uns["dataset_id"]` | `string` | A unique identifier for the dataset. |
+| `uns["method_id"]` | `string` | A unique identifier for the method. |
+| `uns["parameters"]` | `object` | (*Optional*) The parameters used for the integration. |
 
 </div>
 

@@ -1,0 +1,25 @@
+type: file
+example: "resources_test/task_cyto_batch_integration/cxg_mouse_pancreas_atlas/prediction.h5ad"
+label: Integrated
+summary: "Integrated dataset"
+info:
+  format:
+    type: h5ad
+    layers:
+      - type: double
+        name: integrated
+        description: The integrated data as returned by a batch correction method
+        required: true
+    uns:
+      - type: string
+        name: dataset_id
+        description: "A unique identifier for the dataset"
+        required: true
+      - type: string
+        name: method_id
+        description: "A unique identifier for the method"
+        required: true
+      - type: object
+        name: parameters
+        description: "The parameters used for the integration"
+        required: false

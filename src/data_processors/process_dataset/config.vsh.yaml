@@ -1,23 +1,10 @@
 __merge__: ../../api/comp_data_processor.yaml
 name: process_dataset
 arguments:
-  - name: "--method"
+  - name: "--validation_sample_names"
     type: "string"
     description: "The process method to assign train/test."
-    choices: ["batch", "random"]
-    default: "batch"
-  - name: "--obs_label"
-    type: "string"
-    description: "Which .obs slot to use as label."
-    default: "cell_type"
-  - name: "--obs_batch"
-    type: "string"
-    description: "Which .obs slot to use as batch covariate."
-    default: "batch"
-  - name: "--seed"
-    type: "integer"
-    description: "A seed for the subsampling."
-    example: 123
+    multiple: true
 resources:
   - type: python_script
     path: script.py

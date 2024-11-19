@@ -2813,31 +2813,26 @@ meta = [
       "arguments" : [
         {
           "type" : "file",
-          "name" : "--input_solution",
-          "label" : "Solution",
-          "summary" : "The solution for the test data",
+          "name" : "--input_validation",
+          "label" : "Validation",
+          "summary" : "Hold-out dataset for validation.",
+          "description" : "Samples that were held out and will later be used only to assess whether\nthe batch integration was successful. E.g. if a donor from batch 2 was corrected towards batch 1,\nbut also actually measured in batch 1 (without being used as input to the algorithm).\n",
           "info" : {
             "format" : {
               "type" : "h5ad",
               "layers" : [
                 {
-                  "type" : "integer",
-                  "name" : "counts",
-                  "description" : "Raw counts",
-                  "required" : true
-                },
-                {
                   "type" : "double",
-                  "name" : "normalized",
-                  "description" : "Normalized counts",
+                  "name" : "preprocessed",
+                  "description" : "preprocessed data, e.g. already compensated, transformed and debris/doublets removed",
                   "required" : true
                 }
               ],
               "obs" : [
                 {
                   "type" : "string",
-                  "name" : "label",
-                  "description" : "Ground truth cell type labels",
+                  "name" : "cell_type",
+                  "description" : "Cell type information",
                   "required" : true
                 },
                 {
@@ -2845,27 +2840,55 @@ meta = [
                   "name" : "batch",
                   "description" : "Batch information",
                   "required" : true
+                },
+                {
+                  "type" : "string",
+                  "name" : "sample",
+                  "description" : "Sample ID",
+                  "required" : true
+                },
+                {
+                  "type" : "string",
+                  "name" : "donor",
+                  "description" : "Donor ID",
+                  "required" : true
+                },
+                {
+                  "type" : "string",
+                  "name" : "group",
+                  "description" : "Biological group of the donor",
+                  "required" : true
                 }
               ],
               "var" : [
                 {
-                  "type" : "boolean",
-                  "name" : "hvg",
-                  "description" : "Whether or not the feature is considered to be a 'highly variable gene'",
+                  "type" : "integer",
+                  "name" : "numeric_id",
+                  "description" : "Numeric ID associated with each marker",
                   "required" : true
                 },
                 {
-                  "type" : "double",
-                  "name" : "hvg_score",
-                  "description" : "A ranking of the features by hvg.",
+                  "type" : "string",
+                  "name" : "channel",
+                  "description" : "The channel / detector of the instrument",
                   "required" : true
-                }
-              ],
-              "obsm" : [
+                },
                 {
-                  "type" : "double",
-                  "name" : "X_pca",
-                  "description" : "The resulting PCA embedding.",
+                  "type" : "string",
+                  "name" : "marker",
+                  "description" : "The marker name associated with the channel",
+                  "required" : false
+                },
+                {
+                  "type" : "string",
+                  "name" : "marker_type",
+                  "description" : "Whether the marker is a functional or lineage marker",
+                  "required" : true
+                },
+                {
+                  "type" : "boolean",
+                  "name" : "to_correct",
+                  "description" : "Whether the marker will be batch corrected",
                   "required" : true
                 }
               ],
@@ -2911,18 +2934,12 @@ meta = [
                   "type" : "string",
                   "description" : "The organism of the sample in the dataset.",
                   "required" : false
-                },
-                {
-                  "type" : "string",
-                  "name" : "normalization_id",
-                  "description" : "Which normalization was used",
-                  "required" : true
                 }
               ]
             }
           },
           "example" : [
-            "resources_test/task_cyto_batch_integration/cxg_mouse_pancreas_atlas/solution.h5ad"
+            "resources_test/task_cyto_batch_integration/starter_file/validation.h5ad"
           ],
           "must_exist" : true,
           "create_parent" : true,
@@ -2933,17 +2950,153 @@ meta = [
         },
         {
           "type" : "file",
-          "name" : "--input_prediction",
-          "label" : "Predicted data",
-          "summary" : "A predicted dataset as output by a method.",
+          "name" : "--input_unintegrated",
+          "label" : "Unintegrated",
+          "summary" : "Unintegrated dataset",
           "info" : {
             "format" : {
               "type" : "h5ad",
+              "layers" : [
+                {
+                  "type" : "double",
+                  "name" : "preprocessed",
+                  "description" : "preprocessed data, e.g. already compensated, transformed and debris/doublets removed",
+                  "required" : true
+                }
+              ],
               "obs" : [
                 {
                   "type" : "string",
-                  "name" : "label_pred",
-                  "description" : "Predicted labels for the test cells.",
+                  "name" : "cell_type",
+                  "description" : "Cell type information",
+                  "required" : true
+                },
+                {
+                  "type" : "string",
+                  "name" : "batch",
+                  "description" : "Batch information",
+                  "required" : true
+                },
+                {
+                  "type" : "string",
+                  "name" : "sample",
+                  "description" : "Sample ID",
+                  "required" : true
+                },
+                {
+                  "type" : "string",
+                  "name" : "donor",
+                  "description" : "Donor ID",
+                  "required" : true
+                },
+                {
+                  "type" : "string",
+                  "name" : "group",
+                  "description" : "Biological group of the donor",
+                  "required" : true
+                }
+              ],
+              "var" : [
+                {
+                  "type" : "integer",
+                  "name" : "numeric_id",
+                  "description" : "Numeric ID associated with each marker",
+                  "required" : true
+                },
+                {
+                  "type" : "string",
+                  "name" : "channel",
+                  "description" : "The channel / detector of the instrument",
+                  "required" : true
+                },
+                {
+                  "type" : "string",
+                  "name" : "marker",
+                  "description" : "The marker name associated with the channel",
+                  "required" : false
+                },
+                {
+                  "type" : "string",
+                  "name" : "marker_type",
+                  "description" : "Whether the marker is a functional or lineage marker",
+                  "required" : true
+                },
+                {
+                  "type" : "boolean",
+                  "name" : "to_correct",
+                  "description" : "Whether the marker will be batch corrected",
+                  "required" : true
+                }
+              ],
+              "uns" : [
+                {
+                  "type" : "string",
+                  "name" : "dataset_id",
+                  "description" : "A unique identifier for the dataset",
+                  "required" : true
+                },
+                {
+                  "name" : "dataset_name",
+                  "type" : "string",
+                  "description" : "Nicely formatted name.",
+                  "required" : true
+                },
+                {
+                  "type" : "string",
+                  "name" : "dataset_url",
+                  "description" : "Link to the original source of the dataset.",
+                  "required" : false
+                },
+                {
+                  "name" : "dataset_reference",
+                  "type" : "string",
+                  "description" : "Bibtex reference of the paper in which the dataset was published.",
+                  "required" : false
+                },
+                {
+                  "name" : "dataset_summary",
+                  "type" : "string",
+                  "description" : "Short description of the dataset.",
+                  "required" : true
+                },
+                {
+                  "name" : "dataset_description",
+                  "type" : "string",
+                  "description" : "Long description of the dataset.",
+                  "required" : true
+                },
+                {
+                  "name" : "dataset_organism",
+                  "type" : "string",
+                  "description" : "The organism of the sample in the dataset.",
+                  "required" : false
+                }
+              ]
+            }
+          },
+          "example" : [
+            "resources_test/task_cyto_batch_integration/starter_file/unintegrated.h5ad"
+          ],
+          "must_exist" : true,
+          "create_parent" : true,
+          "required" : true,
+          "direction" : "input",
+          "multiple" : false,
+          "multiple_sep" : ";"
+        },
+        {
+          "type" : "file",
+          "name" : "--input_integrated",
+          "label" : "Integrated",
+          "summary" : "Integrated dataset",
+          "info" : {
+            "format" : {
+              "type" : "h5ad",
+              "layers" : [
+                {
+                  "type" : "double",
+                  "name" : "integrated",
+                  "description" : "The integrated data as returned by a batch correction method",
                   "required" : true
                 }
               ],
@@ -2956,15 +3109,15 @@ meta = [
                 },
                 {
                   "type" : "string",
-                  "name" : "normalization_id",
-                  "description" : "Which normalization was used",
-                  "required" : true
-                },
-                {
-                  "type" : "string",
                   "name" : "method_id",
                   "description" : "A unique identifier for the method",
                   "required" : true
+                },
+                {
+                  "type" : "object",
+                  "name" : "parameters",
+                  "description" : "The parameters used for the integration",
+                  "required" : false
                 }
               ]
             }
@@ -3145,7 +3298,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/metrics/accuracy",
     "viash_version" : "0.9.0",
-    "git_commit" : "d9de3b5bae4e61e5212bc2332ef604a38980b119",
+    "git_commit" : "0f077b130c1c129309f7c85bfa02779dcd00aee2",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3227,8 +3380,9 @@ import sklearn.preprocessing
 ## VIASH START
 # The following code has been auto-generated by Viash.
 par = {
-  'input_solution': $( if [ ! -z ${VIASH_PAR_INPUT_SOLUTION+x} ]; then echo "r'${VIASH_PAR_INPUT_SOLUTION//\\'/\\'\\"\\'\\"r\\'}'"; else echo None; fi ),
-  'input_prediction': $( if [ ! -z ${VIASH_PAR_INPUT_PREDICTION+x} ]; then echo "r'${VIASH_PAR_INPUT_PREDICTION//\\'/\\'\\"\\'\\"r\\'}'"; else echo None; fi ),
+  'input_validation': $( if [ ! -z ${VIASH_PAR_INPUT_VALIDATION+x} ]; then echo "r'${VIASH_PAR_INPUT_VALIDATION//\\'/\\'\\"\\'\\"r\\'}'"; else echo None; fi ),
+  'input_unintegrated': $( if [ ! -z ${VIASH_PAR_INPUT_UNINTEGRATED+x} ]; then echo "r'${VIASH_PAR_INPUT_UNINTEGRATED//\\'/\\'\\"\\'\\"r\\'}'"; else echo None; fi ),
+  'input_integrated': $( if [ ! -z ${VIASH_PAR_INPUT_INTEGRATED+x} ]; then echo "r'${VIASH_PAR_INPUT_INTEGRATED//\\'/\\'\\"\\'\\"r\\'}'"; else echo None; fi ),
   'output': $( if [ ! -z ${VIASH_PAR_OUTPUT+x} ]; then echo "r'${VIASH_PAR_OUTPUT//\\'/\\'\\"\\'\\"r\\'}'"; else echo None; fi )
 }
 meta = {
