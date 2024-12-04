@@ -23,9 +23,9 @@ arguments:
     __merge__: file_validation.yaml
     direction: output
     required: true
-# test_resources:
-#   - path: /resources_test/common/cxg_mouse_pancreas_atlas
-#     dest: resources_test/common/cxg_mouse_pancreas_atlas
-#   - type: python_script
-#     path: /common/component_tests/run_and_check_output.py
+test_resources:
+  - type: python_script
+    path: /common/component_tests/run_and_check_output.py
+  - path: /resources_test/task_cyto_batch_integration/starter_file
+    dest: resources_test/task_cyto_batch_integration/starter_file
       

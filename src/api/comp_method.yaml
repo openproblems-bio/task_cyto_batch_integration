@@ -3,9 +3,9 @@ info:
   type: method
   type_info:
     label: Method
-    summary: A method.
+    summary: A method for integrating batch effects in cytometry data.
     description: |
-      A method to predict the task effects.
+      A method for integrating batch effects in cytometry data.
 arguments:
   - name: --input
     __merge__: file_unintegrated_censored.yaml
