@@ -24,7 +24,7 @@ engines:
     image: openproblems/base_python:1.0.0
     setup:
       - type: python
-        packages: harmonypy
+        packages: [anndata,harmonypy]
 
 runners:
   - type: executable

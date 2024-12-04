@@ -3,38 +3,43 @@ import harmonypy
 
 ## VIASH START
 par = {
-  'input': 'resources_test/task_cyto_batch_integration/starter_file/unintegrated_censored.h5ad',
-  'output': 'output.h5ad'
+    "input": "resources_test/task_cyto_batch_integration/starter_file/unintegrated_censored.h5ad",
+    "output": "output.h5ad",
 }
-meta = {
-  'name': 'harmonypy'
-}
+meta = {"name": "harmonypy"}
 ## VIASH END
 
-print('Reading input files', flush=True)
-input = ad.read_h5ad(par['input'])
+print("Reading and preparing input files", flush=True)
+adata = ad.read_h5ad(par["input"])
 
-print('Run harmony', flush=True)
+adata.obs["batch_str"] = adata.obs["batch"].astype(str)
+
+markers_to_correct = adata.var[adata.var["to_correct"]].index.to_numpy()
+
+adata_to_correct = adata[:, markers_to_correct]
+
+print("Run harmony", flush=True)
 # harmony can't handle integer batch labels
-input.obs["batch_str"] = input.obs["batch"].astype(str)
+
 out = harmonypy.run_harmony(
-  input.layers["preprocessed"],
-  input.obs,
-  "batch_str"
+    data_mat=adata_to_correct.layers["preprocessed"],
+    meta_data=adata_to_correct.obs,
+    vars_use="batch_str",
+)
+
+# create new anndata
+out_adata = ad.AnnData(
+    obs=adata.obs,
+    var=adata_to_correct.var,
+    layers={"integrated": out.Z_corr.transpose()},
+    uns={
+        "dataset_id": adata.uns["dataset_id"],
+        "method_id": meta["name"],
+        "parameters": {},
+    },
 )
 
 print("Write output AnnData to file", flush=True)
-output = ad.AnnData(
-  obs=input.obs[[]],
-  var=input.var[[]],
-  layers={
-    "integrated": out.Z_corr.transpose()
-  },
-  uns={
-    "dataset_id": input.uns["dataset_id"],
-    "method_id": meta["name"],
-    "parameters": {}
-  }
-)
 
-output.write_h5ad(par['output'], compression='gzip')
+# TODO need compression to gz or not?
+out_adata.write_h5ad(par["output"])
