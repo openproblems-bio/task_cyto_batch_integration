@@ -86,11 +86,10 @@ viash run src/data_processors/process_dataset/config.vsh.yaml -- \
   --output_unintegrated_censored $DATASET_DIR/unintegrated_censored.h5ad \
   --output_validation $DATASET_DIR/validation.h5ad
 
-# # run one method
-# viash run src/methods/logistic_regression/config.vsh.yaml -- \
-#     --input_train $DATASET_DIR/cxg_mouse_pancreas_atlas/train.h5ad \
-#     --input_test $DATASET_DIR/cxg_mouse_pancreas_atlas/test.h5ad \
-#     --output $DATASET_DIR/cxg_mouse_pancreas_atlas/prediction.h5ad
+# run one method
+viash run src/methods/harmonypy/config.vsh.yaml -- \
+  --input $DATASET_DIR/unintegrated.h5ad \
+  --output $DATASET_DIR/integrated.h5ad
 
 # # run one metric
 # viash run src/metrics/accuracy/config.vsh.yaml -- \

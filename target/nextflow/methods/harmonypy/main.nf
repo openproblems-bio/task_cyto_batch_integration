@@ -2974,7 +2974,7 @@ meta = [
             }
           },
           "example" : [
-            "resources_test/task_cyto_batch_integration/cxg_mouse_pancreas_atlas/prediction.h5ad"
+            "resources_test/task_cyto_batch_integration/starter_file/integrated.h5ad"
           ],
           "must_exist" : true,
           "create_parent" : true,
@@ -3108,7 +3108,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/methods/harmonypy",
     "viash_version" : "0.9.0",
-    "git_commit" : "50ba3bf2cacd4d63edcf554f459a51a642403cbb",
+    "git_commit" : "736b52911df08d55c95a17a6a0d48ae5560a4d5f",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
