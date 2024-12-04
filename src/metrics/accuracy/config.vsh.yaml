@@ -10,6 +10,8 @@ __merge__: ../../api/comp_metric.yaml
 # Can contain only lowercase letters or underscores.
 name: accuracy
 
+status: disabled
+
 # Metadata for your component
 info:
   metrics:
