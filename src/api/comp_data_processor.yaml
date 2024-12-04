@@ -24,8 +24,8 @@ arguments:
     direction: output
     required: true
 test_resources:
-  - path: /resources_test/common/starter_file
-    dest: resources_test/common/starter_file
   - type: python_script
     path: /common/component_tests/run_and_check_output.py
+  - path: /resources_test/task_cyto_batch_integration/starter_file
+    dest: resources_test/task_cyto_batch_integration/starter_file
       
