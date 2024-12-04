@@ -1,5 +1,5 @@
 type: file
-example: "resources_test/task_cyto_batch_integration/cxg_mouse_pancreas_atlas/prediction.h5ad"
+example: "resources_test/task_cyto_batch_integration/starter_file/integrated.h5ad"
 label: Integrated
 summary: "Integrated dataset"
 info:
