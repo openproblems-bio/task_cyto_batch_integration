@@ -3,9 +3,9 @@ info:
   type: method
   type_info:
     label: Method
-    summary: A method.
+    summary: A method for integrating batch effects in cytometry data.
     description: |
-      A method to predict the task effects.
+      A method for integrating batch effects in cytometry data.
 arguments:
   - name: --input
     __merge__: file_unintegrated_censored.yaml
@@ -15,10 +15,10 @@ arguments:
     __merge__: file_integrated.yaml
     required: true
     direction: output
-# test_resources:
-#   - type: python_script
-#     path: /common/component_tests/run_and_check_output.py
-#   - type: python_script
-#     path: /common/component_tests/check_config.py
-#   - path: /resources_test/task_cyto_batch_integration/cxg_mouse_pancreas_atlas
-#     dest: resources_test/task_cyto_batch_integration/cxg_mouse_pancreas_atlas
+test_resources:
+  - type: python_script
+    path: /common/component_tests/run_and_check_output.py
+  - type: python_script
+    path: /common/component_tests/check_config.py
+  - path: /resources_test/task_cyto_batch_integration/starter_file
+    dest: resources_test/task_cyto_batch_integration/starter_file
