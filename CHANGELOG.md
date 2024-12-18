@@ -12,6 +12,8 @@
 
 * Added `methods/limma_remove_batch_effect` component (PR #7).
 
+* Added `metrics/emd_per_samples` component (PR #9).
+
 ## MAJOR CHANGES
 
 ## MINOR CHANGES
