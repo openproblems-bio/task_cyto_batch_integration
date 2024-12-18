@@ -41,5 +41,4 @@ out_adata = ad.AnnData(
 
 print("Write output AnnData to file", flush=True)
 
-# TODO need compression to gz or not?
-out_adata.write_h5ad(par["output"])
+out_adata.write_h5ad(par["output"], compression="gzip")
