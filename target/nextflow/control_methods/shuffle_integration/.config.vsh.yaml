@@ -1,187 +1,11 @@
-name: "process_dataset"
-namespace: "data_processors"
+name: "shuffle_integration"
+namespace: "control_methods"
 version: "build_main"
 argument_groups:
 - name: "Arguments"
   arguments:
   - type: "file"
-    name: "--input"
-    label: "Common Dataset"
-    summary: "A subset of the common dataset."
-    info:
-      format:
-        type: "h5ad"
-        layers:
-        - type: "double"
-          name: "preprocessed"
-          description: "preprocessed data, e.g. already compensated, transformed and\
-            \ debris/doublets removed"
-          required: true
-        obs:
-        - type: "string"
-          name: "cell_type"
-          description: "Cell type information"
-          required: true
-        - type: "string"
-          name: "batch"
-          description: "Batch information"
-          required: true
-        - type: "string"
-          name: "sample"
-          description: "Sample ID"
-          required: true
-        - type: "string"
-          name: "donor"
-          description: "Donor ID"
-          required: true
-        - type: "string"
-          name: "group"
-          description: "Biological group of the donor"
-          required: true
-        var:
-        - type: "integer"
-          name: "numeric_id"
-          description: "Numeric ID associated with each marker"
-          required: true
-        - type: "string"
-          name: "channel"
-          description: "The channel / detector of the instrument"
-          required: true
-        - type: "string"
-          name: "marker"
-          description: "The marker name associated with the channel"
-          required: false
-        - type: "string"
-          name: "marker_type"
-          description: "Whether the marker is a functional or lineage marker"
-          required: true
-        - type: "boolean"
-          name: "to_correct"
-          description: "Whether the marker will be batch corrected"
-          required: true
-        uns:
-        - type: "string"
-          name: "dataset_id"
-          description: "A unique identifier for the dataset"
-          required: true
-        - name: "dataset_name"
-          type: "string"
-          description: "Nicely formatted name."
-          required: true
-        - type: "string"
-          name: "dataset_url"
-          description: "Link to the original source of the dataset."
-          required: false
-        - name: "dataset_reference"
-          type: "string"
-          description: "Bibtex reference of the paper in which the dataset was published."
-          required: false
-        - name: "dataset_summary"
-          type: "string"
-          description: "Short description of the dataset."
-          required: true
-        - name: "dataset_description"
-          type: "string"
-          description: "Long description of the dataset."
-          required: true
-        - name: "dataset_organism"
-          type: "string"
-          description: "The organism of the sample in the dataset."
-          required: false
-    example:
-    - "resources_test/task_cyto_batch_integration/starter_file/common_dataset.h5ad"
-    must_exist: true
-    create_parent: true
-    required: true
-    direction: "input"
-    multiple: false
-    multiple_sep: ";"
-  - type: "file"
-    name: "--output_unintegrated_censored"
-    label: "Unintegrated Censored"
-    summary: "Unintegrated dataset"
-    info:
-      format:
-        type: "h5ad"
-        layers:
-        - type: "double"
-          name: "preprocessed"
-          description: "preprocessed data, e.g. already compensated, transformed and\
-            \ debris/doublets removed"
-          required: true
-        obs:
-        - type: "string"
-          name: "batch"
-          description: "Batch information"
-          required: true
-        - type: "string"
-          name: "sample"
-          description: "Sample ID"
-          required: true
-        - type: "string"
-          name: "donor"
-          description: "Donor ID"
-          required: false
-        var:
-        - type: "integer"
-          name: "numeric_id"
-          description: "Numeric ID associated with each marker"
-          required: true
-        - type: "string"
-          name: "channel"
-          description: "The channel / detector of the instrument"
-          required: true
-        - type: "string"
-          name: "marker"
-          description: "The marker name associated with the channel"
-          required: false
-        - type: "string"
-          name: "marker_type"
-          description: "Whether the marker is a functional or lineage marker"
-          required: true
-        - type: "boolean"
-          name: "to_correct"
-          description: "Whether the marker will be batch corrected"
-          required: true
-        uns:
-        - type: "string"
-          name: "dataset_id"
-          description: "A unique identifier for the dataset"
-          required: true
-        - name: "dataset_name"
-          type: "string"
-          description: "Nicely formatted name."
-          required: true
-        - type: "string"
-          name: "dataset_url"
-          description: "Link to the original source of the dataset."
-          required: false
-        - name: "dataset_reference"
-          type: "string"
-          description: "Bibtex reference of the paper in which the dataset was published."
-          required: false
-        - name: "dataset_summary"
-          type: "string"
-          description: "Short description of the dataset."
-          required: true
-        - name: "dataset_description"
-          type: "string"
-          description: "Long description of the dataset."
-          required: true
-        - name: "dataset_organism"
-          type: "string"
-          description: "The organism of the sample in the dataset."
-          required: false
-    example:
-    - "resources_test/task_cyto_batch_integration/starter_file/unintegrated_censored.h5ad"
-    must_exist: true
-    create_parent: true
-    required: true
-    direction: "output"
-    multiple: false
-    multiple_sep: ";"
-  - type: "file"
-    name: "--output_unintegrated"
+    name: "--input_unintegrated"
     label: "Unintegrated"
     summary: "Unintegrated dataset"
     info:
@@ -269,11 +93,11 @@ argument_groups:
     must_exist: true
     create_parent: true
     required: true
-    direction: "output"
+    direction: "input"
     multiple: false
     multiple_sep: ";"
   - type: "file"
-    name: "--output_validation"
+    name: "--input_validation"
     label: "Validation"
     summary: "Hold-out dataset for validation."
     description: "Samples that were held out and will later be used only to assess\
@@ -365,37 +189,71 @@ argument_groups:
     must_exist: true
     create_parent: true
     required: true
-    direction: "output"
+    direction: "input"
     multiple: false
     multiple_sep: ";"
-  - type: "string"
-    name: "--validation_sample_names"
-    description: "The process method to assign train/test."
-    info: null
-    required: false
-    direction: "input"
-    multiple: true
+  - type: "file"
+    name: "--output"
+    label: "Integrated"
+    summary: "Integrated dataset"
+    info:
+      format:
+        type: "h5ad"
+        layers:
+        - type: "double"
+          name: "integrated"
+          description: "The integrated data as returned by a batch correction method"
+          required: true
+        uns:
+        - type: "string"
+          name: "dataset_id"
+          description: "A unique identifier for the dataset"
+          required: true
+        - type: "string"
+          name: "method_id"
+          description: "A unique identifier for the method"
+          required: true
+        - type: "object"
+          name: "parameters"
+          description: "The parameters used for the integration"
+          required: false
+    example:
+    - "resources_test/task_cyto_batch_integration/starter_file/integrated.h5ad"
+    must_exist: true
+    create_parent: true
+    required: true
+    direction: "output"
+    multiple: false
     multiple_sep: ";"
 resources:
 - type: "python_script"
   path: "script.py"
   is_executable: true
 - type: "file"
-  path: "subset_h5ad_by_format.py"
+  path: "utils.py"
+label: "Shuffle integration"
+summary: "Integrations are randomly permuted"
+description: "Integrations are randomly permuted"
 test_resources:
 - type: "python_script"
   path: "run_and_check_output.py"
+  is_executable: true
+- type: "python_script"
+  path: "check_config.py"
   is_executable: true
 - type: "file"
   path: "resources_test/task_cyto_batch_integration/starter_file"
   dest: "resources_test/task_cyto_batch_integration/starter_file"
 info:
-  type: "data_processor"
+  type: "control_method"
   type_info:
-    label: "Data processor"
-    summary: "A data processor."
-    description: "A component for processing a Common Dataset into a task-specific\
-      \ dataset.\n"
+    label: "Control Method"
+    summary: "Quality control methods for verifying the pipeline."
+    description: "This folder contains control components for the task. \nThese components\
+      \ have the same interface as the regular methods\nbut also receive the solution\
+      \ object as input. It serves as a\nstarting point to test the relative accuracy\
+      \ of new methods in\nthe task, and also as a quality control for the metrics\
+      \ defined\nin the task.\n"
 status: "enabled"
 repositories:
 - type: "github"
@@ -415,9 +273,9 @@ runners:
   id: "nextflow"
   directives:
     label:
-    - "highmem"
-    - "midcpu"
     - "midtime"
+    - "midmem"
+    - "lowcpu"
     tag: "$id"
   auto:
     simplifyInput: true
@@ -446,11 +304,11 @@ engines:
   entrypoint: []
   cmd: null
 build_info:
-  config: "src/data_processors/process_dataset/config.vsh.yaml"
-  runner: "executable"
+  config: "src/control_methods/shuffle_integration/config.vsh.yaml"
+  runner: "nextflow"
   engine: "docker"
-  output: "target/executable/data_processors/process_dataset"
-  executable: "target/executable/data_processors/process_dataset/process_dataset"
+  output: "target/nextflow/control_methods/shuffle_integration"
+  executable: "target/nextflow/control_methods/shuffle_integration/main.nf"
   viash_version: "0.9.0"
   git_commit: "71f05f6307d266e558bd745b82d640b914983504"
   git_remote: "https://github.com/openproblems-bio/task_cyto_batch_integration"
