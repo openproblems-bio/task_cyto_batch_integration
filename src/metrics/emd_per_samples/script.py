@@ -17,7 +17,7 @@ print("Reading input files", flush=True)
 
 adata = ad.read_h5ad(par["input_integrated"])
 
-samples_to_compare = [x.strip() for x in par["samples_to_compare"].split(",")]
+samples_to_compare = [x.strip() for x in par["samples_to_compare"]]
 
 layer = par["layer"]
 

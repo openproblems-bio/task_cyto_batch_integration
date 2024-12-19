@@ -28,17 +28,6 @@ info:
       references:
         doi: 
           - 10.1023/A:1026543900054
-        bibtex:
-          - |
-            @article{rubner2000earth,
-              title={The earth mover's distance as a metric for image retrieval},
-              author={Rubner, Yossi and Tomasi, Carlo and Guibas, Leonidas J},
-              journal={International journal of computer vision},
-              volume={40},
-              pages={99--121},
-              year={2000},
-              publisher={Springer}
-            }
       links:
         # URL to the documentation for this metric (required).
         documentation: https://cytonormpy.readthedocs.io/en/latest/generated/cytonormpy.emd_comparison_from_anndata.html
@@ -50,13 +39,24 @@ info:
       max: .inf
       # Whether a higher value represents a 'better' solution (required)
       maximize: false
-
+  # Note: need this if we have component specific argument with no default.
+  # When running the actual command, either split the sample name by ;
+  # so Tube1_Batch1_WT;Tube1_Batch2_WT
+  # or repeat the flag twice. So --samples_to_compare Tube1_Batch1_WT
+  # --samples_to_compare Tube1_Batch2_WT
+  test_setup:
+    starter_file:
+      samples_to_compare: 
+        - Tube1_Batch1_WT
+        - Tube1_Batch2_WT
+      
 # Component-specific parameters (optional)
 arguments:
   - name: "--samples_to_compare"
     type: "string"
-    default: "Tube1_Batch1_WT,Tube1_Batch2_WT"
     description: 2 samples to compare. Separate the sample names by comma
+    required: true
+    multiple: true
   - name: "--layer"
     type: "string"
     default: "integrated"
