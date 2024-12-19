@@ -29,8 +29,8 @@ out = harmonypy.run_harmony(
 
 # create new anndata
 out_adata = ad.AnnData(
-    obs=adata.obs,
-    var=adata_to_correct.var,
+    obs=adata.obs[[]],
+    var=adata_to_correct.var[[]],
     layers={"integrated": out.Z_corr.transpose()},
     uns={
         "dataset_id": adata.uns["dataset_id"],

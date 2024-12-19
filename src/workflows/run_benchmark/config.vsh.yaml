@@ -1,6 +1,5 @@
 name: run_benchmark
 namespace: workflows
-status: disabled
 argument_groups:
   - name: Inputs
     arguments:
@@ -19,6 +18,11 @@ argument_groups:
         type: file
         direction: input
         required: true
+      - name: "--samples_to_compare"
+        type: "string"
+        description: 2 samples to compare. Separate the sample names by comma
+        required: true
+        multiple: true
   - name: Outputs
     arguments:
       - name: "--output_scores"
@@ -64,9 +68,12 @@ resources:
 dependencies:
   - name: h5ad/extract_uns_metadata
     repository: core
-  # - name: control_methods/true_labels
-  # - name: methods/logistic_regression
-  # - name: metrics/accuracy
+  - name: control_methods/shuffle_integration
+  - name: control_methods/shuffle_integration_by_batch
+  - name: control_methods/shuffle_integration_by_cell_type
+  - name: methods/harmonypy
+  - name: methods/limma_remove_batch_effect
+  - name: metrics/emd_per_samples
 
 runners:
   - type: nextflow
