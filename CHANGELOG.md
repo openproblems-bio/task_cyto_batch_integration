@@ -12,6 +12,11 @@
 
 * Added `methods/limma_remove_batch_effect` component (PR #7).
 
+* Added three negative control methods (PR #8):
+  - `control_methods/shuffle_integration`
+  - `control_methods/shuffle_integration_by_batch`
+  - `control_methods/shuffle_integration_by_cell_type`
+
 ## MAJOR CHANGES
 
 ## MINOR CHANGES
