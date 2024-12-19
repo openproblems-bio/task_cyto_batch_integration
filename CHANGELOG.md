@@ -17,6 +17,8 @@
   - `control_methods/shuffle_integration_by_batch`
   - `control_methods/shuffle_integration_by_cell_type`
 
+* Added `metrics/emd_per_samples` component (PR #9).
+
 ## MAJOR CHANGES
 
 ## MINOR CHANGES

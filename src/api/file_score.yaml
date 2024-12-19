@@ -1,5 +1,5 @@
 type: file
-example: "resources_test/task_cyto_batch_integration/cxg_mouse_pancreas_atlas/score.h5ad"
+example: "resources_test/task_cyto_batch_integration/starter_file/score.h5ad"
 label: Score
 summary: "File indicating the score of a metric."
 info:
@@ -11,12 +11,13 @@ info:
         description: "A unique identifier for the dataset"
         required: true
       - type: string
-        name: normalization_id
-        description: "Which normalization was used"
+        name: method_id
+        description: "A unique identifier for the batch correction method"
         required: true
       - type: string
-        name: method_id
-        description: "A unique identifier for the method"
+        name: sample_ids
+        description: "The samples assessed by the metric"
+        multiple: true
         required: true
       - type: string
         name: metric_ids
@@ -25,6 +26,6 @@ info:
         required: true
       - type: double
         name: metric_values
-        description: "The metric values obtained for the given prediction. Must be of same length as 'metric_ids'."
+        description: "The metric values obtained. Must be of same length as 'metric_ids'."
         multiple: true
         required: true
