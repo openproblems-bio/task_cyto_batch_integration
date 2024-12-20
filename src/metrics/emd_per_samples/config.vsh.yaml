@@ -54,7 +54,7 @@ info:
 arguments:
   - name: "--samples_to_compare"
     type: "string"
-    description: 2 samples to compare. Separate the sample names by comma
+    description: 2 samples to compare.
     required: true
     multiple: true
   - name: "--layer"
