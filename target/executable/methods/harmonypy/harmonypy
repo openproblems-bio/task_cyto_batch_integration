@@ -469,9 +469,9 @@ RUN pip install --upgrade pip && \
   pip install --upgrade --no-cache-dir "anndata" "harmonypy"
 
 LABEL org.opencontainers.image.description="Companion container for running component methods harmonypy"
-LABEL org.opencontainers.image.created="2024-12-19T09:56:48Z"
+LABEL org.opencontainers.image.created="2024-12-20T23:15:39Z"
 LABEL org.opencontainers.image.source="https://github.com/slowkow/harmonypy"
-LABEL org.opencontainers.image.revision="74f092a14a438c0a18bdb941cf0fffe41bdba272"
+LABEL org.opencontainers.image.revision="661a45252dea5c73b10eae41a571c03ede7afb8e"
 LABEL org.opencontainers.image.version="build_main"
 
 VIASHDOCKER
@@ -1055,8 +1055,8 @@ out = harmonypy.run_harmony(
 
 # create new anndata
 out_adata = ad.AnnData(
-    obs=adata.obs,
-    var=adata_to_correct.var,
+    obs=adata.obs[[]],
+    var=adata_to_correct.var[[]],
     layers={"integrated": out.Z_corr.transpose()},
     uns={
         "dataset_id": adata.uns["dataset_id"],

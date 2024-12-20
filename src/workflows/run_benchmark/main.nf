@@ -7,13 +7,16 @@ workflow auto {
 
 // construct list of methods and control methods
 methods = [
-  true_labels,
-  logistic_regression
+  shuffle_integration,
+  shuffle_integration_by_batch,
+  shuffle_integration_by_cell_type,
+  harmonypy,
+  limma_remove_batch_effect
 ]
 
 // construct list of metrics
 metrics = [
-  accuracy
+  emd_per_samples
 ]
 
 workflow run_wf {
@@ -21,6 +24,16 @@ workflow run_wf {
   input_ch
 
   main:
+
+  // input_ch is a channel containing:
+  // [id, state]
+  // where id is a unique string
+  // and state is a dictionary
+  // in this case, state:
+  // [
+  //   input_unintegrated_censored: ...,
+  //   input_unintegrated: ...,
+  // ]
 
   /****************************
    * EXTRACT DATASET METADATA *
@@ -31,9 +44,30 @@ workflow run_wf {
       [id, state + ["_meta": [join_id: id]]]
     }
 
+    // // for your information:
+    // | harmonypy.run(
+    //   fromState: [input: "input_unintegrated_censored"],
+    //   args: [alpha: 10],
+    //   toState: [output_method: "output"]
+    // )
+    // 
+    // | harmonypy.run(
+    //   fromState: { id, state ->
+    //     [
+    //       input: state.input_unintegrated_censored,
+    //       alpha: 10
+    //     ]
+    //   },
+    //   toState: { id, output, state ->
+    //     state + [
+    //       output_method: output.output
+    //     ]
+    //   }
+    // )
+
     // extract the dataset metadata
     | extract_uns_metadata.run(
-      fromState: [input: "input_solution"],
+      fromState: [input: "input_unintegrated"],
       toState: { id, output, state ->
         state + [
           dataset_uns: readYaml(output.output).uns
@@ -52,14 +86,7 @@ workflow run_wf {
 
       // use the 'filter' argument to only run a method on the normalisation the component is asking for
       filter: { id, state, comp ->
-        def norm = state.dataset_uns.normalization_id
-        def pref = comp.config.info.preferred_normalization
-        // if the preferred normalisation is none at all,
-        // we can pass whichever dataset we want
-        def norm_check = (norm == "log_cp10k" && pref == "counts") || norm == pref
-        def method_check = !state.method_ids || state.method_ids.contains(comp.config.name)
-
-        method_check && norm_check
+        !state.method_ids || state.method_ids.contains(comp.config.name)
       },
 
       // define a new 'id' by appending the method name to the dataset id
@@ -69,14 +96,16 @@ workflow run_wf {
 
       // use 'fromState' to fetch the arguments the component requires from the overall state
       fromState: { id, state, comp ->
-        def new_args = [
-          input_train: state.input_train,
-          input_test: state.input_test
-        ]
         if (comp.config.info.type == "control_method") {
-          new_args.input_solution = state.input_solution
+          [
+            input_unintegrated: state.input_unintegrated,
+            input_validation: state.input_validation
+          ]
+        } else {
+          [
+            input: state.input_unintegrated_censored
+          ]
         }
-        new_args
       },
 
       // use 'toState' to publish that component's outputs to the overall state
@@ -96,8 +125,10 @@ workflow run_wf {
       },
       // use 'fromState' to fetch the arguments the component requires from the overall state
       fromState: [
-        input_solution: "input_solution", 
-        input_prediction: "method_output"
+        input_validation: "input_validation", 
+        input_unintegrated: "input_unintegrated",
+        input_integrated: "method_output",
+        samples_to_compare: "samples_to_compare"
       ],
       // use 'toState' to publish that component's outputs to the overall state
       toState: { id, output, state, comp ->
@@ -136,17 +167,9 @@ workflow run_wf {
 
   // extract the dataset metadata
   meta_ch = dataset_ch
-    // only keep one of the normalization methods
-    | filter{ id, state ->
-      state.dataset_uns.normalization_id == "log_cp10k"
-    }
     | joinStates { ids, states ->
       // store the dataset metadata in a file
-      def dataset_uns = states.collect{state ->
-        def uns = state.dataset_uns.clone()
-        uns.remove("normalization_id")
-        uns
-      }
+      def dataset_uns = states.collect{it.dataset_uns}
       def dataset_uns_yaml_blob = toYamlBlob(dataset_uns)
       def dataset_uns_file = tempFile("dataset_uns.yaml")
       dataset_uns_file.write(dataset_uns_yaml_blob)

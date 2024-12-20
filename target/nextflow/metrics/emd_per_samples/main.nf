@@ -3190,7 +3190,7 @@ meta = [
         {
           "type" : "string",
           "name" : "--samples_to_compare",
-          "description" : "2 samples to compare. Separate the sample names by comma",
+          "description" : "2 samples to compare.",
           "required" : true,
           "direction" : "input",
           "multiple" : true,
@@ -3354,7 +3354,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/metrics/emd_per_samples",
     "viash_version" : "0.9.0",
-    "git_commit" : "74f092a14a438c0a18bdb941cf0fffe41bdba272",
+    "git_commit" : "661a45252dea5c73b10eae41a571c03ede7afb8e",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3470,13 +3470,14 @@ dep = {
 
 print("Reading input files", flush=True)
 
-adata = ad.read_h5ad(par["input_integrated"])
+input_integrated = ad.read_h5ad(par["input_integrated"])
+input_unintegrated = ad.read_h5ad(par["input_unintegrated"])
 
 samples_to_compare = [x.strip() for x in par["samples_to_compare"]]
 
 layer = par["layer"]
 
-markers_to_assess = adata.var[adata.var["to_correct"]].index.to_numpy()
+markers_to_assess = input_integrated.var[input_integrated.var["to_correct"]].index.to_numpy()
 
 print("Compute metrics", flush=True)
 
@@ -3484,10 +3485,10 @@ print("Compute metrics", flush=True)
 # Otherwise the _calculate_emd_per_frame used in cytonormpy will error because they
 # harcoded the column file_name and use it in assert.
 # See line 176 of https://github.com/TarikExner/CytoNormPy/blob/main/cytonormpy/_evaluation/_emd_utils.py#L173
-adata.obs["file_name"] = adata.obs["sample"]
+input_integrated.obs["file_name"] = input_integrated.obs["sample"]
 
 df = cnp.emd_from_anndata(
-    adata=adata,
+    adata=input_integrated,
     file_list=samples_to_compare,
     channels=markers_to_assess,
     layer=layer,
@@ -3496,13 +3497,13 @@ df = cnp.emd_from_anndata(
 
 uns_metric_ids = [f"EMD_per_samples_{x}" for x in df.columns]
 uns_metric_values = df.loc["all_cells"].to_numpy()
-uns_method_id = adata.uns["method_id"] if "method_id" in adata.uns else "unintegrated"
+uns_method_id = input_integrated.uns["method_id"] if "method_id" in input_integrated.uns else "unintegrated"
 
 
 print("Write output AnnData to file", flush=True)
 output = ad.AnnData(
     uns={
-        "dataset_id": adata.uns["dataset_id"],
+        "dataset_id": input_integrated.uns["dataset_id"],
         "method_id": uns_method_id,
         "sample_ids": samples_to_compare,
         "metric_ids": uns_metric_ids,
