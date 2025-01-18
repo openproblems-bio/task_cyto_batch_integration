@@ -10,6 +10,15 @@ info:
         name: integrated
         description: The integrated data as returned by a batch correction method
         required: true
+    obs:
+      - type: string
+        name: batch
+        description: Batch information
+        required: true
+      - type: string
+        name: sample
+        description: Sample ID
+        required: true
     uns:
       - type: string
         name: dataset_id

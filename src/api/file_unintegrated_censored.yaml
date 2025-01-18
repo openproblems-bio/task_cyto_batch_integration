@@ -1,8 +1,11 @@
 #TODO: Change to the required and/or optional fields of the anndata
 type: file
 example: "resources_test/task_cyto_batch_integration/starter_file/unintegrated_censored.h5ad"
-label: "Unintegrated Censored"
-summary: "Unintegrated dataset"
+label: Unintegrated Censored
+summary: |
+  Unintegrated dataset where some columns (e.g., donor) are hidden. 
+  These columns are hidden because they should not be visible to the batch correction algorithm.
+  This should be used as the input data to the batch correction algorithm.
 info:
   format:
     type: h5ad

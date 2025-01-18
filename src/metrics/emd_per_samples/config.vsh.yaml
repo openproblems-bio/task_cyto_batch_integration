@@ -44,23 +44,25 @@ info:
   # so Tube1_Batch1_WT;Tube1_Batch2_WT
   # or repeat the flag twice. So --samples_to_compare Tube1_Batch1_WT
   # --samples_to_compare Tube1_Batch2_WT
-  test_setup:
-    starter_file:
-      samples_to_compare: 
-        - Tube1_Batch1_WT
-        - Tube1_Batch2_WT
+  # test_setup:
+  #   starter_file:
+  #     samples_to_compare: 
+  #       - Tube1_Batch1_WT
+  #       - Tube1_Batch2_WT
       
 # Component-specific parameters (optional)
-arguments:
-  - name: "--samples_to_compare"
-    type: "string"
-    description: 2 samples to compare.
-    required: true
-    multiple: true
-  - name: "--layer"
-    type: "string"
-    default: "integrated"
-    description: The layer in input anndata containing the marker expression
+# We shouldn't need layer as the input data (the integrated data) should already
+# have the integrated layer if it follows the file specification.
+# arguments:
+#   - name: "--samples_to_compare"
+#     type: "string"
+#     description: 2 samples to compare.
+#     required: true
+#     multiple: true
+#   - name: "--layer"
+#     type: "string"
+#     default: "integrated"
+#     description: The layer in input anndata containing the marker expression
 
 # Resources required to run the component
 resources:
