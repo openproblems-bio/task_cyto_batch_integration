@@ -1,9 +1,11 @@
 #TODO: Change to the required and/or optional fields of the anndata
 type: file
 example: "resources_test/task_cyto_batch_integration/starter_file/unintegrated.h5ad"
-label: "Unintegrated"
-summary: "Unintegrated dataset"
-
+label: Unintegrated
+summary: |
+  The complete unintegrated dataset, including all cells' metadata (columns) from the 
+  unintegrated_censored dataset. 
+  The cells in this dataset are the same to those in the unintegrated_censored dataset.
 info:
   format:
     type: h5ad

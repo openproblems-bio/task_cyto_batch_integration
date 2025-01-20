@@ -2815,7 +2815,7 @@ meta = [
           "type" : "file",
           "name" : "--input",
           "label" : "Unintegrated Censored",
-          "summary" : "Unintegrated dataset",
+          "summary" : "An unintegrated dataset with certain columns (cells metadata), such as the donor information, hidden.\nThese columns are intentionally hidden to prevent bias.\nThe batch correction algorithm should not have to rely on these information \nto properly integrate different batches.\nThis dataset is used as the input for the batch correction algorithm. \nThe cells therein are identical to those in the unintegrated dataset. \n",
           "info" : {
             "format" : {
               "type" : "h5ad",
@@ -2939,7 +2939,7 @@ meta = [
           "type" : "file",
           "name" : "--output",
           "label" : "Integrated",
-          "summary" : "Integrated dataset",
+          "summary" : "Integrated dataset which batch effect was corrected by an algorithm",
           "info" : {
             "format" : {
               "type" : "h5ad",
@@ -3108,7 +3108,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/methods/harmonypy",
     "viash_version" : "0.9.0",
-    "git_commit" : "836d0765ca18a82932486ee16f2cd283d282a3fe",
+    "git_commit" : "db4f9e2b6335d30b73b7d1bc44f81571096bbd0a",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {

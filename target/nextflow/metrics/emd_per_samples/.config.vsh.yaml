@@ -8,10 +8,17 @@ argument_groups:
     name: "--input_validation"
     label: "Validation"
     summary: "Hold-out dataset for validation."
-    description: "Samples that were held out and will later be used only to assess\
-      \ whether\nthe batch integration was successful. E.g. if a donor from batch\
-      \ 2 was corrected towards batch 1,\nbut also actually measured in batch 1 (without\
-      \ being used as input to the algorithm).\n"
+    description: "Dataset containing cells from samples that were held out for evaluating\
+      \ batch integration output. \nThe cells that are in this dataset belong to samples\
+      \ which are not included in the unintegrated \nor unintegrated_censored datasets.\n\
+      For example, if samples from donor A are present in batch 1 and 2, the sample\
+      \ from batch 1\nmay be used as input for the batch correction algorithm (and\
+      \ thus present in unintegrated\nand unintegrated_censored datasets). \nThe sample\
+      \ from batch 2, may not be included as an input for the batch correction algorithm,\n\
+      but is needed to validate whether whether the algorithm managed to correct the\
+      \ batch effect\nin batch 2 towards batch 1.\nThis sample will then be included\
+      \ in this dataset (but not in unintegrated\nand unintegrated_censored datasets).\
+      \  \n"
     info:
       format:
         type: "h5ad"
@@ -103,7 +110,9 @@ argument_groups:
   - type: "file"
     name: "--input_unintegrated"
     label: "Unintegrated"
-    summary: "Unintegrated dataset"
+    summary: "The complete unintegrated dataset, including all cells' metadata (columns)\
+      \ from the \nunintegrated_censored dataset. \nThe cells in this dataset are\
+      \ the same to those in the unintegrated_censored dataset.\n"
     info:
       format:
         type: "h5ad"
@@ -195,7 +204,7 @@ argument_groups:
   - type: "file"
     name: "--input_integrated"
     label: "Integrated"
-    summary: "Integrated dataset"
+    summary: "Integrated dataset which batch effect was corrected by an algorithm"
     info:
       format:
         type: "h5ad"
@@ -387,7 +396,7 @@ build_info:
   output: "target/nextflow/metrics/emd_per_samples"
   executable: "target/nextflow/metrics/emd_per_samples/main.nf"
   viash_version: "0.9.0"
-  git_commit: "836d0765ca18a82932486ee16f2cd283d282a3fe"
+  git_commit: "db4f9e2b6335d30b73b7d1bc44f81571096bbd0a"
   git_remote: "https://github.com/openproblems-bio/task_cyto_batch_integration"
 package_config:
   name: "task_cyto_batch_integration"
