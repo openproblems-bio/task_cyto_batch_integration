@@ -118,18 +118,23 @@ Arguments:
 | Name | Type | Description |
 |:---|:---|:---|
 | `--input` | `file` | A subset of the common dataset. |
-| `--output_unintegrated_censored` | `file` | (*Output*) Unintegrated dataset. |
-| `--output_unintegrated` | `file` | (*Output*) Unintegrated dataset. |
+| `--output_unintegrated_censored` | `file` | (*Output*) An unintegrated dataset with certain columns (cells metadata), such as the donor information, hidden. These columns are intentionally hidden to prevent bias. The batch correction algorithm should not have to rely on these information to properly integrate different batches. This dataset is used as the input for the batch correction algorithm. The cells therein are identical to those in the unintegrated dataset. |
+| `--output_unintegrated` | `file` | (*Output*) The complete unintegrated dataset, including all cells’ metadata (columns) from the unintegrated_censored dataset. The cells in this dataset are the same to those in the unintegrated_censored dataset. |
 | `--output_validation` | `file` | (*Output*) Hold-out dataset for validation. |
 
 </div>
 
 ## File format: Unintegrated Censored
 
-Unintegrated dataset
+An unintegrated dataset with certain columns (cells metadata), such as
+the donor information, hidden. These columns are intentionally hidden to
+prevent bias. The batch correction algorithm should not have to rely on
+these information to properly integrate different batches. This dataset
+is used as the input for the batch correction algorithm. The cells
+therein are identical to those in the unintegrated dataset.
 
 Example file:
-`resources_test/task_cyto_batch_integration/cxg_mouse_pancreas_atlas/train.h5ad`
+`resources_test/task_cyto_batch_integration/starter_file/unintegrated_censored.h5ad`
 
 Format:
 
@@ -170,10 +175,12 @@ Data structure:
 
 ## File format: Unintegrated
 
-Unintegrated dataset
+The complete unintegrated dataset, including all cells’ metadata
+(columns) from the unintegrated_censored dataset. The cells in this
+dataset are the same to those in the unintegrated_censored dataset.
 
 Example file:
-`resources_test/task_cyto_batch_integration/cxg_mouse_pancreas_atlas/train.h5ad`
+`resources_test/task_cyto_batch_integration/starter_file/unintegrated.h5ad`
 
 Format:
 
@@ -219,14 +226,22 @@ Data structure:
 Hold-out dataset for validation.
 
 Example file:
-`resources_test/task_cyto_batch_integration/cxg_mouse_pancreas_atlas/solution.h5ad`
+`resources_test/task_cyto_batch_integration/starter_file/validation.h5ad`
 
 Description:
 
-Samples that were held out and will later be used only to assess whether
-the batch integration was successful. E.g. if a donor from batch 2 was
-corrected towards batch 1, but also actually measured in batch 1
-(without being used as input to the algorithm).
+Dataset containing cells from samples that were held out for evaluating
+batch integration output. The cells that are in this dataset belong to
+samples which are not included in the unintegrated or
+unintegrated_censored datasets. For example, if samples from donor A are
+present in batch 1 and 2, the sample from batch 1 may be used as input
+for the batch correction algorithm (and thus present in unintegrated and
+unintegrated_censored datasets). The sample from batch 2, may not be
+included as an input for the batch correction algorithm, but is needed
+to validate whether whether the algorithm managed to correct the batch
+effect in batch 2 towards batch 1. This sample will then be included in
+this dataset (but not in unintegrated and unintegrated_censored
+datasets).
 
 Format:
 
@@ -269,16 +284,16 @@ Data structure:
 
 ## Component type: Method
 
-A method.
+A method for integrating batch effects in cytometry data.
 
 Arguments:
 
 <div class="small">
 
-| Name       | Type   | Description                    |
-|:-----------|:-------|:-------------------------------|
-| `--input`  | `file` | Unintegrated dataset.          |
-| `--output` | `file` | (*Output*) Integrated dataset. |
+| Name | Type | Description |
+|:---|:---|:---|
+| `--input` | `file` | An unintegrated dataset with certain columns (cells metadata), such as the donor information, hidden. These columns are intentionally hidden to prevent bias. The batch correction algorithm should not have to rely on these information to properly integrate different batches. This dataset is used as the input for the batch correction algorithm. The cells therein are identical to those in the unintegrated dataset. |
+| `--output` | `file` | (*Output*) Integrated dataset which batch effect was corrected by an algorithm. |
 
 </div>
 
@@ -290,11 +305,11 @@ Arguments:
 
 <div class="small">
 
-| Name                   | Type   | Description                      |
-|:-----------------------|:-------|:---------------------------------|
-| `--input_unintegrated` | `file` | Unintegrated dataset.            |
-| `--input_validation`   | `file` | Hold-out dataset for validation. |
-| `--output`             | `file` | (*Output*) Integrated dataset.   |
+| Name | Type | Description |
+|:---|:---|:---|
+| `--input_unintegrated` | `file` | The complete unintegrated dataset, including all cells’ metadata (columns) from the unintegrated_censored dataset. The cells in this dataset are the same to those in the unintegrated_censored dataset. |
+| `--input_validation` | `file` | Hold-out dataset for validation. |
+| `--output` | `file` | (*Output*) Integrated dataset which batch effect was corrected by an algorithm. |
 
 </div>
 
@@ -309,18 +324,18 @@ Arguments:
 | Name | Type | Description |
 |:---|:---|:---|
 | `--input_validation` | `file` | Hold-out dataset for validation. |
-| `--input_unintegrated` | `file` | Unintegrated dataset. |
-| `--input_integrated` | `file` | Integrated dataset. |
+| `--input_unintegrated` | `file` | The complete unintegrated dataset, including all cells’ metadata (columns) from the unintegrated_censored dataset. The cells in this dataset are the same to those in the unintegrated_censored dataset. |
+| `--input_integrated` | `file` | Integrated dataset which batch effect was corrected by an algorithm. |
 | `--output` | `file` | (*Output*) File indicating the score of a metric. |
 
 </div>
 
 ## File format: Integrated
 
-Integrated dataset
+Integrated dataset which batch effect was corrected by an algorithm
 
 Example file:
-`resources_test/task_cyto_batch_integration/cxg_mouse_pancreas_atlas/prediction.h5ad`
+`resources_test/task_cyto_batch_integration/starter_file/integrated.h5ad`
 
 Format:
 
@@ -350,14 +365,14 @@ Data structure:
 File indicating the score of a metric.
 
 Example file:
-`resources_test/task_cyto_batch_integration/cxg_mouse_pancreas_atlas/score.h5ad`
+`resources_test/task_cyto_batch_integration/starter_file/score.h5ad`
 
 Format:
 
 <div class="small">
 
     AnnData object
-     uns: 'dataset_id', 'normalization_id', 'method_id', 'metric_ids', 'metric_values'
+     uns: 'dataset_id', 'method_id', 'sample_ids', 'metric_ids', 'metric_values'
 
 </div>
 
@@ -368,10 +383,10 @@ Data structure:
 | Slot | Type | Description |
 |:---|:---|:---|
 | `uns["dataset_id"]` | `string` | A unique identifier for the dataset. |
-| `uns["normalization_id"]` | `string` | Which normalization was used. |
-| `uns["method_id"]` | `string` | A unique identifier for the method. |
+| `uns["method_id"]` | `string` | A unique identifier for the batch correction method. |
+| `uns["sample_ids"]` | `string` | The samples assessed by the metric. |
 | `uns["metric_ids"]` | `string` | One or more unique metric identifiers. |
-| `uns["metric_values"]` | `double` | The metric values obtained for the given prediction. Must be of same length as ‘metric_ids’. |
+| `uns["metric_values"]` | `double` | The metric values obtained. Must be of same length as ‘metric_ids’. |
 
 </div>
 
