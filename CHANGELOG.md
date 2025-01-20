@@ -21,6 +21,8 @@
 
 ## MAJOR CHANGES
 
+* Improved `metrics/emd_per_samples` component (PR #16)
+
 ## MINOR CHANGES
 
 * Enabled unit tests (PR #2).
