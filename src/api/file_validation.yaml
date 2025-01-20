@@ -3,10 +3,16 @@ example: "resources_test/task_cyto_batch_integration/starter_file/validation.h5a
 label: Validation
 summary: Hold-out dataset for validation. 
 description: |
-  Samples that were held out and will later be used only to assess whether
-  the batch integration was successful. E.g. if a donor from batch 2 was corrected towards batch 1,
-  but also actually measured in batch 1 (without being used as input to the algorithm).
-  
+  Dataset containing cells from samples that were held out for evaluating batch integration output. 
+  The cells that are in this dataset are not present in the unintegrated or unintegrated_censored datasets.
+  For example, if samples from donor A are present in batch 1 and 2, the sample from batch 1
+  may be used as input for the batch correction algorithm (and thus present in unintegrated
+  and unintegrated_censored datasets). 
+  The sample from batch 2, may not be included as an input for the batch correction algorithm,
+  but is needed to validate whether whether the algorithm managed to correct the batch effect
+  in batch 2 towards batch 1.
+  This sample will then be included in this dataset (but not in unintegrated
+  and unintegrated_censored datasets).  
 info:
   format:
     type: h5ad
