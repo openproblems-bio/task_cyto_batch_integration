@@ -81,7 +81,7 @@ engines:
     # https://viash.io/reference/config/engines/docker/#setup .
     setup:
       - type: python
-        packages: [anndata]
+        packages: [anndata, numpy, pandas]
         github: [TarikExner/CytoNormPy]
 
 runners:

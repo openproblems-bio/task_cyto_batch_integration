@@ -11,7 +11,6 @@ import pandas as pd
 par = {
     "input_integrated": "resources_test/task_cyto_batch_integration/starter_file/integrated.h5ad",
     "input_unintegrated": "resources_test/task_cyto_batch_integration/starter_file/unintegrated.h5ad",
-    # "input_unintegrated_censored": "resources_test/task_cyto_batch_integration/starter_file/unintegrated_censored.h5ad",
     "input_validation": "resources_test/task_cyto_batch_integration/starter_file/validation.h5ad",
     "output": "output.h5ad",
 }
@@ -24,11 +23,17 @@ input_integrated = ad.read_h5ad(par["input_integrated"])
 input_unintegrated = ad.read_h5ad(par["input_unintegrated"])
 input_validation = ad.read_h5ad(par["input_validation"])
 
-# TODO remove me. For testing during dev only
-# input_validation = input_integrated[input_integrated.obs["sample"] == 'Tube1_Batch2_WT'].copy()
-# input_validation.layers['preprocessed'] = input_validation.layers['integrated']
-# del input_validation.layers['integrated']
-# input_integrated = input_integrated[input_integrated.obs["sample"].isin(['Tube1_Batch1_WT', 'Tube2_Batch1_KO', 'Tube2_Batch2_KO'])].copy()
+# TODO uncomment me if you want to have some samples in validation but not in integrated
+# input_validation = input_integrated[
+#     input_integrated.obs["sample"] == "Tube1_Batch2_WT"
+# ].copy()
+# input_validation.layers["preprocessed"] = input_validation.layers["integrated"]
+# del input_validation.layers["integrated"]
+# input_integrated = input_integrated[
+#     input_integrated.obs["sample"].isin(
+#         ["Tube1_Batch1_WT", "Tube2_Batch1_KO", "Tube2_Batch2_KO"]
+#     )
+# ].copy()
 
 markers_to_assess = input_unintegrated.var[
     input_unintegrated.var["to_correct"]
@@ -40,42 +45,39 @@ print("Extracting samples to compute the metric for", flush=True)
 # the integrated data, get the donors name from the combination of input_validation
 # and input_unintegrated. Why? because depending on how we structure the input
 # for an algorithm we may include matching samples from same donor (which will then
-# appear in input_unintegrated) or not (which will then appear in input_validation).
+# appear in input_unintegrated) or not (which will then only appear in input_validation).
 # then get all samples belong to that donor, double check the batch id,
 # and compute the emd across the matching samples
 
-# samples processed by the batch correction algorithm
-samples_processed = np.unique(input_integrated.obs["sample"])
-
-# get the donors-sample map
-sample_donor_map_arr = np.unique(
-    input_unintegrated.obs[["sample", "donor"]].to_numpy().astype(str), axis=0
+# get all donors-sample map from data
+# for some dataset "scheme", matching samples from the same donor may not be given
+# as an input to the batch correction algorithm.
+# thus they will only exist in validation. we need this for each donor processed
+# by the batch correction algorithm.
+# Assumption here is that for a given donor, there must be at least 1 sample
+# processed by the batch correction algorithm, i.e., in uncorrected_censored (or uncorrected).
+sample_donor_map_arr = np.concatenate(
+    (
+        np.unique(
+            input_validation.obs[["sample", "donor"]].to_numpy().astype(str), axis=0
+        ),
+        np.unique(
+            input_integrated.obs[["sample", "donor"]].to_numpy().astype(str), axis=0
+        ),
+    )
 )
 # keep just the donors which samples were processed by the batch correction algorithm.
 # Why? we only need to compute the metric score for matching samples for donors that
-# are processed by the batch correction algorithm
+# are processed by the batch correction algorithm.
+# TODO can use list instead of set, because validation and unintegrated should not
+# share common samples? Keep set for now.
 sample_donor_dict = defaultdict(set)
 
 for sample_donor_pair in sample_donor_map_arr:
     sample = sample_donor_pair[0]
     donor = sample_donor_pair[1]
-    if sample in samples_processed:
-        sample_donor_dict[donor].add(sample)
-
-# for some dataset "scheme", matching samples from the same donor may not be given
-# as an input to the batch correction algorithm.
-# thus they will only exist in validation. we need this for each donor processed
-# by the batch correction algorithm.
-# note, this is also why the defaultdict is set to set because as we add more samples
-# for a given donor here, they will duplicate and we don't need them duplicated
-# below will just not run if input_validation has no rows.
-sample_donor_map_arr = np.unique(
-    input_validation.obs[["sample", "donor"]].to_numpy().astype(str), axis=0
-)
-for sample_donor_pair in sample_donor_map_arr:
-    donor = sample_donor_pair[1]
-    if donor in sample_donor_dict.keys():
-        sample_donor_dict[donor].add(sample_donor_pair[0])
+    # print("sample: %s, donor: %s" % (sample, donor))
+    sample_donor_dict[donor].add(sample_donor_pair[0])
 
 emd_integrated_per_donor = []
 samples_for_emd = []
@@ -95,6 +97,10 @@ for donor, samples in sample_donor_dict.items():
         input_validation.obs["sample"].isin(samples)
     ]
 
+    # keep just the markers we need to assess
+    input_integrated_donor = input_integrated_donor[:, markers_to_assess]
+    input_validation_donor = input_validation_donor[:, markers_to_assess]
+
     input_for_emd = ad.concat([input_integrated_donor, input_validation_donor])
     input_for_emd.layers["integrated"] = np.concatenate(
         (
@@ -110,7 +116,7 @@ for donor, samples in sample_donor_dict.items():
             % donor
         )
 
-    print("Compute metrics for donor %s" % donor, flush=True)
+    print("Computing EMD for donor %s" % donor, flush=True)
 
     # have to change the "sample" column to file_name for emd_comparison_from_anndata to work.
     # Otherwise the _calculate_emd_per_frame used in cytonormpy will error because they
@@ -133,7 +139,7 @@ for donor, samples in sample_donor_dict.items():
 
 emd_integrated_per_donor = pd.concat(emd_integrated_per_donor, ignore_index=True)
 
-print("Write output AnnData to file", flush=True)
+print("Assembling output AnnData", flush=True)
 output = ad.AnnData(
     uns={
         "dataset_id": input_integrated.uns["dataset_id"],
@@ -143,4 +149,6 @@ output = ad.AnnData(
         "sample_ids": samples_for_emd,
     }
 )
+
+print("Write output AnnData to file", flush=True)
 output.write_h5ad(par["output"], compression="gzip")
