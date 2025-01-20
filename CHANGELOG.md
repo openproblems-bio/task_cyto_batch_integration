@@ -27,5 +27,7 @@
 
 * Added integrated test resource (PR #5).
 
+* Updated file description in yaml file (PR #15).
+
 ## BUGFIXES
 
