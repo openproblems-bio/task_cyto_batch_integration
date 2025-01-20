@@ -1,8 +1,8 @@
 #TODO: Change to the required and/or optional fields of the anndata
 type: file
 example: "resources_test/task_cyto_batch_integration/starter_file/unintegrated.h5ad"
-label: Unintegrated
-summary: Unintegrated dataset
+label: "Unintegrated"
+summary: "Unintegrated dataset"
 
 info:
   format:

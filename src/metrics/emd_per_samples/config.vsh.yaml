@@ -39,6 +39,7 @@ info:
       max: .inf
       # Whether a higher value represents a 'better' solution (required)
       maximize: false
+  # Keep this just for future metrics' reference if required
   # Note: need this if we have component specific argument with no default.
   # When running the actual command, either split the sample name by ;
   # so Tube1_Batch1_WT;Tube1_Batch2_WT
@@ -51,27 +52,19 @@ info:
   #       - Tube1_Batch2_WT
       
 # Component-specific parameters (optional)
-# We shouldn't need layer as the input data (the integrated data) should already
-# have the integrated layer if it follows the file specification.
+# Keep for now for future metrics' reference if required
 # arguments:
 #   - name: "--samples_to_compare"
 #     type: "string"
 #     description: 2 samples to compare.
 #     required: true
 #     multiple: true
-#   - name: "--layer"
-#     type: "string"
-#     default: "integrated"
-#     description: The layer in input anndata containing the marker expression
 
 # Resources required to run the component
 resources:
   # The script of your component (required)
   - type: python_script
     path: script.py
-  # Additional resources your script needs (optional)
-  # - type: file
-  #   path: weights.pt
 
 engines:
   # Specifications for the Docker image for this component.
