@@ -4,7 +4,8 @@ label: Validation
 summary: Hold-out dataset for validation. 
 description: |
   Dataset containing cells from samples that were held out for evaluating batch integration output. 
-  The cells that are in this dataset are not present in the unintegrated or unintegrated_censored datasets.
+  The cells that are in this dataset belong to samples which are not included in the unintegrated 
+  or unintegrated_censored datasets.
   For example, if samples from donor A are present in batch 1 and 2, the sample from batch 1
   may be used as input for the batch correction algorithm (and thus present in unintegrated
   and unintegrated_censored datasets). 
