@@ -128,7 +128,6 @@ workflow run_wf {
         input_validation: "input_validation", 
         input_unintegrated: "input_unintegrated",
         input_integrated: "method_output",
-        samples_to_compare: "samples_to_compare"
       ],
       // use 'toState' to publish that component's outputs to the overall state
       toState: { id, output, state, comp ->
