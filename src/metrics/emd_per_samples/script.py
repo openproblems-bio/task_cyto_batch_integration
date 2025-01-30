@@ -139,13 +139,16 @@ for donor, samples in sample_donor_dict.items():
 
 emd_integrated_per_donor = pd.concat(emd_integrated_per_donor, ignore_index=True)
 
+max_emd = np.max(emd_integrated_per_donor)
+# mean_emd = np.mean(emd_integrated_per_donor)
+
 print("Assembling output AnnData", flush=True)
 output = ad.AnnData(
     uns={
         "dataset_id": input_integrated.uns["dataset_id"],
         "method_id": input_integrated.uns["method_id"],
-        "metric_ids": [f"EMD_per_sample_{x}" for x in emd_integrated_per_donor.columns],
-        "metric_values": emd_integrated_per_donor.to_numpy(),
+        "metric_ids": ["max_emd"],
+        "metric_values": [max_emd],
         "sample_ids": samples_for_emd,
     }
 )
