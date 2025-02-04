@@ -14,6 +14,7 @@ description: |
   in batch 2 towards batch 1.
   This sample will then be included in this dataset (but not in unintegrated
   and unintegrated_censored datasets).  
+  Only markers that need to be batch corrected are present.
 info:
   format:
     type: h5ad
@@ -43,6 +44,16 @@ info:
         name: group
         description: Biological group of the donor
         required: true
+      - type: integer
+        name: is_control
+        description: |
+          Whether the sample the cell came from can be used as a control for batch 
+          effect correction.
+          0: cannot be used as a control.
+          >= 1: can be used as a control.
+          For cells with >= 1: cells with the same value come from the same donor.
+          Different values indicate different donors.
+        required: true
     var:
       - type: integer
         name: numeric_id
@@ -60,15 +71,6 @@ info:
         name: marker_type
         description: Whether the marker is a functional or lineage marker
         required: true
-      - type: boolean
-        name: to_correct
-        description: Whether the marker will be batch corrected
-        required: true
-    # obsm:
-    #   - type: double
-    #     name: X_pca
-    #     description: The resulting PCA embedding.
-    #     required: true
     uns:
       - type: string
         name: dataset_id

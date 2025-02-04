@@ -2815,7 +2815,7 @@ meta = [
           "type" : "file",
           "name" : "--input_unintegrated_censored",
           "label" : "Unintegrated Censored",
-          "summary" : "An unintegrated dataset with certain columns (cells metadata), such as the donor information, hidden.\nThese columns are intentionally hidden to prevent bias.\nThe batch correction algorithm should not have to rely on these information \nto properly integrate different batches.\nThis dataset is used as the input for the batch correction algorithm. \nThe cells therein are identical to those in the unintegrated dataset. \n",
+          "summary" : "An unintegrated dataset with certain columns (cells metadata), such as the donor information, hidden.\nThese columns are intentionally hidden to prevent bias.\nThe batch correction algorithm should not have to rely on these information \nto properly integrate different batches.\nThis dataset is used as the input for the batch correction algorithm. \nThe cells therein are identical to those in the unintegrated dataset. \nOnly markers that need to be batch corrected are present.\n",
           "info" : {
             "format" : {
               "type" : "h5ad",
@@ -2841,10 +2841,10 @@ meta = [
                   "required" : true
                 },
                 {
-                  "type" : "string",
-                  "name" : "donor",
-                  "description" : "Donor ID",
-                  "required" : false
+                  "type" : "integer",
+                  "name" : "is_control",
+                  "description" : "Whether the sample the cell came from can be used as a control for batch \neffect correction.\n0: cannot be used as a control.\n>= 1: can be used as a control.\nFor cells with >= 1: cells with the same value come from the same donor.\nDifferent values indicate different donors.\n",
+                  "required" : true
                 }
               ],
               "var" : [
@@ -2870,12 +2870,6 @@ meta = [
                   "type" : "string",
                   "name" : "marker_type",
                   "description" : "Whether the marker is a functional or lineage marker",
-                  "required" : true
-                },
-                {
-                  "type" : "boolean",
-                  "name" : "to_correct",
-                  "description" : "Whether the marker will be batch corrected",
                   "required" : true
                 }
               ],
@@ -2939,7 +2933,7 @@ meta = [
           "type" : "file",
           "name" : "--input_unintegrated",
           "label" : "Unintegrated",
-          "summary" : "The complete unintegrated dataset, including all cells' metadata (columns) from the \nunintegrated_censored dataset. \nThe cells in this dataset are the same to those in the unintegrated_censored dataset.\n",
+          "summary" : "The complete unintegrated dataset, including all cells' metadata (columns) from the \nunintegrated_censored dataset. \nThe cells in this dataset are the same to those in the unintegrated_censored dataset.\nOnly markers that need to be batch corrected are present.\n",
           "info" : {
             "format" : {
               "type" : "h5ad",
@@ -2981,6 +2975,12 @@ meta = [
                   "name" : "group",
                   "description" : "Biological group of the donor",
                   "required" : true
+                },
+                {
+                  "type" : "integer",
+                  "name" : "is_control",
+                  "description" : "Whether the sample the cell came from can be used as a control for batch \neffect correction.\n0: cannot be used as a control.\n>= 1: can be used as a control.\nFor cells with >= 1: cells with the same value come from the same donor.\nDifferent values indicate different donors.\n",
+                  "required" : true
                 }
               ],
               "var" : [
@@ -3006,12 +3006,6 @@ meta = [
                   "type" : "string",
                   "name" : "marker_type",
                   "description" : "Whether the marker is a functional or lineage marker",
-                  "required" : true
-                },
-                {
-                  "type" : "boolean",
-                  "name" : "to_correct",
-                  "description" : "Whether the marker will be batch corrected",
                   "required" : true
                 }
               ],
@@ -3076,7 +3070,7 @@ meta = [
           "name" : "--input_validation",
           "label" : "Validation",
           "summary" : "Hold-out dataset for validation.",
-          "description" : "Dataset containing cells from samples that were held out for evaluating batch integration output. \nThe cells that are in this dataset belong to samples which are not included in the unintegrated \nor unintegrated_censored datasets.\nFor example, if samples from donor A are present in batch 1 and 2, the sample from batch 1\nmay be used as input for the batch correction algorithm (and thus present in unintegrated\nand unintegrated_censored datasets). \nThe sample from batch 2, may not be included as an input for the batch correction algorithm,\nbut is needed to validate whether whether the algorithm managed to correct the batch effect\nin batch 2 towards batch 1.\nThis sample will then be included in this dataset (but not in unintegrated\nand unintegrated_censored datasets).  \n",
+          "description" : "Dataset containing cells from samples that were held out for evaluating batch integration output. \nThe cells that are in this dataset belong to samples which are not included in the unintegrated \nor unintegrated_censored datasets.\nFor example, if samples from donor A are present in batch 1 and 2, the sample from batch 1\nmay be used as input for the batch correction algorithm (and thus present in unintegrated\nand unintegrated_censored datasets). \nThe sample from batch 2, may not be included as an input for the batch correction algorithm,\nbut is needed to validate whether whether the algorithm managed to correct the batch effect\nin batch 2 towards batch 1.\nThis sample will then be included in this dataset (but not in unintegrated\nand unintegrated_censored datasets).  \nOnly markers that need to be batch corrected are present.\n",
           "info" : {
             "format" : {
               "type" : "h5ad",
@@ -3118,6 +3112,12 @@ meta = [
                   "name" : "group",
                   "description" : "Biological group of the donor",
                   "required" : true
+                },
+                {
+                  "type" : "integer",
+                  "name" : "is_control",
+                  "description" : "Whether the sample the cell came from can be used as a control for batch \neffect correction.\n0: cannot be used as a control.\n>= 1: can be used as a control.\nFor cells with >= 1: cells with the same value come from the same donor.\nDifferent values indicate different donors.\n",
+                  "required" : true
                 }
               ],
               "var" : [
@@ -3143,12 +3143,6 @@ meta = [
                   "type" : "string",
                   "name" : "marker_type",
                   "description" : "Whether the marker is a functional or lineage marker",
-                  "required" : true
-                },
-                {
-                  "type" : "boolean",
-                  "name" : "to_correct",
-                  "description" : "Whether the marker will be batch corrected",
                   "required" : true
                 }
               ],
@@ -3422,7 +3416,7 @@ meta = [
     "engine" : "native",
     "output" : "target/nextflow/workflows/run_benchmark",
     "viash_version" : "0.9.0",
-    "git_commit" : "db4f9e2b6335d30b73b7d1bc44f81571096bbd0a",
+    "git_commit" : "1460c34719881c996380eafae0fdfc58ca7f0904",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {

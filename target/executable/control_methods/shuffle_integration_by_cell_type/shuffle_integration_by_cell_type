@@ -203,6 +203,7 @@ function ViashHelp {
   echo "        This sample will then be included in this dataset (but not in"
   echo "        unintegrated"
   echo "        and unintegrated_censored datasets)."
+  echo "        Only markers that need to be batch corrected are present."
   echo ""
   echo "    --output"
   echo "        type: file, required parameter, output, file must exist"
@@ -486,9 +487,9 @@ function ViashDockerfile {
 FROM openproblems/base_python:1.0.0
 ENTRYPOINT []
 LABEL org.opencontainers.image.description="Companion container for running component control_methods shuffle_integration_by_cell_type"
-LABEL org.opencontainers.image.created="2025-01-20T23:56:20Z"
+LABEL org.opencontainers.image.created="2025-02-04T10:45:36Z"
 LABEL org.opencontainers.image.source="https://github.com/openproblems-bio/task_cyto_batch_integration"
-LABEL org.opencontainers.image.revision="db4f9e2b6335d30b73b7d1bc44f81571096bbd0a"
+LABEL org.opencontainers.image.revision="1460c34719881c996380eafae0fdfc58ca7f0904"
 LABEL org.opencontainers.image.version="build_main"
 
 VIASHDOCKER
