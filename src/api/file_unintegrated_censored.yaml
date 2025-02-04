@@ -57,11 +57,6 @@ info:
         name: to_correct
         description: Whether the marker will be batch corrected
         required: true
-    # obsm:
-    #   - type: double
-    #     name: X_pca
-    #     description: The resulting PCA embedding.
-    #     required: true
     uns:
       - type: string
         name: dataset_id
