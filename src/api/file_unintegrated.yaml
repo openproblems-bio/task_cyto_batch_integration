@@ -6,6 +6,7 @@ summary: |
   The complete unintegrated dataset, including all cells' metadata (columns) from the 
   unintegrated_censored dataset. 
   The cells in this dataset are the same to those in the unintegrated_censored dataset.
+  Only markers that need to be batch corrected are present.
 info:
   format:
     type: h5ad
@@ -62,15 +63,6 @@ info:
         name: marker_type
         description: Whether the marker is a functional or lineage marker
         required: true
-      - type: boolean
-        name: to_correct
-        description: Whether the marker will be batch corrected
-        required: true
-    # obsm:
-    #   - type: double
-    #     name: X_pca
-    #     description: The resulting PCA embedding.
-    #     required: true
     uns:
       - type: string
         name: dataset_id

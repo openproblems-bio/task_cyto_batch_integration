@@ -14,6 +14,7 @@ description: |
   in batch 2 towards batch 1.
   This sample will then be included in this dataset (but not in unintegrated
   and unintegrated_censored datasets).  
+  Only markers that need to be batch corrected are present.
 info:
   format:
     type: h5ad
@@ -70,15 +71,6 @@ info:
         name: marker_type
         description: Whether the marker is a functional or lineage marker
         required: true
-      - type: boolean
-        name: to_correct
-        description: Whether the marker will be batch corrected
-        required: true
-    # obsm:
-    #   - type: double
-    #     name: X_pca
-    #     description: The resulting PCA embedding.
-    #     required: true
     uns:
       - type: string
         name: dataset_id
