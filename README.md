@@ -73,7 +73,7 @@ Format:
 <div class="small">
 
     AnnData object
-     obs: 'cell_type', 'batch', 'sample', 'donor', 'group'
+     obs: 'cell_type', 'batch', 'sample', 'donor', 'group', 'is_control', 'is_validation'
      var: 'numeric_id', 'channel', 'marker', 'marker_type', 'to_correct'
      layers: 'preprocessed'
      uns: 'dataset_id', 'dataset_name', 'dataset_url', 'dataset_reference', 'dataset_summary', 'dataset_description', 'dataset_organism'
@@ -91,6 +91,8 @@ Data structure:
 | `obs["sample"]` | `string` | Sample ID. |
 | `obs["donor"]` | `string` | Donor ID. |
 | `obs["group"]` | `string` | Biological group of the donor. |
+| `obs["is_control"]` | `integer` | Whether the sample the cell came from can be used as a control for batch effect correction. 0: cannot be used as a control. \>= 1: can be used as a control. For cells with \>= 1: cells with the same value come from the same donor. Different values indicate different donors. |
+| `obs["is_validation"]` | `boolean` | Whether the cell will be used as validation data or not. If FALSE, then the cell will only be included in unintegrated and unintegrated_censored. If TRUE, then the cell will only be included in validation. |
 | `var["numeric_id"]` | `integer` | Numeric ID associated with each marker. |
 | `var["channel"]` | `string` | The channel / detector of the instrument. |
 | `var["marker"]` | `string` | (*Optional*) The marker name associated with the channel. |
@@ -118,8 +120,8 @@ Arguments:
 | Name | Type | Description |
 |:---|:---|:---|
 | `--input` | `file` | A subset of the common dataset. |
-| `--output_unintegrated_censored` | `file` | (*Output*) An unintegrated dataset with certain columns (cells metadata), such as the donor information, hidden. These columns are intentionally hidden to prevent bias. The batch correction algorithm should not have to rely on these information to properly integrate different batches. This dataset is used as the input for the batch correction algorithm. The cells therein are identical to those in the unintegrated dataset. |
-| `--output_unintegrated` | `file` | (*Output*) The complete unintegrated dataset, including all cells’ metadata (columns) from the unintegrated_censored dataset. The cells in this dataset are the same to those in the unintegrated_censored dataset. |
+| `--output_unintegrated_censored` | `file` | (*Output*) An unintegrated dataset with certain columns (cells metadata), such as the donor information, hidden. These columns are intentionally hidden to prevent bias. The batch correction algorithm should not have to rely on these information to properly integrate different batches. This dataset is used as the input for the batch correction algorithm. The cells therein are identical to those in the unintegrated dataset. Only markers that need to be batch corrected are present. |
+| `--output_unintegrated` | `file` | (*Output*) The complete unintegrated dataset, including all cells’ metadata (columns) from the unintegrated_censored dataset. The cells in this dataset are the same to those in the unintegrated_censored dataset. Only markers that need to be batch corrected are present. |
 | `--output_validation` | `file` | (*Output*) Hold-out dataset for validation. |
 
 </div>
@@ -131,7 +133,8 @@ the donor information, hidden. These columns are intentionally hidden to
 prevent bias. The batch correction algorithm should not have to rely on
 these information to properly integrate different batches. This dataset
 is used as the input for the batch correction algorithm. The cells
-therein are identical to those in the unintegrated dataset.
+therein are identical to those in the unintegrated dataset. Only markers
+that need to be batch corrected are present.
 
 Example file:
 `resources_test/task_cyto_batch_integration/starter_file/unintegrated_censored.h5ad`
@@ -141,8 +144,8 @@ Format:
 <div class="small">
 
     AnnData object
-     obs: 'batch', 'sample', 'donor'
-     var: 'numeric_id', 'channel', 'marker', 'marker_type', 'to_correct'
+     obs: 'batch', 'sample', 'is_control'
+     var: 'numeric_id', 'channel', 'marker', 'marker_type'
      layers: 'preprocessed'
      uns: 'dataset_id', 'dataset_name', 'dataset_url', 'dataset_reference', 'dataset_summary', 'dataset_description', 'dataset_organism'
 
@@ -156,12 +159,11 @@ Data structure:
 |:---|:---|:---|
 | `obs["batch"]` | `string` | Batch information. |
 | `obs["sample"]` | `string` | Sample ID. |
-| `obs["donor"]` | `string` | (*Optional*) Donor ID. |
+| `obs["is_control"]` | `integer` | Whether the sample the cell came from can be used as a control for batch effect correction. 0: cannot be used as a control. \>= 1: can be used as a control. For cells with \>= 1: cells with the same value come from the same donor. Different values indicate different donors. |
 | `var["numeric_id"]` | `integer` | Numeric ID associated with each marker. |
 | `var["channel"]` | `string` | The channel / detector of the instrument. |
 | `var["marker"]` | `string` | (*Optional*) The marker name associated with the channel. |
 | `var["marker_type"]` | `string` | Whether the marker is a functional or lineage marker. |
-| `var["to_correct"]` | `boolean` | Whether the marker will be batch corrected. |
 | `layers["preprocessed"]` | `double` | preprocessed data, e.g. already compensated, transformed and debris/doublets removed. |
 | `uns["dataset_id"]` | `string` | A unique identifier for the dataset. |
 | `uns["dataset_name"]` | `string` | Nicely formatted name. |
@@ -177,7 +179,8 @@ Data structure:
 
 The complete unintegrated dataset, including all cells’ metadata
 (columns) from the unintegrated_censored dataset. The cells in this
-dataset are the same to those in the unintegrated_censored dataset.
+dataset are the same to those in the unintegrated_censored dataset. Only
+markers that need to be batch corrected are present.
 
 Example file:
 `resources_test/task_cyto_batch_integration/starter_file/unintegrated.h5ad`
@@ -187,8 +190,8 @@ Format:
 <div class="small">
 
     AnnData object
-     obs: 'cell_type', 'batch', 'sample', 'donor', 'group'
-     var: 'numeric_id', 'channel', 'marker', 'marker_type', 'to_correct'
+     obs: 'cell_type', 'batch', 'sample', 'donor', 'group', 'is_control'
+     var: 'numeric_id', 'channel', 'marker', 'marker_type'
      layers: 'preprocessed'
      uns: 'dataset_id', 'dataset_name', 'dataset_url', 'dataset_reference', 'dataset_summary', 'dataset_description', 'dataset_organism'
 
@@ -205,11 +208,11 @@ Data structure:
 | `obs["sample"]` | `string` | Sample ID. |
 | `obs["donor"]` | `string` | Donor ID. |
 | `obs["group"]` | `string` | Biological group of the donor. |
+| `obs["is_control"]` | `integer` | Whether the sample the cell came from can be used as a control for batch effect correction. 0: cannot be used as a control. \>= 1: can be used as a control. For cells with \>= 1: cells with the same value come from the same donor. Different values indicate different donors. |
 | `var["numeric_id"]` | `integer` | Numeric ID associated with each marker. |
 | `var["channel"]` | `string` | The channel / detector of the instrument. |
 | `var["marker"]` | `string` | (*Optional*) The marker name associated with the channel. |
 | `var["marker_type"]` | `string` | Whether the marker is a functional or lineage marker. |
-| `var["to_correct"]` | `boolean` | Whether the marker will be batch corrected. |
 | `layers["preprocessed"]` | `double` | preprocessed data, e.g. already compensated, transformed and debris/doublets removed. |
 | `uns["dataset_id"]` | `string` | A unique identifier for the dataset. |
 | `uns["dataset_name"]` | `string` | Nicely formatted name. |
@@ -241,15 +244,16 @@ included as an input for the batch correction algorithm, but is needed
 to validate whether whether the algorithm managed to correct the batch
 effect in batch 2 towards batch 1. This sample will then be included in
 this dataset (but not in unintegrated and unintegrated_censored
-datasets).
+datasets).  
+Only markers that need to be batch corrected are present.
 
 Format:
 
 <div class="small">
 
     AnnData object
-     obs: 'cell_type', 'batch', 'sample', 'donor', 'group'
-     var: 'numeric_id', 'channel', 'marker', 'marker_type', 'to_correct'
+     obs: 'cell_type', 'batch', 'sample', 'donor', 'group', 'is_control'
+     var: 'numeric_id', 'channel', 'marker', 'marker_type'
      layers: 'preprocessed'
      uns: 'dataset_id', 'dataset_name', 'dataset_url', 'dataset_reference', 'dataset_summary', 'dataset_description', 'dataset_organism'
 
@@ -266,11 +270,11 @@ Data structure:
 | `obs["sample"]` | `string` | Sample ID. |
 | `obs["donor"]` | `string` | Donor ID. |
 | `obs["group"]` | `string` | Biological group of the donor. |
+| `obs["is_control"]` | `integer` | Whether the sample the cell came from can be used as a control for batch effect correction. 0: cannot be used as a control. \>= 1: can be used as a control. For cells with \>= 1: cells with the same value come from the same donor. Different values indicate different donors. |
 | `var["numeric_id"]` | `integer` | Numeric ID associated with each marker. |
 | `var["channel"]` | `string` | The channel / detector of the instrument. |
 | `var["marker"]` | `string` | (*Optional*) The marker name associated with the channel. |
 | `var["marker_type"]` | `string` | Whether the marker is a functional or lineage marker. |
-| `var["to_correct"]` | `boolean` | Whether the marker will be batch corrected. |
 | `layers["preprocessed"]` | `double` | preprocessed data, e.g. already compensated, transformed and debris/doublets removed. |
 | `uns["dataset_id"]` | `string` | A unique identifier for the dataset. |
 | `uns["dataset_name"]` | `string` | Nicely formatted name. |
@@ -292,7 +296,7 @@ Arguments:
 
 | Name | Type | Description |
 |:---|:---|:---|
-| `--input` | `file` | An unintegrated dataset with certain columns (cells metadata), such as the donor information, hidden. These columns are intentionally hidden to prevent bias. The batch correction algorithm should not have to rely on these information to properly integrate different batches. This dataset is used as the input for the batch correction algorithm. The cells therein are identical to those in the unintegrated dataset. |
+| `--input` | `file` | An unintegrated dataset with certain columns (cells metadata), such as the donor information, hidden. These columns are intentionally hidden to prevent bias. The batch correction algorithm should not have to rely on these information to properly integrate different batches. This dataset is used as the input for the batch correction algorithm. The cells therein are identical to those in the unintegrated dataset. Only markers that need to be batch corrected are present. |
 | `--output` | `file` | (*Output*) Integrated dataset which batch effect was corrected by an algorithm. |
 
 </div>
@@ -307,7 +311,7 @@ Arguments:
 
 | Name | Type | Description |
 |:---|:---|:---|
-| `--input_unintegrated` | `file` | The complete unintegrated dataset, including all cells’ metadata (columns) from the unintegrated_censored dataset. The cells in this dataset are the same to those in the unintegrated_censored dataset. |
+| `--input_unintegrated` | `file` | The complete unintegrated dataset, including all cells’ metadata (columns) from the unintegrated_censored dataset. The cells in this dataset are the same to those in the unintegrated_censored dataset. Only markers that need to be batch corrected are present. |
 | `--input_validation` | `file` | Hold-out dataset for validation. |
 | `--output` | `file` | (*Output*) Integrated dataset which batch effect was corrected by an algorithm. |
 
@@ -324,7 +328,7 @@ Arguments:
 | Name | Type | Description |
 |:---|:---|:---|
 | `--input_validation` | `file` | Hold-out dataset for validation. |
-| `--input_unintegrated` | `file` | The complete unintegrated dataset, including all cells’ metadata (columns) from the unintegrated_censored dataset. The cells in this dataset are the same to those in the unintegrated_censored dataset. |
+| `--input_unintegrated` | `file` | The complete unintegrated dataset, including all cells’ metadata (columns) from the unintegrated_censored dataset. The cells in this dataset are the same to those in the unintegrated_censored dataset. Only markers that need to be batch corrected are present. |
 | `--input_integrated` | `file` | Integrated dataset which batch effect was corrected by an algorithm. |
 | `--output` | `file` | (*Output*) File indicating the score of a metric. |
 
