@@ -2815,7 +2815,7 @@ meta = [
           "type" : "file",
           "name" : "--input",
           "label" : "Unintegrated Censored",
-          "summary" : "An unintegrated dataset with certain columns (cells metadata), such as the donor information, hidden.\nThese columns are intentionally hidden to prevent bias.\nThe batch correction algorithm should not have to rely on these information \nto properly integrate different batches.\nThis dataset is used as the input for the batch correction algorithm. \nThe cells therein are identical to those in the unintegrated dataset. \nOnly markers that need to be batch corrected are present.\n",
+          "summary" : "An unintegrated dataset with certain columns (cells metadata), such as the donor information, hidden.\nThese columns are intentionally hidden to prevent bias.\nThe batch correction algorithm should not have to rely on these information \nto properly integrate different batches.\nThis dataset is used as the input for the batch correction algorithm. \nThe cells therein are identical to those in the unintegrated dataset. \n",
           "info" : {
             "format" : {
               "type" : "h5ad",
@@ -2841,10 +2841,10 @@ meta = [
                   "required" : true
                 },
                 {
-                  "type" : "integer",
-                  "name" : "is_control",
-                  "description" : "Whether the sample the cell came from can be used as a control for batch \neffect correction.\n0: cannot be used as a control.\n>= 1: can be used as a control.\nFor cells with >= 1: cells with the same value come from the same donor.\nDifferent values indicate different donors.\n",
-                  "required" : true
+                  "type" : "string",
+                  "name" : "donor",
+                  "description" : "Donor ID",
+                  "required" : false
                 }
               ],
               "var" : [
@@ -2870,6 +2870,12 @@ meta = [
                   "type" : "string",
                   "name" : "marker_type",
                   "description" : "Whether the marker is a functional or lineage marker",
+                  "required" : true
+                },
+                {
+                  "type" : "boolean",
+                  "name" : "to_correct",
+                  "description" : "Whether the marker will be batch corrected",
                   "required" : true
                 }
               ],
@@ -3102,7 +3108,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/methods/harmonypy",
     "viash_version" : "0.9.0",
-    "git_commit" : "1460c34719881c996380eafae0fdfc58ca7f0904",
+    "git_commit" : "a011db4c8d941b0d2a485486988963413fdef6a1",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {

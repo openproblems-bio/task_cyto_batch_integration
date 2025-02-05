@@ -29,10 +29,5 @@
 
 * Updated file description in yaml file (PR #15).
 
-* Updated file schema (PR #18): 
-  * Add is_control obs to indicate whether a cell should be used as control when correcting batch effect.
-  * Removed donor_id obs from unintegrated censored.
-  * Removed to_correct var from everything except common_dataset. All datasets now will only contain markers that need to be corrected.
-
 ## BUGFIXES
 
