@@ -21,7 +21,7 @@
 
 ## MAJOR CHANGES
 
-* Data Processor component partitions cells between unintegrated(censored) and validation (#PR20) 
+* Data Processor component partitions cells between unintegrated(censored) and validation (#PR21) 
 
 ## MINOR CHANGES
 
