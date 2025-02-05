@@ -2857,6 +2857,18 @@ meta = [
                   "name" : "group",
                   "description" : "Biological group of the donor",
                   "required" : true
+                },
+                {
+                  "type" : "integer",
+                  "name" : "is_control",
+                  "description" : "Whether the sample the cell came from can be used as a control for batch \neffect correction.\n0: cannot be used as a control.\n>= 1: can be used as a control.\nFor cells with >= 1: cells with the same value come from the same donor.\nDifferent values indicate different donors.\n",
+                  "required" : true
+                },
+                {
+                  "type" : "boolean",
+                  "name" : "is_validation",
+                  "description" : "Whether the cell will be used as validation data or not.\nIf FALSE, then the cell will only be included in unintegrated and unintegrated_censored.\nIf TRUE, then the cell will only be included in validation.\n",
+                  "required" : true
                 }
               ],
               "var" : [
@@ -2982,10 +2994,10 @@ meta = [
                   "required" : true
                 },
                 {
-                  "type" : "string",
-                  "name" : "donor",
-                  "description" : "Donor ID",
-                  "required" : false
+                  "type" : "integer",
+                  "name" : "is_control",
+                  "description" : "Whether the sample the cell came from can be used as a control for batch \neffect correction.\n0: cannot be used as a control.\n>= 1: can be used as a control.\nFor cells with >= 1: cells with the same value come from the same donor.\nDifferent values indicate different donors.\n",
+                  "required" : true
                 }
               ],
               "var" : [
@@ -3121,6 +3133,12 @@ meta = [
                   "type" : "string",
                   "name" : "group",
                   "description" : "Biological group of the donor",
+                  "required" : true
+                },
+                {
+                  "type" : "integer",
+                  "name" : "is_control",
+                  "description" : "Whether the sample the cell came from can be used as a control for batch \neffect correction.\n0: cannot be used as a control.\n>= 1: can be used as a control.\nFor cells with >= 1: cells with the same value come from the same donor.\nDifferent values indicate different donors.\n",
                   "required" : true
                 }
               ],
@@ -3258,6 +3276,12 @@ meta = [
                   "type" : "string",
                   "name" : "group",
                   "description" : "Biological group of the donor",
+                  "required" : true
+                },
+                {
+                  "type" : "integer",
+                  "name" : "is_control",
+                  "description" : "Whether the sample the cell came from can be used as a control for batch \neffect correction.\n0: cannot be used as a control.\n>= 1: can be used as a control.\nFor cells with >= 1: cells with the same value come from the same donor.\nDifferent values indicate different donors.\n",
                   "required" : true
                 }
               ],
@@ -3439,7 +3463,7 @@ meta = [
     "engine" : "native",
     "output" : "target/nextflow/workflows/process_datasets",
     "viash_version" : "0.9.0",
-    "git_commit" : "a011db4c8d941b0d2a485486988963413fdef6a1",
+    "git_commit" : "511c48bdb9a2cc0d73c299cbb4cefedc379ed90f",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {

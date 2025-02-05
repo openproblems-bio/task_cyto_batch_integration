@@ -73,7 +73,7 @@ Format:
 <div class="small">
 
     AnnData object
-     obs: 'cell_type', 'batch', 'sample', 'donor', 'group'
+     obs: 'cell_type', 'batch', 'sample', 'donor', 'group', 'is_control', 'is_validation'
      var: 'numeric_id', 'channel', 'marker', 'marker_type', 'to_correct'
      layers: 'preprocessed'
      uns: 'dataset_id', 'dataset_name', 'dataset_url', 'dataset_reference', 'dataset_summary', 'dataset_description', 'dataset_organism'
@@ -91,6 +91,8 @@ Data structure:
 | `obs["sample"]` | `string` | Sample ID. |
 | `obs["donor"]` | `string` | Donor ID. |
 | `obs["group"]` | `string` | Biological group of the donor. |
+| `obs["is_control"]` | `integer` | Whether the sample the cell came from can be used as a control for batch effect correction. 0: cannot be used as a control. \>= 1: can be used as a control. For cells with \>= 1: cells with the same value come from the same donor. Different values indicate different donors. |
+| `obs["is_validation"]` | `boolean` | Whether the cell will be used as validation data or not. If FALSE, then the cell will only be included in unintegrated and unintegrated_censored. If TRUE, then the cell will only be included in validation. |
 | `var["numeric_id"]` | `integer` | Numeric ID associated with each marker. |
 | `var["channel"]` | `string` | The channel / detector of the instrument. |
 | `var["marker"]` | `string` | (*Optional*) The marker name associated with the channel. |
@@ -141,7 +143,7 @@ Format:
 <div class="small">
 
     AnnData object
-     obs: 'batch', 'sample', 'donor'
+     obs: 'batch', 'sample', 'is_control'
      var: 'numeric_id', 'channel', 'marker', 'marker_type', 'to_correct'
      layers: 'preprocessed'
      uns: 'dataset_id', 'dataset_name', 'dataset_url', 'dataset_reference', 'dataset_summary', 'dataset_description', 'dataset_organism'
@@ -156,7 +158,7 @@ Data structure:
 |:---|:---|:---|
 | `obs["batch"]` | `string` | Batch information. |
 | `obs["sample"]` | `string` | Sample ID. |
-| `obs["donor"]` | `string` | (*Optional*) Donor ID. |
+| `obs["is_control"]` | `integer` | Whether the sample the cell came from can be used as a control for batch effect correction. 0: cannot be used as a control. \>= 1: can be used as a control. For cells with \>= 1: cells with the same value come from the same donor. Different values indicate different donors. |
 | `var["numeric_id"]` | `integer` | Numeric ID associated with each marker. |
 | `var["channel"]` | `string` | The channel / detector of the instrument. |
 | `var["marker"]` | `string` | (*Optional*) The marker name associated with the channel. |
@@ -187,7 +189,7 @@ Format:
 <div class="small">
 
     AnnData object
-     obs: 'cell_type', 'batch', 'sample', 'donor', 'group'
+     obs: 'cell_type', 'batch', 'sample', 'donor', 'group', 'is_control'
      var: 'numeric_id', 'channel', 'marker', 'marker_type', 'to_correct'
      layers: 'preprocessed'
      uns: 'dataset_id', 'dataset_name', 'dataset_url', 'dataset_reference', 'dataset_summary', 'dataset_description', 'dataset_organism'
@@ -205,6 +207,7 @@ Data structure:
 | `obs["sample"]` | `string` | Sample ID. |
 | `obs["donor"]` | `string` | Donor ID. |
 | `obs["group"]` | `string` | Biological group of the donor. |
+| `obs["is_control"]` | `integer` | Whether the sample the cell came from can be used as a control for batch effect correction. 0: cannot be used as a control. \>= 1: can be used as a control. For cells with \>= 1: cells with the same value come from the same donor. Different values indicate different donors. |
 | `var["numeric_id"]` | `integer` | Numeric ID associated with each marker. |
 | `var["channel"]` | `string` | The channel / detector of the instrument. |
 | `var["marker"]` | `string` | (*Optional*) The marker name associated with the channel. |
@@ -248,7 +251,7 @@ Format:
 <div class="small">
 
     AnnData object
-     obs: 'cell_type', 'batch', 'sample', 'donor', 'group'
+     obs: 'cell_type', 'batch', 'sample', 'donor', 'group', 'is_control'
      var: 'numeric_id', 'channel', 'marker', 'marker_type', 'to_correct'
      layers: 'preprocessed'
      uns: 'dataset_id', 'dataset_name', 'dataset_url', 'dataset_reference', 'dataset_summary', 'dataset_description', 'dataset_organism'
@@ -266,6 +269,7 @@ Data structure:
 | `obs["sample"]` | `string` | Sample ID. |
 | `obs["donor"]` | `string` | Donor ID. |
 | `obs["group"]` | `string` | Biological group of the donor. |
+| `obs["is_control"]` | `integer` | Whether the sample the cell came from can be used as a control for batch effect correction. 0: cannot be used as a control. \>= 1: can be used as a control. For cells with \>= 1: cells with the same value come from the same donor. Different values indicate different donors. |
 | `var["numeric_id"]` | `integer` | Numeric ID associated with each marker. |
 | `var["channel"]` | `string` | The channel / detector of the instrument. |
 | `var["marker"]` | `string` | (*Optional*) The marker name associated with the channel. |
