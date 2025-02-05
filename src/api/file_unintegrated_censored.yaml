@@ -9,7 +9,6 @@ summary: |
   to properly integrate different batches.
   This dataset is used as the input for the batch correction algorithm. 
   The cells therein are identical to those in the unintegrated dataset. 
-  Only markers that need to be batch corrected are present.
 info:
   format:
     type: h5ad
@@ -53,6 +52,10 @@ info:
       - type: string
         name: marker_type
         description: Whether the marker is a functional or lineage marker
+        required: true
+      - type: boolean
+        name: to_correct
+        description: Whether the marker will be batch corrected
         required: true
     uns:
       - type: string
