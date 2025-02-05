@@ -21,6 +21,8 @@
 
 ## MAJOR CHANGES
 
+* Data Processor component partitions cells between unintegrated(censored) and validation (#PR20) 
+
 ## MINOR CHANGES
 
 * Enabled unit tests (PR #2).
