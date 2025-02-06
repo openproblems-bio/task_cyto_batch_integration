@@ -38,9 +38,11 @@ input_integrated.obs = input_unintegrated.obs.loc[input_integrated.obs_names]
 #     )
 # ].copy()
 
-markers_to_assess = input_unintegrated.var[
-    input_unintegrated.var["to_correct"]
-].index.to_numpy()
+# markers_to_assess = input_integrated.var[
+#     input_integrated.var["to_correct"]
+# ].index.to_numpy()
+
+markers_to_assess = input_integrated.var.index.to_numpy()
 
 print("Extracting samples to compute the metric for", flush=True)
 

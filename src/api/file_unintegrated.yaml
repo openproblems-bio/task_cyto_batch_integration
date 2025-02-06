@@ -1,9 +1,11 @@
 #TODO: Change to the required and/or optional fields of the anndata
 type: file
 example: "resources_test/task_cyto_batch_integration/starter_file/unintegrated.h5ad"
-label: "Unintegrated"
-summary: "Unintegrated dataset"
-
+label: Unintegrated
+summary: |
+  The complete unintegrated dataset, including all cells' metadata (columns) from the 
+  unintegrated_censored dataset. 
+  The cells in this dataset are the same to those in the unintegrated_censored dataset.
 info:
   format:
     type: h5ad
@@ -33,6 +35,16 @@ info:
         name: group
         description: Biological group of the donor
         required: true
+      - type: integer
+        name: is_control
+        description: |
+          Whether the sample the cell came from can be used as a control for batch 
+          effect correction.
+          0: cannot be used as a control.
+          >= 1: can be used as a control.
+          For cells with >= 1: cells with the same value come from the same donor.
+          Different values indicate different donors.
+        required: true
     var:
       - type: integer
         name: numeric_id
@@ -54,11 +66,6 @@ info:
         name: to_correct
         description: Whether the marker will be batch corrected
         required: true
-    # obsm:
-    #   - type: double
-    #     name: X_pca
-    #     description: The resulting PCA embedding.
-    #     required: true
     uns:
       - type: string
         name: dataset_id

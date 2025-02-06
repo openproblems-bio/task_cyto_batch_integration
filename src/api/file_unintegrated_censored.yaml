@@ -1,8 +1,14 @@
 #TODO: Change to the required and/or optional fields of the anndata
 type: file
 example: "resources_test/task_cyto_batch_integration/starter_file/unintegrated_censored.h5ad"
-label: "Unintegrated Censored"
-summary: "Unintegrated dataset"
+label: Unintegrated Censored
+summary: |
+  An unintegrated dataset with certain columns (cells metadata), such as the donor information, hidden.
+  These columns are intentionally hidden to prevent bias.
+  The batch correction algorithm should not have to rely on these information 
+  to properly integrate different batches.
+  This dataset is used as the input for the batch correction algorithm. 
+  The cells therein are identical to those in the unintegrated dataset. 
 info:
   format:
     type: h5ad
@@ -20,10 +26,16 @@ info:
         name: sample
         description: Sample ID
         required: true
-      - type: string
-        name: donor
-        description: Donor ID
-        required: false
+      - type: integer
+        name: is_control
+        description: |
+          Whether the sample the cell came from can be used as a control for batch 
+          effect correction.
+          0: cannot be used as a control.
+          >= 1: can be used as a control.
+          For cells with >= 1: cells with the same value come from the same donor.
+          Different values indicate different donors.
+        required: true
     var:
       - type: integer
         name: numeric_id
@@ -45,11 +57,6 @@ info:
         name: to_correct
         description: Whether the marker will be batch corrected
         required: true
-    # obsm:
-    #   - type: double
-    #     name: X_pca
-    #     description: The resulting PCA embedding.
-    #     required: true
     uns:
       - type: string
         name: dataset_id
