@@ -27,13 +27,12 @@ print(">> Load data", flush=True)
 adata = ad.read_h5ad(par["input"])
 print("input:", adata)
 
-validation_names = par["validation_sample_names"] or []
-is_validation = adata.obs["sample"].isin(validation_names)
+print(">> Creating unintegrated data", flush=True)
 
+adata_unintegrated = adata[adata.obs.is_validation==False]
 
-print(">> Creating train data", flush=True)
 output_unintegrated = subset_h5ad_by_format(
-    adata[[not x for x in is_validation]],
+    adata_unintegrated,
     config,
     "output_unintegrated"
 )
@@ -41,15 +40,18 @@ print(f"output_unintegrated: {output_unintegrated}")
 
 print(">> Creating test data", flush=True)
 output_unintegrated_censored = subset_h5ad_by_format(
-    adata[[not x for x in is_validation]],
+    adata_unintegrated,
     config,
     "output_unintegrated_censored"
 )
 print(f"output_unintegrated_censored: {output_unintegrated_censored}")
 
-print(">> Creating solution data", flush=True)
+print(">> Creating validation data", flush=True)
+
+adata_validation = adata[adata.obs.is_validation==True]
+
 output_validation = subset_h5ad_by_format(
-    adata[is_validation],
+    adata_validation,
     config,
     "output_validation"
 )

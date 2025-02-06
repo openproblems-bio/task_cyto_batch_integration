@@ -36,7 +36,7 @@ mkdir -p $DATASET_DIR
 python << HERE
 import anndata as ad
 
-adata = ad.read_h5ad("resources_test/task_cyto_batch_integration/starter_file/original_dataset.h5ad")
+adata = ad.read_h5ad("resources_test/task_cyto_batch_integration/starter_file/common_dataset.h5ad")
 
 channelsofinterest = ['UV379-A',
  'UV515-A',
