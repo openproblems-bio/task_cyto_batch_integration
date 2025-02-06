@@ -6,8 +6,9 @@ import cytonormpy as cnp
 # in config.vsh.yaml and then run `viash config inject config.vsh.yaml`.
 par = {
     "input_integrated": "resources_test/task_cyto_batch_integration/starter_file/integrated.h5ad",
+    "input_unintegrated": "resources_test/task_cyto_batch_integration/starter_file/unintegrated.h5ad",
     "output": "output.h5ad",
-    "samples_to_compare": "Tube1_Batch1_WT,Tube1_Batch2_WT",
+    "samples_to_compare": ["Mouse1_Batch1_WT", "Mouse1_Batch2_WT"],
     "layer": "integrated",
 }
 meta = {"name": "emd_per_samples"}
@@ -22,7 +23,11 @@ samples_to_compare = [x.strip() for x in par["samples_to_compare"]]
 
 layer = par["layer"]
 
-markers_to_assess = input_integrated.var[input_integrated.var["to_correct"]].index.to_numpy()
+# markers_to_assess = input_integrated.var[
+#     input_integrated.var["to_correct"]
+# ].index.to_numpy()
+
+markers_to_assess = input_integrated.var.index.to_numpy()
 
 print("Compute metrics", flush=True)
 
@@ -30,7 +35,8 @@ print("Compute metrics", flush=True)
 # Otherwise the _calculate_emd_per_frame used in cytonormpy will error because they
 # harcoded the column file_name and use it in assert.
 # See line 176 of https://github.com/TarikExner/CytoNormPy/blob/main/cytonormpy/_evaluation/_emd_utils.py#L173
-input_integrated.obs["file_name"] = input_integrated.obs["sample"]
+# stop gap for now. This script will be overriden in the branch that handle emd anyway.
+input_integrated.obs["file_name"] = input_unintegrated.obs["sample"]
 
 df = cnp.emd_from_anndata(
     adata=input_integrated,
@@ -42,7 +48,11 @@ df = cnp.emd_from_anndata(
 
 uns_metric_ids = [f"EMD_per_samples_{x}" for x in df.columns]
 uns_metric_values = df.loc["all_cells"].to_numpy()
-uns_method_id = input_integrated.uns["method_id"] if "method_id" in input_integrated.uns else "unintegrated"
+uns_method_id = (
+    input_integrated.uns["method_id"]
+    if "method_id" in input_integrated.uns
+    else "unintegrated"
+)
 
 
 print("Write output AnnData to file", flush=True)

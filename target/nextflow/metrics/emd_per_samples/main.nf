@@ -2858,6 +2858,12 @@ meta = [
                   "name" : "group",
                   "description" : "Biological group of the donor",
                   "required" : true
+                },
+                {
+                  "type" : "integer",
+                  "name" : "is_control",
+                  "description" : "Whether the sample the cell came from can be used as a control for batch \neffect correction.\n0: cannot be used as a control.\n>= 1: can be used as a control.\nFor cells with >= 1: cells with the same value come from the same donor.\nDifferent values indicate different donors.\n",
+                  "required" : true
                 }
               ],
               "var" : [
@@ -2993,6 +2999,12 @@ meta = [
                   "type" : "string",
                   "name" : "group",
                   "description" : "Biological group of the donor",
+                  "required" : true
+                },
+                {
+                  "type" : "integer",
+                  "name" : "is_control",
+                  "description" : "Whether the sample the cell came from can be used as a control for batch \neffect correction.\n0: cannot be used as a control.\n>= 1: can be used as a control.\nFor cells with >= 1: cells with the same value come from the same donor.\nDifferent values indicate different donors.\n",
                   "required" : true
                 }
               ],
@@ -3259,8 +3271,8 @@ meta = [
     "test_setup" : {
       "starter_file" : {
         "samples_to_compare" : [
-          "Tube1_Batch1_WT",
-          "Tube1_Batch2_WT"
+          "Mouse1_Batch1_WT",
+          "Mouse1_Batch2_WT"
         ]
       }
     },
@@ -3354,7 +3366,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/metrics/emd_per_samples",
     "viash_version" : "0.9.0",
-    "git_commit" : "e05ab56eaaeed50973ac46fedc17ab15040a3162",
+    "git_commit" : "fdcac67c651431e1959dfc6a5f9cb894df7067b9",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3477,7 +3489,11 @@ samples_to_compare = [x.strip() for x in par["samples_to_compare"]]
 
 layer = par["layer"]
 
-markers_to_assess = input_integrated.var[input_integrated.var["to_correct"]].index.to_numpy()
+# markers_to_assess = input_integrated.var[
+#     input_integrated.var["to_correct"]
+# ].index.to_numpy()
+
+markers_to_assess = input_integrated.var.index.to_numpy()
 
 print("Compute metrics", flush=True)
 
@@ -3485,7 +3501,8 @@ print("Compute metrics", flush=True)
 # Otherwise the _calculate_emd_per_frame used in cytonormpy will error because they
 # harcoded the column file_name and use it in assert.
 # See line 176 of https://github.com/TarikExner/CytoNormPy/blob/main/cytonormpy/_evaluation/_emd_utils.py#L173
-input_integrated.obs["file_name"] = input_integrated.obs["sample"]
+# stop gap for now. This script will be overriden in the branch that handle emd anyway.
+input_integrated.obs["file_name"] = input_unintegrated.obs["sample"]
 
 df = cnp.emd_from_anndata(
     adata=input_integrated,
@@ -3497,7 +3514,11 @@ df = cnp.emd_from_anndata(
 
 uns_metric_ids = [f"EMD_per_samples_{x}" for x in df.columns]
 uns_metric_values = df.loc["all_cells"].to_numpy()
-uns_method_id = input_integrated.uns["method_id"] if "method_id" in input_integrated.uns else "unintegrated"
+uns_method_id = (
+    input_integrated.uns["method_id"]
+    if "method_id" in input_integrated.uns
+    else "unintegrated"
+)
 
 
 print("Write output AnnData to file", flush=True)

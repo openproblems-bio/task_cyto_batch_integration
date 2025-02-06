@@ -47,8 +47,8 @@ info:
   test_setup:
     starter_file:
       samples_to_compare: 
-        - Tube1_Batch1_WT
-        - Tube1_Batch2_WT
+        - Mouse1_Batch1_WT
+        - Mouse1_Batch2_WT
       
 # Component-specific parameters (optional)
 arguments:
