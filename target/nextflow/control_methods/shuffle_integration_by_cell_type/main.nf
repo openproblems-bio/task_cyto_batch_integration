@@ -2857,12 +2857,6 @@ meta = [
                   "name" : "group",
                   "description" : "Biological group of the donor",
                   "required" : true
-                },
-                {
-                  "type" : "integer",
-                  "name" : "is_control",
-                  "description" : "Whether the sample the cell came from can be used as a control for batch \neffect correction.\n0: cannot be used as a control.\n>= 1: can be used as a control.\nFor cells with >= 1: cells with the same value come from the same donor.\nDifferent values indicate different donors.\n",
-                  "required" : true
                 }
               ],
               "var" : [
@@ -2999,12 +2993,6 @@ meta = [
                   "type" : "string",
                   "name" : "group",
                   "description" : "Biological group of the donor",
-                  "required" : true
-                },
-                {
-                  "type" : "integer",
-                  "name" : "is_control",
-                  "description" : "Whether the sample the cell came from can be used as a control for batch \neffect correction.\n0: cannot be used as a control.\n>= 1: can be used as a control.\nFor cells with >= 1: cells with the same value come from the same donor.\nDifferent values indicate different donors.\n",
                   "required" : true
                 }
               ],
@@ -3256,7 +3244,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/control_methods/shuffle_integration_by_cell_type",
     "viash_version" : "0.9.0",
-    "git_commit" : "511c48bdb9a2cc0d73c299cbb4cefedc379ed90f",
+    "git_commit" : "e05ab56eaaeed50973ac46fedc17ab15040a3162",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {

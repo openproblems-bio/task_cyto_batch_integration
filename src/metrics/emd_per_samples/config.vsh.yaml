@@ -9,8 +9,6 @@ __merge__: ../../api/comp_metric.yaml
 # Can contain only lowercase letters or underscores.
 name: emd_per_samples
 
-
-
 # Metadata for your component
 info:
   metrics:
@@ -18,43 +16,51 @@ info:
       # Can contain only lowercase letters or underscores.
     - name: emd_per_samples
       # A relatively short label, used when rendering visualisarions (required)
-      label: Emd Per Samples
+      label: EMD Per Samples
       # A one sentence summary of how this metric works (required). Used when 
       # rendering summary tables.
-      summary: "FILL IN: A one sentence summary of this metric."
+      summary: "Earth Mover Distance to compute differences in marker expression across two samples."
       # A multi-line description of how this component works (required). Used
       # when rendering reference documentation.
       description: |
-        FILL IN: A (multi-line) description of how this metric works.
-      # references:
-      #   doi: 
-      #     - 10.1000/xx.123456.789
-      #   bibtex:
-      #     - |
-      #       @article{foo,
-      #         title={Foo},
-      #         author={Bar},
-      #         journal={Baz},
-      #         year={2024}
-      #       }
+        Earth Mover Distance (EMD) is a metric designed for comparing two distributions.
+        It is also known as the Wasserstein metric.
+      references:
+        doi: 
+          - 10.1023/A:1026543900054
       links:
         # URL to the documentation for this metric (required).
-        documentation: https://url.to/the/documentation
+        documentation: https://cytonormpy.readthedocs.io/en/latest/generated/cytonormpy.emd_comparison_from_anndata.html
         # URL to the code repository for this metric (required).
-        repository: https://github.com/organisation/repository
+        repository: https://github.com/TarikExner/CytoNormPy
       # The minimum possible value for this metric (required)
       min: 0
       # The maximum possible value for this metric (required)
-      max: 1
+      max: .inf
       # Whether a higher value represents a 'better' solution (required)
-      maximize: true
-
+      maximize: false
+  # Note: need this if we have component specific argument with no default.
+  # When running the actual command, either split the sample name by ;
+  # so Tube1_Batch1_WT;Tube1_Batch2_WT
+  # or repeat the flag twice. So --samples_to_compare Tube1_Batch1_WT
+  # --samples_to_compare Tube1_Batch2_WT
+  test_setup:
+    starter_file:
+      samples_to_compare: 
+        - Tube1_Batch1_WT
+        - Tube1_Batch2_WT
+      
 # Component-specific parameters (optional)
-# arguments:
-#   - name: "--n_neighbors"
-#     type: "integer"
-#     default: 5
-#     description: Number of neighbors to use.
+arguments:
+  - name: "--samples_to_compare"
+    type: "string"
+    description: 2 samples to compare.
+    required: true
+    multiple: true
+  - name: "--layer"
+    type: "string"
+    default: "integrated"
+    description: The layer in input anndata containing the marker expression
 
 # Resources required to run the component
 resources:
@@ -71,9 +77,10 @@ engines:
     image: openproblems/base_python:1.0.0
     # Add custom dependencies here (optional). For more information, see
     # https://viash.io/reference/config/engines/docker/#setup .
-    # setup:
-    #   - type: python
-    #     packages: numpy<2
+    setup:
+      - type: python
+        packages: [anndata]
+        github: [TarikExner/CytoNormPy]
 
 runners:
   # This platform allows running the component natively
