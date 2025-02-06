@@ -23,7 +23,8 @@ input_integrated = ad.read_h5ad(par["input_integrated"])
 input_unintegrated = ad.read_h5ad(par["input_unintegrated"])
 input_validation = ad.read_h5ad(par["input_validation"])
 
-# add sample and batch columns to integrated data
+# add all obs columns in the unintegrated data to integrated data
+# loc should order the obs based on obs_names
 input_integrated.obs = input_unintegrated.obs.loc[input_integrated.obs_names]
 
 # TODO uncomment me if you want to have some samples in validation but not in integrated
@@ -38,11 +39,9 @@ input_integrated.obs = input_unintegrated.obs.loc[input_integrated.obs_names]
 #     )
 # ].copy()
 
-# markers_to_assess = input_integrated.var[
-#     input_integrated.var["to_correct"]
-# ].index.to_numpy()
-
-markers_to_assess = input_integrated.var.index.to_numpy()
+markers_to_assess = input_unintegrated.var[
+    input_unintegrated.var["to_correct"]
+].index.to_numpy()
 
 print("Extracting samples to compute the metric for", flush=True)
 

@@ -68,7 +68,7 @@ dependencies:
   - name: control_methods/shuffle_integration_by_cell_type
   - name: methods/harmonypy
   - name: methods/limma_remove_batch_effect
-  - name: metrics/emd_per_samples
+  - name: metrics/emd
 
 runners:
   - type: nextflow

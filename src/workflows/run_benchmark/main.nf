@@ -16,7 +16,7 @@ methods = [
 
 // construct list of metrics
 metrics = [
-  emd_per_samples
+  emd
 ]
 
 workflow run_wf {
