@@ -5,10 +5,9 @@ import openproblems as op
 ## VIASH START
 par = {
     'input': 'resources_test/task_cyto_batch_integration/starter_file/common_dataset.h5ad',
-    'validation_sample_names': [],
-    'output_unintegrated': 'unintegrated.h5ad',
-    'output_unintegrated_censored': 'unintegrated_censored.h5ad',
-    'output_validation': 'validation.h5ad'
+    'output_unintegrated': 'resources_test/task_cyto_batch_integration/starter_file/unintegrated.h5ad',
+    'output_unintegrated_censored': 'resources_test/task_cyto_batch_integration/starter_file/unintegrated_censored.h5ad',
+    'output_validation': 'resources_test/task_cyto_batch_integration/starter_file/validation.h5ad'
 }
 meta = {
     'resources_dir': 'target/executable/data_processors/process_dataset',
