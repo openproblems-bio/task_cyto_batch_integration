@@ -39,26 +39,6 @@ info:
       max: .inf
       # Whether a higher value represents a 'better' solution (required)
       maximize: false
-  # Keep this just for future metrics' reference if required
-  # Note: need this if we have component specific argument with no default.
-  # When running the actual command, either split the sample name by ;
-  # so Tube1_Batch1_WT;Tube1_Batch2_WT
-  # or repeat the flag twice. So --samples_to_compare Tube1_Batch1_WT
-  # --samples_to_compare Tube1_Batch2_WT
-  # test_setup:
-  #   starter_file:
-  #     samples_to_compare: 
-  #       - Tube1_Batch1_WT
-  #       - Tube1_Batch2_WT
-      
-# Component-specific parameters (optional)
-# Keep for now for future metrics' reference if required
-# arguments:
-#   - name: "--samples_to_compare"
-#     type: "string"
-#     description: 2 samples to compare.
-#     required: true
-#     multiple: true
 
 # Resources required to run the component
 resources:
