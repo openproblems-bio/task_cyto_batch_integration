@@ -18,11 +18,6 @@ argument_groups:
         type: file
         direction: input
         required: true
-      - name: "--samples_to_compare"
-        type: "string"
-        description: 2 samples to compare. Separate the sample names by comma
-        required: true
-        multiple: true
   - name: Outputs
     arguments:
       - name: "--output_scores"
@@ -73,7 +68,7 @@ dependencies:
   - name: control_methods/shuffle_integration_by_cell_type
   - name: methods/harmonypy
   - name: methods/limma_remove_batch_effect
-  - name: metrics/emd_per_samples
+  - name: metrics/emd
 
 runners:
   - type: nextflow
