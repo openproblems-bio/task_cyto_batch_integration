@@ -3219,15 +3219,6 @@ meta = [
           "direction" : "input",
           "multiple" : false,
           "multiple_sep" : ";"
-        },
-        {
-          "type" : "string",
-          "name" : "--samples_to_compare",
-          "description" : "2 samples to compare. Separate the sample names by comma",
-          "required" : true,
-          "direction" : "input",
-          "multiple" : true,
-          "multiple_sep" : ";"
         }
       ]
     },
@@ -3371,7 +3362,7 @@ meta = [
       }
     },
     {
-      "name" : "metrics/emd_per_samples",
+      "name" : "metrics/emd",
       "repository" : {
         "type" : "local"
       }
@@ -3434,7 +3425,7 @@ meta = [
     "engine" : "native",
     "output" : "target/nextflow/workflows/run_benchmark",
     "viash_version" : "0.9.0",
-    "git_commit" : "fdcac67c651431e1959dfc6a5f9cb894df7067b9",
+    "git_commit" : "86d42dab49786b556616a3f2d8badf9cdea35836",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3508,7 +3499,7 @@ include { shuffle_integration_by_batch } from "${meta.resources_dir}/../../../ne
 include { shuffle_integration_by_cell_type } from "${meta.resources_dir}/../../../nextflow/control_methods/shuffle_integration_by_cell_type/main.nf"
 include { harmonypy } from "${meta.resources_dir}/../../../nextflow/methods/harmonypy/main.nf"
 include { limma_remove_batch_effect } from "${meta.resources_dir}/../../../nextflow/methods/limma_remove_batch_effect/main.nf"
-include { emd_per_samples } from "${meta.resources_dir}/../../../nextflow/metrics/emd_per_samples/main.nf"
+include { emd } from "${meta.resources_dir}/../../../nextflow/metrics/emd/main.nf"
 
 // inner workflow
 // user-provided Nextflow code
@@ -3530,7 +3521,7 @@ methods = [
 
 // construct list of metrics
 metrics = [
-  emd_per_samples
+  emd
 ]
 
 workflow run_wf {
@@ -3642,7 +3633,6 @@ workflow run_wf {
         input_validation: "input_validation", 
         input_unintegrated: "input_unintegrated",
         input_integrated: "method_output",
-        samples_to_compare: "samples_to_compare"
       ],
       // use 'toState' to publish that component's outputs to the overall state
       toState: { id, output, state, comp ->

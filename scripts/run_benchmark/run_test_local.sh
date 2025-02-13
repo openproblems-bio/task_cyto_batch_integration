@@ -24,6 +24,5 @@ nextflow run . \
   --input_unintegrated_censored resources_test/task_cyto_batch_integration/starter_file/unintegrated_censored.h5ad \
   --input_unintegrated resources_test/task_cyto_batch_integration/starter_file/unintegrated.h5ad \
   --input_validation resources_test/task_cyto_batch_integration/starter_file/validation.h5ad \
-  --samples_to_compare "Tube1_Batch1_WT;Tube1_Batch2_WT" \
   --output_state state.yaml \
   --publish_dir "$publish_dir"
