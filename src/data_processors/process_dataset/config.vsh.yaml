@@ -1,10 +1,6 @@
 __merge__: ../../api/comp_data_processor.yaml
 name: process_dataset
-arguments:
-  - name: "--validation_sample_names"
-    type: "string"
-    description: "The process method to assign train/test."
-    multiple: true
+
 resources:
   - type: python_script
     path: script.py
