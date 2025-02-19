@@ -3,6 +3,6 @@
 set -e
 
 common/scripts/create_component \
-  --name no_integration \
+  --name my_python_method \
   --language python \
-  --type control_method
+  --type method
