@@ -3367,15 +3367,6 @@ meta = [
           "direction" : "output",
           "multiple" : false,
           "multiple_sep" : ";"
-        },
-        {
-          "type" : "string",
-          "name" : "--validation_sample_names",
-          "description" : "The process method to assign train/test.",
-          "required" : false,
-          "direction" : "input",
-          "multiple" : true,
-          "multiple_sep" : ";"
         }
       ]
     }
@@ -3481,7 +3472,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/data_processors/process_dataset",
     "viash_version" : "0.9.0",
-    "git_commit" : "f17bc62237e2a54494e562492af7f04af74ee848",
+    "git_commit" : "dbbaf9431748201e86408b89d70cfc9d990f8676",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3566,8 +3557,7 @@ par = {
   'input': $( if [ ! -z ${VIASH_PAR_INPUT+x} ]; then echo "r'${VIASH_PAR_INPUT//\\'/\\'\\"\\'\\"r\\'}'"; else echo None; fi ),
   'output_unintegrated_censored': $( if [ ! -z ${VIASH_PAR_OUTPUT_UNINTEGRATED_CENSORED+x} ]; then echo "r'${VIASH_PAR_OUTPUT_UNINTEGRATED_CENSORED//\\'/\\'\\"\\'\\"r\\'}'"; else echo None; fi ),
   'output_unintegrated': $( if [ ! -z ${VIASH_PAR_OUTPUT_UNINTEGRATED+x} ]; then echo "r'${VIASH_PAR_OUTPUT_UNINTEGRATED//\\'/\\'\\"\\'\\"r\\'}'"; else echo None; fi ),
-  'output_validation': $( if [ ! -z ${VIASH_PAR_OUTPUT_VALIDATION+x} ]; then echo "r'${VIASH_PAR_OUTPUT_VALIDATION//\\'/\\'\\"\\'\\"r\\'}'"; else echo None; fi ),
-  'validation_sample_names': $( if [ ! -z ${VIASH_PAR_VALIDATION_SAMPLE_NAMES+x} ]; then echo "r'${VIASH_PAR_VALIDATION_SAMPLE_NAMES//\\'/\\'\\"\\'\\"r\\'}'.split(';')"; else echo None; fi )
+  'output_validation': $( if [ ! -z ${VIASH_PAR_OUTPUT_VALIDATION+x} ]; then echo "r'${VIASH_PAR_OUTPUT_VALIDATION//\\'/\\'\\"\\'\\"r\\'}'"; else echo None; fi )
 }
 meta = {
   'name': $( if [ ! -z ${VIASH_META_NAME+x} ]; then echo "r'${VIASH_META_NAME//\\'/\\'\\"\\'\\"r\\'}'"; else echo None; fi ),
