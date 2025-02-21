@@ -1,0 +1,70 @@
+
+__merge__: ../../api/comp_metric.yaml
+
+name: n_inconsistent_peaks
+
+
+info:
+  metrics:
+    - name: n_inconsistent_peaks
+      label: Number of inconsistent peaks
+      # A one sentence summary of how this metric works (required). Used when 
+      # rendering summary tables.
+      summary: "Compare the number of marker-expression peaks between validation and batch-normalized data."
+      # A multi-line description of how this component works (required). Used
+      # when rendering reference documentation.
+      description: |
+        The metric compares the number of marker-expression peaks between the validation and batch-normalized data. 
+        The number of peaks is calculated using the `scipy.signal.find_peaks` function. 
+        The metric is calculated as the absolute difference between the number of peaks in the validation and batch-normalized data.
+        The marker-expression profiles are first smoothed using kernel density estimation (KDE) (`scipy.stats.gaussian_kde`),
+        and then peaks are then identified using the `scipy.signal.find_peaks` function.
+        For peak calling, the `prominence` parameter is set to 0.01 and the `height` parameter is set to 0.05*max_density.
+      references:
+        doi: 
+          - 10.1038/s41592-019-0686-2
+      links:
+        # URL to the documentation for this metric (required).
+        documentation: https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.find_peaks.html#scipy.signal.find_peaks
+        # URL to the code repository for this metric (required).
+        repository: https://github.com/scipy/scipy/blob/v1.15.2/scipy/signal/_peak_finding.py#L0-L1
+      # The minimum possible value for this metric (required)
+      min: 0
+      # The maximum possible value for this metric (required)
+      max: inf
+      # Whether a higher value represents a 'better' solution (required)
+      maximize: false
+
+# Component-specific parameters (optional)
+# arguments:
+#   - name: "--n_neighbors"
+#     type: "integer"
+#     default: 5
+#     description: Number of neighbors to use.
+
+# Resources required to run the component
+resources:
+  # The script of your component (required)
+  - type: python_script
+    path: script.py
+  # Additional resources your script needs (optional)
+  # - type: file
+  #   path: weights.pt
+
+engines:
+  # Specifications for the Docker image for this component.
+  - type: docker
+    image: openproblems/base_python:1.0.0
+    # Add custom dependencies here (optional). For more information, see
+    # https://viash.io/reference/config/engines/docker/#setup .
+    # setup:
+    #   - type: python
+    #     packages: numpy<2
+
+runners:
+  # This platform allows running the component natively
+  - type: executable
+  # Allows turning the component into a Nextflow module / pipeline.
+  - type: nextflow
+    directives:
+      label: [midtime,midmem,midcpu]
