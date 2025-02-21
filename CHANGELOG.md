@@ -19,7 +19,7 @@
 
 * Added `metrics/emd_per_samples` component (PR #9).
 
-* Added `mehods\combat` component (PR #25) 
+* Added `methods\combat` component (PR #25) 
 
 ## MAJOR CHANGES
 
