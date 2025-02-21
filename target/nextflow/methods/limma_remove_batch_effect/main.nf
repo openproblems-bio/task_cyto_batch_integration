@@ -3106,7 +3106,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/methods/limma_remove_batch_effect",
     "viash_version" : "0.9.0",
-    "git_commit" : "86d42dab49786b556616a3f2d8badf9cdea35836",
+    "git_commit" : "f17bc62237e2a54494e562492af7f04af74ee848",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
