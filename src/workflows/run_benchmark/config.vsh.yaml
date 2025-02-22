@@ -69,6 +69,7 @@ dependencies:
   - name: methods/harmonypy
   - name: methods/limma_remove_batch_effect
   - name: metrics/emd_max
+  - name: metrics/emd_mean
 
 runners:
   - type: nextflow

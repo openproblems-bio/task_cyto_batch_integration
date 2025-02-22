@@ -16,7 +16,8 @@ methods = [
 
 // construct list of metrics
 metrics = [
-  emd_max
+  emd_max,
+  emd_mean
 ]
 
 workflow run_wf {
