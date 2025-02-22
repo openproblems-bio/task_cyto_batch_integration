@@ -1,6 +1,5 @@
-import sys
-
 import anndata as ad
+import sys
 
 ## VIASH START
 par = {
@@ -18,6 +17,10 @@ print("Reading and preparing input files", flush=True)
 adata = ad.read_h5ad(par["input_unintegrated"])
 
 adata.obs["batch_str"] = adata.obs["batch"].astype(str)
+
+markers_to_correct = adata.var[adata.var["to_correct"]].index.to_numpy()
+
+adata = adata[:, markers_to_correct]
 
 print("Randomise features", flush=True)
 integrated = _randomize_features(
