@@ -1,10 +1,11 @@
 import anndata as ad
 import harmonypy
+import numpy as np
 
 ## VIASH START
 par = {
     "input": "resources_test/task_cyto_batch_integration/starter_file/unintegrated_censored.h5ad",
-    "output": "output.h5ad",
+    "output": "resources_test/task_cyto_batch_integration/starter_file/integrated.h5ad",
 }
 meta = {"name": "harmonypy"}
 ## VIASH END
@@ -15,8 +16,9 @@ adata = ad.read_h5ad(par["input"])
 adata.obs["batch_str"] = adata.obs["batch"].astype(str)
 
 markers_to_correct = adata.var[adata.var["to_correct"]].index.to_numpy()
+markers_not_correct = adata.var[~adata.var["to_correct"]].index.to_numpy()
 
-adata_to_correct = adata[:, markers_to_correct]
+adata_to_correct = adata[:, markers_to_correct].copy()
 
 print("Run harmony", flush=True)
 # harmony can't handle integer batch labels
@@ -27,11 +29,16 @@ out = harmonypy.run_harmony(
     vars_use="batch_str",
 )
 
+# have to add in the uncorrected markers as well
+uncorrected_data = adata[:, markers_not_correct].layers['preprocessed']
+out_matrix = np.concatenate([out.Z_corr.transpose(), uncorrected_data], axis=1)
+out_var_idx = np.concatenate([markers_to_correct, markers_not_correct])
+
 # create new anndata
 out_adata = ad.AnnData(
     obs=adata.obs[[]],
-    var=adata_to_correct.var[[]],
-    layers={"integrated": out.Z_corr.transpose()},
+    var=adata.var.loc[out_var_idx][[]],
+    layers={"integrated": out_matrix},
     uns={
         "dataset_id": adata.uns["dataset_id"],
         "method_id": meta["name"],
