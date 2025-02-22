@@ -39,6 +39,8 @@
   * Reverted PR #18 to retain only the 1st two changes (add is_control and remove 
   donor_id from unintegrated_censored).
 
+* Update output anndata for methods to return all vars - corrected or not (PR #28).
+
 ## MINOR CHANGES
 
 * Enabled unit tests (PR #2).
