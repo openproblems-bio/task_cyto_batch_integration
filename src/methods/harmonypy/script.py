@@ -5,7 +5,7 @@ import numpy as np
 ## VIASH START
 par = {
     "input": "resources_test/task_cyto_batch_integration/starter_file/unintegrated_censored.h5ad",
-    "output": "resources_test/task_cyto_batch_integration/starter_file/integrated.h5ad",
+    "output": "output.h5ad",
 }
 meta = {"name": "harmonypy"}
 ## VIASH END
