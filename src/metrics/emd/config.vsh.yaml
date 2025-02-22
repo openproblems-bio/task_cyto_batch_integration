@@ -7,19 +7,19 @@ __merge__: ../../api/comp_metric.yaml
 
 # A unique identifier for your component (required).
 # Can contain only lowercase letters or underscores.
-name: emd_per_samples
+name: emd
 
 # Metadata for your component
 info:
   metrics:
       # A unique identifier for your metric (required).
       # Can contain only lowercase letters or underscores.
-    - name: emd_per_samples
+    - name: emd
       # A relatively short label, used when rendering visualisarions (required)
-      label: EMD Per Samples
+      label: EMD
       # A one sentence summary of how this metric works (required). Used when 
       # rendering summary tables.
-      summary: "Earth Mover Distance to compute differences in marker expression across two samples."
+      summary: "Earth Mover Distance to compute differences in distribution of marker expressions."
       # A multi-line description of how this component works (required). Used
       # when rendering reference documentation.
       description: |
@@ -39,37 +39,12 @@ info:
       max: .inf
       # Whether a higher value represents a 'better' solution (required)
       maximize: false
-  # Note: need this if we have component specific argument with no default.
-  # When running the actual command, either split the sample name by ;
-  # so Tube1_Batch1_WT;Tube1_Batch2_WT
-  # or repeat the flag twice. So --samples_to_compare Tube1_Batch1_WT
-  # --samples_to_compare Tube1_Batch2_WT
-  test_setup:
-    starter_file:
-      samples_to_compare: 
-        - Tube1_Batch1_WT
-        - Tube1_Batch2_WT
-      
-# Component-specific parameters (optional)
-arguments:
-  - name: "--samples_to_compare"
-    type: "string"
-    description: 2 samples to compare.
-    required: true
-    multiple: true
-  - name: "--layer"
-    type: "string"
-    default: "integrated"
-    description: The layer in input anndata containing the marker expression
 
 # Resources required to run the component
 resources:
   # The script of your component (required)
   - type: python_script
     path: script.py
-  # Additional resources your script needs (optional)
-  # - type: file
-  #   path: weights.pt
 
 engines:
   # Specifications for the Docker image for this component.
@@ -79,7 +54,7 @@ engines:
     # https://viash.io/reference/config/engines/docker/#setup .
     setup:
       - type: python
-        packages: [anndata]
+        packages: [anndata, numpy, pandas]
         github: [TarikExner/CytoNormPy]
 
 runners:

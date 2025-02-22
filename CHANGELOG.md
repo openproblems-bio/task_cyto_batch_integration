@@ -19,7 +19,23 @@
 
 * Added `metrics/emd_per_samples` component (PR #9).
 
+* Added `methods/combat` component (PR #25) 
+
 ## MAJOR CHANGES
+
+* Updated file schema (PR #18): 
+  * Add is_control obs to indicate whether a cell should be used as control when correcting batch effect.
+  * Removed donor_id obs from unintegrated censored.
+  * Removed to_correct var from everything except common_dataset. 
+  All datasets now will only contain markers that need to be corrected.
+
+* Reupdated the file schema (PR #19):
+  * Included changes in PR #21: data Processor component partitions cells between unintegrated(censored) 
+  and validation.
+  * Add back to_correct var to every file except integrated to reflect the real world 
+  batch correction workflow better.
+  * Reverted PR #18 to retain only the 1st two changes (add is_control and remove 
+  donor_id from unintegrated_censored).
 
 ## MINOR CHANGES
 
