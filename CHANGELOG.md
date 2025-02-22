@@ -37,9 +37,7 @@
   * Reverted PR #18 to retain only the 1st two changes (add is_control and remove 
   donor_id from unintegrated_censored).
 
-* Update EMD and output anndata for methods (PR #27):
-  * Split EMD into two metrics (mean and max).
-  * Update output anndata for methods to return all vars (corrected or not).
+* Split EMD into two metrics: mean and max (PR #27).
 
 ## MINOR CHANGES
 
