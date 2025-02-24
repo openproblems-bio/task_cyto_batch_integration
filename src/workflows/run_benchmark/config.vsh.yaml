@@ -70,6 +70,7 @@ dependencies:
   - name: methods/harmonypy
   - name: methods/limma_remove_batch_effect
   - name: metrics/emd
+  - name: methods/combat
 
 runners:
   - type: nextflow

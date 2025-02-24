@@ -489,9 +489,9 @@ function ViashDockerfile {
 FROM openproblems/base_python:1.0.0
 ENTRYPOINT []
 LABEL org.opencontainers.image.description="Companion container for running component data_processors process_dataset"
-LABEL org.opencontainers.image.created="2025-02-24T12:14:10Z"
+LABEL org.opencontainers.image.created="2025-02-24T14:00:45Z"
 LABEL org.opencontainers.image.source="https://github.com/openproblems-bio/task_cyto_batch_integration"
-LABEL org.opencontainers.image.revision="3256c11e2dfe8a119347e54b731e68c120a9e08d"
+LABEL org.opencontainers.image.revision="f3169e268afded1a12bf608b70850cf45a8b03ec"
 LABEL org.opencontainers.image.version="build_main"
 
 VIASHDOCKER

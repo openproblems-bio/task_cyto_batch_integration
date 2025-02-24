@@ -3372,6 +3372,12 @@ meta = [
       "repository" : {
         "type" : "local"
       }
+    },
+    {
+      "name" : "methods/combat",
+      "repository" : {
+        "type" : "local"
+      }
     }
   ],
   "repositories" : [
@@ -3431,7 +3437,7 @@ meta = [
     "engine" : "native",
     "output" : "target/nextflow/workflows/run_benchmark",
     "viash_version" : "0.9.0",
-    "git_commit" : "3256c11e2dfe8a119347e54b731e68c120a9e08d",
+    "git_commit" : "f3169e268afded1a12bf608b70850cf45a8b03ec",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3507,6 +3513,7 @@ include { no_integration } from "${meta.resources_dir}/../../../nextflow/control
 include { harmonypy } from "${meta.resources_dir}/../../../nextflow/methods/harmonypy/main.nf"
 include { limma_remove_batch_effect } from "${meta.resources_dir}/../../../nextflow/methods/limma_remove_batch_effect/main.nf"
 include { emd } from "${meta.resources_dir}/../../../nextflow/metrics/emd/main.nf"
+include { combat } from "${meta.resources_dir}/../../../nextflow/methods/combat/main.nf"
 
 // inner workflow
 // user-provided Nextflow code
@@ -3524,7 +3531,8 @@ methods = [
   shuffle_integration_by_cell_type,
   harmonypy,
   limma_remove_batch_effect,
-  no_integration
+  no_integration,
+  combat
 ]
 
 // construct list of metrics
