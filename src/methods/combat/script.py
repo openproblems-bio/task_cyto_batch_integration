@@ -20,7 +20,7 @@ adata = ad.read_h5ad(par["input"])
 print('Preprocess data', flush=True)
 markers_to_correct = adata.var[adata.var["to_correct"]].index.to_numpy()
 markers_not_correct = [x for x in adata.var['to_correct'].index if x not in markers_to_correct]
-new_var_index = np.concatenate([markers_to_correct, markers_not_correct]) # new indexing : not corrected markers last
+temp_var_index = [*markers_to_correct, *markers_not_correct] # temporary indexing : not corrected markers last
 
 adata_to_correct = adata[:,markers_to_correct].copy()
 adata_to_correct.X = adata_to_correct.layers['preprocessed'] # sc.pp.combat operates only on .X
@@ -35,7 +35,7 @@ integrated_matrix = np.concatenate([corrected_matrix, uncorrected_matrix], axis=
 print("Write output AnnData to file", flush=True)
 out_data = ad.AnnData(
     obs=adata.obs[[]],
-    var=adata[:,new_var_index].var[[]],
+    var=adata[:,temp_var_index].var[[]],
    layers={"integrated": integrated_matrix},
     uns={
         "dataset_id": adata.uns["dataset_id"],
@@ -43,5 +43,7 @@ out_data = ad.AnnData(
         "parameters": {},
     },
 )
+print('Re-ordering markers', flush=True)
+out_data = out_data[:,adata.var_names]
 
 out_data.write_h5ad(par['output'], compression='gzip')
