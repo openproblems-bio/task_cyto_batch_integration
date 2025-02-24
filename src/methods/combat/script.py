@@ -39,7 +39,7 @@ out_data = ad.AnnData(
    layers={"integrated": integrated_matrix},
     uns={
         "dataset_id": adata.uns["dataset_id"],
-        "method_id": 'combat',
+        "method_id": meta['name'],
         "parameters": {},
     },
 )
