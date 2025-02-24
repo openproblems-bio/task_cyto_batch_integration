@@ -404,6 +404,9 @@ dependencies:
 - name: "control_methods/shuffle_integration_by_cell_type"
   repository:
     type: "local"
+- name: "control_methods/no_integration"
+  repository:
+    type: "local"
 - name: "methods/harmonypy"
   repository:
     type: "local"
@@ -454,13 +457,14 @@ build_info:
   output: "target/nextflow/workflows/run_benchmark"
   executable: "target/nextflow/workflows/run_benchmark/main.nf"
   viash_version: "0.9.0"
-  git_commit: "2cecef3905e3d1eca62b5642ad93b39be467bbd0"
+  git_commit: "3256c11e2dfe8a119347e54b731e68c120a9e08d"
   git_remote: "https://github.com/openproblems-bio/task_cyto_batch_integration"
   dependencies:
   - "target/dependencies/github/openproblems-bio/core/build/main/nextflow/h5ad/extract_uns_metadata"
   - "target/nextflow/control_methods/shuffle_integration"
   - "target/nextflow/control_methods/shuffle_integration_by_batch"
   - "target/nextflow/control_methods/shuffle_integration_by_cell_type"
+  - "target/nextflow/control_methods/no_integration"
   - "target/nextflow/methods/harmonypy"
   - "target/nextflow/methods/limma_remove_batch_effect"
   - "target/nextflow/metrics/emd"

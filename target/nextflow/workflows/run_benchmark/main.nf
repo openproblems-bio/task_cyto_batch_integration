@@ -3350,6 +3350,12 @@ meta = [
       }
     },
     {
+      "name" : "control_methods/no_integration",
+      "repository" : {
+        "type" : "local"
+      }
+    },
+    {
       "name" : "methods/harmonypy",
       "repository" : {
         "type" : "local"
@@ -3425,7 +3431,7 @@ meta = [
     "engine" : "native",
     "output" : "target/nextflow/workflows/run_benchmark",
     "viash_version" : "0.9.0",
-    "git_commit" : "2cecef3905e3d1eca62b5642ad93b39be467bbd0",
+    "git_commit" : "3256c11e2dfe8a119347e54b731e68c120a9e08d",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3497,6 +3503,7 @@ include { extract_uns_metadata } from "${meta.root_dir}/dependencies/github/open
 include { shuffle_integration } from "${meta.resources_dir}/../../../nextflow/control_methods/shuffle_integration/main.nf"
 include { shuffle_integration_by_batch } from "${meta.resources_dir}/../../../nextflow/control_methods/shuffle_integration_by_batch/main.nf"
 include { shuffle_integration_by_cell_type } from "${meta.resources_dir}/../../../nextflow/control_methods/shuffle_integration_by_cell_type/main.nf"
+include { no_integration } from "${meta.resources_dir}/../../../nextflow/control_methods/no_integration/main.nf"
 include { harmonypy } from "${meta.resources_dir}/../../../nextflow/methods/harmonypy/main.nf"
 include { limma_remove_batch_effect } from "${meta.resources_dir}/../../../nextflow/methods/limma_remove_batch_effect/main.nf"
 include { emd } from "${meta.resources_dir}/../../../nextflow/metrics/emd/main.nf"
@@ -3516,7 +3523,8 @@ methods = [
   shuffle_integration_by_batch,
   shuffle_integration_by_cell_type,
   harmonypy,
-  limma_remove_batch_effect
+  limma_remove_batch_effect,
+  no_integration
 ]
 
 // construct list of metrics
