@@ -12,6 +12,7 @@ methods = [
   shuffle_integration_by_cell_type,
   harmonypy,
   limma_remove_batch_effect,
+  no_integration,
   combat
 ]
 
