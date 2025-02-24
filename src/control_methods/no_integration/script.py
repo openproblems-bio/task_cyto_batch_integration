@@ -16,11 +16,6 @@ meta = {
 print('Reading input files', flush=True)
 adata = ad.read_h5ad(par['input_unintegrated'])
 
-print("Reordering markers", flush=True)
-markers_to_correct = adata.var[adata.var["to_correct"]].index.to_numpy()
-markers_not_correct = [x for x in adata.var['to_correct'].index if x not in markers_to_correct]
-adata = adata[:,[*markers_to_correct,*markers_not_correct]]
-
 print("Extracting unintegrated data", flush=True)
 integrated = adata.layers[ 'preprocessed'] 
 
