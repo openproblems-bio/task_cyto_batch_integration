@@ -46,6 +46,9 @@ out_adata = ad.AnnData(
     },
 )
 
+# reorder var to match input
+out_adata = out_adata[:, adata.var_names]
+
 print("Write output AnnData to file", flush=True)
 
 out_adata.write_h5ad(par["output"], compression="gzip")

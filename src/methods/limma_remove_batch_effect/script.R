@@ -40,4 +40,7 @@ output <- anndata::AnnData(
   )
 )
 
+# reorder the var in output
+output <- output[, input$var_names]
+
 output$write_h5ad(par[["output"]], compression = "gzip")

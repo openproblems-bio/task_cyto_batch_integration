@@ -4,7 +4,7 @@ import anndata as ad
 
 ## VIASH START
 par = {
-    "input_unintegrated": "resources_test/task_cyto_batch_integration/starter_file/unintegrated_censored.h5ad",
+    "input_unintegrated": "resources_test/task_cyto_batch_integration/starter_file/unintegrated.h5ad",
     "output": "output.h5ad",
 }
 meta = {"name": "harmonypy"}
@@ -36,6 +36,8 @@ output = ad.AnnData(
         "parameters": {},
     },
 )
+
+all(x==y for x,y in zip(output.var_names, adata.var_names))
 
 print("Write output AnnData to file", flush=True)
 output.write_h5ad(par["output"], compression="gzip")
