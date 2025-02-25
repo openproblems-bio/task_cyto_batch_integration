@@ -1,9 +1,10 @@
-import anndata as ad
 import sys
+
+import anndata as ad
 
 ## VIASH START
 par = {
-    "input_unintegrated": "resources_test/task_cyto_batch_integration/starter_file/unintegrated_censored.h5ad",
+    "input_unintegrated": "resources_test/task_cyto_batch_integration/starter_file/unintegrated.h5ad",
     "output": "output.h5ad",
 }
 meta = {"name": "harmonypy"}
@@ -17,10 +18,6 @@ print("Reading and preparing input files", flush=True)
 adata = ad.read_h5ad(par["input_unintegrated"])
 
 adata.obs["batch_str"] = adata.obs["batch"].astype(str)
-
-markers_to_correct = adata.var[adata.var["to_correct"]].index.to_numpy()
-
-adata = adata[:, markers_to_correct]
 
 print("Randomise features", flush=True)
 integrated = _randomize_features(
@@ -39,6 +36,8 @@ output = ad.AnnData(
         "parameters": {},
     },
 )
+
+all(x==y for x,y in zip(output.var_names, adata.var_names))
 
 print("Write output AnnData to file", flush=True)
 output.write_h5ad(par["output"], compression="gzip")
