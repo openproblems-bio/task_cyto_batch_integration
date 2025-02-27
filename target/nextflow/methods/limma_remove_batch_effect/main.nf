@@ -3106,7 +3106,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/methods/limma_remove_batch_effect",
     "viash_version" : "0.9.0",
-    "git_commit" : "f3169e268afded1a12bf608b70850cf45a8b03ec",
+    "git_commit" : "cb4ed5b7fcfc2fc98e1c9c902a438596309f035a",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3228,27 +3228,33 @@ cat("Reading input files\\\\n")
 input <- anndata::read_h5ad(par[["input"]])
 
 cat("Subset data\\\\n")
-input <- input[, input\\$var\\$to_correct]
+data_not_correct <- input[, !input\\$var\\$to_correct]
+data_to_correct <- input[, input\\$var\\$to_correct]
 
 cat("Run limma\\\\n")
 output <- limma::removeBatchEffect(
-  Matrix::t(input\\$layers[["preprocessed"]]),
-  input\\$obs\\$batch
+  Matrix::t(data_to_correct\\$layers[["preprocessed"]]),
+  data_to_correct\\$obs\\$batch
 )
+
+cat("Preparing output Anndata\\\\n")
+output <- Matrix::t(output)
+output <- cbind(output, data_not_correct\\$layers[["preprocessed"]])
 
 cat("Write output AnnData to file\\\\n")
 output <- anndata::AnnData(
   obs = input\\$obs[, integer(0)],
-  var = input\\$var[, integer(0)],
-  layers = list(
-    integrated = Matrix::t(output)
-  ),
+  var = input\\$var[colnames(output), integer(0)],
+  layers = list(integrated = output),
   uns = list(
     dataset_id = input\\$uns\\$dataset_id,
     method_id = meta\\$name,
     parameters = list()
   )
 )
+
+# reorder the var in output
+output <- output[, input\\$var_names]
 
 output\\$write_h5ad(par[["output"]], compression = "gzip")
 VIASHMAIN
