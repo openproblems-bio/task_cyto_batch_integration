@@ -19,7 +19,9 @@
 
 * Added `metrics/emd_per_samples` component (PR #9).
 
-* Added `methods/combat` component (PR #25) 
+* Added `methods/combat` component (PR #25).
+
+* Added `control_methods/no_integration ` (PR #26).
 
 ## MAJOR CHANGES
 
@@ -37,7 +39,9 @@
   * Reverted PR #18 to retain only the 1st two changes (add is_control and remove 
   donor_id from unintegrated_censored).
 
-* Split EMD into two metrics: mean and max (PR #27).
+* Change emd to emd_mean and emd_max (PR #27).
+
+* Update output anndata for methods to return all vars - corrected or not (PR #28).
 
 ## MINOR CHANGES
 
