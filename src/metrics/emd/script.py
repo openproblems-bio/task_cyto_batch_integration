@@ -53,8 +53,8 @@ del input_validation
 
 donors = input_concat.obs['donor'].unique()
 
-max_emd = 0
 emd_df = []
+emd_vals = []
 
 for donor in donors:
     # donor = donors[0]
@@ -81,8 +81,7 @@ for donor in donors:
     # ignoring unlabeled and all_cells
     emd_integrated.drop(index=['all_cells', 'Unlabeled'], inplace=True)
     
-    current_max = np.nanmax(emd_integrated[markers_to_assess].to_numpy())
-    max_emd = max(max_emd, current_max)
+    emd_vals.extend(emd_integrated[markers_to_assess].to_numpy().flatten())
     
 emd_df = pd.concat(emd_df)
 
@@ -91,8 +90,8 @@ output = ad.AnnData(
     uns={
         "dataset_id": dataset_id,
         "method_id": method_id,
-        "metric_ids": "emd_max",
-        "metric_values": max_emd,
+        "metric_ids": ["emd_mean", "emd_max"],
+        "metric_values": [np.nanmean(emd_vals), np.nanmax(emd_vals)],
         "sample_ids": list(input_concat.obs['sample'].unique()),
         "emd_values": emd_df
     }
