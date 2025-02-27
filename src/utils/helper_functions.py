@@ -22,7 +22,10 @@ def concatenate_inputs(
     # add all obs columns in the unintegrated data to integrated data
     # loc should order the obs based on obs_names
     
-    input_integrated.obs = input_unintegrated.obs.loc[input_integrated.obs_names]
+    obs_reference_data = ad.concat([input_unintegrated, input_validation])
+    input_integrated.obs = obs_reference_data.obs.loc[input_integrated.obs_names]
+    
+    # input_integrated.obs = input_unintegrated.obs.loc[input_integrated.obs_names]
     
     # re-arrange the var so validation and integrated have the same var order
     input_integrated = input_integrated[:, input_validation.var_names]
