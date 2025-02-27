@@ -267,11 +267,6 @@ argument_groups:
           description: "A unique identifier for the batch correction method"
           required: true
         - type: "string"
-          name: "sample_ids"
-          description: "The samples assessed by the metric"
-          multiple: true
-          required: true
-        - type: "string"
           name: "metric_ids"
           description: "One or more unique metric identifiers"
           multiple: true
@@ -293,6 +288,8 @@ resources:
 - type: "python_script"
   path: "script.py"
   is_executable: true
+- type: "file"
+  path: "helper_functions.py"
 test_resources:
 - type: "python_script"
   path: "run_and_check_output.py"
@@ -305,9 +302,24 @@ test_resources:
   dest: "resources_test/task_cyto_batch_integration/starter_file"
 info:
   metrics:
-  - name: "emd"
-    label: "EMD"
-    summary: "Earth Mover Distance to compute differences in distribution of marker\
+  - name: "emd_mean"
+    label: "EMD Mean"
+    summary: "Mean Earth Mover Distance to compute differences in distribution of\
+      \ marker expressions."
+    description: "Earth Mover Distance (EMD) is a metric designed for comparing two\
+      \ distributions.\nIt is also known as the Wasserstein metric.\n"
+    references:
+      doi:
+      - "10.1023/A:1026543900054"
+    links:
+      documentation: "https://cytonormpy.readthedocs.io/en/latest/generated/cytonormpy.emd_comparison_from_anndata.html"
+      repository: "https://github.com/TarikExner/CytoNormPy"
+    min: 0
+    max: ".inf"
+    maximize: false
+  - name: "emd_max"
+    label: "EMD Max"
+    summary: "Max Earth Mover Distance to compute differences in distribution of marker\
       \ expressions."
     description: "Earth Mover Distance (EMD) is a metric designed for comparing two\
       \ distributions.\nIt is also known as the Wasserstein metric.\n"
@@ -391,7 +403,7 @@ build_info:
   output: "target/executable/metrics/emd"
   executable: "target/executable/metrics/emd/emd"
   viash_version: "0.9.0"
-  git_commit: "cb4ed5b7fcfc2fc98e1c9c902a438596309f035a"
+  git_commit: "0423799b338abe490764d3403608758eb58041ec"
   git_remote: "https://github.com/openproblems-bio/task_cyto_batch_integration"
 package_config:
   name: "task_cyto_batch_integration"

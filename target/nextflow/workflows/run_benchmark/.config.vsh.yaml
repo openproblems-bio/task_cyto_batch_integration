@@ -413,10 +413,10 @@ dependencies:
 - name: "methods/limma_remove_batch_effect"
   repository:
     type: "local"
-- name: "metrics/emd"
+- name: "methods/combat"
   repository:
     type: "local"
-- name: "methods/combat"
+- name: "metrics/emd"
   repository:
     type: "local"
 repositories:
@@ -460,7 +460,7 @@ build_info:
   output: "target/nextflow/workflows/run_benchmark"
   executable: "target/nextflow/workflows/run_benchmark/main.nf"
   viash_version: "0.9.0"
-  git_commit: "cb4ed5b7fcfc2fc98e1c9c902a438596309f035a"
+  git_commit: "0423799b338abe490764d3403608758eb58041ec"
   git_remote: "https://github.com/openproblems-bio/task_cyto_batch_integration"
   dependencies:
   - "target/dependencies/github/openproblems-bio/core/build/main/nextflow/h5ad/extract_uns_metadata"
@@ -470,8 +470,8 @@ build_info:
   - "target/nextflow/control_methods/no_integration"
   - "target/nextflow/methods/harmonypy"
   - "target/nextflow/methods/limma_remove_batch_effect"
-  - "target/nextflow/metrics/emd"
   - "target/nextflow/methods/combat"
+  - "target/nextflow/metrics/emd"
 package_config:
   name: "task_cyto_batch_integration"
   version: "build_main"
