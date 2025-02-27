@@ -376,7 +376,7 @@ Format:
 <div class="small">
 
     AnnData object
-     uns: 'dataset_id', 'method_id', 'sample_ids', 'metric_ids', 'metric_values'
+     uns: 'dataset_id', 'method_id', 'metric_ids', 'metric_values'
 
 </div>
 
@@ -388,7 +388,6 @@ Data structure:
 |:---|:---|:---|
 | `uns["dataset_id"]` | `string` | A unique identifier for the dataset. |
 | `uns["method_id"]` | `string` | A unique identifier for the batch correction method. |
-| `uns["sample_ids"]` | `string` | The samples assessed by the metric. |
 | `uns["metric_ids"]` | `string` | One or more unique metric identifiers. |
 | `uns["metric_values"]` | `double` | The metric values obtained. Must be of same length as ‘metric_ids’. |
 
