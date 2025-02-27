@@ -92,7 +92,6 @@ output = ad.AnnData(
         "method_id": method_id,
         "metric_ids": ["emd_mean", "emd_max"],
         "metric_values": [np.nanmean(emd_vals), np.nanmax(emd_vals)],
-        "sample_ids": list(input_concat.obs['sample'].unique()),
         "emd_values": emd_df
     }
 )
