@@ -14,12 +14,39 @@ info:
   metrics:
       # A unique identifier for your metric (required).
       # Can contain only lowercase letters or underscores.
-    - name: emd
+    - name: emd_mean
       # A relatively short label, used when rendering visualisarions (required)
-      label: EMD
+      label: EMD Mean
       # A one sentence summary of how this metric works (required). Used when 
       # rendering summary tables.
-      summary: "Earth Mover Distance to compute differences in distribution of marker expressions."
+      summary: "Mean Earth Mover Distance to compute differences in distribution of marker expressions."
+      # A multi-line description of how this component works (required). Used
+      # when rendering reference documentation.
+      description: |
+        Earth Mover Distance (EMD) is a metric designed for comparing two distributions.
+        It is also known as the Wasserstein metric.
+      references:
+        doi: 
+          - 10.1023/A:1026543900054
+      links:
+        # URL to the documentation for this metric (required).
+        documentation: https://cytonormpy.readthedocs.io/en/latest/generated/cytonormpy.emd_comparison_from_anndata.html
+        # URL to the code repository for this metric (required).
+        repository: https://github.com/TarikExner/CytoNormPy
+      # The minimum possible value for this metric (required)
+      min: 0
+      # The maximum possible value for this metric (required)
+      max: .inf
+      # Whether a higher value represents a 'better' solution (required)
+      maximize: false
+      # A unique identifier for your metric (required).
+      # Can contain only lowercase letters or underscores.
+    - name: emd_max
+      # A relatively short label, used when rendering visualisarions (required)
+      label: EMD Max
+      # A one sentence summary of how this metric works (required). Used when 
+      # rendering summary tables.
+      summary: "Max Earth Mover Distance to compute differences in distribution of marker expressions."
       # A multi-line description of how this component works (required). Used
       # when rendering reference documentation.
       description: |
@@ -45,6 +72,7 @@ resources:
   # The script of your component (required)
   - type: python_script
     path: script.py
+  - path: /src/utils/helper_functions.py
 
 engines:
   # Specifications for the Docker image for this component.

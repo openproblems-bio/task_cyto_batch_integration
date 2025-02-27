@@ -15,11 +15,6 @@ info:
         description: "A unique identifier for the batch correction method"
         required: true
       - type: string
-        name: sample_ids
-        description: "The samples assessed by the metric"
-        multiple: true
-        required: true
-      - type: string
         name: metric_ids
         description: "One or more unique metric identifiers"
         multiple: true
