@@ -66,8 +66,10 @@ dependencies:
   - name: control_methods/shuffle_integration
   - name: control_methods/shuffle_integration_by_batch
   - name: control_methods/shuffle_integration_by_cell_type
+  - name: control_methods/no_integration
   - name: methods/harmonypy
   - name: methods/limma_remove_batch_effect
+  - name: methods/combat
   - name: metrics/emd
 
 runners:
