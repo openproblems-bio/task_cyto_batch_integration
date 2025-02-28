@@ -13,6 +13,7 @@ methods = [
   harmonypy,
   limma_remove_batch_effect,
   no_integration,
+  perfect_integration,
   combat
 ]
 
