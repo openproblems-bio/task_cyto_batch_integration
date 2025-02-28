@@ -3356,6 +3356,12 @@ meta = [
       }
     },
     {
+      "name" : "control_methods/perfect_integration",
+      "repository" : {
+        "type" : "local"
+      }
+    },
+    {
       "name" : "methods/harmonypy",
       "repository" : {
         "type" : "local"
@@ -3437,7 +3443,7 @@ meta = [
     "engine" : "native",
     "output" : "target/nextflow/workflows/run_benchmark",
     "viash_version" : "0.9.0",
-    "git_commit" : "0423799b338abe490764d3403608758eb58041ec",
+    "git_commit" : "eea607c973ed8e2522884ddddffc7e1cae22b21e",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3510,6 +3516,7 @@ include { shuffle_integration } from "${meta.resources_dir}/../../../nextflow/co
 include { shuffle_integration_by_batch } from "${meta.resources_dir}/../../../nextflow/control_methods/shuffle_integration_by_batch/main.nf"
 include { shuffle_integration_by_cell_type } from "${meta.resources_dir}/../../../nextflow/control_methods/shuffle_integration_by_cell_type/main.nf"
 include { no_integration } from "${meta.resources_dir}/../../../nextflow/control_methods/no_integration/main.nf"
+include { perfect_integration } from "${meta.resources_dir}/../../../nextflow/control_methods/perfect_integration/main.nf"
 include { harmonypy } from "${meta.resources_dir}/../../../nextflow/methods/harmonypy/main.nf"
 include { limma_remove_batch_effect } from "${meta.resources_dir}/../../../nextflow/methods/limma_remove_batch_effect/main.nf"
 include { combat } from "${meta.resources_dir}/../../../nextflow/methods/combat/main.nf"
@@ -3532,6 +3539,7 @@ methods = [
   harmonypy,
   limma_remove_batch_effect,
   no_integration,
+  perfect_integration,
   combat
 ]
 

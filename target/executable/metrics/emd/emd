@@ -493,9 +493,9 @@ RUN pip install --upgrade pip && \
   pip install --upgrade --no-cache-dir "git+https://github.com/TarikExner/CytoNormPy"
 
 LABEL org.opencontainers.image.description="Companion container for running component metrics emd"
-LABEL org.opencontainers.image.created="2025-02-27T09:44:25Z"
+LABEL org.opencontainers.image.created="2025-02-28T23:52:13Z"
 LABEL org.opencontainers.image.source="https://github.com/openproblems-bio/task_cyto_batch_integration"
-LABEL org.opencontainers.image.revision="0423799b338abe490764d3403608758eb58041ec"
+LABEL org.opencontainers.image.revision="eea607c973ed8e2522884ddddffc7e1cae22b21e"
 LABEL org.opencontainers.image.version="build_main"
 
 VIASHDOCKER
@@ -1112,7 +1112,7 @@ dep = {
 ## VIASH END
 
 sys.path.append(meta["resources_dir"])
-from helper_functions import concatenate_inputs
+from helper_functions import get_obs_for_integrated
 
 print("Reading input files", flush=True)
 
@@ -1120,10 +1120,19 @@ input_integrated = ad.read_h5ad(par["input_integrated"])
 input_unintegrated = ad.read_h5ad(par["input_unintegrated"])
 input_validation = ad.read_h5ad(par["input_validation"])
 
-input_concat = concatenate_inputs(
+input_integrated = get_obs_for_integrated(
     input_integrated=input_integrated,
     input_unintegrated=input_unintegrated,
     input_validation=input_validation
+)
+
+# concatenate all input into one giant anndata
+input_concat = ad.concat([input_integrated, input_validation])
+input_concat.layers["data"] = np.concatenate(
+    (
+        input_integrated.layers["integrated"],
+        input_validation.layers["preprocessed"],
+    )
 )
 
 markers_to_assess = input_unintegrated.var[

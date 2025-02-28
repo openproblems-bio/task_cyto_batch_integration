@@ -1,8 +1,7 @@
 import anndata as ad
-import numpy as np
 
 
-def concatenate_inputs(
+def get_obs_for_integrated(
     input_integrated: ad.AnnData,
     input_validation: ad.AnnData,
     input_unintegrated: ad.AnnData
@@ -22,17 +21,26 @@ def concatenate_inputs(
     # add all obs columns in the unintegrated data to integrated data
     # loc should order the obs based on obs_names
     
-    input_integrated.obs = input_unintegrated.obs.loc[input_integrated.obs_names]
+    adata = input_integrated.copy()
     
+    # oh man i end up having to do this because otherwise some metrics which does 
+    # pairwise comparison between samples from the same donor will give you error..
+    if adata.uns['method_id'] == 'perfect_integration':
+        
+        adata.obs = input_validation.obs.loc[adata.obs_names]
+        
+        # i have to change the sample names as otherwise the metrics will get confused and
+        # give NaN because it is expecting at least 2 samples per donor.
+        sample_donor_map = input_unintegrated.obs.groupby(by='donor', observed=True)['sample'].unique().to_dict()
+        
+        adata.obs['sample'] = [sample_donor_map[x][0] for x in adata.obs['donor']]
+    
+    else:
+        adata.obs = input_unintegrated.obs.loc[adata.obs_names]
+        
     # re-arrange the var so validation and integrated have the same var order
-    input_integrated = input_integrated[:, input_validation.var_names]
+    adata = adata[:, input_unintegrated.var_names]
+    
+    return(adata)
 
-    input_concat = ad.concat([input_integrated, input_validation])
-    input_concat.layers["data"] = np.concatenate(
-    (
-        input_integrated.layers["integrated"],
-        input_validation.layers["preprocessed"],
-    )
-    )
-
-    return input_concat
+    
