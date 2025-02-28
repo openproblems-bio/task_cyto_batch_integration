@@ -43,6 +43,8 @@
 
 * Update output anndata for methods to return all vars - corrected or not (PR #28).
 
+* Add positive control (PR #30).
+
 ## MINOR CHANGES
 
 * Enabled unit tests (PR #2).
