@@ -23,19 +23,23 @@ def get_obs_for_integrated(
     
     adata = input_integrated.copy()
     
-    obs_reference_data = ad.concat([input_unintegrated, input_validation])
-    adata.obs = obs_reference_data.obs.loc[adata.obs_names]
-    
     # oh man i end up having to do this because otherwise some metrics which does 
     # pairwise comparison between samples from the same donor will give you error..
     if adata.uns['method_id'] == 'perfect_integration':
+        
+        adata.obs = input_validation.obs.loc[adata.obs_names]
+        
+        # i have to change the sample names as otherwise the metrics will get confused and
+        # give NaN because it is expecting at least 2 samples per donor.
         sample_donor_map = input_unintegrated.obs.groupby(by='donor', observed=True)['sample'].unique().to_dict()
         
         adata.obs['sample'] = [sample_donor_map[x][0] for x in adata.obs['donor']]
-        
+    
+    else:
+        adata.obs = input_unintegrated.obs.loc[adata.obs_names]
         
     # re-arrange the var so validation and integrated have the same var order
-    adata = adata[:, input_validation.var_names]
+    adata = adata[:, input_unintegrated.var_names]
     
     return(adata)
 
