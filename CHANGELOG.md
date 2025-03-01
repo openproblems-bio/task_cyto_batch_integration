@@ -53,5 +53,7 @@
 
 * Updated file description in yaml file (PR #15).
 
+* Updated scripts to enable running benchmark on seqera (PR #29).
+
 ## BUGFIXES
 
