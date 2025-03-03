@@ -19,7 +19,7 @@ info:
         The metric is calculated as the absolute difference between the number of peaks in the validation and batch-normalized data.
         The marker-expression profiles are first smoothed using kernel density estimation (KDE) (`scipy.stats.gaussian_kde`),
         and then peaks are then identified using the `scipy.signal.find_peaks` function.
-        For peak calling, the `prominence` parameter is set to 0.01 and the `height` parameter is set to 0.05*max_density.
+        For peak calling, the `prominence` parameter is set to 0.1 and the `height` parameter is set to 0.05*max_density.
       references:
         doi: 
           - 10.1038/s41592-019-0686-2
@@ -47,9 +47,8 @@ resources:
   # The script of your component (required)
   - type: python_script
     path: script.py
-  # Additional resources your script needs (optional)
-  # - type: file
-  #   path: weights.pt
+  - path: helper.py
+  - path: /src/utils/helper_functions.py
 
 engines:
   # Specifications for the Docker image for this component.
