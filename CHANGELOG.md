@@ -23,6 +23,8 @@
 
 * Added `control_methods/no_integration ` (PR #26).
 
+* Added `metrics/n_inconsistent_peaks` + some new helper functions (PR #31)
+
 ## MAJOR CHANGES
 
 * Updated file schema (PR #18): 
