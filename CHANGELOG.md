@@ -43,6 +43,8 @@
 
 * Update output anndata for methods to return all vars - corrected or not (PR #28).
 
+* Add positive control (PR #30).
+
 ## MINOR CHANGES
 
 * Enabled unit tests (PR #2).
@@ -50,6 +52,8 @@
 * Added integrated test resource (PR #5).
 
 * Updated file description in yaml file (PR #15).
+
+* Updated scripts to enable running benchmark on seqera (PR #29).
 
 ## BUGFIXES
 
