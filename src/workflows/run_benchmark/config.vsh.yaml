@@ -72,6 +72,7 @@ dependencies:
   - name: methods/limma_remove_batch_effect
   - name: methods/combat
   - name: metrics/emd
+  - name: metrics/n_inconsistent_peaks
 
 runners:
   - type: nextflow
