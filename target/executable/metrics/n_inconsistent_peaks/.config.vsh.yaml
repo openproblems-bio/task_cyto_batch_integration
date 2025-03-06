@@ -1,111 +1,9 @@
-name: "shuffle_integration"
-namespace: "control_methods"
+name: "n_inconsistent_peaks"
+namespace: "metrics"
 version: "build_main"
 argument_groups:
 - name: "Arguments"
   arguments:
-  - type: "file"
-    name: "--input_unintegrated"
-    label: "Unintegrated"
-    summary: "The complete unintegrated dataset, including all cells' metadata (columns)\
-      \ from the \nunintegrated_censored dataset. \nThe cells in this dataset are\
-      \ the same to those in the unintegrated_censored dataset.\n"
-    info:
-      format:
-        type: "h5ad"
-        layers:
-        - type: "double"
-          name: "preprocessed"
-          description: "preprocessed data, e.g. already compensated, transformed and\
-            \ debris/doublets removed"
-          required: true
-        obs:
-        - type: "string"
-          name: "cell_type"
-          description: "Cell type information"
-          required: true
-        - type: "string"
-          name: "batch"
-          description: "Batch information"
-          required: true
-        - type: "string"
-          name: "sample"
-          description: "Sample ID"
-          required: true
-        - type: "string"
-          name: "donor"
-          description: "Donor ID"
-          required: true
-        - type: "string"
-          name: "group"
-          description: "Biological group of the donor"
-          required: true
-        - type: "integer"
-          name: "is_control"
-          description: "Whether the sample the cell came from can be used as a control\
-            \ for batch \neffect correction.\n0: cannot be used as a control.\n>=\
-            \ 1: can be used as a control.\nFor cells with >= 1: cells with the same\
-            \ value come from the same donor.\nDifferent values indicate different\
-            \ donors.\n"
-          required: true
-        var:
-        - type: "integer"
-          name: "numeric_id"
-          description: "Numeric ID associated with each marker"
-          required: true
-        - type: "string"
-          name: "channel"
-          description: "The channel / detector of the instrument"
-          required: true
-        - type: "string"
-          name: "marker"
-          description: "The marker name associated with the channel"
-          required: false
-        - type: "string"
-          name: "marker_type"
-          description: "Whether the marker is a functional or lineage marker"
-          required: true
-        - type: "boolean"
-          name: "to_correct"
-          description: "Whether the marker will be batch corrected"
-          required: true
-        uns:
-        - type: "string"
-          name: "dataset_id"
-          description: "A unique identifier for the dataset"
-          required: true
-        - name: "dataset_name"
-          type: "string"
-          description: "Nicely formatted name."
-          required: true
-        - type: "string"
-          name: "dataset_url"
-          description: "Link to the original source of the dataset."
-          required: false
-        - name: "dataset_reference"
-          type: "string"
-          description: "Bibtex reference of the paper in which the dataset was published."
-          required: false
-        - name: "dataset_summary"
-          type: "string"
-          description: "Short description of the dataset."
-          required: true
-        - name: "dataset_description"
-          type: "string"
-          description: "Long description of the dataset."
-          required: true
-        - name: "dataset_organism"
-          type: "string"
-          description: "The organism of the sample in the dataset."
-          required: false
-    example:
-    - "resources_test/task_cyto_batch_integration/starter_file/unintegrated.h5ad"
-    must_exist: true
-    create_parent: true
-    required: true
-    direction: "input"
-    multiple: false
-    multiple_sep: ";"
   - type: "file"
     name: "--input_validation"
     label: "Validation"
@@ -218,7 +116,109 @@ argument_groups:
     multiple: false
     multiple_sep: ";"
   - type: "file"
-    name: "--output"
+    name: "--input_unintegrated"
+    label: "Unintegrated"
+    summary: "The complete unintegrated dataset, including all cells' metadata (columns)\
+      \ from the \nunintegrated_censored dataset. \nThe cells in this dataset are\
+      \ the same to those in the unintegrated_censored dataset.\n"
+    info:
+      format:
+        type: "h5ad"
+        layers:
+        - type: "double"
+          name: "preprocessed"
+          description: "preprocessed data, e.g. already compensated, transformed and\
+            \ debris/doublets removed"
+          required: true
+        obs:
+        - type: "string"
+          name: "cell_type"
+          description: "Cell type information"
+          required: true
+        - type: "string"
+          name: "batch"
+          description: "Batch information"
+          required: true
+        - type: "string"
+          name: "sample"
+          description: "Sample ID"
+          required: true
+        - type: "string"
+          name: "donor"
+          description: "Donor ID"
+          required: true
+        - type: "string"
+          name: "group"
+          description: "Biological group of the donor"
+          required: true
+        - type: "integer"
+          name: "is_control"
+          description: "Whether the sample the cell came from can be used as a control\
+            \ for batch \neffect correction.\n0: cannot be used as a control.\n>=\
+            \ 1: can be used as a control.\nFor cells with >= 1: cells with the same\
+            \ value come from the same donor.\nDifferent values indicate different\
+            \ donors.\n"
+          required: true
+        var:
+        - type: "integer"
+          name: "numeric_id"
+          description: "Numeric ID associated with each marker"
+          required: true
+        - type: "string"
+          name: "channel"
+          description: "The channel / detector of the instrument"
+          required: true
+        - type: "string"
+          name: "marker"
+          description: "The marker name associated with the channel"
+          required: false
+        - type: "string"
+          name: "marker_type"
+          description: "Whether the marker is a functional or lineage marker"
+          required: true
+        - type: "boolean"
+          name: "to_correct"
+          description: "Whether the marker will be batch corrected"
+          required: true
+        uns:
+        - type: "string"
+          name: "dataset_id"
+          description: "A unique identifier for the dataset"
+          required: true
+        - name: "dataset_name"
+          type: "string"
+          description: "Nicely formatted name."
+          required: true
+        - type: "string"
+          name: "dataset_url"
+          description: "Link to the original source of the dataset."
+          required: false
+        - name: "dataset_reference"
+          type: "string"
+          description: "Bibtex reference of the paper in which the dataset was published."
+          required: false
+        - name: "dataset_summary"
+          type: "string"
+          description: "Short description of the dataset."
+          required: true
+        - name: "dataset_description"
+          type: "string"
+          description: "Long description of the dataset."
+          required: true
+        - name: "dataset_organism"
+          type: "string"
+          description: "The organism of the sample in the dataset."
+          required: false
+    example:
+    - "resources_test/task_cyto_batch_integration/starter_file/unintegrated.h5ad"
+    must_exist: true
+    create_parent: true
+    required: true
+    direction: "input"
+    multiple: false
+    multiple_sep: ";"
+  - type: "file"
+    name: "--input_integrated"
     label: "Integrated"
     summary: "Integrated dataset which batch effect was corrected by an algorithm"
     info:
@@ -247,6 +247,40 @@ argument_groups:
     must_exist: true
     create_parent: true
     required: true
+    direction: "input"
+    multiple: false
+    multiple_sep: ";"
+  - type: "file"
+    name: "--output"
+    label: "Score"
+    summary: "File indicating the score of a metric."
+    info:
+      format:
+        type: "h5ad"
+        uns:
+        - type: "string"
+          name: "dataset_id"
+          description: "A unique identifier for the dataset"
+          required: true
+        - type: "string"
+          name: "method_id"
+          description: "A unique identifier for the batch correction method"
+          required: true
+        - type: "string"
+          name: "metric_ids"
+          description: "One or more unique metric identifiers"
+          multiple: true
+          required: true
+        - type: "double"
+          name: "metric_values"
+          description: "The metric values obtained. Must be of same length as 'metric_ids'."
+          multiple: true
+          required: true
+    example:
+    - "resources_test/task_cyto_batch_integration/starter_file/score.h5ad"
+    must_exist: true
+    create_parent: true
+    required: true
     direction: "output"
     multiple: false
     multiple_sep: ";"
@@ -255,10 +289,9 @@ resources:
   path: "script.py"
   is_executable: true
 - type: "file"
-  path: "utils.py"
-label: "Shuffle integration"
-summary: "Integrations are randomly permuted"
-description: "Integrations are randomly permuted"
+  path: "helper.py"
+- type: "file"
+  path: "helper_functions.py"
 test_resources:
 - type: "python_script"
   path: "run_and_check_output.py"
@@ -270,15 +303,34 @@ test_resources:
   path: "resources_test/task_cyto_batch_integration/starter_file"
   dest: "resources_test/task_cyto_batch_integration/starter_file"
 info:
-  type: "control_method"
+  metrics:
+  - name: "n_inconsistent_peaks"
+    label: "Number of inconsistent peaks"
+    summary: "Compare the number of marker-expression peaks between validation and\
+      \ batch-normalized data."
+    description: "The metric compares the number of marker-expression peaks between\
+      \ the validation and batch-normalized data. \nThe number of peaks is calculated\
+      \ using the `scipy.signal.find_peaks` function. \nThe metric is calculated as\
+      \ the absolute difference between the number of peaks in the validation and\
+      \ batch-normalized data.\nThe marker-expression profiles are first smoothed\
+      \ using kernel density estimation (KDE) (`scipy.stats.gaussian_kde`),\nand then\
+      \ peaks are then identified using the `scipy.signal.find_peaks` function.\n\
+      For peak calling, the `prominence` parameter is set to 0.1 and the `height`\
+      \ parameter is set to 0.05*max_density.\n"
+    references:
+      doi:
+      - "10.1038/s41592-019-0686-2"
+    links:
+      documentation: "https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.find_peaks.html#scipy.signal.find_peaks"
+      repository: "https://github.com/scipy/scipy/blob/v1.15.2/scipy/signal/_peak_finding.py#L0-L1"
+    min: 0
+    max: "inf"
+    maximize: false
+  type: "metric"
   type_info:
-    label: "Control Method"
-    summary: "Quality control methods for verifying the pipeline."
-    description: "This folder contains control components for the task. \nThese components\
-      \ have the same interface as the regular methods\nbut also receive the solution\
-      \ object as input. It serves as a\nstarting point to test the relative accuracy\
-      \ of new methods in\nthe task, and also as a quality control for the metrics\
-      \ defined\nin the task.\n"
+    label: "Metric"
+    summary: "A task template metric."
+    description: "A metric for evaluating method predictions.\n"
 status: "enabled"
 repositories:
 - type: "github"
@@ -300,7 +352,7 @@ runners:
     label:
     - "midtime"
     - "midmem"
-    - "lowcpu"
+    - "midcpu"
     tag: "$id"
   auto:
     simplifyInput: true
@@ -329,11 +381,11 @@ engines:
   entrypoint: []
   cmd: null
 build_info:
-  config: "src/control_methods/shuffle_integration/config.vsh.yaml"
+  config: "src/metrics/n_inconsistent_peaks/config.vsh.yaml"
   runner: "executable"
   engine: "docker"
-  output: "target/executable/control_methods/shuffle_integration"
-  executable: "target/executable/control_methods/shuffle_integration/shuffle_integration"
+  output: "target/executable/metrics/n_inconsistent_peaks"
+  executable: "target/executable/metrics/n_inconsistent_peaks/n_inconsistent_peaks"
   viash_version: "0.9.0"
   git_commit: "dd6ff2b4f8e0f4d779f8d925af03af4910c2928a"
   git_remote: "https://github.com/openproblems-bio/task_cyto_batch_integration"

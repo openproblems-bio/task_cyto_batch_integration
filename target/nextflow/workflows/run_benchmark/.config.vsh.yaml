@@ -422,6 +422,9 @@ dependencies:
 - name: "metrics/emd"
   repository:
     type: "local"
+- name: "metrics/n_inconsistent_peaks"
+  repository:
+    type: "local"
 repositories:
 - type: "github"
   name: "core"
@@ -463,7 +466,7 @@ build_info:
   output: "target/nextflow/workflows/run_benchmark"
   executable: "target/nextflow/workflows/run_benchmark/main.nf"
   viash_version: "0.9.0"
-  git_commit: "0eec6fd98e276a9fd17bf394160d20341cd3806e"
+  git_commit: "dd6ff2b4f8e0f4d779f8d925af03af4910c2928a"
   git_remote: "https://github.com/openproblems-bio/task_cyto_batch_integration"
   dependencies:
   - "target/dependencies/github/openproblems-bio/core/build/main/nextflow/h5ad/extract_uns_metadata"
@@ -476,6 +479,7 @@ build_info:
   - "target/nextflow/methods/limma_remove_batch_effect"
   - "target/nextflow/methods/combat"
   - "target/nextflow/metrics/emd"
+  - "target/nextflow/metrics/n_inconsistent_peaks"
 package_config:
   name: "task_cyto_batch_integration"
   version: "build_main"

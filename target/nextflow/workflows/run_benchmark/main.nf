@@ -3384,6 +3384,12 @@ meta = [
       "repository" : {
         "type" : "local"
       }
+    },
+    {
+      "name" : "metrics/n_inconsistent_peaks",
+      "repository" : {
+        "type" : "local"
+      }
     }
   ],
   "repositories" : [
@@ -3443,7 +3449,7 @@ meta = [
     "engine" : "native",
     "output" : "target/nextflow/workflows/run_benchmark",
     "viash_version" : "0.9.0",
-    "git_commit" : "0eec6fd98e276a9fd17bf394160d20341cd3806e",
+    "git_commit" : "dd6ff2b4f8e0f4d779f8d925af03af4910c2928a",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3521,6 +3527,7 @@ include { harmonypy } from "${meta.resources_dir}/../../../nextflow/methods/harm
 include { limma_remove_batch_effect } from "${meta.resources_dir}/../../../nextflow/methods/limma_remove_batch_effect/main.nf"
 include { combat } from "${meta.resources_dir}/../../../nextflow/methods/combat/main.nf"
 include { emd } from "${meta.resources_dir}/../../../nextflow/metrics/emd/main.nf"
+include { n_inconsistent_peaks } from "${meta.resources_dir}/../../../nextflow/metrics/n_inconsistent_peaks/main.nf"
 
 // inner workflow
 // user-provided Nextflow code
@@ -3545,7 +3552,8 @@ methods = [
 
 // construct list of metrics
 metrics = [
-  emd
+  emd,
+  n_inconsistent_peaks
 ]
 
 workflow run_wf {
