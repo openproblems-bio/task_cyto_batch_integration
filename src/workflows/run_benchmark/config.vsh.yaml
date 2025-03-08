@@ -73,6 +73,7 @@ dependencies:
   - name: methods/combat
   - name: methods/cycombine_nocontrols
   - name: metrics/emd
+  - name: metrics/n_inconsistent_peaks
 
 runners:
   - type: nextflow

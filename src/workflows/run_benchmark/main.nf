@@ -20,7 +20,8 @@ methods = [
 
 // construct list of metrics
 metrics = [
-  emd
+  emd,
+  n_inconsistent_peaks
 ]
 
 workflow run_wf {
