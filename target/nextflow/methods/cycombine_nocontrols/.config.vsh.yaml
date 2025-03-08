@@ -1,4 +1,4 @@
-name: "limma_remove_batch_effect"
+name: "cycombine_nocontrols"
 namespace: "methods"
 version: "build_main"
 argument_groups:
@@ -134,14 +134,12 @@ resources:
 - type: "r_script"
   path: "script.R"
   is_executable: true
-label: "Limma removeBatchEffect"
-summary: "Uses a linear model and matrix decomposition to remove batch effects from\
-  \ a dataset"
-description: "Limma removeBatchEffect is a method that uses a linear model and matrix\n\
-  decomposition to remove batch effects from a dataset. It first fits a linear\nmodel\
-  \ to the data, then decomposes the model matrix into a set of orthogonal\ncomponents.\
-  \ The batch effect is then removed by subtracting the component\ncorresponding to\
-  \ the batch effect from the data.\n"
+label: "cyCombine (no-controls)"
+summary: "cyCombine perform batch correction by using self-organizing maps and ComBat."
+description: "cyCombine perform batch integration by first using self-organizing maps\
+  \ (SOM) to \ngroup similar cells, then applies a ComBat-based method to correct\
+  \ batch effects within \neach group of similar cells. \n\nHere, we run cyCombine\
+  \ without control samples (replicates in cyCombine terminology).\n"
 test_resources:
 - type: "python_script"
   path: "run_and_check_output.py"
@@ -168,11 +166,11 @@ repositories:
 license: "MIT"
 references:
   doi:
-  - "10.1093/nar/gkv007"
+  - "10.1038/s41467-022-29383-5"
 links:
-  repository: "https://github.com/bioc/limma"
+  repository: "https://github.com/biosurf/cyCombine"
   docker_registry: "ghcr.io"
-  documentation: "https://bioinf.wehi.edu.au/limma"
+  documentation: "https://biosurf.org/cyCombine.html"
 runners:
 - type: "executable"
   id: "executable"
@@ -212,16 +210,18 @@ engines:
   setup:
   - type: "r"
     bioc:
-    - "limma"
+    - "sva"
+    github:
+    - "biosurf/cyCombine"
     bioc_force_install: false
   entrypoint: []
   cmd: null
 build_info:
-  config: "src/methods/limma_remove_batch_effect/config.vsh.yaml"
+  config: "src/methods/cycombine_nocontrols/config.vsh.yaml"
   runner: "nextflow"
   engine: "docker"
-  output: "target/nextflow/methods/limma_remove_batch_effect"
-  executable: "target/nextflow/methods/limma_remove_batch_effect/main.nf"
+  output: "target/nextflow/methods/cycombine_nocontrols"
+  executable: "target/nextflow/methods/cycombine_nocontrols/main.nf"
   viash_version: "0.9.0"
   git_commit: "1cb4352669b64f895e4f14bd1344eb94aa30ff8f"
   git_remote: "https://github.com/openproblems-bio/task_cyto_batch_integration"

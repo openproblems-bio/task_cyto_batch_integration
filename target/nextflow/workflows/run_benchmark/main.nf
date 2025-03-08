@@ -3380,6 +3380,12 @@ meta = [
       }
     },
     {
+      "name" : "methods/cycombine_nocontrols",
+      "repository" : {
+        "type" : "local"
+      }
+    },
+    {
       "name" : "metrics/emd",
       "repository" : {
         "type" : "local"
@@ -3449,7 +3455,7 @@ meta = [
     "engine" : "native",
     "output" : "target/nextflow/workflows/run_benchmark",
     "viash_version" : "0.9.0",
-    "git_commit" : "dd6ff2b4f8e0f4d779f8d925af03af4910c2928a",
+    "git_commit" : "1cb4352669b64f895e4f14bd1344eb94aa30ff8f",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3526,6 +3532,7 @@ include { perfect_integration } from "${meta.resources_dir}/../../../nextflow/co
 include { harmonypy } from "${meta.resources_dir}/../../../nextflow/methods/harmonypy/main.nf"
 include { limma_remove_batch_effect } from "${meta.resources_dir}/../../../nextflow/methods/limma_remove_batch_effect/main.nf"
 include { combat } from "${meta.resources_dir}/../../../nextflow/methods/combat/main.nf"
+include { cycombine_nocontrols } from "${meta.resources_dir}/../../../nextflow/methods/cycombine_nocontrols/main.nf"
 include { emd } from "${meta.resources_dir}/../../../nextflow/metrics/emd/main.nf"
 include { n_inconsistent_peaks } from "${meta.resources_dir}/../../../nextflow/metrics/n_inconsistent_peaks/main.nf"
 
@@ -3547,7 +3554,8 @@ methods = [
   limma_remove_batch_effect,
   no_integration,
   perfect_integration,
-  combat
+  combat,
+  cycombine_nocontrols
 ]
 
 // construct list of metrics
