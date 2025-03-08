@@ -71,6 +71,7 @@ dependencies:
   - name: methods/harmonypy
   - name: methods/limma_remove_batch_effect
   - name: methods/combat
+  - name: methods/cycombine_nocontrols
   - name: metrics/emd
   - name: metrics/n_inconsistent_peaks
 
