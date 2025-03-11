@@ -1,15 +1,7 @@
-# The API specifies which type of component this is.
-# It contains specifications for:
-#   - The input/output files
-#   - Common parameters
-#   - A unit test
+
 __merge__: ../../api/comp_metric.yaml
 
-# A unique identifier for your component (required).
-# Can contain only lowercase letters or underscores.
 name: average_batch_r2
-
-
 
 # Metadata for your component
 info:
@@ -18,36 +10,52 @@ info:
       # Can contain only lowercase letters or underscores.
     - name: average_batch_r2
       # A relatively short label, used when rendering visualisarions (required)
-      label: Average Batch R2
+      label: Average Batch R-squared ($\overline{R^2_B}$)
       # A one sentence summary of how this metric works (required). Used when 
       # rendering summary tables.
-      summary: "FILL IN: A one sentence summary of this metric."
+      summary: "The average batch R-squared quantifies, on average, how strongly the batch variable B explains the variance in the data."
       # A multi-line description of how this component works (required). Used
       # when rendering reference documentation.
       description: |
-        FILL IN: A (multi-line) description of how this metric works.
-      # references:
-      #   doi: 
-      #     - 10.1000/xx.123456.789
-      #   bibtex:
-      #     - |
-      #       @article{foo,
-      #         title={Foo},
-      #         author={Bar},
-      #         journal={Baz},
-      #         year={2024}
-      #       }
+        First, a simple linear model `sklearn.linear_model.LinearRegression` is fitted for each paired sample, marker (and cell type) to determine the fraction of variance (R^2) explained by the batch covariate B. |
+        The average batch R_squared is then computed as the average of the $R^2$ values across all paired samples, markers (and cell types). |
+        As a result, $\overline{R^2_B}$ quantifies how much of the total variability in the data is driven by batch effects. Consequently, a lower values are desirable. |
+
+        $\overline{R^2_B} \text{} = \frac{1}{N*C*M}\sum_{\substack{(x_{\mathrm{int}},\,x_{\mathrm{val}})\\ \text{paired samples}}}^{N} \sum_{j=1}^{C} \sum_{i=1}^{M}\,R^2\!\bigl(\mathrm{marker}_i \mid B\bigr)$
+
+        Where:
+        - $N$ is the number of paired samples, where x_{\mathrm{int}} is the replicate that has been batch-corrected and x_{\mathrm{val}} is replicate used for validation. Paired samples belong to different batches.
+        - $C$ is the number of cell types
+        - $M$ is the number of markers
+        - $B$ is the batch covariate
+
+        The $\overline{Rˆ2_B}_{global}$ is a variation of the latter metric, where the average is computed across paired samples and markers only, without taking into account the cell types. |
+
+        $\overline{R^2_B}_{global} = \frac{1}{N*M}\sum_{\substack{(x_{\mathrm{int}},\,x_{\mathrm{val}})\\ \text{paired samples}}}^{N} \sum_{i=1}^{M} \,R^2\!\bigl(\mathrm{marker}_i \mid B\bigr)$
+
+        A higher value of $\overline{R^2_B}$ indicates that the batch variable explains more of the variance in the data, which indicates a higher level of batch effects. |
+        
+        A good performance on $\overline{R^2_B}_{global} but not on $\overline{R^2_B}$ might indicate that the batch effect correction is discarding cell type specific batch effects. |
+      
+      references:
+        bibtex:
+          - |
+            @book{draper1998applied,
+            title={Applied regression analysis},
+            author={Draper, Norman R and Smith, Harry},
+            publisher={John Wiley \& Sons}
+            }
       links:
         # URL to the documentation for this metric (required).
-        documentation: https://url.to/the/documentation
+        documentation: https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LinearRegression.html
         # URL to the code repository for this metric (required).
-        repository: https://github.com/organisation/repository
+        repository: https://github.com/openproblems-bio/task_cyto_batch_integration/tree/add_metric_avg_batch_r2/src/metrics/average_batch_r2
       # The minimum possible value for this metric (required)
-      min: 0
+      min: -0.001
       # The maximum possible value for this metric (required)
       max: 1
       # Whether a higher value represents a 'better' solution (required)
-      maximize: true
+      maximize: false
 
 # Component-specific parameters (optional)
 # arguments:
@@ -61,9 +69,9 @@ resources:
   # The script of your component (required)
   - type: python_script
     path: script.py
-  # Additional resources your script needs (optional)
-  # - type: file
-  #   path: weights.pt
+  - path: helper.py
+  - path: /src/utils/helper_functions.py
+
 
 engines:
   # Specifications for the Docker image for this component.
