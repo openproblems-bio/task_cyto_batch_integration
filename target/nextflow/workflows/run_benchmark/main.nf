@@ -3396,6 +3396,12 @@ meta = [
       "repository" : {
         "type" : "local"
       }
+    },
+    {
+      "name" : "metrics/average_batch_r2",
+      "repository" : {
+        "type" : "local"
+      }
     }
   ],
   "repositories" : [
@@ -3455,7 +3461,7 @@ meta = [
     "engine" : "native",
     "output" : "target/nextflow/workflows/run_benchmark",
     "viash_version" : "0.9.0",
-    "git_commit" : "818cd97980d3e08d36a079595f02bfb75dca71bd",
+    "git_commit" : "64f6343bdd2ac2a684a523c667501881524f6b88",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3535,6 +3541,7 @@ include { combat } from "${meta.resources_dir}/../../../nextflow/methods/combat/
 include { cycombine_nocontrols } from "${meta.resources_dir}/../../../nextflow/methods/cycombine_nocontrols/main.nf"
 include { emd } from "${meta.resources_dir}/../../../nextflow/metrics/emd/main.nf"
 include { n_inconsistent_peaks } from "${meta.resources_dir}/../../../nextflow/metrics/n_inconsistent_peaks/main.nf"
+include { average_batch_r2 } from "${meta.resources_dir}/../../../nextflow/metrics/average_batch_r2/main.nf"
 
 // inner workflow
 // user-provided Nextflow code

@@ -74,6 +74,7 @@ dependencies:
   - name: methods/cycombine_nocontrols
   - name: metrics/emd
   - name: metrics/n_inconsistent_peaks
+  - name: metrics/average_batch_r2
 
 runners:
   - type: nextflow
