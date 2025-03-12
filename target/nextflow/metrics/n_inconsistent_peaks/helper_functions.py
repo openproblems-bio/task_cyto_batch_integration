@@ -111,3 +111,20 @@ def subset_markers_tocorrect(adata)-> ad.AnnData:
     
     return adata
     
+def remove_unlabelled(adata)-> ad.AnnData:
+    '''
+    Subsets the anndata object to remove all cells where the marker is not labelled.
+    This is determined by the column 'cell_type' in adata.obs.
+    Particularly usefull when dealing with cell type specific metrics
+
+    Inputs:
+    adata: AnnData object
+
+    Outputs:
+    adata: AnnData object with only the labeled cells
+    '''
+
+    adata = adata[adata.obs['cell_type'].str.lower() != 'unlabelled'].copy()
+    adata = adata[adata.obs['cell_type'].str.lower() != 'unlabeled'].copy()
+
+    return adata

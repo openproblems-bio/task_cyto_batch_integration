@@ -1,111 +1,9 @@
-name: "no_integration"
-namespace: "control_methods"
+name: "average_batch_r2"
+namespace: "metrics"
 version: "build_main"
 argument_groups:
 - name: "Arguments"
   arguments:
-  - type: "file"
-    name: "--input_unintegrated"
-    label: "Unintegrated"
-    summary: "The complete unintegrated dataset, including all cells' metadata (columns)\
-      \ from the \nunintegrated_censored dataset. \nThe cells in this dataset are\
-      \ the same to those in the unintegrated_censored dataset.\n"
-    info:
-      format:
-        type: "h5ad"
-        layers:
-        - type: "double"
-          name: "preprocessed"
-          description: "preprocessed data, e.g. already compensated, transformed and\
-            \ debris/doublets removed"
-          required: true
-        obs:
-        - type: "string"
-          name: "cell_type"
-          description: "Cell type information"
-          required: true
-        - type: "string"
-          name: "batch"
-          description: "Batch information"
-          required: true
-        - type: "string"
-          name: "sample"
-          description: "Sample ID"
-          required: true
-        - type: "string"
-          name: "donor"
-          description: "Donor ID"
-          required: true
-        - type: "string"
-          name: "group"
-          description: "Biological group of the donor"
-          required: true
-        - type: "integer"
-          name: "is_control"
-          description: "Whether the sample the cell came from can be used as a control\
-            \ for batch \neffect correction.\n0: cannot be used as a control.\n>=\
-            \ 1: can be used as a control.\nFor cells with >= 1: cells with the same\
-            \ value come from the same donor.\nDifferent values indicate different\
-            \ donors.\n"
-          required: true
-        var:
-        - type: "integer"
-          name: "numeric_id"
-          description: "Numeric ID associated with each marker"
-          required: true
-        - type: "string"
-          name: "channel"
-          description: "The channel / detector of the instrument"
-          required: true
-        - type: "string"
-          name: "marker"
-          description: "The marker name associated with the channel"
-          required: false
-        - type: "string"
-          name: "marker_type"
-          description: "Whether the marker is a functional or lineage marker"
-          required: true
-        - type: "boolean"
-          name: "to_correct"
-          description: "Whether the marker will be batch corrected"
-          required: true
-        uns:
-        - type: "string"
-          name: "dataset_id"
-          description: "A unique identifier for the dataset"
-          required: true
-        - name: "dataset_name"
-          type: "string"
-          description: "Nicely formatted name."
-          required: true
-        - type: "string"
-          name: "dataset_url"
-          description: "Link to the original source of the dataset."
-          required: false
-        - name: "dataset_reference"
-          type: "string"
-          description: "Bibtex reference of the paper in which the dataset was published."
-          required: false
-        - name: "dataset_summary"
-          type: "string"
-          description: "Short description of the dataset."
-          required: true
-        - name: "dataset_description"
-          type: "string"
-          description: "Long description of the dataset."
-          required: true
-        - name: "dataset_organism"
-          type: "string"
-          description: "The organism of the sample in the dataset."
-          required: false
-    example:
-    - "resources_test/task_cyto_batch_integration/starter_file/unintegrated.h5ad"
-    must_exist: true
-    create_parent: true
-    required: true
-    direction: "input"
-    multiple: false
-    multiple_sep: ";"
   - type: "file"
     name: "--input_validation"
     label: "Validation"
@@ -218,7 +116,109 @@ argument_groups:
     multiple: false
     multiple_sep: ";"
   - type: "file"
-    name: "--output"
+    name: "--input_unintegrated"
+    label: "Unintegrated"
+    summary: "The complete unintegrated dataset, including all cells' metadata (columns)\
+      \ from the \nunintegrated_censored dataset. \nThe cells in this dataset are\
+      \ the same to those in the unintegrated_censored dataset.\n"
+    info:
+      format:
+        type: "h5ad"
+        layers:
+        - type: "double"
+          name: "preprocessed"
+          description: "preprocessed data, e.g. already compensated, transformed and\
+            \ debris/doublets removed"
+          required: true
+        obs:
+        - type: "string"
+          name: "cell_type"
+          description: "Cell type information"
+          required: true
+        - type: "string"
+          name: "batch"
+          description: "Batch information"
+          required: true
+        - type: "string"
+          name: "sample"
+          description: "Sample ID"
+          required: true
+        - type: "string"
+          name: "donor"
+          description: "Donor ID"
+          required: true
+        - type: "string"
+          name: "group"
+          description: "Biological group of the donor"
+          required: true
+        - type: "integer"
+          name: "is_control"
+          description: "Whether the sample the cell came from can be used as a control\
+            \ for batch \neffect correction.\n0: cannot be used as a control.\n>=\
+            \ 1: can be used as a control.\nFor cells with >= 1: cells with the same\
+            \ value come from the same donor.\nDifferent values indicate different\
+            \ donors.\n"
+          required: true
+        var:
+        - type: "integer"
+          name: "numeric_id"
+          description: "Numeric ID associated with each marker"
+          required: true
+        - type: "string"
+          name: "channel"
+          description: "The channel / detector of the instrument"
+          required: true
+        - type: "string"
+          name: "marker"
+          description: "The marker name associated with the channel"
+          required: false
+        - type: "string"
+          name: "marker_type"
+          description: "Whether the marker is a functional or lineage marker"
+          required: true
+        - type: "boolean"
+          name: "to_correct"
+          description: "Whether the marker will be batch corrected"
+          required: true
+        uns:
+        - type: "string"
+          name: "dataset_id"
+          description: "A unique identifier for the dataset"
+          required: true
+        - name: "dataset_name"
+          type: "string"
+          description: "Nicely formatted name."
+          required: true
+        - type: "string"
+          name: "dataset_url"
+          description: "Link to the original source of the dataset."
+          required: false
+        - name: "dataset_reference"
+          type: "string"
+          description: "Bibtex reference of the paper in which the dataset was published."
+          required: false
+        - name: "dataset_summary"
+          type: "string"
+          description: "Short description of the dataset."
+          required: true
+        - name: "dataset_description"
+          type: "string"
+          description: "Long description of the dataset."
+          required: true
+        - name: "dataset_organism"
+          type: "string"
+          description: "The organism of the sample in the dataset."
+          required: false
+    example:
+    - "resources_test/task_cyto_batch_integration/starter_file/unintegrated.h5ad"
+    must_exist: true
+    create_parent: true
+    required: true
+    direction: "input"
+    multiple: false
+    multiple_sep: ";"
+  - type: "file"
+    name: "--input_integrated"
     label: "Integrated"
     summary: "Integrated dataset which batch effect was corrected by an algorithm"
     info:
@@ -247,6 +247,40 @@ argument_groups:
     must_exist: true
     create_parent: true
     required: true
+    direction: "input"
+    multiple: false
+    multiple_sep: ";"
+  - type: "file"
+    name: "--output"
+    label: "Score"
+    summary: "File indicating the score of a metric."
+    info:
+      format:
+        type: "h5ad"
+        uns:
+        - type: "string"
+          name: "dataset_id"
+          description: "A unique identifier for the dataset"
+          required: true
+        - type: "string"
+          name: "method_id"
+          description: "A unique identifier for the batch correction method"
+          required: true
+        - type: "string"
+          name: "metric_ids"
+          description: "One or more unique metric identifiers"
+          multiple: true
+          required: true
+        - type: "double"
+          name: "metric_values"
+          description: "The metric values obtained. Must be of same length as 'metric_ids'."
+          multiple: true
+          required: true
+    example:
+    - "resources_test/task_cyto_batch_integration/starter_file/score.h5ad"
+    must_exist: true
+    create_parent: true
+    required: true
     direction: "output"
     multiple: false
     multiple_sep: ";"
@@ -254,11 +288,10 @@ resources:
 - type: "python_script"
   path: "script.py"
   is_executable: true
-label: "No Integration"
-summary: "Control method returning the unintegrated data without performing batch\
-  \ correction."
-description: "The component works by reading and writing back the 'unintegrated' data\
-  \ without performing any operation. \n"
+- type: "file"
+  path: "helper.py"
+- type: "file"
+  path: "helper_functions.py"
 test_resources:
 - type: "python_script"
   path: "run_and_check_output.py"
@@ -270,15 +303,50 @@ test_resources:
   path: "resources_test/task_cyto_batch_integration/starter_file"
   dest: "resources_test/task_cyto_batch_integration/starter_file"
 info:
-  type: "control_method"
+  metrics:
+  - name: "average_batch_r2"
+    label: "Average Batch R-squared ($\\overline{R^2_B}$)"
+    summary: "The average batch R-squared quantifies, on average, how strongly the\
+      \ batch variable B explains the variance in the data."
+    description: "First, a simple linear model `sklearn.linear_model.LinearRegression`\
+      \ is fitted for each paired sample, marker (and cell type) to determine the\
+      \ fraction of variance (R^2) explained by the batch covariate B. |\nThe average\
+      \ batch R_squared is then computed as the average of the $R^2$ values across\
+      \ all paired samples, markers (and cell types). |\nAs a result, $\\overline{R^2_B}$\
+      \ quantifies how much of the total variability in the data is driven by batch\
+      \ effects. Consequently, a lower values are desirable. |\n\n$\\overline{R^2_B}\
+      \ \\text{} = \\frac{1}{N*C*M}\\sum_{\\substack{(x_{\\mathrm{int}},\\,x_{\\mathrm{val}})\\\
+      \\ \\text{paired samples}}}^{N} \\sum_{j=1}^{C} \\sum_{i=1}^{M}\\,R^2\\!\\bigl(\\\
+      mathrm{marker}_i \\mid B\\bigr)$\n\nWhere:\n- $N$ is the number of paired samples,\
+      \ where x_{\\mathrm{int}} is the replicate that has been batch-corrected and\
+      \ x_{\\mathrm{val}} is replicate used for validation. Paired samples belong\
+      \ to different batches.\n- $C$ is the number of cell types\n- $M$ is the number\
+      \ of markers\n- $B$ is the batch covariate\n\nThe $\\overline{Rˆ2_B}_{global}$\
+      \ is a variation of the latter metric, where the average is computed across\
+      \ paired samples and markers only, without taking into account the cell types.\
+      \ |\n\n$\\overline{R^2_B}_{global} = \\frac{1}{N*M}\\sum_{\\substack{(x_{\\\
+      mathrm{int}},\\,x_{\\mathrm{val}})\\\\ \\text{paired samples}}}^{N} \\sum_{i=1}^{M}\
+      \ \\,R^2\\!\\bigl(\\mathrm{marker}_i \\mid B\\bigr)$\n\nA higher value of $\\\
+      overline{R^2_B}$ indicates that the batch variable explains more of the variance\
+      \ in the data, which indicates a higher level of batch effects. |\n\nA good\
+      \ performance on $\\overline{R^2_B}_{global} but not on $\\overline{R^2_B}$\
+      \ might indicate that the batch effect correction is discarding cell type specific\
+      \ batch effects. |\n"
+    references:
+      bibtex:
+      - "@book{draper1998applied,\ntitle={Applied regression analysis},\nauthor={Draper,\
+        \ Norman R and Smith, Harry},\npublisher={John Wiley \\& Sons}\n}\n"
+    links:
+      documentation: "https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LinearRegression.html"
+      repository: "https://github.com/openproblems-bio/task_cyto_batch_integration/tree/add_metric_avg_batch_r2/src/metrics/average_batch_r2"
+    min: -0.001
+    max: 1
+    maximize: false
+  type: "metric"
   type_info:
-    label: "Control Method"
-    summary: "Quality control methods for verifying the pipeline."
-    description: "This folder contains control components for the task. \nThese components\
-      \ have the same interface as the regular methods\nbut also receive the solution\
-      \ object as input. It serves as a\nstarting point to test the relative accuracy\
-      \ of new methods in\nthe task, and also as a quality control for the metrics\
-      \ defined\nin the task.\n"
+    label: "Metric"
+    summary: "A task template metric."
+    description: "A metric for evaluating method predictions.\n"
 status: "enabled"
 repositories:
 - type: "github"
@@ -329,11 +397,11 @@ engines:
   entrypoint: []
   cmd: null
 build_info:
-  config: "src/control_methods/no_integration/config.vsh.yaml"
+  config: "src/metrics/average_batch_r2/config.vsh.yaml"
   runner: "executable"
   engine: "docker"
-  output: "target/executable/control_methods/no_integration"
-  executable: "target/executable/control_methods/no_integration/no_integration"
+  output: "target/executable/metrics/average_batch_r2"
+  executable: "target/executable/metrics/average_batch_r2/average_batch_r2"
   viash_version: "0.9.0"
   git_commit: "818cd97980d3e08d36a079595f02bfb75dca71bd"
   git_remote: "https://github.com/openproblems-bio/task_cyto_batch_integration"

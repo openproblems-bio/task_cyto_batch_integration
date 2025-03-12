@@ -27,6 +27,8 @@
 
 * Added `methods/cycombine_nocontrol` (PR #35).
 
+* Added `metrics/average_batch_r2` + helper function (#PR36)
+
 ## MAJOR CHANGES
 
 * Updated file schema (PR #18): 

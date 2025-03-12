@@ -493,9 +493,9 @@ RUN pip install --upgrade pip && \
   pip install --upgrade --no-cache-dir "git+https://github.com/TarikExner/CytoNormPy"
 
 LABEL org.opencontainers.image.description="Companion container for running component metrics emd"
-LABEL org.opencontainers.image.created="2025-03-08T03:46:16Z"
+LABEL org.opencontainers.image.created="2025-03-12T09:43:57Z"
 LABEL org.opencontainers.image.source="https://github.com/openproblems-bio/task_cyto_batch_integration"
-LABEL org.opencontainers.image.revision="1cb4352669b64f895e4f14bd1344eb94aa30ff8f"
+LABEL org.opencontainers.image.revision="818cd97980d3e08d36a079595f02bfb75dca71bd"
 LABEL org.opencontainers.image.version="build_main"
 
 VIASHDOCKER
