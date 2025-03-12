@@ -49,7 +49,7 @@ info:
         # URL to the documentation for this metric (required).
         documentation: https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LinearRegression.html
         # URL to the code repository for this metric (required).
-        repository: https://github.com/openproblems-bio/task_cyto_batch_integration/tree/add_metric_avg_batch_r2/src/metrics/average_batch_r2
+        repository: https://github.com/scikit-learn/scikit-learn
       # The minimum possible value for this metric (required)
       min: -0.001
       # The maximum possible value for this metric (required)
