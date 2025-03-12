@@ -3241,7 +3241,7 @@ meta = [
         },
         "links" : {
           "documentation" : "https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LinearRegression.html",
-          "repository" : "https://github.com/openproblems-bio/task_cyto_batch_integration/tree/add_metric_avg_batch_r2/src/metrics/average_batch_r2"
+          "repository" : "https://github.com/scikit-learn/scikit-learn"
         },
         "min" : -0.001,
         "max" : 1,
@@ -3325,7 +3325,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/metrics/average_batch_r2",
     "viash_version" : "0.9.0",
-    "git_commit" : "89ff9b52254b48861e324f083f466335a4d30da0",
+    "git_commit" : "d3ae74e7de4e7c85a098d3a30b1a03def981425a",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
