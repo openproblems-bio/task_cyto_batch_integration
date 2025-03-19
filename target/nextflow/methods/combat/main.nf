@@ -3109,7 +3109,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/methods/combat",
     "viash_version" : "0.9.0",
-    "git_commit" : "878726323ba31b39f8369de23f213c1e02ee97dc",
+    "git_commit" : "4ba62f679e8d99c5884bbc3f3f941654b076b4eb",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {

@@ -3231,9 +3231,9 @@ meta = [
     "metrics" : [
       {
         "name" : "n_inconsistent_peaks",
-        "label" : "Number of inconsistent peaks",
-        "summary" : "Compare the number of marker-expression peaks between validation and batch-normalized data.",
-        "description" : "The metric compares the number of marker-expression peaks between the validation and batch-normalized data. \nThe number of peaks is calculated using the `scipy.signal.find_peaks` function. \nThe metric is calculated as the absolute difference between the number of peaks in the validation and batch-normalized data.\nThe marker-expression profiles are first smoothed using kernel density estimation (KDE) (`scipy.stats.gaussian_kde`),\nand then peaks are then identified using the `scipy.signal.find_peaks` function.\nFor peak calling, the `prominence` parameter is set to 0.1 and the `height` parameter is set to 0.05*max_density.\n",
+        "label" : "Number of inconsistent peaks Global",
+        "summary" : "Comparison of the number of marker‑expression peaks between validation and batch‑normalized data.",
+        "description" : "The metric compares the number of marker expression peaks between the validation and batch-normalized data. \nThe number of peaks is calculated using the `scipy.signal.find_peaks` function. \nThe metric is calculated as the absolute difference between the number of peaks in the validation and batch-normalized data.\nThe marker expression profiles are first smoothed using kernel density estimation (KDE) (`scipy.stats.gaussian_kde`),\nand then peaks are then identified using the `scipy.signal.find_peaks` function.\nFor peak calling, the `prominence` parameter is set to 0.1 and the `height` parameter is set to 0.05*max_density.\n",
         "references" : {
           "doi" : [
             "10.1038/s41592-019-0686-2"
@@ -3244,7 +3244,25 @@ meta = [
           "repository" : "https://github.com/scipy/scipy/blob/v1.15.2/scipy/signal/_peak_finding.py#L0-L1"
         },
         "min" : 0,
-        "max" : "inf",
+        "max" : "+.inf",
+        "maximize" : false
+      },
+      {
+        "name" : "n_inconsistent_peaks_ct",
+        "label" : "Number of inconsistent peaks (Cell Type)",
+        "summary" : "Comparison of the number of cell‑type marker‑expression peaks between validation and batch‑normalized data.",
+        "description" : "The metric compares the number of cell type specific marker expression peaks between the validation and batch-normalized data. \nThe number of peaks is calculated using the `scipy.signal.find_peaks` function. \nThe metric is calculated as the absolute difference between the number of peaks in the validation and batch-normalized data.\nThe (cell type) marker expression profiles are first smoothed using kernel density estimation (KDE) (`scipy.stats.gaussian_kde`),\nand then peaks are then identified using the `scipy.signal.find_peaks` function.\nFor peak calling, the `prominence` parameter is set to 0.1 and the `height` parameter is set to 0.05*max_density.\n",
+        "references" : {
+          "doi" : [
+            "10.1038/s41592-019-0686-2"
+          ]
+        },
+        "links" : {
+          "documentation" : "https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.find_peaks.html#scipy.signal.find_peaks",
+          "repository" : "https://github.com/scipy/scipy/blob/v1.15.2/scipy/signal/_peak_finding.py#L0-L1"
+        },
+        "min" : 0,
+        "max" : "+.inf",
         "maximize" : false
       }
     ],
@@ -3325,7 +3343,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/metrics/n_inconsistent_peaks",
     "viash_version" : "0.9.0",
-    "git_commit" : "878726323ba31b39f8369de23f213c1e02ee97dc",
+    "git_commit" : "4ba62f679e8d99c5884bbc3f3f941654b076b4eb",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
