@@ -61,6 +61,8 @@
 
 * Updated scripts to enable running benchmark on seqera (PR #29).
 
+* Update project description (PR #42).
+
 ## BUGFIXES
 
 * Change n_inconsistent_peaks output to float and add R2 to main.nf (PR #40).

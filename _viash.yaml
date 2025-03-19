@@ -17,31 +17,25 @@ links:
 # Step 4: Update the label, summary and description.
 # A unique, human-readable, short label. Used for creating summary tables and visualisations.
 label: Cyto Batch Integration
-summary: A one sentence summary of purpose and methodology. Used for creating an overview tables.
+summary: Benchmarking of batch integration algorithms for cytometry data.
 description: |
-  Provide a clear and concise description of your task, detailing the specific problem it aims
-  to solve. Outline the input data types, the expected output, and any assumptions or constraints.
-  Be sure to explain any terminology or concepts that are essential for understanding the task.
-
-  Explain the motivation behind your proposed task. Describe the biological or computational 
-  problem you aim to address and why it's important. Discuss the current state of research in
-  this area and any gaps or challenges that your task could help address. This section 
-  should convince readers of the significance and relevance of your task.
+  Cytometry is a non-sequencing single cell profiling technique commonly used in clinical studies. 
+  It is very sensitive to batch effects, which can lead to biases in the interpretation of the result. 
+  Batch integration algorithms are often used to mitigate this effect.
+  
+  In this project, we are building a pipeline for reproducible and continuous benchmarking 
+  of batch integration algorithms for cytometry data.
+  As input, methods require cleaned and normalised (using arc-sinh or logicle transformation)
+  data with multiple batches, cell type labels, and biological subjects, with paired samples
+  from a subject profiled across multiple batches.
+  The batch integrated output must be an integrated marker by cell matrix stored in 
+  Anndata format.
+  All markers in the input data must be returned, regardless of whether they were integrated or not.
+  This output is then evaluated using metrics that assess how well the batch effects
+  were removed and how much biological signals were preserved. 
 
 # A list of references to relevant literature. Each reference should be a DOI or a bibtex entry
 references: {}
-  # doi:
-  #   - 10.21203/rs.3.rs-4181617/v1
-  # bibtex:
-  #   - |
-  #     @article{doe_2021_template,
-  #       doi = {10.21203/rs.3.rs-4181617/v1},
-  #       url = {https://doi.org/10.21203/rs.3.rs-4181617/v1},
-  #       author = {Doe, John},
-  #       title = {A template for creating new tasks},
-  #       publisher = {Research Square},
-  #       year = {2021},
-  #     }
   
 info:
   image: The name of the image file to use for the component on the website.
@@ -52,21 +46,28 @@ info:
 
 # Step 6: Update the authors of the task.
 authors: 
-  # Full name of the author, usually in the name of FirstName MiddleName LastName.
-  - name: John Doe
-    # Role of the author. Possible values:
-    # 
-    # * `"author"`: Authors who have made substantial contributions to the component.
-    # * `"maintainer"`: The maintainer of the component.
-    # * `"contributor"`: Authors who have made smaller contributions (such as code patches etc.).
+  - name: Luca Leomazzi
     roles: [ "author", "maintainer" ]
-    # Additional information on the author
     info: 
-      github: johndoe
-      orcid: 0000-0000-0000-0000
-      email: john@doe.me
-      twitter: johndoe
-      linkedin: johndoe
+      github: LuLeom
+  - name: Givanna Putri
+    roles: [ "author", "maintainer" ]
+    info: 
+      github: ghar1821
+      orcid: 0000-0002-7399-8014
+  - name: Robrecht Cannoodt
+    roles: [ "author" ]
+    info:
+      github: rcannood
+      orcid: 0000-0003-3641-729X
+  - name: Katrien Quintelier
+    roles: [ "contributor" ]
+    info: 
+      github: KatrienQ
+  - name: Sofie Van Gassen
+    roles: [ "contributor" ]
+    info: 
+      github: SofieVG
 
 config_mods: |
   .runners[.type == "nextflow"].config.labels := { lowmem : "memory = 20.Gb", midmem : "memory = 50.Gb", highmem : "memory = 100.Gb", lowcpu : "cpus = 5", midcpu : "cpus = 15", highcpu : "cpus = 30", lowtime : "time = 1.h", midtime : "time = 4.h", hightime : "time = 8.h", veryhightime : "time = 24.h" }
