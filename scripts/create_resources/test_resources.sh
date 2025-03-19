@@ -13,11 +13,20 @@ cd "$REPO_ROOT"
 
 set -e
 
-RAW_DATA=resources_test/task_cyto_batch_integration/starter_file
+RAW_DATA=resources_test/task_cyto_batch_integration/cyto_spleen_subset
 
-DATASET_DIR=resources_test/task_cyto_batch_integration/starter_file
+DATASET_DIR=resources_test/task_cyto_batch_integration/cyto_spleen_subset
 
 mkdir -p $DATASET_DIR
+
+python << HERE
+import anndata as ad
+
+adata = ad.read_h5ad("$RAW_DATA/common_dataset.h5ad")
+adata.uns["dataset_id"] = "cyto_spleen_subset"
+adata.uns["dataset_name"] = "Cytometry Spleen Subset"
+adata.write_h5ad("$DATASET_DIR/common_dataset.h5ad")
+HERE
 
 # process dataset
 viash run src/data_processors/process_dataset/config.vsh.yaml -- \
@@ -38,9 +47,9 @@ viash run src/metrics/emd/config.vsh.yaml -- \
     --input_integrated $DATASET_DIR/integrated.h5ad \
     --output $DATASET_DIR/score.h5ad
 
-# write manual state.yaml. this is not actually necessary but you never know it might be useful
+# write manual state.yaml
 cat > $DATASET_DIR/state.yaml << HERE
-id: starter
+id: cyto_spleen_subset
 integrated: !file integrated.h5ad
 unintegrated: !file unintegrated.h5ad
 unintegrated_censored: !file unintegrated_censored.h5ad
@@ -48,8 +57,8 @@ validation: !file validation.h5ad
 score: !file score.h5ad
 HERE
 
-# # only run this if you have access to the openproblems-data bucket
+# only run this if you have access to the openproblems-data bucket
 aws s3 sync --profile op \
-  resources_test/task_cyto_batch_integration/starter_file \
-  s3://openproblems-data/resources_test/task_cyto_batch_integration/starter_file \
+  resources_test/task_cyto_batch_integration/cyto_spleen_subset \
+  s3://openproblems-data/resources_test/task_cyto_batch_integration/cyto_spleen_subset \
   --delete --dryrun

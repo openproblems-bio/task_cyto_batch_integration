@@ -3,8 +3,8 @@ requireNamespace("cyCombine", quietly = TRUE)
 
 ## VIASH START
 par <- list(
-  input = "resources_test/task_cyto_batch_integration/starter_file/unintegrated_censored.h5ad",
-  output = "resources_test/task_cyto_batch_integration/starter_file/output.h5ad"
+  input = "resources_test/task_cyto_batch_integration/cyto_spleen_subset/unintegrated_censored.h5ad",
+  output = "resources_test/task_cyto_batch_integration/cyto_spleen_subset/output.h5ad"
 )
 meta <- list(name = "cycombine")
 ## VIASH END

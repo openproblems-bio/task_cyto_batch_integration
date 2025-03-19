@@ -20,9 +20,9 @@ nextflow run . \
   -profile docker \
   -resume \
   -c common/nextflow_helpers/labels_ci.config \
-  --id starter_file \
-  --input_unintegrated_censored resources_test/task_cyto_batch_integration/starter_file/unintegrated_censored.h5ad \
-  --input_unintegrated resources_test/task_cyto_batch_integration/starter_file/unintegrated.h5ad \
-  --input_validation resources_test/task_cyto_batch_integration/starter_file/validation.h5ad \
+  --id cyto_spleen_subset \
+  --input_unintegrated_censored resources_test/task_cyto_batch_integration/cyto_spleen_subset/unintegrated_censored.h5ad \
+  --input_unintegrated resources_test/task_cyto_batch_integration/cyto_spleen_subset/unintegrated.h5ad \
+  --input_validation resources_test/task_cyto_batch_integration/cyto_spleen_subset/validation.h5ad \
   --output_state state.yaml \
   --publish_dir "$publish_dir"
