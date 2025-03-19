@@ -8,9 +8,9 @@ info:
   metrics:
       # A unique identifier for your metric (required).
       # Can contain only lowercase letters or underscores.
-    - name: average_batch_r2
+    - name: average_batch_r2_global
       # A relatively short label, used when rendering visualisarions (required)
-      label: Average Batch R-squared ($\overline{R^2_B}$)
+      label: Average Batch R-squared Global
       # A one sentence summary of how this metric works (required). Used when 
       # rendering summary tables.
       summary: "The average batch R-squared quantifies, on average, how strongly the batch variable B explains the variance in the data."
@@ -56,6 +56,36 @@ info:
       max: 1
       # Whether a higher value represents a 'better' solution (required)
       maximize: false
+    - name: average_batch_r2_ct
+      # A relatively short label, used when rendering visualisarions (required)
+      label: Average Batch R-squared Cell Type
+      # A one sentence summary of how this metric works (required). Used when 
+      # rendering summary tables.
+      summary: "TODO: add a summary for the average_batch_r2_ct metric"
+      # A multi-line description of how this component works (required). Used
+      # when rendering reference documentation.
+      description: |
+        TODO: add a description for the average_batch_r2_ct metric
+      references:
+        bibtex:
+          - |
+            @book{draper1998applied,
+            title={Applied regression analysis},
+            author={Draper, Norman R and Smith, Harry},
+            publisher={John Wiley \& Sons}
+            }
+      links:
+        # URL to the documentation for this metric (required).
+        documentation: https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LinearRegression.html
+        # URL to the code repository for this metric (required).
+        repository: https://github.com/scikit-learn/scikit-learn
+      # The minimum possible value for this metric (required)
+      min: -0.001
+      # The maximum possible value for this metric (required)
+      max: 1
+      # Whether a higher value represents a 'better' solution (required)
+      maximize: false
+
 
 # Component-specific parameters (optional)
 # arguments:
