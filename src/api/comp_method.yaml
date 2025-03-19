@@ -20,5 +20,5 @@ test_resources:
     path: /common/component_tests/run_and_check_output.py
   - type: python_script
     path: /common/component_tests/check_config.py
-  - path: /resources_test/task_cyto_batch_integration/starter_file
-    dest: resources_test/task_cyto_batch_integration/starter_file
+  - path: /resources_test/task_cyto_batch_integration/cyto_spleen_subset
+    dest: resources_test/task_cyto_batch_integration/cyto_spleen_subset

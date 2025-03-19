@@ -183,12 +183,12 @@ function ViashHelp {
   echo "    --input"
   echo "        type: file, required parameter, file must exist"
   echo "        example:"
-  echo "resources_test/task_cyto_batch_integration/starter_file/unintegrated_censored.h5ad"
+  echo "resources_test/task_cyto_batch_integration/cyto_spleen_subset/unintegrated_censored.h5ad"
   echo ""
   echo "    --output"
   echo "        type: file, required parameter, output, file must exist"
   echo "        example:"
-  echo "resources_test/task_cyto_batch_integration/starter_file/integrated.h5ad"
+  echo "resources_test/task_cyto_batch_integration/cyto_spleen_subset/integrated.h5ad"
 }
 
 # initialise variables
@@ -470,9 +470,9 @@ RUN Rscript -e 'if (!requireNamespace("BiocManager", quietly = TRUE)) install.pa
   Rscript -e 'if (!requireNamespace("limma", quietly = TRUE)) BiocManager::install("limma")'
 
 LABEL org.opencontainers.image.description="Companion container for running component methods limma_remove_batch_effect"
-LABEL org.opencontainers.image.created="2025-03-19T12:48:19Z"
+LABEL org.opencontainers.image.created="2025-03-19T21:32:24Z"
 LABEL org.opencontainers.image.source="https://github.com/bioc/limma"
-LABEL org.opencontainers.image.revision="4ba62f679e8d99c5884bbc3f3f941654b076b4eb"
+LABEL org.opencontainers.image.revision="24589bd4d6b6318aa15c07ef5214c2ff52204f5d"
 LABEL org.opencontainers.image.version="build_main"
 
 VIASHDOCKER

@@ -1,5 +1,5 @@
 type: file
-example: "resources_test/task_cyto_batch_integration/starter_file/integrated.h5ad"
+example: "resources_test/task_cyto_batch_integration/cyto_spleen_subset/integrated.h5ad"
 label: Integrated
 summary: "Integrated dataset which batch effect was corrected by an algorithm"
 info:

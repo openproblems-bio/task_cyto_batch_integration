@@ -4,7 +4,7 @@ import anndata as ad
 
 ## VIASH START
 par = {
-    "input_unintegrated": "resources_test/task_cyto_batch_integration/starter_file/unintegrated_censored.h5ad",
+    "input_unintegrated": "resources_test/task_cyto_batch_integration/cyto_spleen_subset/unintegrated_censored.h5ad",
     "output": "output.h5ad",
 }
 meta = {"name": "harmonypy"}

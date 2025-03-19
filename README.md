@@ -74,7 +74,7 @@ flowchart TB
 A subset of the common dataset.
 
 Example file:
-`resources_test/task_cyto_batch_integration/starter_file/common_dataset.h5ad`
+`resources_test/task_cyto_batch_integration/cyto_spleen_subset/common_dataset.h5ad`
 
 Format:
 
@@ -144,7 +144,7 @@ is used as the input for the batch correction algorithm. The cells
 therein are identical to those in the unintegrated dataset.
 
 Example file:
-`resources_test/task_cyto_batch_integration/starter_file/unintegrated_censored.h5ad`
+`resources_test/task_cyto_batch_integration/cyto_spleen_subset/unintegrated_censored.h5ad`
 
 Format:
 
@@ -190,7 +190,7 @@ The complete unintegrated dataset, including all cells’ metadata
 dataset are the same to those in the unintegrated_censored dataset.
 
 Example file:
-`resources_test/task_cyto_batch_integration/starter_file/unintegrated.h5ad`
+`resources_test/task_cyto_batch_integration/cyto_spleen_subset/unintegrated.h5ad`
 
 Format:
 
@@ -237,7 +237,7 @@ Data structure:
 Hold-out dataset for validation.
 
 Example file:
-`resources_test/task_cyto_batch_integration/starter_file/validation.h5ad`
+`resources_test/task_cyto_batch_integration/cyto_spleen_subset/validation.h5ad`
 
 Description:
 
@@ -347,7 +347,7 @@ Arguments:
 Integrated dataset which batch effect was corrected by an algorithm
 
 Example file:
-`resources_test/task_cyto_batch_integration/starter_file/integrated.h5ad`
+`resources_test/task_cyto_batch_integration/cyto_spleen_subset/integrated.h5ad`
 
 Format:
 
@@ -377,7 +377,7 @@ Data structure:
 File indicating the score of a metric.
 
 Example file:
-`resources_test/task_cyto_batch_integration/starter_file/score.h5ad`
+`resources_test/task_cyto_batch_integration/cyto_spleen_subset/score.h5ad`
 
 Format:
 

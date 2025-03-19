@@ -2950,7 +2950,7 @@ meta = [
             }
           },
           "example" : [
-            "resources_test/task_cyto_batch_integration/starter_file/common_dataset.h5ad"
+            "resources_test/task_cyto_batch_integration/cyto_spleen_subset/common_dataset.h5ad"
           ],
           "must_exist" : true,
           "create_parent" : true,
@@ -3079,7 +3079,7 @@ meta = [
             }
           },
           "example" : [
-            "resources_test/task_cyto_batch_integration/starter_file/unintegrated_censored.h5ad"
+            "resources_test/task_cyto_batch_integration/cyto_spleen_subset/unintegrated_censored.h5ad"
           ],
           "must_exist" : true,
           "create_parent" : true,
@@ -3221,7 +3221,7 @@ meta = [
             }
           },
           "example" : [
-            "resources_test/task_cyto_batch_integration/starter_file/unintegrated.h5ad"
+            "resources_test/task_cyto_batch_integration/cyto_spleen_subset/unintegrated.h5ad"
           ],
           "must_exist" : true,
           "create_parent" : true,
@@ -3364,7 +3364,7 @@ meta = [
             }
           },
           "example" : [
-            "resources_test/task_cyto_batch_integration/starter_file/validation.h5ad"
+            "resources_test/task_cyto_batch_integration/cyto_spleen_subset/validation.h5ad"
           ],
           "must_exist" : true,
           "create_parent" : true,
@@ -3463,7 +3463,7 @@ meta = [
     "engine" : "native",
     "output" : "target/nextflow/workflows/process_datasets",
     "viash_version" : "0.9.0",
-    "git_commit" : "4ba62f679e8d99c5884bbc3f3f941654b076b4eb",
+    "git_commit" : "24589bd4d6b6318aa15c07ef5214c2ff52204f5d",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
