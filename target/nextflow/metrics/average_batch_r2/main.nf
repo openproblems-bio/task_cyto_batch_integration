@@ -3325,15 +3325,15 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/metrics/average_batch_r2",
     "viash_version" : "0.9.0",
-    "git_commit" : "d3ae74e7de4e7c85a098d3a30b1a03def981425a",
+    "git_commit" : "878726323ba31b39f8369de23f213c1e02ee97dc",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
     "name" : "task_cyto_batch_integration",
     "version" : "build_main",
     "label" : "Cyto Batch Integration",
-    "summary" : "A one sentence summary of purpose and methodology. Used for creating an overview tables.",
-    "description" : "Provide a clear and concise description of your task, detailing the specific problem it aims\nto solve. Outline the input data types, the expected output, and any assumptions or constraints.\nBe sure to explain any terminology or concepts that are essential for understanding the task.\n\nExplain the motivation behind your proposed task. Describe the biological or computational \nproblem you aim to address and why it's important. Discuss the current state of research in\nthis area and any gaps or challenges that your task could help address. This section \nshould convince readers of the significance and relevance of your task.\n",
+    "summary" : "Benchmarking of batch integration algorithms for cytometry data.",
+    "description" : "Cytometry is a non-sequencing single cell profiling technique commonly used in clinical studies. \nIt is very sensitive to batch effects, which can lead to biases in the interpretation of the result. \nBatch integration algorithms are often used to mitigate this effect.\n\nIn this project, we are building a pipeline for reproducible and continuous benchmarking \nof batch integration algorithms for cytometry data.\nAs input, methods require cleaned and normalised (using arc-sinh or logicle transformation)\ndata with multiple batches, cell type labels, and biological subjects, with paired samples\nfrom a subject profiled across multiple batches.\nThe batch integrated output must be an integrated marker by cell matrix stored in \nAnndata format.\nAll markers in the input data must be returned, regardless of whether they were integrated or not.\nThis output is then evaluated using metrics that assess how well the batch effects\nwere removed and how much biological signals were preserved. \n",
     "info" : {
       "image" : "The name of the image file to use for the component on the website.",
       "test_resources" : [
@@ -3361,17 +3361,52 @@ meta = [
     ],
     "authors" : [
       {
-        "name" : "John Doe",
+        "name" : "Luca Leomazzi",
         "roles" : [
           "author",
           "maintainer"
         ],
         "info" : {
-          "github" : "johndoe",
-          "orcid" : "0000-0000-0000-0000",
-          "email" : "john@doe.me",
-          "twitter" : "johndoe",
-          "linkedin" : "johndoe"
+          "github" : "LuLeom"
+        }
+      },
+      {
+        "name" : "Givanna Putri",
+        "roles" : [
+          "author",
+          "maintainer"
+        ],
+        "info" : {
+          "github" : "ghar1821",
+          "orcid" : "0000-0002-7399-8014"
+        }
+      },
+      {
+        "name" : "Robrecht Cannoodt",
+        "roles" : [
+          "author"
+        ],
+        "info" : {
+          "github" : "rcannood",
+          "orcid" : "0000-0003-3641-729X"
+        }
+      },
+      {
+        "name" : "Katrien Quintelier",
+        "roles" : [
+          "contributor"
+        ],
+        "info" : {
+          "github" : "KatrienQ"
+        }
+      },
+      {
+        "name" : "Sofie Van Gassen",
+        "roles" : [
+          "contributor"
+        ],
+        "info" : {
+          "github" : "SofieVG"
         }
       }
     ],
