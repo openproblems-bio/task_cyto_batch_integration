@@ -17,26 +17,20 @@ info:
       # A multi-line description of how this component works (required). Used
       # when rendering reference documentation.
       description: |
-        First, a simple linear model `sklearn.linear_model.LinearRegression` is fitted for each paired sample, marker (and cell type) to determine the fraction of variance (R^2) explained by the batch covariate B. |
-        The average batch R_squared is then computed as the average of the $R^2$ values across all paired samples, markers (and cell types). |
-        As a result, $\overline{R^2_B}$ quantifies how much of the total variability in the data is driven by batch effects. Consequently, a lower values are desirable. |
-
-        $\overline{R^2_B} \text{} = \frac{1}{N*C*M}\sum_{\substack{(x_{\mathrm{int}},\,x_{\mathrm{val}})\\ \text{paired samples}}}^{N} \sum_{j=1}^{C} \sum_{i=1}^{M}\,R^2\!\bigl(\mathrm{marker}_i \mid B\bigr)$
-
-        Where:
-        - $N$ is the number of paired samples, where x_{\mathrm{int}} is the replicate that has been batch-corrected and x_{\mathrm{val}} is replicate used for validation. Paired samples belong to different batches.
-        - $C$ is the number of cell types
-        - $M$ is the number of markers
-        - $B$ is the batch covariate
-
-        The $\overline{Rˆ2_B}_{global}$ is a variation of the latter metric, where the average is computed across paired samples and markers only, without taking into account the cell types. |
+        First, a simple linear model `sklearn.linear_model.LinearRegression` is fitted for each paired sample and marker to determine the fraction of variance (R^2) explained by the batch covariate B. |
+        The average batch R_squared is then computed as the average of the $R^2$ values across all paired samples, markers. |
+        As a result, $\overline{R^2_B}_{global}$ quantifies how much of the total variability in the data is driven by batch effects. Consequently, lower values are desirable. |
 
         $\overline{R^2_B}_{global} = \frac{1}{N*M}\sum_{\substack{(x_{\mathrm{int}},\,x_{\mathrm{val}})\\ \text{paired samples}}}^{N} \sum_{i=1}^{M} \,R^2\!\bigl(\mathrm{marker}_i \mid B\bigr)$
 
-        A higher value of $\overline{R^2_B}$ indicates that the batch variable explains more of the variance in the data, which indicates a higher level of batch effects. |
-        
-        A good performance on $\overline{R^2_B}_{global} but not on $\overline{R^2_B}$ might indicate that the batch effect correction is discarding cell type specific batch effects. |
-      
+        Where:
+        - $N$ is the number of paired samples, where x_{\mathrm{int}} is the replicate that has been batch-corrected and x_{\mathrm{val}} is replicate used for validation. Paired samples belong to different batches.
+        - $M$ is the number of markers
+        - $B$ is the batch covariate
+
+        A higher value of $\overline{R^2_B}_{global}$ indicates that the batch variable explains more of the variance in the data, which indicates a higher level of batch effects. |
+
+
       references:
         bibtex:
           - |
@@ -56,16 +50,35 @@ info:
       max: 1
       # Whether a higher value represents a 'better' solution (required)
       maximize: false
+
+
     - name: average_batch_r2_ct
       # A relatively short label, used when rendering visualisarions (required)
       label: Average Batch R-squared Cell Type
       # A one sentence summary of how this metric works (required). Used when 
       # rendering summary tables.
-      summary: "TODO: add a summary for the average_batch_r2_ct metric"
+      summary: "The average batch R-squared Cell Type quantifies, on average, how strongly the batch variable B explains the variance in the data (by taking into account cell type effect)."
       # A multi-line description of how this component works (required). Used
       # when rendering reference documentation.
       description: |
-        TODO: add a description for the average_batch_r2_ct metric
+        First, a simple linear model `sklearn.linear_model.LinearRegression` is fitted for each paired sample, marker and cell type to determine the fraction of variance (R^2) explained by the batch covariate B. |
+        The average batch R_squared is then computed as the average of the $R^2$ values across all paired samples, markers and cell types. |
+        As a result, $\overline{R^2_B}_{cell\ type}$ quantifies how much of the total variability in the data is driven by batch effects. Consequently, lower values are desirable. |
+
+        $\overline{R^2_B}_{cell\ type} = \frac{1}{N*C*M}\sum_{\substack{(x_{\mathrm{int}},\,x_{\mathrm{val}})\\ \text{paired samples}}}^{N} \sum_{j=1}^{C} \sum_{i=1}^{M}\,R^2\!\bigl(\mathrm{marker}_i \mid B\bigr)$
+
+        Where:
+        - $N$ is the number of paired samples, where x_{\mathrm{int}} is the replicate that has been batch-corrected and x_{\mathrm{val}} is replicate used for validation. Paired samples belong to different batches.
+        - $C$ is the number of cell types
+        - $M$ is the number of markers
+        - $B$ is the batch covariate
+
+        The $\overline{Rˆ2_B}_{global}$ is a variation of the latter metric, where the average is computed across paired samples and markers only, without taking into account the cell types. |
+
+        A higher value of $\overline{R^2_B}_{global}$ or $\overline{R^2_B}_{cell\ type}$ indicates that the batch variable explains more of the variance in the data, which indicates a higher level of batch effects. |
+        
+        A good performance on $\overline{R^2_B}_{global}$ but not on $\overline{R^2_B}_{cell\ type}$ might indicate that the batch effect correction is discarding cell type specific batch effects. |
+      
       references:
         bibtex:
           - |
