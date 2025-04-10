@@ -36,7 +36,7 @@ resources:
   # The script of your component (required)
   - type: r_script
     path: script.R
-    path: converter.R
+  - path: converter.R
 
 engines:
   # Specifications for the Docker image for this component.
