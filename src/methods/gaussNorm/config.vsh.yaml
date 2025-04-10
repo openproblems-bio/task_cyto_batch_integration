@@ -13,7 +13,7 @@ description: |
   3. manipulating the data of each channel in such a way that each landmark is moved to its matching base landmark. Please note that this normalization is on a channel-by-channel basis
 
   NOTE: The default implementation uses `max.lms=2`, although for some channels it is not possible to compute 2 landmarks, resulting in an error.
-  In order to fully automate the batch normalization process, this implementations checks whether it is possible to compute 2 landmarks, and if not, it sets `max.lms=1` for that channel.
+  In order to fully automate the batch normalization process, this implementation checks whether it is possible to compute 2 landmarks, and if not, it sets `max.lms=1` for that channel.
 references:
   doi: 
     - 10.1002/cyto.a.20823
