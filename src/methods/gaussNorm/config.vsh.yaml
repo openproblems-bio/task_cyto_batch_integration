@@ -1,45 +1,28 @@
-# The API specifies which type of component this is.
-# It contains specifications for:
-#   - The input/output files
-#   - Common parameters
-#   - A unit test
+
 __merge__: ../../api/comp_method.yaml
 
-# A unique identifier for your component (required).
-# Can contain only lowercase letters or underscores.
-name: gaussNorm
-# A relatively short label, used when rendering visualisations (required)
-label: Gaussnorm
-# A one sentence summary of how this method works (required). Used when 
-# rendering summary tables.
-summary: "FILL IN: A one sentence summary of this method."
-# A multi-line description of how this component works (required). Used
-# when rendering reference documentation.
+name: gaussnorm
+label: GaussNorm
+summary: Batch effect correction using a per‐channel basis normalization method (gaussNorm)
 description: |
-  FILL IN: A (multi-line) description of how this method works.
-# references:
-#   doi: 
-#     - 10.1000/xx.123456.789
-#   bibtex:
-#     - |
-#       @article{foo,
-#         title={Foo},
-#         author={Bar},
-#         journal={Baz},
-#         year={2024}
-#       }
+  This method batch-normalizes a set of cytometry data samples by identifying and aligning the high density regions (landmarks or peaks) for each channel.
+  The data of each channel is shifted in such a way that the identified high density regions are moved to fixed locations called base landmarks.
+  Normalization is archived in three phases:
+  1. identifying high-density regions (landmarks) for each flowFrame in the flowSet for a single channel
+  2. computing the best matching between the landmarks and a set of fixed reference landmarks for each channel called base landmarks
+  3. manipulating the data of each channel in such a way that each landmark is moved to its matching base landmark. Please note that this normalization is on a channel-by-channel basis
+
+  NOTE: The default implementation uses `max.lms=2`, although for some channels it is not possible to compute 2 landmarks, resulting in an error.
+  In order to fully automate the batch normalization process, this implementations checks whether it is possible to compute 2 landmarks, and if not, it sets `max.lms=1` for that channel.
+references:
+  doi: 
+    - 10.1002/cyto.a.20823
+
 links:
   # URL to the documentation for this method (required).
-  documentation: https://url.to/the/documentation
+  documentation: https://rdrr.io/bioc/flowStats/src/R/gaussNorm.R
   # URL to the code repository for this method (required).
-  repository: https://github.com/organisation/repository
-
-
-
-# Metadata for your component
-info:
-  # Which normalisation method this component prefers to use (required).
-  preferred_normalization: log_cp10k
+  repository: https://github.com/RGLab/flowStats
 
 # Component-specific parameters (optional)
 # arguments:
@@ -53,19 +36,17 @@ resources:
   # The script of your component (required)
   - type: r_script
     path: script.R
-  # Additional resources your script needs (optional)
-  # - type: file
-  #   path: weights.pt
+    path: converter.R
 
 engines:
   # Specifications for the Docker image for this component.
   - type: docker
     image: openproblems/base_r:1.0.0
-    # Add custom dependencies here (optional). For more information, see
-    # https://viash.io/reference/config/engines/docker/#setup .
-    # setup:
-    #   - type: r
-    #     packages: tibble
+    setup:
+      - type: r
+        bioc: [ flowStats, flowCore, Biobase ]
+        packages: anndata
+
 
 runners:
   # This platform allows running the component natively
