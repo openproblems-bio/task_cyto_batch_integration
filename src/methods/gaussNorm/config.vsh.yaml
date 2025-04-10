@@ -7,7 +7,7 @@ summary: Batch effect correction using a per‐channel basis normalization metho
 description: |
   This method batch-normalizes a set of cytometry data samples by identifying and aligning the high density regions (landmarks or peaks) for each channel.
   The data of each channel is shifted in such a way that the identified high density regions are moved to fixed locations called base landmarks.
-  Normalization is archived in three phases:
+  Normalization is achieved in three phases:
   1. identifying high-density regions (landmarks) for each flowFrame in the flowSet for a single channel
   2. computing the best matching between the landmarks and a set of fixed reference landmarks for each channel called base landmarks
   3. manipulating the data of each channel in such a way that each landmark is moved to its matching base landmark. Please note that this normalization is on a channel-by-channel basis
