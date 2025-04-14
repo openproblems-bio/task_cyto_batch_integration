@@ -14,52 +14,113 @@ info:
   metrics:
       # A unique identifier for your metric (required).
       # Can contain only lowercase letters or underscores.
-    - name: emd_mean
+    - name: emd_mean_ct
       # A relatively short label, used when rendering visualisarions (required)
-      label: EMD Mean
+      label: EMD Mean CT
       # A one sentence summary of how this metric works (required). Used when 
       # rendering summary tables.
-      summary: "Mean Earth Mover Distance to compute differences in distribution of marker expressions."
+      summary: "Mean Earth Mover Distance across cell types and markers."
       # A multi-line description of how this component works (required). Used
       # when rendering reference documentation.
       description: |
         Earth Mover Distance (EMD) is a metric designed for comparing two distributions.
         It is also known as the Wasserstein metric.
+        Here, EMD is averaged across all cell types and markers.
       references:
         doi: 
           - 10.1023/A:1026543900054
       links:
         # URL to the documentation for this metric (required).
-        documentation: https://cytonormpy.readthedocs.io/en/latest/generated/cytonormpy.emd_comparison_from_anndata.html
+        documentation: https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.wasserstein_distance.html
         # URL to the code repository for this metric (required).
-        repository: https://github.com/TarikExner/CytoNormPy
+        repository: https://github.com/scipy/scipy
       # The minimum possible value for this metric (required)
       min: 0
       # The maximum possible value for this metric (required)
       max: .inf
       # Whether a higher value represents a 'better' solution (required)
       maximize: false
+      
       # A unique identifier for your metric (required).
       # Can contain only lowercase letters or underscores.
-    - name: emd_max
+    - name: emd_max_ct
       # A relatively short label, used when rendering visualisarions (required)
-      label: EMD Max
+      label: EMD Max CT
       # A one sentence summary of how this metric works (required). Used when 
       # rendering summary tables.
-      summary: "Max Earth Mover Distance to compute differences in distribution of marker expressions."
+      summary: "Max Earth Mover Distance across cell types and markers."
       # A multi-line description of how this component works (required). Used
       # when rendering reference documentation.
       description: |
         Earth Mover Distance (EMD) is a metric designed for comparing two distributions.
         It is also known as the Wasserstein metric.
+        Here, maximum EMD is computed across all cell types and markers.
       references:
         doi: 
           - 10.1023/A:1026543900054
       links:
         # URL to the documentation for this metric (required).
-        documentation: https://cytonormpy.readthedocs.io/en/latest/generated/cytonormpy.emd_comparison_from_anndata.html
+        documentation: https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.wasserstein_distance.html
         # URL to the code repository for this metric (required).
-        repository: https://github.com/TarikExner/CytoNormPy
+        repository: https://github.com/scipy/scipy
+      # The minimum possible value for this metric (required)
+      min: 0
+      # The maximum possible value for this metric (required)
+      max: .inf
+      # Whether a higher value represents a 'better' solution (required)
+      maximize: false
+      
+      # A unique identifier for your metric (required).
+      # Can contain only lowercase letters or underscores.
+    - name: emd_mean_dn
+      # A relatively short label, used when rendering visualisarions (required)
+      label: EMD Mean DN
+      # A one sentence summary of how this metric works (required). Used when 
+      # rendering summary tables.
+      summary: "Mean Earth Mover Distance across donors and markers."
+      # A multi-line description of how this component works (required). Used
+      # when rendering reference documentation.
+      description: |
+        Earth Mover Distance (EMD) is a metric designed for comparing two distributions.
+        It is also known as the Wasserstein metric.
+        Here, EMD is averaged across all donors and markers.
+      references:
+        doi: 
+          - 10.1023/A:1026543900054
+      links:
+        # URL to the documentation for this metric (required).
+        documentation: https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.wasserstein_distance.html
+        # URL to the code repository for this metric (required).
+        repository: https://github.com/scipy/scipy
+      # The minimum possible value for this metric (required)
+      min: 0
+      # The maximum possible value for this metric (required)
+      max: .inf
+      # Whether a higher value represents a 'better' solution (required)
+      maximize: false
+      
+      # A unique identifier for your metric (required).
+      # Can contain only lowercase letters or underscores.
+    - name: emd_max_dn
+      # A relatively short label, used when rendering visualisarions (required)
+      label: EMD Max DN
+      # A one sentence summary of how this metric works (required). Used when 
+      # rendering summary tables.
+      summary: "Max Earth Mover Distance across donors and markers."
+      # A multi-line description of how this component works (required). Used
+      # when rendering reference documentation.
+      description: |
+        Earth Mover Distance (EMD) is a metric designed for comparing two distributions.
+        It is also known as the Wasserstein metric.
+        Here, maximum EMD is computed across all donors and markers.
+      references:
+        doi: 
+          - 10.1023/A:1026543900054
+      links:
+        # URL to the documentation for this metric (required).
+        documentation: https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.wasserstein_distance.html
+        # URL to the code repository for this metric (required).
+        repository: https://github.com/scipy/scipy
       # The minimum possible value for this metric (required)
       min: 0
       # The maximum possible value for this metric (required)
@@ -72,7 +133,10 @@ resources:
   # The script of your component (required)
   - type: python_script
     path: script.py
-  - path: /src/utils/helper_functions.py
+  - type: python_script
+    path: helper.py
+  - type: python_script
+    path: /src/utils/helper_functions.py
 
 engines:
   # Specifications for the Docker image for this component.
@@ -82,8 +146,7 @@ engines:
     # https://viash.io/reference/config/engines/docker/#setup .
     setup:
       - type: python
-        packages: [anndata, numpy, pandas]
-        github: [TarikExner/CytoNormPy]
+        packages: [anndata, numpy, pandas, scipy]
 
 runners:
   # This platform allows running the component natively
