@@ -3386,6 +3386,12 @@ meta = [
       }
     },
     {
+      "name" : "methods/gaussnorm",
+      "repository" : {
+        "type" : "local"
+      }
+    },
+    {
       "name" : "metrics/emd",
       "repository" : {
         "type" : "local"
@@ -3461,7 +3467,7 @@ meta = [
     "engine" : "native",
     "output" : "target/nextflow/workflows/run_benchmark",
     "viash_version" : "0.9.0",
-    "git_commit" : "9590ea4a7423708427cc11f8921313910195c58f",
+    "git_commit" : "040ce356b29085f409fe1e57ca8ebe6edffad7e2",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3574,6 +3580,7 @@ include { harmonypy } from "${meta.resources_dir}/../../../nextflow/methods/harm
 include { limma_remove_batch_effect } from "${meta.resources_dir}/../../../nextflow/methods/limma_remove_batch_effect/main.nf"
 include { combat } from "${meta.resources_dir}/../../../nextflow/methods/combat/main.nf"
 include { cycombine_nocontrols } from "${meta.resources_dir}/../../../nextflow/methods/cycombine_nocontrols/main.nf"
+include { gaussnorm } from "${meta.resources_dir}/../../../nextflow/methods/gaussnorm/main.nf"
 include { emd } from "${meta.resources_dir}/../../../nextflow/metrics/emd/main.nf"
 include { n_inconsistent_peaks } from "${meta.resources_dir}/../../../nextflow/metrics/n_inconsistent_peaks/main.nf"
 include { average_batch_r2 } from "${meta.resources_dir}/../../../nextflow/metrics/average_batch_r2/main.nf"
@@ -3597,7 +3604,8 @@ methods = [
   no_integration,
   perfect_integration,
   combat,
-  cycombine_nocontrols
+  cycombine_nocontrols,
+  gaussnorm
 ]
 
 // construct list of metrics

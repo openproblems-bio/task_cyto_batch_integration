@@ -15,7 +15,8 @@ methods = [
   no_integration,
   perfect_integration,
   combat,
-  cycombine_nocontrols
+  cycombine_nocontrols,
+  gaussnorm
 ]
 
 // construct list of metrics
