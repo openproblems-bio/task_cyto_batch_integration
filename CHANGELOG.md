@@ -68,3 +68,5 @@
 ## BUGFIXES
 
 * Change n_inconsistent_peaks output to float and add R2 to main.nf (PR #40).
+
+* Changed naming 'gaussNorm' to 'gaussnorm' (PR #47)
