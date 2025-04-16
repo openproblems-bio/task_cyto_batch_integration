@@ -77,9 +77,8 @@ for donor in donor_list:
         integrated_ct = integrated_view[integrated_view.obs['cell_type'] == cell_type]
         validation_ct = validation_view[validation_view.obs['cell_type'] == cell_type]
         
-        # if integrated doesn't contain the cell type, then we can't calculate EMD.
-        # TODO do not calculate if we have less than 50 cells as it does not make sense.
-        if integrated_ct.n_obs == 0:
+        # Do not calculate if we have less than 50 cells as it does not make sense.
+        if integrated_ct.n_obs < 50 or validation_ct.n_obs < 50:
             continue
         
         emd_df = compute_emd(
