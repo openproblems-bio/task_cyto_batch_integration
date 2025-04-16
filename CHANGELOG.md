@@ -53,7 +53,7 @@
 
 * Added positive control (PR #30).
 
-* Rewrote EMD metric so it no longer relies on implementation in cytonormpy (PR #46):
+* Rewrote EMD metric so it no longer relies on implementation in cytonormpy (PR #48):
   * EMD is now calculated for all cell types as well.
   * Returned values are average and max across all cell types (exclude the one calculated agnostic of cell types),
   average and max across all donors (mean and max of values computed agnostic of cell types).
