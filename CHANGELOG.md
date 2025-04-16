@@ -29,7 +29,7 @@
 
 * Added `metrics/average_batch_r2` + helper function (#PR36)
 
-* * Added `methods/gaussnorm` (PR #45).
+* Added `methods/gaussnorm` (PR #45).
 
 ## MAJOR CHANGES
 
