@@ -72,7 +72,6 @@ dependencies:
   - name: methods/limma_remove_batch_effect
   - name: methods/combat
   - name: methods/cycombine_nocontrols
-  - name: methods/gaussNorm
   - name: metrics/emd
   - name: metrics/n_inconsistent_peaks
   - name: metrics/average_batch_r2
