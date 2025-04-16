@@ -29,6 +29,8 @@
 
 * Added `metrics/average_batch_r2` + helper function (#PR36)
 
+* Added `methods/gaussnorm` (PR #45).
+
 ## MAJOR CHANGES
 
 * Updated file schema (PR #18): 
@@ -70,4 +72,6 @@
 
 ## BUGFIXES
 
-* Changed n_inconsistent_peaks output to float and add R2 to main.nf (PR #40).
+* Change n_inconsistent_peaks output to float and add R2 to main.nf (PR #40).
+
+* Changed naming 'gaussNorm' to 'gaussnorm' (PR #47)
