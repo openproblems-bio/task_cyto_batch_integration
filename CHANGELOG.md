@@ -65,6 +65,8 @@
 
 * Update project description (PR #42).
 
+* Implemented function for writing FC files from an anndata object (PR#49)
+
 ## BUGFIXES
 
 * Change n_inconsistent_peaks output to float and add R2 to main.nf (PR #40).
