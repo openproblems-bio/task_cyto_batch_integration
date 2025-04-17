@@ -1,7 +1,6 @@
 library(flowCore)
 library(anndata)
 library(flowStats)
-source('converter.R')
 
 ## VIASH START
 par <- list(
@@ -14,14 +13,15 @@ meta <- list(
 )
 ## VIASH ENDs
 
+source(paste0(meta$resources_dir, "/anndata_to_fcs.R"))
 tmp_path <- meta[["temp_dir"]]
 
 cat("Reading input files\n")
 adata <- anndata::read_h5ad(par[["input"]])
 markers_to_correct <- as.vector(adata$var$channel[adata$var$to_correct])
 
-cat("Creating FCS files from h5ad\n")
-write_fcs_from_h5ad(par[["input"]], tmp_path)
+cat("Creating FCS files from anndata\n")
+anndata_to_fcs(adata, tmp_path)
 
 cat("Creating FlowSet from FCS files\n")
 fcs_files <- list.files(path = tmp_path, pattern = '*.fcs', full.names = TRUE)

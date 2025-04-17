@@ -1,14 +1,17 @@
 library(anndata)
 library(flowCore)
 library(Biobase)
+library(docstring)
 
-# Take a h5ad file as an input and return a collection of fcs for each sample in the Anndata object
-# NOTE: the AnnData object must have valid adata$obs$sample and adata$var$channel fields.
-# NOTE: the AnnData object must have a layer called "preprocessed" that contains the data to be written to fcs files.
-# Example usage : `write_fcs_from_h5ad("path_to_h5ad","path_to_dir")`
-
-write_fcs_from_h5ad <- function(myfile, out_dir) {
-  adata <- anndata::read_h5ad(myfile)
+anndata_to_fcs <- function(adata, out_dir) {
+  #' @title Write FCS from anndata object
+  #' 
+  #' @description From an AnnData object creates a collection of .FCS files, one for each sample in the Anndata object.
+  #' Files are written to the specified directory.
+  #' NOTE: the AnnData object must have valid adata$obs$sample and adata$var$channel fields.
+  #' @param h5ad_file An h5ad file with  adata$obs$sample and adata$var$channel fields.
+  #' @param out_dir A directory where FCS files are written. If out_dir does not exists, it creates a new folder 
+  #' @return A list of FCS files created in the specified directory.
   
   channel_names <- adata$var$channel
   sampl_names <- unique(adata$obs$sample)
