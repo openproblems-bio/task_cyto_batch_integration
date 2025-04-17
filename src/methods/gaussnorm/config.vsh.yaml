@@ -36,7 +36,7 @@ resources:
   # The script of your component (required)
   - type: r_script
     path: script.R
-  - path: converter.R
+  - path: /src/utils/anndata_to_fcs.R
 
 engines:
   # Specifications for the Docker image for this component.
@@ -45,7 +45,7 @@ engines:
     setup:
       - type: r
         bioc: [ flowStats, flowCore, Biobase ]
-        packages: anndata
+        packages: [ anndata, docstring ]
 
 
 runners:
