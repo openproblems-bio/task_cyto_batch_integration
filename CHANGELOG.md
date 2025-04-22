@@ -65,7 +65,7 @@
 
 * Update project description (PR #42).
 
-* Implemented function for writing FC files from an anndata object (PR#49)
+* Implemented function for writing FCS files from an anndata object (PR#49)
 
 ## BUGFIXES
 
