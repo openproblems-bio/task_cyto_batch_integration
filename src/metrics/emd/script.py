@@ -109,16 +109,16 @@ emd_per_donor_all_ct = pd.concat(emd_per_donor_all_ct)
 emd_mean_ct = np.nanmean(emd_per_donor_per_ct.drop(columns=['cell_type', 'donor']).values)
 emd_max_ct = np.nanmax(emd_per_donor_per_ct.drop(columns=['cell_type', 'donor']).values)
 
-emd_mean_dn = np.nanmean(emd_per_donor_all_ct.drop(columns=['cell_type', 'donor']).values)
-emd_max_dn = np.nanmax(emd_per_donor_all_ct.drop(columns=['cell_type', 'donor']).values)
+emd_mean_global = np.nanmean(emd_per_donor_all_ct.drop(columns=['cell_type', 'donor']).values)
+emd_max_global = np.nanmax(emd_per_donor_all_ct.drop(columns=['cell_type', 'donor']).values)
 
 print("Assembling output AnnData", flush=True)
 output = ad.AnnData(
     uns={
         "dataset_id": dataset_id,
         "method_id": method_id,
-        "metric_ids": ["emd_mean_ct", "emd_max_ct", "emd_mean_dn", "emd_max_dn"],
-        "metric_values": [emd_mean_ct, emd_max_ct, emd_mean_dn, emd_max_dn],
+        "metric_ids": ["emd_mean_ct", "emd_max_ct", "emd_mean_global", "emd_max_global"],
+        "metric_values": [emd_mean_ct, emd_max_ct, emd_mean_global, emd_max_global],
         "emd_values": pd.concat([emd_per_donor_per_ct, emd_per_donor_all_ct])
     }
 )

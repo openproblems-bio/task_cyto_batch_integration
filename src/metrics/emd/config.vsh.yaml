@@ -72,12 +72,12 @@ info:
       
       # A unique identifier for your metric (required).
       # Can contain only lowercase letters or underscores.
-    - name: emd_mean_dn
+    - name: emd_mean_global
       # A relatively short label, used when rendering visualisarions (required)
-      label: EMD Mean DN
+      label: EMD Mean Global
       # A one sentence summary of how this metric works (required). Used when 
       # rendering summary tables.
-      summary: "Mean Earth Mover Distance across donors and markers."
+      summary: "Mean Earth Mover Distance across samples and markers."
       # A multi-line description of how this component works (required). Used
       # when rendering reference documentation.
       description: |
@@ -101,9 +101,9 @@ info:
       
       # A unique identifier for your metric (required).
       # Can contain only lowercase letters or underscores.
-    - name: emd_max_dn
+    - name: emd_max_global
       # A relatively short label, used when rendering visualisarions (required)
-      label: EMD Max DN
+      label: EMD Max Global
       # A one sentence summary of how this metric works (required). Used when 
       # rendering summary tables.
       summary: "Max Earth Mover Distance across donors and markers."
