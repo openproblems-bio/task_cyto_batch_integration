@@ -54,9 +54,9 @@ dataset_id = input_integrated.uns["dataset_id"]
 method_id = input_integrated.uns["method_id"]
 
 # shouldn't need these anymore
-# del input_unintegrated
+del input_unintegrated
 
-# get all donors invalidation as these are the ones we need to validate
+# get all donors in validation as these are the ones we need to validate
 donor_list = input_validation.obs['donor'].unique()
 
 emd_per_donor_per_ct = []
