@@ -9,10 +9,9 @@ par <- list(
 )
 meta <- list(
   name = "gaussNorm",
-  temp_dir: '/tmp'
+  temp_dir = '/tmp'
 )
 ## VIASH ENDs
-
 
 source(paste0(meta$resources_dir, "/anndata_to_fcs.R"))
 tmp_path <- meta[["temp_dir"]]

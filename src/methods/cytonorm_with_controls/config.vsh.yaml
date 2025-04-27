@@ -53,9 +53,7 @@ resources:
   # The script of your component (required)
   - type: r_script
     path: script.R
-  # Additional resources your script needs (optional)
-  # - type: file
-  #   path: weights.pt
+  - path: /src/utils/anndata_to_fcs.R
 
 engines:
   # Specifications for the Docker image for this component.
