@@ -22,10 +22,9 @@ adata <- anndata::read_h5ad(par[["input"]])
 markers_to_correct <- as.vector(adata$var$channel[adata$var$to_correct])
 
 cat("Creating FCS files from anndata\n")
-anndata_to_fcs(adata, tmp_path)
 
 cat("Creating FlowSet from FCS files\n")
-fcs_files <- list.files(path = tmp_path, pattern = '*.fcs', full.names = TRUE)
+fcs_files <- anndata_to_fcs(adata, tmp_path)
 fset <- read.flowSet(files = fcs_files)
 print(fset)
 

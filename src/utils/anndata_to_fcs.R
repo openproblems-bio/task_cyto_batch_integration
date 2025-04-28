@@ -38,6 +38,5 @@ anndata_to_fcs <- function(adata, out_dir) {
     filename <- paste0(out_dir,"/",sample, ".fcs")
     write.FCS(ff, filename)
   }
-  cat("FCS files created:\n")
-  return(list.files(out_dir, pattern = '*.fcs'))
+  return(list.files(out_dir, pattern = '*.fcs', full.names = TRUE))
 }
