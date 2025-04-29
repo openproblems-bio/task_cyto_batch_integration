@@ -7,47 +7,26 @@ __merge__: ../../api/comp_method.yaml
 
 # A unique identifier for your component (required).
 # Can contain only lowercase letters or underscores.
-name: cytonorm_with_controls
+name: cytonorm_controls
 # A relatively short label, used when rendering visualisations (required)
-label: Cytonorm With Controls
+label: CytoNorm with controls
 # A one sentence summary of how this method works (required). Used when 
 # rendering summary tables.
-summary: "FILL IN: A one sentence summary of this method."
+summary: CytoNorm Batch normalization algorithm which uses shared controls across batches.
 # A multi-line description of how this component works (required). Used
 # when rendering reference documentation.
 description: |
-  FILL IN: A (multi-line) description of how this method works.
-# references:
-#   doi: 
-#     - 10.1000/xx.123456.789
-#   bibtex:
-#     - |
-#       @article{foo,
-#         title={Foo},
-#         author={Bar},
-#         journal={Baz},
-#         year={2024}
-#       }
+  Cytonorm no controls.
+references:
+  doi: 
+    - 10.1002/cyto.a.23904
 links:
   # URL to the documentation for this method (required).
-  documentation: https://url.to/the/documentation
+  documentation: https://github.com/saeyslab/CytoNorm
   # URL to the code repository for this method (required).
-  repository: https://github.com/organisation/repository
-
-
+  repository: https://github.com/saeyslab/CytoNorm
 
 # Metadata for your component
-info:
-  # Which normalisation method this component prefers to use (required).
-  preferred_normalization: log_cp10k
-
-# Component-specific parameters (optional)
-# arguments:
-#   - name: "--n_neighbors"
-#     type: "integer"
-#     default: 5
-#     description: Number of neighbors to use.
-
 # Resources required to run the component
 resources:
   # The script of your component (required)
@@ -61,9 +40,11 @@ engines:
     image: openproblems/base_r:1.0.0
     # Add custom dependencies here (optional). For more information, see
     # https://viash.io/reference/config/engines/docker/#setup .
-    # setup:
-    #   - type: r
-    #     packages: tibble
+    setup:
+      - type: r
+        github: [saeyslab/CytoNorm]
+        bioc: [ flowCore, Biobase ]
+        packages: [ anndata, docstring ]
 
 runners:
   # This platform allows running the component natively
