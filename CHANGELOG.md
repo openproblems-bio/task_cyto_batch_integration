@@ -47,11 +47,16 @@
   * Reverted PR #18 to retain only the 1st two changes (add is_control and remove 
   donor_id from unintegrated_censored).
 
-* Change emd to emd_mean and emd_max (PR #27).
+* Changed emd to emd_mean and emd_max (PR #27).
 
-* Update output anndata for methods to return all vars - corrected or not (PR #28).
+* Updated output anndata for methods to return all vars - corrected or not (PR #28).
 
-* Add positive control (PR #30).
+* Added positive control (PR #30).
+
+* Rewrote EMD metric so it no longer relies on implementation in cytonormpy (PR #48):
+  * EMD is now calculated for all cell types as well.
+  * Returned values are average and max across all cell types (exclude the one calculated agnostic of cell types),
+  average and max across all donors (mean and max of values computed agnostic of cell types).
 
 ## MINOR CHANGES
 
@@ -63,7 +68,7 @@
 
 * Updated scripts to enable running benchmark on seqera (PR #29).
 
-* Update project description (PR #42).
+* Updated project description (PR #42).
 
 * Implemented function for writing FCS files from an anndata object (PR #49)
 
