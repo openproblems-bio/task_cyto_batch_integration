@@ -23,13 +23,15 @@
 
 * Added `control_methods/no_integration ` (PR #26).
 
-* Added `metrics/n_inconsistent_peaks` + some new helper functions (PR #31)
+* Added `metrics/n_inconsistent_peaks` + some new helper functions (PR #31).
 
 * Added `methods/cycombine_nocontrol` (PR #35).
 
-* Added `metrics/average_batch_r2` + helper function (PR #36)
+* Added `metrics/average_batch_r2` + helper function (PR #36).
 
 * Added `methods/gaussnorm` (PR #45).
+
+* Added `methods/cytornom_controls` (PR #50).
 
 ## MAJOR CHANGES
 
@@ -70,12 +72,10 @@
 
 * Updated project description (PR #42).
 
-* Implemented function for writing FCS files from an anndata object (PR #49)
-
-* Implemented function for writing FCS files from an anndata object (PR #49)
+* Implemented function for writing FCS files from an anndata object (PR #49).
 
 ## BUGFIXES
 
 * Change n_inconsistent_peaks output to float and add R2 to main.nf (PR #40).
 
-* Changed naming 'gaussNorm' to 'gaussnorm' (PR #47)
+* Changed naming 'gaussNorm' to 'gaussnorm' (PR #47).
