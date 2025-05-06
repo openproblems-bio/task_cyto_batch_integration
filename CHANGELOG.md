@@ -27,7 +27,7 @@
 
 * Added `methods/cycombine_nocontrol` (PR #35).
 
-* Added `metrics/average_batch_r2` + helper function (#PR36)
+* Added `metrics/average_batch_r2` + helper function (PR #36)
 
 * Added `methods/gaussnorm` (PR #45).
 
@@ -64,6 +64,8 @@
 * Updated scripts to enable running benchmark on seqera (PR #29).
 
 * Update project description (PR #42).
+
+* Implemented function for writing FCS files from an anndata object (PR #49)
 
 ## BUGFIXES
 
