@@ -14,7 +14,6 @@ meta <- list(
 )
 ## VIASH ENDs
 
-# TODO uncomment me
 source(paste0(meta$resources_dir, "/anndata_to_fcs.R"))
 
 tmp_path <- meta[["temp_dir"]]
@@ -22,8 +21,10 @@ tmp_path <- meta[["temp_dir"]]
 cat("Reading input files\n")
 adata <- anndata::read_h5ad(par[["input"]])
 
-# split adata to control (training) and non-control (validation).
+# get the control samples to be used for training the model
 fset_train <- anndata_to_fcs(adata[adata$obs$is_control != 0, ])
+# every sample, including the controls, pretty much the entire unintegrated data 
+# will be corrected.
 fset_all <- anndata_to_fcs(adata)
 
 # get batch label for the training data
@@ -33,10 +34,19 @@ batch_lab_train <- sapply(sampleNames(fset_train), function(samp) {
 
 markers_to_correct <- as.vector(adata$var$channel[adata$var$to_correct])
 
+# FlowSOM.params and normParams are the default parameters in cytonorm
 model <- CytoNorm.train(
     files = fset_train,
     labels = batch_lab_train,
     channels = markers_to_correct,
+    outputDir = tmp_path,
+    FlowSOM.params = list(
+        nCells = 1000000,
+        xdim = 15,
+        ydim = 15,
+        nClus = 10,
+        scale = FALSE
+    ),
     transformList = NULL,
     normParams = list(nQ = 99, goal = "mean"),
     seed = 42,
@@ -62,8 +72,8 @@ norm_fset_all <- CytoNorm.normalize(
 )
 
 cat("Preparing output anndata\n")
-# cytonorm will return all markers corrected or not, and in order
-# so can just directly replace the colnames with var_names
+# cytonorm will return all markers corrected or not in the same order as the input data.
+# so we can just directly replace the colnames with var_names
 norm_mat <- fsApply(norm_fset_all, exprs)
 colnames(norm_mat) <- adata$var_names
 
