@@ -27,7 +27,7 @@ info:
         # URL to the documentation for this metric (required).
         documentation: https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.find_peaks.html#scipy.signal.find_peaks
         # URL to the code repository for this metric (required).
-        repository: https://github.com/scipy/scipy/blob/v1.15.2/scipy/signal/_peak_finding.py#L0-L1
+        repository: https://github.com/scipy/scipy/blob/main/scipy/signal/_peak_finding.py
       # The minimum possible value for this metric (required)
       min: 0
       # The maximum possible value for this metric (required)

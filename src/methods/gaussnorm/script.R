@@ -9,9 +9,10 @@ par <- list(
 )
 meta <- list(
   name = "gaussNorm",
-  temp_dir = '/tmp'
+  temp_dir: '/tmp'
 )
 ## VIASH ENDs
+
 
 source(paste0(meta$resources_dir, "/anndata_to_fcs.R"))
 tmp_path <- meta[["temp_dir"]]
@@ -20,11 +21,8 @@ cat("Reading input files\n")
 adata <- anndata::read_h5ad(par[["input"]])
 markers_to_correct <- as.vector(adata$var$channel[adata$var$to_correct])
 
-cat("Creating FCS files from anndata\n")
-
-cat("Creating FlowSet from FCS files\n")
-fcs_files <- anndata_to_fcs(adata, tmp_path)
-fset <- read.flowSet(files = fcs_files)
+cat("Creating FlowSet from Anndata\n")
+fset <- anndata_to_fcs(adata)
 print(fset)
 
 cat("Run gaussNorm\n")
@@ -45,7 +43,7 @@ integrated_matrix <- fsApply(fset,exprs)
 cat("Write output AnnData to file\n")
 output <- anndata::AnnData(
   obs = adata$obs[,integer(0)],
-  var = adata$var[as.vector(colnames(integrated_matrix)), integer(0)],
+  var = adata$var[adata$var_names, integer(0)],
   layers = list(integrated = integrated_matrix),
   uns = list(
     dataset_id = adata$uns$dataset_id,
