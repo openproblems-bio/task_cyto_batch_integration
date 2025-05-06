@@ -16,7 +16,14 @@ summary: CytoNorm Batch normalization algorithm which uses shared controls acros
 # A multi-line description of how this component works (required). Used
 # when rendering reference documentation.
 description: |
-  Cytonorm no controls.
+  CytoNorm corrects batch effects by using reference control samples (aliquots of one sample, 
+  technical replicates) included with each batch. 
+  It clusters cells, then trains a model on the control samples to learn how marker 
+  expression distributions differ across batches for each population.
+  It then uses splines to align these distributions to a common reference (either the mean
+  of batches or to a single batch).
+  In this CytoNorm version, batches are aligned to the mean of the batches.
+  Clustering was performed by FlowSOM, using the default parameters provided by CytoNorm.
 references:
   doi: 
     - 10.1002/cyto.a.23904

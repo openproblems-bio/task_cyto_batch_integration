@@ -10,41 +10,12 @@ par <- list(
 )
 meta <- list(
     name = "cytonorm_control",
-    temp_dir = 'resources_test/task_cyto_batch_integration/tmp'
+    temp_dir = "resources_test/task_cyto_batch_integration/tmp"
 )
 ## VIASH ENDs
 
 # TODO uncomment me
-# source(paste0(meta$resources_dir, 'anndata_to_fcs.R'))
-
-# TODO remove me in the future
-anndata_to_fcs <- function(adata) {
-
-    channel_names <- adata$var$channel
-    sampl_names <- unique(adata$obs$sample)
-
-    par_df <- AnnotatedDataFrame(
-        data.frame(
-            name = channel_names,
-            desc = NA,
-            range = NA,
-            minRange = NA,
-            maxRange = NA
-        )
-    )
-
-    fs <- lapply(sampl_names, function(sample) {
-        idx <- adata$obs$sample == sample
-        events <- as.matrix(adata$layers[['preprocessed']][idx, ])
-        colnames(events) <- channel_names
-        ff <- flowFrame(exprs = events, parameters = par_df)
-
-        return(ff)
-    })
-    names(fs) <- sampl_names
-    fs <- as(fs, "flowSet")
-    return(fs)
-}
+source(paste0(meta$resources_dir, "/anndata_to_fcs.R"))
 
 tmp_path <- meta[["temp_dir"]]
 
@@ -52,7 +23,7 @@ cat("Reading input files\n")
 adata <- anndata::read_h5ad(par[["input"]])
 
 # split adata to control (training) and non-control (validation).
-fset_train <- anndata_to_fcs(adata[adata$obs$is_control != 0,])
+fset_train <- anndata_to_fcs(adata[adata$obs$is_control != 0, ])
 fset_all <- anndata_to_fcs(adata)
 
 # get batch label for the training data
@@ -90,9 +61,6 @@ norm_fset_all <- CytoNorm.normalize(
     verbose = FALSE
 )
 
-# clean up
-# unlink(tmp_path, recursive = TRUE, force = TRUE)
-
 cat("Preparing output anndata\n")
 # cytonorm will return all markers corrected or not, and in order
 # so can just directly replace the colnames with var_names
@@ -112,8 +80,3 @@ norm_mat <- anndata::AnnData(
 
 cat("Write output AnnData to file\n")
 norm_mat$write_h5ad(par[["output"]], compression = "gzip")
-
-
-
-
-
