@@ -3241,7 +3241,7 @@ meta = [
         },
         "links" : {
           "documentation" : "https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.find_peaks.html#scipy.signal.find_peaks",
-          "repository" : "https://github.com/scipy/scipy/blob/v1.15.2/scipy/signal/_peak_finding.py#L0-L1"
+          "repository" : "https://github.com/scipy/scipy/blob/main/scipy/signal/_peak_finding.py"
         },
         "min" : 0,
         "max" : "+.inf",
@@ -3343,7 +3343,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/metrics/n_inconsistent_peaks",
     "viash_version" : "0.9.0",
-    "git_commit" : "80710e15fd77a3c93e3e43273efdca83248a19b5",
+    "git_commit" : "dc032fd595a66d4affb9b1f274dcbdbfa6c5f5a6",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {

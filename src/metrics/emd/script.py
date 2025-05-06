@@ -1,7 +1,6 @@
 import sys
 
 import anndata as ad
-import cytonormpy as cnp
 import numpy as np
 import pandas as pd
 
@@ -14,11 +13,17 @@ par = {
     "input_validation": "resources_test/task_cyto_batch_integration/cyto_spleen_subset/validation.h5ad",
     "output": "output.h5ad",
 }
-meta = {"name": "emd_per_samples"}
+meta = {"name": "emd"}
 ## VIASH END
 
 sys.path.append(meta["resources_dir"])
-from helper_functions import get_obs_for_integrated
+from helper import compute_emd
+from helper_functions import (
+    get_obs_var_for_integrated,
+    remove_unlabelled,
+    subset_markers_tocorrect,
+    subset_nocontrols,
+)
 
 print("Reading input files", flush=True)
 
@@ -26,30 +31,23 @@ input_integrated = ad.read_h5ad(par["input_integrated"])
 input_unintegrated = ad.read_h5ad(par["input_unintegrated"])
 input_validation = ad.read_h5ad(par["input_validation"])
 
-input_integrated = get_obs_for_integrated(
-    input_integrated=input_integrated,
-    input_unintegrated=input_unintegrated,
-    input_validation=input_validation
+print('Formatting input files', flush=True)
+# Format data integrated data
+input_integrated = get_obs_var_for_integrated(
+    i_adata=input_integrated,
+    v_adata=input_validation,
+    u_adata=input_unintegrated
 )
+input_integrated = subset_markers_tocorrect(input_integrated)
+input_integrated = subset_nocontrols(input_integrated)
+input_integrated = remove_unlabelled(input_integrated)
 
-# concatenate all input into one giant anndata
-input_concat = ad.concat([input_integrated, input_validation])
-input_concat.layers["data"] = np.concatenate(
-    (
-        input_integrated.layers["integrated"],
-        input_validation.layers["preprocessed"],
-    )
-)
 
-markers_to_assess = input_unintegrated.var[
-    input_unintegrated.var["to_correct"]
-].index.to_numpy()
+# Format validation data
+input_validation = subset_markers_tocorrect(input_validation)
+input_validation = remove_unlabelled(input_validation)
 
-# keep only markers we need to assess
-input_concat = input_concat[:, markers_to_assess]
-
-# remove control samples as we won't be assessing these
-input_concat = input_concat[input_concat.obs['is_control'] == 0]
+markers_to_assess = input_validation.var["to_correct"].index.to_numpy()
 
 # needed to assemble the output anndata later
 dataset_id = input_integrated.uns["dataset_id"]
@@ -57,51 +55,71 @@ method_id = input_integrated.uns["method_id"]
 
 # shouldn't need these anymore
 del input_unintegrated
-del input_integrated
-del input_validation
 
-donors = input_concat.obs['donor'].unique()
+# get all donors in validation as these are the ones we need to validate
+donor_list = input_validation.obs['donor'].unique()
 
-emd_df = []
-emd_vals = []
+emd_per_donor_per_ct = []
+emd_per_donor_all_ct = []
 
-for donor in donors:
-    # donor = donors[0]
-    input_donor = input_concat[input_concat.obs['donor'] == donor]
-
-    # have to change the "sample" column to file_name for emd_comparison_from_anndata to work.
-    # Otherwise the _calculate_emd_per_frame used in cytonormpy will error because they
-    # harcoded the column file_name and use it in assert.
-    # See line 176 of https://github.com/TarikExner/CytoNormPy/blob/main/cytonormpy/_evaluation/_emd_utils.py#L173
-    input_donor.obs.rename(columns={'sample': 'file_name'}, inplace=True)
-
-    emd_integrated = cnp.emd_from_anndata(
-        adata=input_donor,
-        file_list=list(input_donor.obs['file_name'].unique()),
-        channels=markers_to_assess,
-        layer="data",
-        sample_identifier_column="file_name",
-        cell_labels="cell_type"
+for donor in donor_list:
+    # donor = donor_list[0]
+    
+    integrated_view = input_integrated[input_integrated.obs['donor'] == donor]
+    validation_view = input_validation[input_validation.obs['donor'] == donor]
+    
+    # assuming each cell type is present in both validation and integrated
+    cell_types = validation_view.obs['cell_type'].unique()
+    
+    for cell_type in cell_types:
+        # cell_type = cell_types[0]
+        
+        integrated_ct = integrated_view[integrated_view.obs['cell_type'] == cell_type]
+        validation_ct = validation_view[validation_view.obs['cell_type'] == cell_type]
+        
+        # Do not calculate if we have less than 50 cells as it does not make sense.
+        if integrated_ct.n_obs < 50 or validation_ct.n_obs < 50:
+            continue
+        
+        emd_df = compute_emd(
+            integrated_ct = integrated_ct, 
+            validation_ct = validation_ct, 
+            markers_to_assess = markers_to_assess
+        )
+        emd_df['cell_type'] = cell_type
+        emd_df['donor'] = donor
+        
+        emd_per_donor_per_ct.append(emd_df)
+    
+    # calculate EMD when combining all cell types as well.
+    emd_df = compute_emd(
+        integrated_ct = integrated_view, 
+        validation_ct = validation_view, 
+        markers_to_assess = markers_to_assess
     )
+    emd_df['cell_type'] = 'all_cell_types'
+    emd_df['donor'] = donor
     
-    emd_integrated['donor'] = donor
-    emd_df.append(emd_integrated.copy())
+    emd_per_donor_all_ct.append(emd_df)
     
-    # ignoring unlabeled and all_cells
-    emd_integrated.drop(index=['all_cells', 'Unlabeled'], inplace=True)
-    
-    emd_vals.extend(emd_integrated[markers_to_assess].to_numpy().flatten())
-    
-emd_df = pd.concat(emd_df)
+emd_per_donor_per_ct = pd.concat(emd_per_donor_per_ct)
+emd_per_donor_all_ct = pd.concat(emd_per_donor_all_ct)
+
+
+emd_mean_ct = np.nanmean(emd_per_donor_per_ct.drop(columns=['cell_type', 'donor']).values)
+emd_max_ct = np.nanmax(emd_per_donor_per_ct.drop(columns=['cell_type', 'donor']).values)
+
+emd_mean_global = np.nanmean(emd_per_donor_all_ct.drop(columns=['cell_type', 'donor']).values)
+emd_max_global = np.nanmax(emd_per_donor_all_ct.drop(columns=['cell_type', 'donor']).values)
 
 print("Assembling output AnnData", flush=True)
 output = ad.AnnData(
     uns={
         "dataset_id": dataset_id,
         "method_id": method_id,
-        "metric_ids": ["emd_mean", "emd_max"],
-        "metric_values": [np.nanmean(emd_vals), np.nanmax(emd_vals)],
-        "emd_values": emd_df
+        "metric_ids": ["emd_mean_ct", "emd_max_ct", "emd_mean_global", "emd_max_global"],
+        "metric_values": [emd_mean_ct, emd_max_ct, emd_mean_global, emd_max_global],
+        "emd_values": pd.concat([emd_per_donor_per_ct, emd_per_donor_all_ct])
     }
 )
 
