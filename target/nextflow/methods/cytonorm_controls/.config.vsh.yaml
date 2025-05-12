@@ -1,15 +1,18 @@
-name: "shuffle_integration_by_batch"
-namespace: "control_methods"
+name: "cytonorm_controls"
+namespace: "methods"
 version: "build_main"
 argument_groups:
 - name: "Arguments"
   arguments:
   - type: "file"
-    name: "--input_unintegrated"
-    label: "Unintegrated"
-    summary: "The complete unintegrated dataset, including all cells' metadata (columns)\
-      \ from the \nunintegrated_censored dataset. \nThe cells in this dataset are\
-      \ the same to those in the unintegrated_censored dataset.\n"
+    name: "--input"
+    label: "Unintegrated Censored"
+    summary: "An unintegrated dataset with certain columns (cells metadata), such\
+      \ as the donor information, hidden.\nThese columns are intentionally hidden\
+      \ to prevent bias.\nThe batch correction algorithm should not have to rely on\
+      \ these information \nto properly integrate different batches.\nThis dataset\
+      \ is used as the input for the batch correction algorithm. \nThe cells therein\
+      \ are identical to those in the unintegrated dataset. \n"
     info:
       format:
         type: "h5ad"
@@ -21,24 +24,12 @@ argument_groups:
           required: true
         obs:
         - type: "string"
-          name: "cell_type"
-          description: "Cell type information"
-          required: true
-        - type: "string"
           name: "batch"
           description: "Batch information"
           required: true
         - type: "string"
           name: "sample"
           description: "Sample ID"
-          required: true
-        - type: "string"
-          name: "donor"
-          description: "Donor ID"
-          required: true
-        - type: "string"
-          name: "group"
-          description: "Biological group of the donor"
           required: true
         - type: "integer"
           name: "is_control"
@@ -99,118 +90,7 @@ argument_groups:
           description: "The organism of the sample in the dataset."
           required: false
     example:
-    - "resources_test/task_cyto_batch_integration/cyto_spleen_subset/unintegrated.h5ad"
-    must_exist: true
-    create_parent: true
-    required: true
-    direction: "input"
-    multiple: false
-    multiple_sep: ";"
-  - type: "file"
-    name: "--input_validation"
-    label: "Validation"
-    summary: "Hold-out dataset for validation."
-    description: "Dataset containing cells from samples that were held out for evaluating\
-      \ batch integration output. \nThe cells that are in this dataset belong to samples\
-      \ which are not included in the unintegrated \nor unintegrated_censored datasets.\n\
-      For example, if samples from donor A are present in batch 1 and 2, the sample\
-      \ from batch 1\nmay be used as input for the batch correction algorithm (and\
-      \ thus present in unintegrated\nand unintegrated_censored datasets). \nThe sample\
-      \ from batch 2, may not be included as an input for the batch correction algorithm,\n\
-      but is needed to validate whether whether the algorithm managed to correct the\
-      \ batch effect\nin batch 2 towards batch 1.\nThis sample will then be included\
-      \ in this dataset (but not in unintegrated\nand unintegrated_censored datasets).\
-      \  \n"
-    info:
-      format:
-        type: "h5ad"
-        layers:
-        - type: "double"
-          name: "preprocessed"
-          description: "preprocessed data, e.g. already compensated, transformed and\
-            \ debris/doublets removed"
-          required: true
-        obs:
-        - type: "string"
-          name: "cell_type"
-          description: "Cell type information"
-          required: true
-        - type: "string"
-          name: "batch"
-          description: "Batch information"
-          required: true
-        - type: "string"
-          name: "sample"
-          description: "Sample ID"
-          required: true
-        - type: "string"
-          name: "donor"
-          description: "Donor ID"
-          required: true
-        - type: "string"
-          name: "group"
-          description: "Biological group of the donor"
-          required: true
-        - type: "integer"
-          name: "is_control"
-          description: "Whether the sample the cell came from can be used as a control\
-            \ for batch \neffect correction.\n0: cannot be used as a control.\n>=\
-            \ 1: can be used as a control.\nFor cells with >= 1: cells with the same\
-            \ value come from the same donor.\nDifferent values indicate different\
-            \ donors.\n"
-          required: true
-        var:
-        - type: "integer"
-          name: "numeric_id"
-          description: "Numeric ID associated with each marker"
-          required: true
-        - type: "string"
-          name: "channel"
-          description: "The channel / detector of the instrument"
-          required: true
-        - type: "string"
-          name: "marker"
-          description: "The marker name associated with the channel"
-          required: false
-        - type: "string"
-          name: "marker_type"
-          description: "Whether the marker is a functional or lineage marker"
-          required: true
-        - type: "boolean"
-          name: "to_correct"
-          description: "Whether the marker will be batch corrected"
-          required: true
-        uns:
-        - type: "string"
-          name: "dataset_id"
-          description: "A unique identifier for the dataset"
-          required: true
-        - name: "dataset_name"
-          type: "string"
-          description: "Nicely formatted name."
-          required: true
-        - type: "string"
-          name: "dataset_url"
-          description: "Link to the original source of the dataset."
-          required: false
-        - name: "dataset_reference"
-          type: "string"
-          description: "Bibtex reference of the paper in which the dataset was published."
-          required: false
-        - name: "dataset_summary"
-          type: "string"
-          description: "Short description of the dataset."
-          required: true
-        - name: "dataset_description"
-          type: "string"
-          description: "Long description of the dataset."
-          required: true
-        - name: "dataset_organism"
-          type: "string"
-          description: "The organism of the sample in the dataset."
-          required: false
-    example:
-    - "resources_test/task_cyto_batch_integration/cyto_spleen_subset/validation.h5ad"
+    - "resources_test/task_cyto_batch_integration/cyto_spleen_subset/unintegrated_censored.h5ad"
     must_exist: true
     create_parent: true
     required: true
@@ -251,14 +131,22 @@ argument_groups:
     multiple: false
     multiple_sep: ";"
 resources:
-- type: "python_script"
-  path: "script.py"
+- type: "r_script"
+  path: "script.R"
   is_executable: true
 - type: "file"
-  path: "utils.py"
-label: "Shuffle integration by batch"
-summary: "Integrations are randomly permuted within each batch"
-description: "Integrations are randomly permuted within each batch"
+  path: "anndata_to_fcs.R"
+label: "CytoNorm with controls"
+summary: "CytoNorm Batch normalization algorithm which uses shared controls across\
+  \ batches."
+description: "CytoNorm corrects batch effects by using reference control samples (aliquots\
+  \ of one sample, \ntechnical replicates) included with each batch. \nIt clusters\
+  \ cells, then trains a model on the control samples to learn how marker \nexpression\
+  \ distributions differ across batches for each population.\nIt then uses splines\
+  \ to align these distributions to a common reference (either the mean\nof batches\
+  \ or to a single batch).\nIn this CytoNorm version, batches are aligned to the mean\
+  \ of the batches.\nClustering was performed by FlowSOM, using the default parameters\
+  \ provided by CytoNorm.\n"
 test_resources:
 - type: "python_script"
   path: "run_and_check_output.py"
@@ -270,15 +158,11 @@ test_resources:
   path: "resources_test/task_cyto_batch_integration/cyto_spleen_subset"
   dest: "resources_test/task_cyto_batch_integration/cyto_spleen_subset"
 info:
-  type: "control_method"
+  type: "method"
   type_info:
-    label: "Control Method"
-    summary: "Quality control methods for verifying the pipeline."
-    description: "This folder contains control components for the task. \nThese components\
-      \ have the same interface as the regular methods\nbut also receive the solution\
-      \ object as input. It serves as a\nstarting point to test the relative accuracy\
-      \ of new methods in\nthe task, and also as a quality control for the metrics\
-      \ defined\nin the task.\n"
+    label: "Method"
+    summary: "A method for integrating batch effects in cytometry data."
+    description: "A method for integrating batch effects in cytometry data.\n"
 status: "enabled"
 repositories:
 - type: "github"
@@ -287,9 +171,13 @@ repositories:
   tag: "build/main"
   path: "viash/core"
 license: "MIT"
+references:
+  doi:
+  - "10.1002/cyto.a.23904"
 links:
-  repository: "https://github.com/openproblems-bio/task_cyto_batch_integration"
+  repository: "https://github.com/saeyslab/CytoNorm"
   docker_registry: "ghcr.io"
+  documentation: "https://github.com/saeyslab/CytoNorm"
 runners:
 - type: "executable"
   id: "executable"
@@ -300,7 +188,7 @@ runners:
     label:
     - "midtime"
     - "midmem"
-    - "lowcpu"
+    - "midcpu"
     tag: "$id"
   auto:
     simplifyInput: true
@@ -324,16 +212,27 @@ runners:
 engines:
 - type: "docker"
   id: "docker"
-  image: "openproblems/base_python:1.0.0"
+  image: "openproblems/base_r:1.0.0"
   namespace_separator: "/"
+  setup:
+  - type: "r"
+    packages:
+    - "anndata"
+    - "docstring"
+    bioc:
+    - "flowCore"
+    - "Biobase"
+    github:
+    - "saeyslab/CytoNorm"
+    bioc_force_install: false
   entrypoint: []
   cmd: null
 build_info:
-  config: "src/control_methods/shuffle_integration_by_batch/config.vsh.yaml"
+  config: "src/methods/cytonorm_controls/config.vsh.yaml"
   runner: "nextflow"
   engine: "docker"
-  output: "target/nextflow/control_methods/shuffle_integration_by_batch"
-  executable: "target/nextflow/control_methods/shuffle_integration_by_batch/main.nf"
+  output: "target/nextflow/methods/cytonorm_controls"
+  executable: "target/nextflow/methods/cytonorm_controls/main.nf"
   viash_version: "0.9.0"
   git_commit: "a1bb29eeb9fbd3805fb534b66bae67b33443c923"
   git_remote: "https://github.com/openproblems-bio/task_cyto_batch_integration"
