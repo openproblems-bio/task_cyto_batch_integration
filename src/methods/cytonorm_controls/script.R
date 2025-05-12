@@ -66,7 +66,7 @@ norm_fset_all <- CytoNorm.normalize(
     transformList.reverse = NULL,
     outputDir = tmp_path,
     prefix = "Norm_",
-    clean = FALSE,
+    clean = TRUE,
     write = FALSE,
     verbose = FALSE
 )
