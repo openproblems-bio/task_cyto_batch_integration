@@ -3118,7 +3118,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/methods/cytonorm_controls",
     "viash_version" : "0.9.0",
-    "git_commit" : "a1bb29eeb9fbd3805fb534b66bae67b33443c923",
+    "git_commit" : "d890639216cfbbf88dabd40f8351956c46c2eeb6",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3282,7 +3282,7 @@ adata <- anndata::read_h5ad(par[["input"]])
 
 # get the control samples to be used for training the model
 fset_train <- anndata_to_fcs(adata[adata\\$obs\\$is_control != 0, ])
-# every sample, including the controls, pretty much the entire unintegrated data 
+# every sample, including the controls, pretty much the entire unintegrated data
 # will be corrected.
 fset_all <- anndata_to_fcs(adata)
 
@@ -3292,6 +3292,8 @@ batch_lab_train <- sapply(sampleNames(fset_train), function(samp) {
 })
 
 markers_to_correct <- as.vector(adata\\$var\\$channel[adata\\$var\\$to_correct])
+
+lineage_markers <- as.vector(adata\\$var\\$channel[adata\\$var\\$marker_type == "lineage"])
 
 # FlowSOM.params and normParams are the default parameters in cytonorm
 model <- CytoNorm.train(
@@ -3304,7 +3306,8 @@ model <- CytoNorm.train(
         xdim = 15,
         ydim = 15,
         nClus = 10,
-        scale = FALSE
+        scale = FALSE,
+        colsToUse = lineage_markers
     ),
     transformList = NULL,
     normParams = list(nQ = 99, goal = "mean"),
