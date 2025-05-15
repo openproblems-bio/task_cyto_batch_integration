@@ -33,6 +33,8 @@
 
 * Added `methods/cytornom_controls` (PR #50).
 
+* Added processing scripts for datasets (PR #55).
+
 ## MAJOR CHANGES
 
 * Updated file schema (PR #18): 

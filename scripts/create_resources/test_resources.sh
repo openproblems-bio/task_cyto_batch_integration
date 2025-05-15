@@ -13,9 +13,9 @@ cd "$REPO_ROOT"
 
 set -e
 
-RAW_DATA=resources_test/task_cyto_batch_integration/cyto_spleen_subset
+RAW_DATA=resources_test/task_cyto_batch_integration/leomazzi_cyto_spleen_subset
 
-DATASET_DIR=resources_test/task_cyto_batch_integration/cyto_spleen_subset
+DATASET_DIR=resources_test/task_cyto_batch_integration/leomazzi_cyto_spleen_subset
 
 mkdir -p $DATASET_DIR
 
@@ -23,8 +23,8 @@ python << HERE
 import anndata as ad
 
 adata = ad.read_h5ad("$RAW_DATA/common_dataset.h5ad")
-adata.uns["dataset_id"] = "cyto_spleen_subset"
-adata.uns["dataset_name"] = "Cytometry Spleen Subset"
+adata.uns["dataset_id"] = "leomazzi_cyto_spleen_subset"
+adata.uns["dataset_name"] = "Leomazzi Spleen Cytometry Subset"
 adata.write_h5ad("$DATASET_DIR/common_dataset.h5ad")
 HERE
 
@@ -49,7 +49,7 @@ viash run src/metrics/emd/config.vsh.yaml -- \
 
 # write manual state.yaml
 cat > $DATASET_DIR/state.yaml << HERE
-id: cyto_spleen_subset
+id: leomazzi_cyto_spleen_subset
 integrated: !file integrated.h5ad
 unintegrated: !file unintegrated.h5ad
 unintegrated_censored: !file unintegrated_censored.h5ad
@@ -59,6 +59,6 @@ HERE
 
 # only run this if you have access to the openproblems-data bucket
 aws s3 sync --profile op \
-  resources_test/task_cyto_batch_integration/cyto_spleen_subset \
-  s3://openproblems-data/resources_test/task_cyto_batch_integration/cyto_spleen_subset \
+  resources_test/task_cyto_batch_integration/leomazzi_cyto_spleen_subset \
+  s3://openproblems-data/resources_test/task_cyto_batch_integration/leomazzi_cyto_spleen_subset \
   --delete --dryrun

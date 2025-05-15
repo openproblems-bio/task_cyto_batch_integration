@@ -1,5 +1,5 @@
 type: file
-example: "resources_test/task_cyto_batch_integration/cyto_spleen_subset/score.h5ad"
+example: "resources_test/task_cyto_batch_integration/leomazzi_cyto_spleen_subset/score.h5ad"
 label: Score
 summary: "File indicating the score of a metric."
 info:
