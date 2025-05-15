@@ -181,12 +181,12 @@ function ViashHelp {
   echo "    --input"
   echo "        type: file, required parameter, file must exist"
   echo "        example:"
-  echo "resources_test/task_cyto_batch_integration/cyto_spleen_subset/unintegrated_censored.h5ad"
+  echo "resources_test/task_cyto_batch_integration/leomazzi_cyto_spleen_subset/unintegrated_censored.h5ad"
   echo ""
   echo "    --output"
   echo "        type: file, required parameter, output, file must exist"
   echo "        example:"
-  echo "resources_test/task_cyto_batch_integration/cyto_spleen_subset/integrated.h5ad"
+  echo "resources_test/task_cyto_batch_integration/leomazzi_cyto_spleen_subset/integrated.h5ad"
 }
 
 # initialise variables
@@ -468,9 +468,9 @@ RUN pip install --upgrade pip && \
   pip install --upgrade --no-cache-dir "scanpy" "anndata" "numpy"
 
 LABEL org.opencontainers.image.description="Companion container for running component methods combat"
-LABEL org.opencontainers.image.created="2025-05-15T02:14:14Z"
+LABEL org.opencontainers.image.created="2025-05-15T09:37:12Z"
 LABEL org.opencontainers.image.source="https://github.com/brentp/combat.py"
-LABEL org.opencontainers.image.revision="d890639216cfbbf88dabd40f8351956c46c2eeb6"
+LABEL org.opencontainers.image.revision="a353793dddff0b2744140bcbd7917e3c27e1efbb"
 LABEL org.opencontainers.image.version="build_main"
 
 VIASHDOCKER

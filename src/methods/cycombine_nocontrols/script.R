@@ -3,8 +3,8 @@ requireNamespace("cyCombine", quietly = TRUE)
 
 ## VIASH START
 par <- list(
-    input = "resources_test/task_cyto_batch_integration/cyto_spleen_subset/unintegrated_censored.h5ad",
-    output = "resources_test/task_cyto_batch_integration/output.h5ad"
+    input = "resources_test/task_cyto_batch_integration/leomazzi_cyto_spleen_subset/unintegrated_censored.h5ad",
+    output = "resources_test/task_cyto_batch_integration/leomazzi_cyto_spleen_subset/output.h5ad"
 )
 meta <- list(name = "cycombine")
 ## VIASH END
@@ -18,7 +18,9 @@ adata_to_correct <- input_adata[, input_adata$var$to_correct]
 
 markers_to_correct <- input_adata$var_names[input_adata$var$to_correct]
 
-lineage_markers <- as.vector(input_adata$var_names[input_adata$var$marker_type == "lineage"])
+lineage_markers <- as.vector(input_adata$var_names[
+    input_adata$var$marker_type == "lineage"
+])
 
 df_to_correct <- as.data.frame(
     adata_to_correct$layers[["preprocessed"]],

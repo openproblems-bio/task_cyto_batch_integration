@@ -99,7 +99,7 @@ argument_groups:
           description: "The organism of the sample in the dataset."
           required: false
     example:
-    - "resources_test/task_cyto_batch_integration/cyto_spleen_subset/unintegrated.h5ad"
+    - "resources_test/task_cyto_batch_integration/leomazzi_cyto_spleen_subset/unintegrated.h5ad"
     must_exist: true
     create_parent: true
     required: true
@@ -210,7 +210,7 @@ argument_groups:
           description: "The organism of the sample in the dataset."
           required: false
     example:
-    - "resources_test/task_cyto_batch_integration/cyto_spleen_subset/validation.h5ad"
+    - "resources_test/task_cyto_batch_integration/leomazzi_cyto_spleen_subset/validation.h5ad"
     must_exist: true
     create_parent: true
     required: true
@@ -243,7 +243,7 @@ argument_groups:
           description: "The parameters used for the integration"
           required: false
     example:
-    - "resources_test/task_cyto_batch_integration/cyto_spleen_subset/integrated.h5ad"
+    - "resources_test/task_cyto_batch_integration/leomazzi_cyto_spleen_subset/integrated.h5ad"
     must_exist: true
     create_parent: true
     required: true
@@ -267,8 +267,8 @@ test_resources:
   path: "check_config.py"
   is_executable: true
 - type: "file"
-  path: "resources_test/task_cyto_batch_integration/cyto_spleen_subset"
-  dest: "resources_test/task_cyto_batch_integration/cyto_spleen_subset"
+  path: "resources_test/task_cyto_batch_integration/leomazzi_cyto_spleen_subset"
+  dest: "resources_test/task_cyto_batch_integration/leomazzi_cyto_spleen_subset"
 info:
   type: "control_method"
   type_info:
@@ -335,7 +335,7 @@ build_info:
   output: "target/nextflow/control_methods/shuffle_integration_by_cell_type"
   executable: "target/nextflow/control_methods/shuffle_integration_by_cell_type/main.nf"
   viash_version: "0.9.0"
-  git_commit: "d890639216cfbbf88dabd40f8351956c46c2eeb6"
+  git_commit: "a353793dddff0b2744140bcbd7917e3c27e1efbb"
   git_remote: "https://github.com/openproblems-bio/task_cyto_batch_integration"
 package_config:
   name: "task_cyto_batch_integration"

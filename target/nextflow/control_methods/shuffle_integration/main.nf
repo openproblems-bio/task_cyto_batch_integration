@@ -2944,7 +2944,7 @@ meta = [
             }
           },
           "example" : [
-            "resources_test/task_cyto_batch_integration/cyto_spleen_subset/unintegrated.h5ad"
+            "resources_test/task_cyto_batch_integration/leomazzi_cyto_spleen_subset/unintegrated.h5ad"
           ],
           "must_exist" : true,
           "create_parent" : true,
@@ -3087,7 +3087,7 @@ meta = [
             }
           },
           "example" : [
-            "resources_test/task_cyto_batch_integration/cyto_spleen_subset/validation.h5ad"
+            "resources_test/task_cyto_batch_integration/leomazzi_cyto_spleen_subset/validation.h5ad"
           ],
           "must_exist" : true,
           "create_parent" : true,
@@ -3135,7 +3135,7 @@ meta = [
             }
           },
           "example" : [
-            "resources_test/task_cyto_batch_integration/cyto_spleen_subset/integrated.h5ad"
+            "resources_test/task_cyto_batch_integration/leomazzi_cyto_spleen_subset/integrated.h5ad"
           ],
           "must_exist" : true,
           "create_parent" : true,
@@ -3174,8 +3174,8 @@ meta = [
     },
     {
       "type" : "file",
-      "path" : "/resources_test/task_cyto_batch_integration/cyto_spleen_subset",
-      "dest" : "resources_test/task_cyto_batch_integration/cyto_spleen_subset"
+      "path" : "/resources_test/task_cyto_batch_integration/leomazzi_cyto_spleen_subset",
+      "dest" : "resources_test/task_cyto_batch_integration/leomazzi_cyto_spleen_subset"
     }
   ],
   "info" : {
@@ -3256,7 +3256,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/control_methods/shuffle_integration",
     "viash_version" : "0.9.0",
-    "git_commit" : "d890639216cfbbf88dabd40f8351956c46c2eeb6",
+    "git_commit" : "a353793dddff0b2744140bcbd7917e3c27e1efbb",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {

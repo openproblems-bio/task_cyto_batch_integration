@@ -179,12 +179,12 @@ function ViashHelp {
   echo "    --input_unintegrated"
   echo "        type: file, required parameter, file must exist"
   echo "        example:"
-  echo "resources_test/task_cyto_batch_integration/cyto_spleen_subset/unintegrated.h5ad"
+  echo "resources_test/task_cyto_batch_integration/leomazzi_cyto_spleen_subset/unintegrated.h5ad"
   echo ""
   echo "    --input_validation"
   echo "        type: file, required parameter, file must exist"
   echo "        example:"
-  echo "resources_test/task_cyto_batch_integration/cyto_spleen_subset/validation.h5ad"
+  echo "resources_test/task_cyto_batch_integration/leomazzi_cyto_spleen_subset/validation.h5ad"
   echo "        Dataset containing cells from samples that were held out for evaluating"
   echo "        batch integration output."
   echo "        The cells that are in this dataset belong to samples which are not"
@@ -207,7 +207,7 @@ function ViashHelp {
   echo "    --output"
   echo "        type: file, required parameter, output, file must exist"
   echo "        example:"
-  echo "resources_test/task_cyto_batch_integration/cyto_spleen_subset/integrated.h5ad"
+  echo "resources_test/task_cyto_batch_integration/leomazzi_cyto_spleen_subset/integrated.h5ad"
 }
 
 # initialise variables
@@ -486,9 +486,9 @@ function ViashDockerfile {
 FROM openproblems/base_python:1.0.0
 ENTRYPOINT []
 LABEL org.opencontainers.image.description="Companion container for running component control_methods shuffle_integration"
-LABEL org.opencontainers.image.created="2025-05-15T02:14:13Z"
+LABEL org.opencontainers.image.created="2025-05-15T09:37:11Z"
 LABEL org.opencontainers.image.source="https://github.com/openproblems-bio/task_cyto_batch_integration"
-LABEL org.opencontainers.image.revision="d890639216cfbbf88dabd40f8351956c46c2eeb6"
+LABEL org.opencontainers.image.revision="a353793dddff0b2744140bcbd7917e3c27e1efbb"
 LABEL org.opencontainers.image.version="build_main"
 
 VIASHDOCKER

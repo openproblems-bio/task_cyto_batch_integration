@@ -9,3 +9,5 @@ trace-*
 .ipynb_checkpoints
 /temp
 /.vscode
+
+/resources_raw
