@@ -15,7 +15,7 @@ publish_dir="s3://openproblems-data/resources/task_cyto_batch_integration/result
 # write the parameters to file
 cat > /tmp/params.yaml << HERE
 input_states: s3://openproblems-data/resources/task_cyto_batch_integration/datasets/**/state.yaml
-rename_keys: 'input_unintegrated_censored:unintegrated_censored;input_unintegrated:unintegrated;input_validation:validation'
+rename_keys: 'input_unintegrated_censored:output_unintegrated_censored;input_unintegrated:output_unintegrated;input_validation:output_validation'
 output_state: "state.yaml"
 publish_dir: "$publish_dir"
 HERE
