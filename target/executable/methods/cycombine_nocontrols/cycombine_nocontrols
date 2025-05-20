@@ -474,9 +474,9 @@ RUN Rscript -e 'if (!requireNamespace("remotes", quietly = TRUE)) install.packag
   Rscript -e 'remotes::install_github(c("biosurf/cyCombine"), repos = "https://cran.rstudio.com")'
 
 LABEL org.opencontainers.image.description="Companion container for running component methods cycombine_nocontrols"
-LABEL org.opencontainers.image.created="2025-05-15T09:37:12Z"
+LABEL org.opencontainers.image.created="2025-05-20T08:28:45Z"
 LABEL org.opencontainers.image.source="https://github.com/biosurf/cyCombine"
-LABEL org.opencontainers.image.revision="a353793dddff0b2744140bcbd7917e3c27e1efbb"
+LABEL org.opencontainers.image.revision="01c470f069223be3df0b6d1867c1e7f8c532d6e0"
 LABEL org.opencontainers.image.version="build_main"
 
 VIASHDOCKER
@@ -1062,8 +1062,7 @@ lineage_markers <- as.vector(input_adata\$var_names[
 ])
 
 df_to_correct <- as.data.frame(
-    adata_to_correct\$layers[["preprocessed"]],
-    check.names = FALSE
+    adata_to_correct\$layers[["preprocessed"]]
 )
 df_to_correct\$batch <- adata_to_correct\$obs\$batch
 df_to_correct\$sample <- adata_to_correct\$obs\$sample
@@ -1091,7 +1090,7 @@ cluster_labels <- cyCombine::create_som(
 
 # Batch correct using default parameter values
 df_corrected <- cyCombine::correct_data(
-    df = df_to_correct_norm,
+    df = df_to_correct,
     label = cluster_labels,
     markers = markers_to_correct,
     method = "ComBat",

@@ -3109,7 +3109,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/methods/cycombine_nocontrols",
     "viash_version" : "0.9.0",
-    "git_commit" : "a353793dddff0b2744140bcbd7917e3c27e1efbb",
+    "git_commit" : "01c470f069223be3df0b6d1867c1e7f8c532d6e0",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3276,8 +3276,7 @@ lineage_markers <- as.vector(input_adata\\$var_names[
 ])
 
 df_to_correct <- as.data.frame(
-    adata_to_correct\\$layers[["preprocessed"]],
-    check.names = FALSE
+    adata_to_correct\\$layers[["preprocessed"]]
 )
 df_to_correct\\$batch <- adata_to_correct\\$obs\\$batch
 df_to_correct\\$sample <- adata_to_correct\\$obs\\$sample
@@ -3305,7 +3304,7 @@ cluster_labels <- cyCombine::create_som(
 
 # Batch correct using default parameter values
 df_corrected <- cyCombine::correct_data(
-    df = df_to_correct_norm,
+    df = df_to_correct,
     label = cluster_labels,
     markers = markers_to_correct,
     method = "ComBat",
