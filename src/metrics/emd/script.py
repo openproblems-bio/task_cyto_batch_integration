@@ -17,7 +17,7 @@ meta = {"name": "emd"}
 ## VIASH END
 
 sys.path.append(meta["resources_dir"])
-from helper import compute_emd
+from helper import calculate_horizontal_emd
 from helper_functions import (
     get_obs_var_for_integrated,
     remove_unlabelled,
@@ -59,58 +59,13 @@ del input_unintegrated
 # get all donors in validation as these are the ones we need to validate
 donor_list = input_validation.obs['donor'].unique()
 
-emd_per_donor_per_ct = []
-emd_per_donor_all_ct = []
-
-for donor in donor_list:
-    # donor = donor_list[0]
-    
-    integrated_view = input_integrated[input_integrated.obs['donor'] == donor]
-    validation_view = input_validation[input_validation.obs['donor'] == donor]
-    
-    # assuming each cell type is present in both validation and integrated
-    cell_types = validation_view.obs['cell_type'].unique()
-    
-    for cell_type in cell_types:
-        # cell_type = cell_types[0]
-        
-        integrated_ct = integrated_view[integrated_view.obs['cell_type'] == cell_type]
-        validation_ct = validation_view[validation_view.obs['cell_type'] == cell_type]
-        
-        # Do not calculate if we have less than 50 cells as it does not make sense.
-        if integrated_ct.n_obs < 50 or validation_ct.n_obs < 50:
-            continue
-        
-        emd_df = compute_emd(
-            integrated_ct = integrated_ct, 
-            validation_ct = validation_ct, 
-            markers_to_assess = markers_to_assess
-        )
-        emd_df['cell_type'] = cell_type
-        emd_df['donor'] = donor
-        
-        emd_per_donor_per_ct.append(emd_df)
-    
-    # calculate EMD when combining all cell types as well.
-    emd_df = compute_emd(
-        integrated_ct = integrated_view, 
-        validation_ct = validation_view, 
-        markers_to_assess = markers_to_assess
-    )
-    emd_df['cell_type'] = 'all_cell_types'
-    emd_df['donor'] = donor
-    
-    emd_per_donor_all_ct.append(emd_df)
-    
-emd_per_donor_per_ct = pd.concat(emd_per_donor_per_ct)
-emd_per_donor_all_ct = pd.concat(emd_per_donor_all_ct)
-
+emd_per_donor_per_ct, emd_per_donor_global = calculate_horizontal_emd(input_integrated, input_validation, markers_to_assess, donor_list)
 
 emd_mean_ct = np.nanmean(emd_per_donor_per_ct.drop(columns=['cell_type', 'donor']).values)
 emd_max_ct = np.nanmax(emd_per_donor_per_ct.drop(columns=['cell_type', 'donor']).values)
 
-emd_mean_global = np.nanmean(emd_per_donor_all_ct.drop(columns=['cell_type', 'donor']).values)
-emd_max_global = np.nanmax(emd_per_donor_all_ct.drop(columns=['cell_type', 'donor']).values)
+emd_mean_global = np.nanmean(emd_per_donor_global.drop(columns=['cell_type', 'donor']).values)
+emd_max_global = np.nanmax(emd_per_donor_global.drop(columns=['cell_type', 'donor']).values)
 
 print("Assembling output AnnData", flush=True)
 output = ad.AnnData(
@@ -119,7 +74,7 @@ output = ad.AnnData(
         "method_id": method_id,
         "metric_ids": ["emd_mean_ct", "emd_max_ct", "emd_mean_global", "emd_max_global"],
         "metric_values": [emd_mean_ct, emd_max_ct, emd_mean_global, emd_max_global],
-        "emd_values": pd.concat([emd_per_donor_per_ct, emd_per_donor_all_ct])
+        "emd_values": pd.concat([emd_per_donor_per_ct, emd_per_donor_global])
     }
 )
 
