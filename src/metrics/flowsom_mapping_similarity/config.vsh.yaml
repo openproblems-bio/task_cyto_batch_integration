@@ -1,0 +1,84 @@
+# The API specifies which type of component this is.
+# It contains specifications for:
+#   - The input/output files
+#   - Common parameters
+#   - A unit test
+__merge__: ../../api/comp_metric.yaml
+
+# A unique identifier for your component (required).
+# Can contain only lowercase letters or underscores.
+name: flowsom_mapping_similarity
+
+
+
+# Metadata for your component
+info:
+  metrics:
+      # A unique identifier for your metric (required).
+      # Can contain only lowercase letters or underscores.
+    - name: flowsom_mapping_similarity
+      # A relatively short label, used when rendering visualisarions (required)
+      label: Flowsom Mapping Similarity
+      # A one sentence summary of how this metric works (required). Used when 
+      # rendering summary tables.
+      summary: "FILL IN: A one sentence summary of this metric."
+      # A multi-line description of how this component works (required). Used
+      # when rendering reference documentation.
+      description: |
+        FILL IN: A (multi-line) description of how this metric works.
+      # references:
+      #   doi: 
+      #     - 10.1000/xx.123456.789
+      #   bibtex:
+      #     - |
+      #       @article{foo,
+      #         title={Foo},
+      #         author={Bar},
+      #         journal={Baz},
+      #         year={2024}
+      #       }
+      links:
+        # URL to the documentation for this metric (required).
+        documentation: https://url.to/the/documentation
+        # URL to the code repository for this metric (required).
+        repository: https://github.com/organisation/repository
+      # The minimum possible value for this metric (required)
+      min: 0
+      # The maximum possible value for this metric (required)
+      max: 1
+      # Whether a higher value represents a 'better' solution (required)
+      maximize: true
+
+# Component-specific parameters (optional)
+# arguments:
+#   - name: "--n_neighbors"
+#     type: "integer"
+#     default: 5
+#     description: Number of neighbors to use.
+
+# Resources required to run the component
+resources:
+  # The script of your component (required)
+  - type: r_script
+    path: script.R
+  # Additional resources your script needs (optional)
+  # - type: file
+  #   path: weights.pt
+
+engines:
+  # Specifications for the Docker image for this component.
+  - type: docker
+    image: openproblems/base_r:1.0.0
+    # Add custom dependencies here (optional). For more information, see
+    # https://viash.io/reference/config/engines/docker/#setup .
+    # setup:
+    #   - type: r
+    #     packages: tibble
+
+runners:
+  # This platform allows running the component natively
+  - type: executable
+  # Allows turning the component into a Nextflow module / pipeline.
+  - type: nextflow
+    directives:
+      label: [midtime,midmem,midcpu]
