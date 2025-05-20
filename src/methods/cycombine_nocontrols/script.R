@@ -23,8 +23,7 @@ lineage_markers <- as.vector(input_adata$var_names[
 ])
 
 df_to_correct <- as.data.frame(
-    adata_to_correct$layers[["preprocessed"]],
-    check.names = FALSE
+    adata_to_correct$layers[["preprocessed"]]
 )
 df_to_correct$batch <- adata_to_correct$obs$batch
 df_to_correct$sample <- adata_to_correct$obs$sample
@@ -52,7 +51,7 @@ cluster_labels <- cyCombine::create_som(
 
 # Batch correct using default parameter values
 df_corrected <- cyCombine::correct_data(
-    df = df_to_correct_norm,
+    df = df_to_correct,
     label = cluster_labels,
     markers = markers_to_correct,
     method = "ComBat",
