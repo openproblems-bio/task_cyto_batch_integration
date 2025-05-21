@@ -186,6 +186,48 @@ info:
       # Whether a higher value represents a 'better' solution (required)
       maximize: false
 
+  # A unique identifier for your metric (required).
+      # Can contain only lowercase letters or underscores.
+    - name: emd_mean_global_vert
+      # A relatively short label, used when rendering visualisarions (required)
+      label: EMD Mean Global Vertical
+      # A one sentence summary of how this metric works (required). Used when 
+      # rendering summary tables.
+      summary: "Mean Earth Mover Distance across batch corrected samples and markers."
+      # A multi-line description of how this component works (required). Used
+      # when rendering reference documentation.
+      description: |
+        Earth Mover Distance (EMD), also known as the Wasserstein metric, measures the difference 
+        between two probability distributions. 
+        
+        Here, EMD is used to compare marker expression distributions between all integrated samples.
+        For each sample pair and marker, the marker expression values are first converted into 
+        probability distributions. 
+        This is done by binning the expression values into a range from -100 to 100 with a bin width of 0.1.
+        The `wasserstein_distance` function from SciPy is then used to calculate the EMD between the two 
+        probability distributions belonging to the same cell type, marker, and a given paired samples.
+        This is then repeated for every cell type, marker, and paired sample.
+        Finally, the maximum of all these EMD values is computed as EMD Max Global.
+
+        EMD Mean Global Vertical score reflects mean difference in marker expression distributions 
+        across all markers and batch corrected samples.
+        A high score indicates overall, there is a large difference in distribution of marker expression after batch integration.
+        A low score means that overall, the samples are well integrated.
+      references:
+        doi: 
+          - 10.1023/A:1026543900054
+      links:
+        # URL to the documentation for this metric (required).
+        documentation: https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.wasserstein_distance.html
+        # URL to the code repository for this metric (required).
+        repository: https://github.com/scipy/scipy
+      # The minimum possible value for this metric (required)
+      min: 0
+      # The maximum possible value for this metric (required)
+      max: .inf
+      # Whether a higher value represents a 'better' solution (required)
+      maximize: false
+
 # Resources required to run the component
 resources:
   # The script of your component (required)

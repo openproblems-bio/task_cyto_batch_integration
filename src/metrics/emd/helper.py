@@ -1,10 +1,110 @@
+import itertools
+
 import anndata as ad
 import numpy as np
 import pandas as pd
 from scipy.stats import wasserstein_distance
 
 
-def calculate_horizontal_emd(input_integrated, input_validation, markers_to_assess, donor_list):
+def calculate_vertical_emd(
+    input_integrated: ad.AnnData, 
+    markers_to_assess: list,
+    across_batches: bool = True
+):
+  
+    """
+    Compute vertical emd across every possible sample combination.
+    I think this is what we want, but we could also do it only 
+    between samples from different batches?
+
+    Args:
+        input_integrated (ad.AnnData): Integrated adata.
+        markers_to_assess (list): list of markers to compute EMD for.
+        across_batches (bool, optional): Whether to only compute between samples
+            across different batches. Defaults to True.
+            
+    Returns:
+        np.float32: mean emd value computed from a flattened data frame containing
+            emd computed for every marker across two samples.
+        dict: a 2d matrix where each row/column is a pair of sample and the cell contains
+            emd value computed for the sample pair.
+    """
+    
+    # calculate the global first, agnostic of cell type
+    if across_batches:
+        # get all possible sample combinations
+        # across two batches, i.e. 1 sample in a combination is from a batch while the
+        # other is from the other batch.
+        samples_batch_one = np.unique(
+            input_integrated.obs[input_integrated.obs['batch'] == 1]['sample']
+        )
+        samples_batch_two = np.unique(
+            input_integrated.obs[input_integrated.obs['batch'] == 2]['sample']
+        )
+        sample_combos = list(itertools.product(samples_batch_one, samples_batch_two))
+    else:
+        # get all possible sample combinations
+        sample_combos = list(itertools.combinations(
+            np.unique(input_integrated.obs['sample']),
+            2
+        ))
+    
+    emd_dfs = []
+    for sample_combo in sample_combos:
+        # sample_combo = sample_combos[0]
+    
+        first_sample_adata = input_integrated[input_integrated.obs['sample'] == sample_combo[0]]
+        second_sample_adata = input_integrated[input_integrated.obs['sample'] == sample_combo[1]]
+        
+        emd_df = compute_emd(
+            first_sample=first_sample_adata,
+            second_sample=second_sample_adata,
+            markers_to_assess=markers_to_assess,
+            first_sample_layer_name="integrated",
+            second_sample_layer_name="integrated"
+        )
+        emd_dfs.append(emd_df)
+        
+    emd_dfs = pd.concat(emd_dfs)
+    # aggregate into one metric by flattening all the values in the data frame
+    # into one giant array and take a mean
+    mean_emd = np.mean(emd_dfs.to_numpy().flatten())
+    
+    # prepare the data to draw the heatmap in cytonorm 2 supp paper.
+    # 1 row/column = 1 sample, a cell is emd for a given marker
+    # repeat for every marker assessed 
+    # note, only run this after calculating mean, otherwise you end up having to 
+    # remove the sample id columns.
+    
+    emd_dfs['first_sample'] = [x[0] for x in sample_combos]
+    emd_dfs['second_sample'] = [x[1] for x in sample_combos]
+    
+    emd_wide_dfs = {}
+    for marker in markers_to_assess:
+        # marker = markers_to_assess[0]
+        emd_wide = emd_dfs.pivot(
+            index="second_sample",
+            columns="first_sample",
+            values=marker
+        )
+        emd_wide_dfs[marker] = emd_wide
+        
+    return mean_emd, emd_wide_dfs
+    
+def calculate_horizontal_emd(
+    input_integrated: ad.AnnData, 
+    input_validation: ad.AnnData, 
+    markers_to_assess: list, 
+    donor_list: list
+):
+    
+    """
+    Calculate horizontal EMD across a pair of samples.
+
+    Returns:
+        _type_: _description_
+    """
+    
     emd_per_donor_per_ct = []
     # global means agnostic of cell type labels
     emd_per_donor_global = []
@@ -27,9 +127,11 @@ def calculate_horizontal_emd(input_integrated, input_validation, markers_to_asse
                 continue
         
             emd_df = compute_emd(
-                integrated_ct = integrated_ct, 
-                validation_ct = validation_ct, 
-                markers_to_assess = markers_to_assess
+                first_sample = integrated_ct, 
+                second_sample = validation_ct, 
+                markers_to_assess = markers_to_assess,
+                first_sample_layer_name = "integrated",
+                second_sample_layer_name = "preprocessed"
             )
             emd_df['cell_type'] = cell_type
             emd_df['donor'] = donor
@@ -38,9 +140,11 @@ def calculate_horizontal_emd(input_integrated, input_validation, markers_to_asse
     
         # calculate EMD when combining all cell types as well.
         emd_df = compute_emd(
-            integrated_ct = integrated_view, 
-            validation_ct = validation_view, 
-            markers_to_assess = markers_to_assess
+            first_sample = integrated_view, 
+            second_sample = validation_view, 
+            markers_to_assess = markers_to_assess,
+            first_sample_layer_name = "integrated",
+            second_sample_layer_name = "preprocessed"
         )
         emd_df['cell_type'] = 'all_cell_types'
         emd_df['donor'] = donor
@@ -53,17 +157,27 @@ def calculate_horizontal_emd(input_integrated, input_validation, markers_to_asse
 
 
 def compute_emd(
-    integrated_ct: ad.AnnData, 
-    validation_ct: ad.AnnData, 
-    markers_to_assess: list
+    first_sample: ad.AnnData, 
+    second_sample: ad.AnnData, 
+    markers_to_assess: list,
+    first_sample_layer_name: str,
+    second_sample_layer_name: str
 ) -> pd.DataFrame:
     """
     Calculate EMD metric
 
     Args:
-        integrated_ct (ad.AnnData): batch integrated data
-        validation_ct (ad.AnnData): validation data
-        markers_to_assess (list): list of markers to compute EMD for
+        first_sample (ad.AnnData): data for the first sample to compute EMD for.
+            For both horizontal and vertical EMD, this can be the sample from one donor that has been batch corrected.
+        second_sample (ad.AnnData): data for the first sample to compute EMD for.
+            For horizontal EMD, this will be the sample from the SAME donor (as in first_sample)
+            that was not batch corrected, i.e., the one used in validation data.
+            For vertical EMD, this will be just another sample that has been batch corrected.
+        markers_to_assess (list): list of markers to compute EMD for.
+        first_sample_layer_name (str): name of the layer to get the data out of.
+            Should be integrated for horizontal EMD.
+        second_sample_layer_name (str): name of the layer to get the data out of.
+            Should be integrated or preprocessed for vertical or horizontal EMD respectively.
 
     Returns:
         pd.DataFrame: 1 row data frame where a column is a marker. Value is the EMD.
@@ -75,8 +189,8 @@ def compute_emd(
     for marker in markers_to_assess:
         # marker = markers_to_assess[0]
         
-        mexp_integrated = np.array(integrated_ct[:, marker].layers["integrated"]).flatten()
-        mexp_validation = np.array(validation_ct[:, marker].layers["preprocessed"]).flatten()
+        mexp_integrated = np.array(first_sample[:, marker].layers[first_sample_layer_name]).flatten()
+        mexp_validation = np.array(second_sample[:, marker].layers[second_sample_layer_name]).flatten()
         
         i_values, i_weights = bin_array(mexp_integrated)
         v_values, v_weights = bin_array(mexp_validation)

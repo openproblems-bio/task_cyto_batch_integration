@@ -17,7 +17,7 @@ meta = {"name": "emd"}
 ## VIASH END
 
 sys.path.append(meta["resources_dir"])
-from helper import calculate_horizontal_emd
+from helper import calculate_horizontal_emd, calculate_vertical_emd
 from helper_functions import (
     get_obs_var_for_integrated,
     remove_unlabelled,
@@ -56,6 +56,7 @@ method_id = input_integrated.uns["method_id"]
 # shouldn't need these anymore
 del input_unintegrated
 
+# calculate horizontal EMD
 # get all donors in validation as these are the ones we need to validate
 donor_list = input_validation.obs['donor'].unique()
 
@@ -67,14 +68,26 @@ emd_max_ct = np.nanmax(emd_per_donor_per_ct.drop(columns=['cell_type', 'donor'])
 emd_mean_global = np.nanmean(emd_per_donor_global.drop(columns=['cell_type', 'donor']).values)
 emd_max_global = np.nanmax(emd_per_donor_global.drop(columns=['cell_type', 'donor']).values)
 
+# calculate vertical EMD
+emd_mean_global_vert, emd_vert_mat = calculate_vertical_emd(
+    input_integrated=input_integrated,
+    markers_to_assess=markers_to_assess,
+    across_batches=True
+)
+
 print("Assembling output AnnData", flush=True)
+# note: emd_values is handy for plotting later on.
 output = ad.AnnData(
     uns={
         "dataset_id": dataset_id,
         "method_id": method_id,
-        "metric_ids": ["emd_mean_ct", "emd_max_ct", "emd_mean_global", "emd_max_global"],
-        "metric_values": [emd_mean_ct, emd_max_ct, emd_mean_global, emd_max_global],
-        "emd_values": pd.concat([emd_per_donor_per_ct, emd_per_donor_global])
+        "metric_ids": ["emd_mean_ct", "emd_max_ct", "emd_mean_global", "emd_max_global", "emd_mean_global_vert"],
+        "metric_values": [emd_mean_ct, emd_max_ct, emd_mean_global, emd_max_global, emd_mean_global_vert],
+        "emd_values": {
+            "emd_horizontal": pd.concat([emd_per_donor_per_ct, emd_per_donor_global]),
+            "emd_vert_mat": emd_vert_mat
+        }
+            
     }
 )
 
