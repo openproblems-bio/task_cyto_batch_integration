@@ -33,6 +33,8 @@
 
 * Added `methods/cytornom_controls` (PR #50).
 
+* Added `metrics/flowsom_mapping_similarity` (PR #59).
+
 ## MAJOR CHANGES
 
 * Updated file schema (PR #18): 
