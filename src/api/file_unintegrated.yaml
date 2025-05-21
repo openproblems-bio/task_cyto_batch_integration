@@ -1,6 +1,6 @@
 #TODO: Change to the required and/or optional fields of the anndata
 type: file
-example: "resources_test/task_cyto_batch_integration/cyto_spleen_subset/unintegrated.h5ad"
+example: "resources_test/task_cyto_batch_integration/leomazzi_cyto_spleen_subset/unintegrated.h5ad"
 label: Unintegrated
 summary: |
   The complete unintegrated dataset, including all cells' metadata (columns) from the 

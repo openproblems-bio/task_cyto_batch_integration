@@ -33,6 +33,8 @@
 
 * Added `methods/cytornom_controls` (PR #50).
 
+* Added processing scripts for datasets (PR #55).
+
 * Added `metrics/flowsom_mapping_similarity` (PR #59).
 
 ## MAJOR CHANGES
@@ -76,8 +78,12 @@
 
 * Implemented function for writing FCS files from an anndata object (PR #49).
 
+* Changed cytonorm and cycombine clustering to use lineage markers (PR #54).
+
 ## BUGFIXES
 
 * Change n_inconsistent_peaks output to float and add R2 to main.nf (PR #40).
 
 * Changed naming 'gaussNorm' to 'gaussnorm' (PR #47).
+
+* Fixed cyCombine so it now batch correct unnormalised data rather than normalised data (PR #58). 
