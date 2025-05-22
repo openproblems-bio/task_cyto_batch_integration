@@ -31,7 +31,7 @@ resources:
 
 dependencies:
   - name: validation/check_dataset_with_schema
-    repository: openproblems
+    repository: op
   - name: data_processors/process_dataset
 
 runners:
