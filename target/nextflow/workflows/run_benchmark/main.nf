@@ -3414,6 +3414,12 @@ meta = [
       "repository" : {
         "type" : "local"
       }
+    },
+    {
+      "name" : "metrics/flowsom_mapping_similarity",
+      "repository" : {
+        "type" : "local"
+      }
     }
   ],
   "repositories" : [
@@ -3473,7 +3479,7 @@ meta = [
     "engine" : "native",
     "output" : "target/nextflow/workflows/run_benchmark",
     "viash_version" : "0.9.0",
-    "git_commit" : "8c9d7dac5bb329aa1b788a76154f7035ae4b83b4",
+    "git_commit" : "40d5033bf2300b07555fe1212f7ceafa7d0e34c6",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3591,6 +3597,7 @@ include { cytonorm_controls } from "${meta.resources_dir}/../../../nextflow/meth
 include { emd } from "${meta.resources_dir}/../../../nextflow/metrics/emd/main.nf"
 include { n_inconsistent_peaks } from "${meta.resources_dir}/../../../nextflow/metrics/n_inconsistent_peaks/main.nf"
 include { average_batch_r2 } from "${meta.resources_dir}/../../../nextflow/metrics/average_batch_r2/main.nf"
+include { flowsom_mapping_similarity } from "${meta.resources_dir}/../../../nextflow/metrics/flowsom_mapping_similarity/main.nf"
 
 // inner workflow
 // user-provided Nextflow code
@@ -3620,7 +3627,8 @@ methods = [
 metrics = [
   emd,
   n_inconsistent_peaks,
-  average_batch_r2
+  average_batch_r2,
+  flowsom_mapping_similarity
 ]
 
 workflow run_wf {

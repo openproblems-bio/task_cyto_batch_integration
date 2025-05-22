@@ -487,9 +487,9 @@ RUN Rscript -e 'if (!requireNamespace("remotes", quietly = TRUE)) install.packag
   Rscript -e 'remotes::install_cran(c("anndata", "docstring"), repos = "https://cran.rstudio.com")'
 
 LABEL org.opencontainers.image.description="Companion container for running component methods gaussnorm"
-LABEL org.opencontainers.image.created="2025-05-22T02:53:11Z"
+LABEL org.opencontainers.image.created="2025-05-22T07:38:11Z"
 LABEL org.opencontainers.image.source="https://github.com/RGLab/flowStats"
-LABEL org.opencontainers.image.revision="8c9d7dac5bb329aa1b788a76154f7035ae4b83b4"
+LABEL org.opencontainers.image.revision="40d5033bf2300b07555fe1212f7ceafa7d0e34c6"
 LABEL org.opencontainers.image.version="build_main"
 
 VIASHDOCKER
