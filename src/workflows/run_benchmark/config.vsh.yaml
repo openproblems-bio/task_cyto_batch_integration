@@ -61,8 +61,8 @@ resources:
     path: /_viash.yaml
 
 dependencies:
-  - name: h5ad/extract_uns_metadata
-    repository: core
+  - name: utils/extract_uns_metadata
+    repository: op
   - name: control_methods/shuffle_integration
   - name: control_methods/shuffle_integration_by_batch
   - name: control_methods/shuffle_integration_by_cell_type
