@@ -25,26 +25,14 @@ def calculate_vertical_emd(input_integrated: ad.AnnData, markers_to_assess: list
 
     # calculate the global first, agnostic of cell type
 
-    is_perfect_integration_vertical = (
-        input_integrated.uns["method_id"] == "perfect_integration_vertical"
+    # going for comparing every sample against every other samples
+    # as we only have 1 batch in perfect integration.
+    # if we compare samples across batches for methods but compare all samples against
+    # all samples in perfect integration, it'll make comparison between the two
+    # values difficult. Best standardise.
+    sample_combos = list(
+        itertools.combinations(np.unique(input_integrated.obs["sample"]), 2)
     )
-
-    if not is_perfect_integration_vertical:
-        # get all possible sample combinations
-        # across two batches, i.e. 1 sample in a combination is from a batch while the
-        # other is from the other batch.
-        samples_batch_one = np.unique(
-            input_integrated.obs[input_integrated.obs["batch"] == 1]["sample"]
-        )
-        samples_batch_two = np.unique(
-            input_integrated.obs[input_integrated.obs["batch"] == 2]["sample"]
-        )
-        sample_combos = list(itertools.product(samples_batch_one, samples_batch_two))
-    else:
-        # get all possible sample combinations
-        sample_combos = list(
-            itertools.combinations(np.unique(input_integrated.obs["sample"]), 2)
-        )
 
     emd_dfs = []
     for sample_combo in sample_combos:
