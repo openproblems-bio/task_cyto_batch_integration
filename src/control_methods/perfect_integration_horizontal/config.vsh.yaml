@@ -19,7 +19,9 @@ description: |
   The method actually just return the validation data but just changing the batch
   and sample ID to those that are in the unintegrated_censored.
   Because the marker expression is the exactly same as the validation data, there won't
-  be any batch effect present.
+  be any batch effect present when computing horizontal metrics.
+  Batch effect will be present when computing vertical metrics as the validation data
+  contain samples from different batches, unintegrated.
 
 # Resources required to run the component
 resources:

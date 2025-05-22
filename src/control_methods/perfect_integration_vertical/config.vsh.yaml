@@ -16,10 +16,12 @@ summary: "Positive control method which imitates what perfect batch integration.
 # A multi-line description of how this component works (required). Used
 # when rendering reference documentation.
 description: |
-  The method actually just return the validation data but just changing the batch
-  and sample ID to those that are in the unintegrated_censored.
-  Because the marker expression is the exactly same as the validation data, there won't
-  be any batch effect present.
+  This control method return all samples from batch 1. 
+  Because the samples all came from one batch, there should be no batch effect when
+  measuring vertical metrics.
+  However, there will be batch effect for horizontal metrics because some samples (those
+  from unintegrated data) will be compared against the validation data, and batch effect
+  will be detected.
 
 # Resources required to run the component
 resources:
