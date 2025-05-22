@@ -6,27 +6,34 @@ import anndata as ad
 par = {
     "input_unintegrated": "resources_test/task_cyto_batch_integration/leomazzi_cyto_spleen_subset/unintegrated.h5ad",
     "input_validation": "resources_test/task_cyto_batch_integration/leomazzi_cyto_spleen_subset/validation.h5ad",
-    "output": "resources_test/task_cyto_batch_integration/leomazzi_cyto_spleen_subset/no_integration/output.h5ad",
+    "output": "resources_test/task_cyto_batch_integration/leomazzi_cyto_spleen_subset/perfect_integration/vertical_output.h5ad",
 }
-meta = {"name": "no_integration"}
+meta = {"name": "perfect_integration_vertical"}
 ## VIASH END
 
 print("Reading input files", flush=True)
-adata = ad.read_h5ad(par["input_unintegrated"])
+adata_validation = ad.read_h5ad(par["input_validation"])
+adata_unintegrated = ad.read_h5ad(par["input_unintegrated"])
 
-print("Extracting unintegrated data", flush=True)
-integrated = adata.layers["preprocessed"]
+# grab just samples from batch 1
+adata_validation = adata_validation[adata_validation.obs["batch"] == 1]
+adata_unintegrated = adata_unintegrated[adata_unintegrated.obs["batch"] == 1]
+
+# concatenate the adatas
+adata = ad.concat([adata_validation, adata_unintegrated])
+adata.uns["dataset_id"] = adata_unintegrated.uns["dataset_id"]
+
+print("Creating integrated data", flush=True)
 
 print("Write output AnnData to file", flush=True)
 output = ad.AnnData(
     obs=adata.obs[[]],
     var=adata.var[[]],
-    layers={"integrated": integrated},
+    layers={"integrated": adata.layers["preprocessed"]},
     uns={
         "dataset_id": adata.uns["dataset_id"],
         "method_id": meta["name"],
         "parameters": {},
     },
 )
-
 output.write_h5ad(par["output"], compression="gzip")

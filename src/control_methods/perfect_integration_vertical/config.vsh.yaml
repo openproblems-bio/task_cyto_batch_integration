@@ -7,9 +7,9 @@ __merge__: ../../api/comp_control_method.yaml
 
 # A unique identifier for your component (required).
 # Can contain only lowercase letters or underscores.
-name: perfect_integration
+name: perfect_integration_vertical
 # A relatively short label, used when rendering visualisations (required)
-label: Perfect Integration
+label: Perfect Integration Vertical
 # A one sentence summary of how this method works (required). Used when 
 # rendering summary tables.
 summary: "Positive control method which imitates what perfect batch integration."
