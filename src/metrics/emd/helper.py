@@ -69,9 +69,9 @@ def calculate_vertical_emd(input_integrated: ad.AnnData, markers_to_assess: list
     emd_dfs = pd.concat(emd_dfs)
     # aggregate into one metric by flattening all the values in the data frame
     # into one giant array and take a mean
-    mean_emd = np.mean(emd_dfs.to_numpy().flatten())
+    mean_emd = np.nanmean(emd_dfs.to_numpy().flatten())
 
-    max_emd = np.max(emd_dfs.to_numpy().flatten())
+    max_emd = np.nanmax(emd_dfs.to_numpy().flatten())
 
     # prepare the data to draw the heatmap in cytonorm 2 supp paper.
     # 1 row/column = 1 sample, a cell is emd for a given marker
