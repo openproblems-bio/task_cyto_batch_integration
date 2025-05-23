@@ -7,19 +7,21 @@ __merge__: ../../api/comp_control_method.yaml
 
 # A unique identifier for your component (required).
 # Can contain only lowercase letters or underscores.
-name: perfect_integration
+name: perfect_integration_horizontal
 # A relatively short label, used when rendering visualisations (required)
-label: Perfect Integration
+label: Perfect Integration Horizontal
 # A one sentence summary of how this method works (required). Used when 
 # rendering summary tables.
-summary: "Positive control method which imitates what perfect batch integration."
+summary: "Positive control method for horizontal metrics which reprsents perfect batch integration."
 # A multi-line description of how this component works (required). Used
 # when rendering reference documentation.
 description: |
   The method actually just return the validation data but just changing the batch
   and sample ID to those that are in the unintegrated_censored.
   Because the marker expression is the exactly same as the validation data, there won't
-  be any batch effect present.
+  be any batch effect present when computing horizontal metrics.
+  Batch effect will be present when computing vertical metrics as the validation data
+  contain samples from different batches, unintegrated.
 
 # Resources required to run the component
 resources:
