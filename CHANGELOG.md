@@ -64,6 +64,8 @@
   * Returned values are average and max across all cell types (exclude the one calculated agnostic of cell types),
   average and max across all donors (mean and max of values computed agnostic of cell types).
 
+* Bump Viash version to 0.9.4 (PR #61, PR #62).
+
 * Added EMD vertical global metric and split perfect integration into horizontal and vertical for computing horizontal and vertical metrics (PR #63).
 
 ## MINOR CHANGES
@@ -82,10 +84,12 @@
 
 * Changed cytonorm and cycombine clustering to use lineage markers (PR #54).
 
-## BUGFIXES
+## BUG FIXES
 
 * Change n_inconsistent_peaks output to float and add R2 to main.nf (PR #40).
 
 * Changed naming 'gaussNorm' to 'gaussnorm' (PR #47).
 
 * Fixed cyCombine so it now batch correct unnormalised data rather than normalised data (PR #58). 
+
+* Fixed FlowSOM mapping similarity metric (PR #64).
