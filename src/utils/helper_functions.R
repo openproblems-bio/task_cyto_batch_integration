@@ -9,31 +9,52 @@
 #' @param u_adata AnnData object, unintegrated dataset
 #' @return AnnData object with .var and .obs added
 get_obs_var_for_integrated <- function(i_adata, v_adata, u_adata) {
-  if (i_adata$uns$method_id == "perfect_integration") {
+  if (i_adata$uns$method_id == "perfect_integration_horizontal") {
     if (i_adata$n_obs != v_adata$n_obs) {
       stop(
-        "The number of cells in the integrated (perfect_integration) and ",
-        "validation datasets do not match"
+        "The number of cells in the integrated (perfect_integration_horizontal) ",
+        "and validation datasets do not match"
       )
     }
-    i_adata$obs <- v_adata$obs[rownames(i_adata$obs), ]
-    i_adata$var <- v_adata$var[rownames(i_adata$var), ]
+    i_adata$obs <- v_adata$obs[rownames(i_adata), , drop = FALSE]
+    i_adata$var <- v_adata$var[colnames(i_adata), , drop = FALSE]
+  } else if (i_adata$uns$method_id == "perfect_integration_vertical") {
+    comb_adata <- anndata::concat(list(v_adata, u_adata))
+    # subset to just batch 1
+    # Check if 'batch' column exists
+    if (!"batch" %in% colnames(comb_adata$obs)) {
+      stop(
+        "Column 'batch' not found in comb_adata$obs for ",
+        "perfect_integration_vertical."
+      )
+    }
+    comb_adata <- comb_adata[comb_adata$obs$batch == 1, , drop = FALSE]
+
+    if (i_adata$n_obs != comb_adata$n_obs) {
+      stop(
+        "The number of cells in the integrated (perfect_integration_vertical) ",
+        "and validation + unintegrated datasets do not match."
+      )
+    }
+    i_adata$obs <- comb_adata$obs[rownames(i_adata), , drop = FALSE]
+    i_adata$var <- v_adata$var[colnames(i_adata), , drop = FALSE]
   } else {
     if (i_adata$n_obs != u_adata$n_obs) {
       stop(
-        "The number of cells in the integrated and unintegrated datasets ",
-        "do not match"
+        "The number of cells in the integrated and unintegrated datasets do not match"
       )
     }
-    if (!all(rownames(i_adata$obs) == rownames(u_adata$obs))) {
+    # Compare obs_names for ordering
+    if (!all(rownames(i_adata) == rownames(u_adata))) {
       warning(
-        "The cell ordering in the integrated and unintegrated datasets ",
-        "do not match"
+        "The cell ordering in the integrated and unintegrated datasets do not match"
       )
     }
-    i_adata$obs <- u_adata$obs[rownames(i_adata$obs), ]
-    i_adata$var <- u_adata$var[rownames(i_adata$var), ]
+
+    i_adata$obs <- u_adata$obs[rownames(i_adata), , drop = FALSE]
+    i_adata$var <- u_adata$var[colnames(i_adata), , drop = FALSE]
   }
+
   i_adata
 }
 
