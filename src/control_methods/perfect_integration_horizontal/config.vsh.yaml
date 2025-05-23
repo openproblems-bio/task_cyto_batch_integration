@@ -12,7 +12,7 @@ name: perfect_integration_horizontal
 label: Perfect Integration Horizontal
 # A one sentence summary of how this method works (required). Used when 
 # rendering summary tables.
-summary: "Positive control method which imitates what perfect batch integration."
+summary: "Positive control method for horizontal metrics which reprsents perfect batch integration."
 # A multi-line description of how this component works (required). Used
 # when rendering reference documentation.
 description: |

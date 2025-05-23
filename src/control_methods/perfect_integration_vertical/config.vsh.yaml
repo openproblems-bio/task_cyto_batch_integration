@@ -12,16 +12,18 @@ name: perfect_integration_vertical
 label: Perfect Integration Vertical
 # A one sentence summary of how this method works (required). Used when 
 # rendering summary tables.
-summary: "Positive control method which imitates what perfect batch integration."
+summary: "Positive control method for vertical metrics reflecting a scenario in which all samples belong to the same batch"
 # A multi-line description of how this component works (required). Used
 # when rendering reference documentation.
 description: |
   This control method return all samples from batch 1. 
-  Because the samples all came from one batch, there should be no batch effect when
-  measuring vertical metrics.
-  However, there will be batch effect for horizontal metrics because some samples (those
-  from unintegrated data) will be compared against the validation data, and batch effect
-  will be detected.
+  Because the samples all came from one batch, we do not expect to see any technical
+  variation caused by batch effects, but we still expect a sample-level effect due to the 
+  underlying differences in biology of the samples.
+  The vertical metrics should return a good score.
+  However, poor scores are expected for horizontal metrics because some samples (those
+  from unintegrated data) will be compared against the validation data, which still 
+  contains variation due to batch effect.
 
 # Resources required to run the component
 resources:
