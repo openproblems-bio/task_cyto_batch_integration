@@ -10,7 +10,7 @@ par <- list(
 )
 meta <- list(
   name = "flowsom_mapping_similarity",
-  resources_dir = "src/metrics/flowsom_mapping_similarity copy",
+  resources_dir = "src/metrics/flowsom_mapping_similarity",
   temp_dir = "/tmp"
 )
 ## VIASH END
