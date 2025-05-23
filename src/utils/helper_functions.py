@@ -106,7 +106,6 @@ def remove_unlabelled(adata) -> ad.AnnData:
     adata: AnnData object with only the labeled cells
     """
 
-    adata = adata[adata.obs["cell_type"].str.lower() != "unlabelled"].copy()
-    adata = adata[adata.obs["cell_type"].str.lower() != "unlabeled"].copy()
+    is_unlabelled = adata.obs["cell_type"].str.lower().isin(["unlabelled", "unlabeled"])
 
-    return adata
+    return adata[~is_unlabelled].copy()
