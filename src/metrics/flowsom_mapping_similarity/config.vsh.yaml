@@ -5,11 +5,11 @@ name: flowsom_mapping_similarity
 # Metadata for your component
 info:
   metrics:
-      # A unique identifier for your metric (required).
-      # Can contain only lowercase letters or underscores.
-    - name: flowsom_mapping_similarity
+    # A unique identifier for your metric (required).
+    # Can contain only lowercase letters or underscores.
+    - name: flowsom_mean_mapping_similarity
       # A relatively short label, used when rendering visualisarions (required)
-      label: FlowSOM Mapping Similarity
+      label: FlowSOM Mean Mapping Similarity
       # A one sentence summary of how this metric works (required). Used when 
       # rendering summary tables.
       summary: "Asses the similarity between FlowSOM trees of integrated and validation samples."
@@ -47,18 +47,7 @@ info:
       references:
         doi: 
           - 10.18129/B9.bioc.FlowSOM
-        bibtex:
-          - |
-            @article{van2015flowsom,
-            title={FlowSOM: Using self-organizing maps for visualization and interpretation of cytometry data},
-            author={Van Gassen, Sofie and Callebaut, Britt and Van Helden, Mary J and Lambrecht, Bart N and Demeester, Piet and Dhaene, Tom and Saeys, Yvan},
-            journal={Cytometry Part A},
-            volume={87},
-            number={7},
-            pages={636--645},
-            year={2015},
-            publisher={Wiley Online Library}
-            }
+          - 10.1002/cyto.a.22625
       links:
         # URL to the documentation for this metric (required).
         documentation: https://www.bioconductor.org/packages/release/bioc/vignettes/FlowSOM/inst/doc/FlowSOM.pdf
@@ -78,8 +67,7 @@ resources:
     path: script.R
   - path: helper.R
   - type: python_script
-    path: /src/utils/helper_functions.py
-  - path: preprocess_with_utils.py
+    path: /src/utils/helper_functions.R
 engines:
   # Specifications for the Docker image for this component.
   - type: docker
@@ -87,8 +75,6 @@ engines:
     setup:
       - type: r
         bioc: [FlowSOM, flowCore]
-        github: [scverse/anndataR]
-        cran: [hdf5r]
       - type: python
         packages: [anndata, numpy, pandas, scipy]
 runners:
@@ -97,4 +83,4 @@ runners:
   # Allows turning the component into a Nextflow module / pipeline.
   - type: nextflow
     directives:
-      label: [midtime,midmem,midcpu]
+      label: [midtime, midmem, midcpu]
