@@ -93,3 +93,5 @@
 * Fixed cyCombine so it now batch correct unnormalised data rather than normalised data (PR #58). 
 
 * Fixed FlowSOM mapping similarity metric (PR #64).
+
+* Fixed get_obs_var_for_integrated function in helper.R giving out error in mac (PR #65).

@@ -449,9 +449,9 @@ RUN pip install --upgrade pip && \
   pip install --upgrade --no-cache-dir "scanpy" "anndata" "numpy"
 
 LABEL org.opencontainers.image.description="Companion container for running component methods combat"
-LABEL org.opencontainers.image.created="2025-05-23T10:57:57Z"
+LABEL org.opencontainers.image.created="2025-05-23T12:33:21Z"
 LABEL org.opencontainers.image.source="https://github.com/brentp/combat.py"
-LABEL org.opencontainers.image.revision="721a178c65dc8a96f77ba39efa8fbad17ab74d09"
+LABEL org.opencontainers.image.revision="37dcf0c34b0aa64c16d7d82bc631ff6684e37c5f"
 LABEL org.opencontainers.image.version="build_main"
 
 VIASHDOCKER

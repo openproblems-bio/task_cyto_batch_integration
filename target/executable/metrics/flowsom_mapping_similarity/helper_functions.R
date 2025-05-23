@@ -28,7 +28,7 @@ get_obs_var_for_integrated <- function(i_adata, v_adata, u_adata) {
         "perfect_integration_vertical."
       )
     }
-    comb_adata <- comb_adata[comb_adata$obs$batch == 1, , drop = FALSE]
+    comb_adata <- comb_adata[comb_adata$obs$batch == 1, ]
 
     if (i_adata$n_obs != comb_adata$n_obs) {
       stop(
