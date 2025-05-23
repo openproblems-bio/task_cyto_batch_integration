@@ -19,8 +19,6 @@ get_ff_annotations <- function(adata, donor_name, layer_name) {
   # Create flowframe
   colnames(expression_matrix) <- adata$var_names
   ff <- flowFrame(expression_matrix)
-  # return
-  print(dim(ff))
   list(
     flowframe = ff,
     ct_annotations = ct_annotations
