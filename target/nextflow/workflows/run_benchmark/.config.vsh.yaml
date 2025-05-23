@@ -409,7 +409,10 @@ dependencies:
 - name: "control_methods/no_integration"
   repository:
     type: "local"
-- name: "control_methods/perfect_integration"
+- name: "control_methods/perfect_integration_horizontal"
+  repository:
+    type: "local"
+- name: "control_methods/perfect_integration_vertical"
   repository:
     type: "local"
 - name: "methods/harmonypy"
@@ -482,7 +485,7 @@ build_info:
   output: "target/nextflow/workflows/run_benchmark"
   executable: "target/nextflow/workflows/run_benchmark/main.nf"
   viash_version: "0.9.4"
-  git_commit: "76e9efdcfc9347dfaa58645aaed9e4a095e61cc2"
+  git_commit: "9339efd7cce9b5eb5cc44ed101d57d4c9c9004f7"
   git_remote: "https://github.com/openproblems-bio/task_cyto_batch_integration"
   dependencies:
   - "target/dependencies/github/openproblems-bio/openproblems/build/main/nextflow/utils/extract_uns_metadata"
@@ -490,7 +493,8 @@ build_info:
   - "target/nextflow/control_methods/shuffle_integration_by_batch"
   - "target/nextflow/control_methods/shuffle_integration_by_cell_type"
   - "target/nextflow/control_methods/no_integration"
-  - "target/nextflow/control_methods/perfect_integration"
+  - "target/nextflow/control_methods/perfect_integration_horizontal"
+  - "target/nextflow/control_methods/perfect_integration_vertical"
   - "target/nextflow/methods/harmonypy"
   - "target/nextflow/methods/limma_remove_batch_effect"
   - "target/nextflow/methods/combat"

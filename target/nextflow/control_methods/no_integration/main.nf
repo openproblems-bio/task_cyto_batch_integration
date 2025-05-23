@@ -3481,7 +3481,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/control_methods/no_integration",
     "viash_version" : "0.9.4",
-    "git_commit" : "76e9efdcfc9347dfaa58645aaed9e4a095e61cc2",
+    "git_commit" : "9339efd7cce9b5eb5cc44ed101d57d4c9c9004f7",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3625,11 +3625,11 @@ dep = {
 
 ## VIASH END
 
-print('Reading input files', flush=True)
-adata = ad.read_h5ad(par['input_unintegrated'])
+print("Reading input files", flush=True)
+adata = ad.read_h5ad(par["input_unintegrated"])
 
 print("Extracting unintegrated data", flush=True)
-integrated = adata.layers[ 'preprocessed'] 
+integrated = adata.layers["preprocessed"]
 
 print("Write output AnnData to file", flush=True)
 output = ad.AnnData(
@@ -3643,7 +3643,7 @@ output = ad.AnnData(
     },
 )
 
-output.write_h5ad(par['output'], compression='gzip')
+output.write_h5ad(par["output"], compression="gzip")
 VIASHMAIN
 python -B "$tempscript"
 '''

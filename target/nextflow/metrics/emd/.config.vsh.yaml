@@ -306,9 +306,10 @@ test_resources:
   dest: "resources_test/task_cyto_batch_integration/leomazzi_cyto_spleen_subset"
 info:
   metrics:
-  - name: "emd_mean_ct"
-    label: "EMD Mean CT"
-    summary: "Mean Earth Mover Distance across cell types and markers."
+  - name: "emd_mean_ct_horiz"
+    label: "EMD Mean CT Horizontal"
+    summary: "Mean Earth Mover Distance calculated horizontally across donors for\
+      \ each cell type and marker."
     description: "Earth Mover Distance (EMD), also known as the Wasserstein metric,\
       \ measures the difference \nbetween two probability distributions. \n\nHere,\
       \ EMD is used to compare marker expression distributions between paired samples\
@@ -320,10 +321,10 @@ info:
       \ EMD between the two \nprobability distributions belonging to the same cell\
       \ type, marker, and a given paired samples.\nThis is then repeated for every\
       \ cell type, marker, and paired sample.\nFinally, the average of all these EMD\
-      \ values is computed to produce an overall metric score EMD Mean CT.\n\nA high\
-      \ score indicates large overall differences in the distributions of marker expressions\
-      \ \nbetween the paired samples, suggesting poor batch integration.\nA low score\
-      \ means the small differences in marker expression distributions between batches,\
+      \ values is computed and reported as the metric score.\n\nA high score indicates\
+      \ large overall differences in the distributions of marker expressions \nbetween\
+      \ the paired samples, suggesting poor batch integration.\nA low score means\
+      \ the small differences in marker expression distributions between batches,\
       \ \nindicating good batch integration.\n"
     references:
       doi:
@@ -334,9 +335,10 @@ info:
     min: 0
     max: ".inf"
     maximize: false
-  - name: "emd_max_ct"
+  - name: "emd_max_ct_horiz"
     label: "EMD Max CT"
-    summary: "Max Earth Mover Distance across cell types and markers."
+    summary: "Max Earth Mover Distance calculated horizontally across donors for each\
+      \ cell type and marker."
     description: "Earth Mover Distance (EMD), also known as the Wasserstein metric,\
       \ measures the difference \nbetween two probability distributions. \n\nHere,\
       \ EMD is used to compare marker expression distributions between paired samples\
@@ -348,12 +350,12 @@ info:
       \ EMD between the two \nprobability distributions belonging to the same cell\
       \ type, marker, and a given paired samples.\nThis is then repeated for every\
       \ cell type, marker, and paired sample.\nFinally, the maximum of all these EMD\
-      \ values is computed as EMD Max CT.\n\nEMD Max CT score reflects the largest\
-      \ difference in marker expression distributions across all cell types, \nmarkers,\
-      \ and paired samples.\nA high score indicates that at least one marker, cell\
-      \ type, or sample pair has a large difference in \ndistribution after batch\
-      \ integration.\nA low score means that even the most poorly corrected marker\
-      \ expression is well integrated across batches.    \n"
+      \ values is computed and reported as the metric score.\n\nEMD Max CT score reflects\
+      \ the largest difference in marker expression distributions across all cell\
+      \ types, \nmarkers, and paired samples.\nA high score indicates that at least\
+      \ one marker, cell type, or sample pair has a large difference in \ndistribution\
+      \ after batch integration.\nA low score means that even the most poorly corrected\
+      \ marker expression is well integrated across batches.    \n"
     references:
       doi:
       - "10.1023/A:1026543900054"
@@ -363,9 +365,10 @@ info:
     min: 0
     max: ".inf"
     maximize: false
-  - name: "emd_mean_global"
-    label: "EMD Mean Global"
-    summary: "Mean Earth Mover Distance across samples and markers."
+  - name: "emd_mean_global_horiz"
+    label: "EMD Mean Global Horizontal"
+    summary: "Mean Earth Mover Distance calculated horizontally across donors for\
+      \ each marker."
     description: "Earth Mover Distance (EMD), also known as the Wasserstein metric,\
       \ measures the difference \nbetween two probability distributions. \n\nHere,\
       \ EMD is used to compare marker expression distributions between paired samples\
@@ -376,11 +379,13 @@ info:
       \ function from SciPy is then used to calculate the EMD between the two \nprobability\
       \ distributions belonging to the same cell type, marker, and a given paired\
       \ samples.\nThis is then repeated for every marker and paired sample.\nFinally,\
-      \ the average of all these EMD values is computed to produce an overall metric\
-      \ score EMD Mean Global.\n\nA high score indicates that at least one marker\
-      \ and cell type in a given sample pair has a \nlarge difference in distribution\
-      \ after batch integration.\nA low score means that the most poorly corrected\
-      \ marker expression is well integrated across batches.   \n"
+      \ the average of all these EMD values is computed and reported as the metric\
+      \ score.\n\nThe key difference between this and `emd_mean_ct_horiz` is that\
+      \ the EMD values are\ncomputed agnostic of cell types.\n\nA high score indicates\
+      \ that at least one marker and cell type in a given sample pair has a \nlarge\
+      \ difference in distribution after batch integration.\nA low score means that\
+      \ the most poorly corrected marker expression is well integrated across batches.\
+      \   \n"
     references:
       doi:
       - "10.1023/A:1026543900054"
@@ -390,9 +395,10 @@ info:
     min: 0
     max: ".inf"
     maximize: false
-  - name: "emd_max_global"
-    label: "EMD Max Global"
-    summary: "Max Earth Mover Distance across donors and markers."
+  - name: "emd_max_global_horiz"
+    label: "EMD Max Global Horizontal"
+    summary: "Max Earth Mover Distance calculated horizontally across donors for each\
+      \ marker."
     description: "Earth Mover Distance (EMD), also known as the Wasserstein metric,\
       \ measures the difference \nbetween two probability distributions. \n\nHere,\
       \ EMD is used to compare marker expression distributions between paired samples\
@@ -403,12 +409,64 @@ info:
       \ function from SciPy is then used to calculate the EMD between the two \nprobability\
       \ distributions belonging to the same cell type, marker, and a given paired\
       \ samples.\nThis is then repeated for every cell type, marker, and paired sample.\n\
-      Finally, the maximum of all these EMD values is computed as EMD Max Global.\n\
-      \nEMD Max Global score reflects the largest difference in marker expression\
-      \ distributions \nacross all markers and paired samples.\nA high score indicates\
-      \ that at least one marker in a given sample pair has a large difference in\
-      \ \ndistribution after batch integration.\nA low score means that the most poorly\
-      \ corrected marker expression is well integrated across batches.   \n"
+      Finally, the maximum of all these EMD values is computed and reported as the\
+      \ metric score.\n\nThe key difference between this and `emd_max_ct_horiz` is\
+      \ that the EMD values are\ncomputed agnostic of cell types.\n\nA high score\
+      \ indicates that at least one marker in a given sample pair has a large difference\
+      \ in \ndistribution after batch integration.\nA low score means that the most\
+      \ poorly corrected marker expression is well integrated across batches.   \n"
+    references:
+      doi:
+      - "10.1023/A:1026543900054"
+    links:
+      documentation: "https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.wasserstein_distance.html"
+      repository: "https://github.com/scipy/scipy"
+    min: 0
+    max: ".inf"
+    maximize: false
+  - name: "emd_mean_global_vert"
+    label: "EMD Mean Global Vertical"
+    summary: "Mean Earth Mover Distance across batch corrected samples and markers."
+    description: "Earth Mover Distance (EMD), also known as the Wasserstein metric,\
+      \ measures the difference \nbetween two probability distributions. \n\nHere,\
+      \ EMD is used to compare marker expression distributions between all integrated\
+      \ samples.\nFor each pair of samples and marker, the marker expression values\
+      \ are first converted into \nprobability distributions. \nThis is done by binning\
+      \ the expression values into a range from -100 to 100 with a bin width of 0.1.\n\
+      The `wasserstein_distance` function from SciPy is then used to calculate the\
+      \ EMD between the two \nprobability distributions belonging to the same cell\
+      \ type, marker, and a given paired samples.\nThis is then repeated for every\
+      \ cell type, marker, and paired sample.\nFinally, the average of all these EMD\
+      \ values is computed and reported as the metric score.\n\nA high score indicates\
+      \ overall, there is a large difference in distribution of marker expression\
+      \ after batch integration.\nA low score means that overall, the samples are\
+      \ well integrated.\n"
+    references:
+      doi:
+      - "10.1023/A:1026543900054"
+    links:
+      documentation: "https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.wasserstein_distance.html"
+      repository: "https://github.com/scipy/scipy"
+    min: 0
+    max: ".inf"
+    maximize: false
+  - name: "emd_max_global_vert"
+    label: "EMD Max Global Vertical"
+    summary: "Max Earth Mover Distance across batch corrected samples and markers."
+    description: "Earth Mover Distance (EMD), also known as the Wasserstein metric,\
+      \ measures the difference \nbetween two probability distributions. \n\nHere,\
+      \ EMD is used to compare marker expression distributions between all integrated\
+      \ samples.\nFor each pair of samples and marker, the marker expression values\
+      \ are first converted into \nprobability distributions. \nThis is done by binning\
+      \ the expression values into a range from -100 to 100 with a bin width of 0.1.\n\
+      The `wasserstein_distance` function from SciPy is then used to calculate the\
+      \ EMD between the two \nprobability distributions belonging to the same cell\
+      \ type, marker, and a given paired samples.\nThis is then repeated for every\
+      \ cell type, marker, and paired sample.\nFinally, the maximum of all these EMD\
+      \ values is computed and reported as the metric score.\n\nA high score indicates\
+      \ there is a pair of samples and marker which show large difference in distribution\
+      \ after batch integration.\nA low score means that, the worst integrated pair\
+      \ of samples and marker are well integrated.\n"
     references:
       doi:
       - "10.1023/A:1026543900054"
@@ -490,7 +548,7 @@ build_info:
   output: "target/nextflow/metrics/emd"
   executable: "target/nextflow/metrics/emd/main.nf"
   viash_version: "0.9.4"
-  git_commit: "76e9efdcfc9347dfaa58645aaed9e4a095e61cc2"
+  git_commit: "9339efd7cce9b5eb5cc44ed101d57d4c9c9004f7"
   git_remote: "https://github.com/openproblems-bio/task_cyto_batch_integration"
 package_config:
   name: "task_cyto_batch_integration"

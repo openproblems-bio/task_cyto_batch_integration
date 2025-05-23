@@ -64,6 +64,8 @@
   * Returned values are average and max across all cell types (exclude the one calculated agnostic of cell types),
   average and max across all donors (mean and max of values computed agnostic of cell types).
 
+* Added EMD vertical global metric and split perfect integration into horizontal and vertical for computing horizontal and vertical metrics (PR #63).
+
 ## MINOR CHANGES
 
 * Enabled unit tests (PR #2).

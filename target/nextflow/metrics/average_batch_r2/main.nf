@@ -3572,7 +3572,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/metrics/average_batch_r2",
     "viash_version" : "0.9.4",
-    "git_commit" : "76e9efdcfc9347dfaa58645aaed9e4a095e61cc2",
+    "git_commit" : "9339efd7cce9b5eb5cc44ed101d57d4c9c9004f7",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3681,8 +3681,9 @@ def innerWorkflowFactory(args) {
   def rawScript = '''set -e
 tempscript=".viash_script.py"
 cat > "$tempscript" << VIASHMAIN
-import anndata as ad
 import sys
+
+import anndata as ad
 import numpy as np
 
 ## VIASH START
@@ -3720,83 +3721,98 @@ dep = {
 ## VIASH END
 
 sys.path.append(meta["resources_dir"])
-from helper import concat_paired_samples, fit_r2, batch_r2
-from helper_functions import get_obs_var_for_integrated, subset_nocontrols, subset_markers_tocorrect, remove_unlabelled
+from helper import batch_r2, concat_paired_samples, fit_r2
+from helper_functions import (
+    get_obs_var_for_integrated,
+    remove_unlabelled,
+    subset_markers_tocorrect,
+    subset_nocontrols,
+)
 
-print('Reading input files', flush=True)
-input_validation = ad.read_h5ad(par['input_validation'])
-input_unintegrated = ad.read_h5ad(par['input_unintegrated'])
-input_integrated = ad.read_h5ad(par['input_integrated'])
+print("Reading input files", flush=True)
+input_validation = ad.read_h5ad(par["input_validation"])
+input_unintegrated = ad.read_h5ad(par["input_unintegrated"])
+input_integrated = ad.read_h5ad(par["input_integrated"])
 
-print('Formatting input files', flush=True)
-#Format data integrated data
-input_integrated = get_obs_var_for_integrated(input_integrated,input_validation,input_unintegrated)
+print("Formatting input files", flush=True)
+# Format data integrated data
+input_integrated = get_obs_var_for_integrated(
+    input_integrated, input_validation, input_unintegrated
+)
 input_integrated = subset_markers_tocorrect(input_integrated)
 input_integrated = subset_nocontrols(input_integrated)
-#Format validation data
+# Format validation data
 input_validation = subset_markers_tocorrect(input_validation)
 
 #### TEMPORARY SOLUTION: change the get_obs_var_for_integrated to return a different batch in case of perfect integration
 ## adding 3 to the batch number otherwise the batch number is the same for integrated and validation data
-if input_integrated.uns['method_id'] == 'perfect_integration':
-    input_integrated.obs['batch'] = input_integrated.obs['batch'] + 3
-######################################################################################################################    
+if "perfect_integration" in input_integrated.uns["method_id"]:
+    input_integrated.obs["batch"] = input_integrated.obs["batch"] + 3
+######################################################################################################################
 
-print('Computing average_batch_r2 global', flush=True)
+print("Computing average_batch_r2 global", flush=True)
 
-donor_list = input_validation.obs['donor'].unique()
+donor_list = input_validation.obs["donor"].unique()
 
 r2_values = []
 for donor in donor_list:
-    integrated_view = input_integrated[input_integrated.obs['donor'] == donor]
-    validation_view = input_validation[input_validation.obs['donor'] == donor]
-    
-    if integrated_view.shape[0] < 10 or validation_view.shape[0] < 10: #Skip Rˆ2 calculation if there are less than 10 cells
-            print(f"Warning: Rˆ2 not computed for donor {donor}. Too few cells were present: {integrated_view.shape[0]} for integrated and {validation_view.shape[0]} for validation")
-            continue
-    
-    r2_list,_ = batch_r2(integrated_view, validation_view)
+    integrated_view = input_integrated[input_integrated.obs["donor"] == donor]
+    validation_view = input_validation[input_validation.obs["donor"] == donor]
+
+    if (
+        integrated_view.shape[0] < 10 or validation_view.shape[0] < 10
+    ):  # Skip Rˆ2 calculation if there are less than 10 cells
+        print(
+            f"Warning: Rˆ2 not computed for donor {donor}. Too few cells were present: {integrated_view.shape[0]} for integrated and {validation_view.shape[0]} for validation"
+        )
+        continue
+
+    r2_list, _ = batch_r2(integrated_view, validation_view)
     r2_values = [*r2_values, *r2_list]
 
 average_batch_r2_global = np.mean(r2_values)
 
 
-print('Computing average_batch_r2 cell-type specific', flush=True)
+print("Computing average_batch_r2 cell-type specific", flush=True)
 
 r2_values = []
 for donor in donor_list:
-    integrated_view = input_integrated[input_integrated.obs['donor'] == donor]
+    integrated_view = input_integrated[input_integrated.obs["donor"] == donor]
     integrated_view = remove_unlabelled(integrated_view)
-    validation_view = input_validation[input_validation.obs['donor'] == donor]
+    validation_view = input_validation[input_validation.obs["donor"] == donor]
     validation_view = remove_unlabelled(validation_view)
 
-    ct_list = validation_view.obs['cell_type'].unique()
+    ct_list = validation_view.obs["cell_type"].unique()
 
     for ct in ct_list:
-        integrated_view_ct = integrated_view[integrated_view.obs['cell_type'] == ct]
-        validation_view_ct = validation_view[validation_view.obs['cell_type'] == ct]    
-        if integrated_view_ct.shape[0] < 10 or validation_view_ct.shape[0] < 10: #Skip Rˆ2 calculation if there are less than 10 cells
-            print(f"Warning: Rˆ2 not computed for donor {donor} cell type {ct}. Too few cells were present: {integrated_view_ct.shape[0]} for integrated and {validation_view_ct.shape[0]} for validation")
+        integrated_view_ct = integrated_view[integrated_view.obs["cell_type"] == ct]
+        validation_view_ct = validation_view[validation_view.obs["cell_type"] == ct]
+        if (
+            integrated_view_ct.shape[0] < 10 or validation_view_ct.shape[0] < 10
+        ):  # Skip Rˆ2 calculation if there are less than 10 cells
+            print(
+                f"Warning: Rˆ2 not computed for donor {donor} cell type {ct}. Too few cells were present: {integrated_view_ct.shape[0]} for integrated and {validation_view_ct.shape[0]} for validation"
+            )
             continue
-        
-        r2_list,_ = batch_r2(integrated_view_ct, validation_view_ct)
+
+        r2_list, _ = batch_r2(integrated_view_ct, validation_view_ct)
         r2_values = [*r2_values, *r2_list]
 
 average_batch_r2_ct = np.mean(r2_values)
 
-uns_metric_ids = [ 'average_batch_r2_global', 'average_batch_r2_ct' ]
-uns_metric_values = [ average_batch_r2_global, average_batch_r2_ct ]
+uns_metric_ids = ["average_batch_r2_global", "average_batch_r2_ct"]
+uns_metric_values = [average_batch_r2_global, average_batch_r2_ct]
 
 print("Write output AnnData to file", flush=True)
 output = ad.AnnData(
     uns={
-    'dataset_id': input_integrated.uns['dataset_id'],
-    'method_id': input_integrated.uns['method_id'],
-    'metric_ids': uns_metric_ids,
-    'metric_values': uns_metric_values
-  }
+        "dataset_id": input_integrated.uns["dataset_id"],
+        "method_id": input_integrated.uns["method_id"],
+        "metric_ids": uns_metric_ids,
+        "metric_values": uns_metric_values,
+    }
 )
-output.write_h5ad(par['output'], compression='gzip')
+output.write_h5ad(par["output"], compression="gzip")
 VIASHMAIN
 python -B "$tempscript"
 '''

@@ -3585,7 +3585,13 @@ meta = [
       }
     },
     {
-      "name" : "control_methods/perfect_integration",
+      "name" : "control_methods/perfect_integration_horizontal",
+      "repository" : {
+        "type" : "local"
+      }
+    },
+    {
+      "name" : "control_methods/perfect_integration_vertical",
       "repository" : {
         "type" : "local"
       }
@@ -3707,7 +3713,7 @@ meta = [
     "engine" : "native",
     "output" : "target/nextflow/workflows/run_benchmark",
     "viash_version" : "0.9.4",
-    "git_commit" : "76e9efdcfc9347dfaa58645aaed9e4a095e61cc2",
+    "git_commit" : "9339efd7cce9b5eb5cc44ed101d57d4c9c9004f7",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3814,7 +3820,8 @@ include { shuffle_integration } from "${meta.resources_dir}/../../../nextflow/co
 include { shuffle_integration_by_batch } from "${meta.resources_dir}/../../../nextflow/control_methods/shuffle_integration_by_batch/main.nf"
 include { shuffle_integration_by_cell_type } from "${meta.resources_dir}/../../../nextflow/control_methods/shuffle_integration_by_cell_type/main.nf"
 include { no_integration } from "${meta.resources_dir}/../../../nextflow/control_methods/no_integration/main.nf"
-include { perfect_integration } from "${meta.resources_dir}/../../../nextflow/control_methods/perfect_integration/main.nf"
+include { perfect_integration_horizontal } from "${meta.resources_dir}/../../../nextflow/control_methods/perfect_integration_horizontal/main.nf"
+include { perfect_integration_vertical } from "${meta.resources_dir}/../../../nextflow/control_methods/perfect_integration_vertical/main.nf"
 include { harmonypy } from "${meta.resources_dir}/../../../nextflow/methods/harmonypy/main.nf"
 include { limma_remove_batch_effect } from "${meta.resources_dir}/../../../nextflow/methods/limma_remove_batch_effect/main.nf"
 include { combat } from "${meta.resources_dir}/../../../nextflow/methods/combat/main.nf"
@@ -3843,7 +3850,8 @@ methods = [
   harmonypy,
   limma_remove_batch_effect,
   no_integration,
-  perfect_integration,
+  perfect_integration_horizontal,
+  perfect_integration_vertical,
   combat,
   cycombine_nocontrols,
   gaussnorm,
