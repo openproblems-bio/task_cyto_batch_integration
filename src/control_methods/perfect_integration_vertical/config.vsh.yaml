@@ -34,7 +34,7 @@ resources:
 engines:
   # Specifications for the Docker image for this component.
   - type: docker
-    image: openproblems/base_python:1.0.0
+    image: openproblems/base_python:1
 
 runners:
   # This platform allows running the component natively

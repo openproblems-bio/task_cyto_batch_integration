@@ -119,7 +119,7 @@ resources:
 engines:
   # Specifications for the Docker image for this component.
   - type: docker
-    image: openproblems/base_python:1.0.0
+    image: openproblems/base_python:1
     # Add custom dependencies here (optional). For more information, see
     # https://viash.io/reference/config/engines/docker/#setup .
     # setup:
