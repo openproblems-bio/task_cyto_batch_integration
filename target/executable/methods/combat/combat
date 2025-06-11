@@ -443,15 +443,15 @@ function ViashDockerfile {
 
   if [[ "$engine_id" == "docker" ]]; then
     cat << 'VIASHDOCKER'
-FROM openproblems/base_python:1.0.0
+FROM openproblems/base_python:1
 ENTRYPOINT []
 RUN pip install --upgrade pip && \
   pip install --upgrade --no-cache-dir "scanpy" "anndata" "numpy"
 
 LABEL org.opencontainers.image.description="Companion container for running component methods combat"
-LABEL org.opencontainers.image.created="2025-05-23T12:33:21Z"
+LABEL org.opencontainers.image.created="2025-06-11T11:38:07Z"
 LABEL org.opencontainers.image.source="https://github.com/brentp/combat.py"
-LABEL org.opencontainers.image.revision="37dcf0c34b0aa64c16d7d82bc631ff6684e37c5f"
+LABEL org.opencontainers.image.revision="97ee9a283f1dfe72df0a714b320d49030dfd954d"
 LABEL org.opencontainers.image.version="build_main"
 
 VIASHDOCKER

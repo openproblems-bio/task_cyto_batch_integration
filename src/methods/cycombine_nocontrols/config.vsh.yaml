@@ -26,7 +26,7 @@ resources:
 
 engines:
   - type: docker
-    image: openproblems/base_r:1.0.0
+    image: openproblems/base_r:1
     # Add custom dependencies here (optional). For more information, see
     # https://viash.io/reference/config/engines/docker/#setup .
     setup:
