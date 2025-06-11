@@ -3459,7 +3459,7 @@ meta = [
       {
         "name" : "flowsom_mean_mapping_similarity",
         "label" : "FlowSOM Mean Mapping Similarity",
-        "summary" : "Asses the similarity between FlowSOM trees of integrated and validation samples.",
+        "summary" : "Assess the similarity between FlowSOM trees of integrated and validation samples.",
         "description" : "The metric is based on the FlowSOM algorithm, a popular method which uses self-organizing maps for the viasualization/interpretation/clustering of cytometry data. \nThe FlowSOM algorithm creates a tree structure that represents the relationships between different cell populations in the data.\n\nFor each paired sample (where 'int' is the batch-integrated sample and 'val' is the validation sample)\n1. A FlowSOM tree is created using validation data.\n2. Data from the integrated sample is mapped onto the FlowSOM tree created in step 1.\n3. A similarity measure is computed by comparing cell type proportions of 'val' and 'int' in each metacluster.\n\nIdeally, the proportions of cell types in the metaclusters of the integrated sample should be very similar to those in the validation sample,\nas we assume that only technical variability is present between these two samples.\n\nThe FlowSOM mapping similarity measure can be expressed as follows:\n$\\\\text{FlowSOM mapping similarity} = 100 - \\\\text{FlowSOM mapping dissimilarity}$\n\nThe $\\\\text{FlowSOM mapping dissimilarity}$ is:\n\n$\\\\text{FlowSOM mapping dissimilarity} = \\\\sum_{m=1}^{M}w_{m}\\\\sum_{c=1}^{C}\\\\abs{P^{val}_{m,c} - P^{int}_{m,c}}$\n\nWhere:\n- $M$ is the number of metaclusters\n- $C$ is the number of cell types\n- $w_{m}$ is the weight of metacluster $m$ (the number of cells in metacluster $m$, for both validation and integrated samples, divided by the total number of cells)\n- $P^{val}_{m,c}$ is the percentage of cell type $c$ in metacluster $m$ of the validation sample\n- $P^{int}_{m,c}$ is the percentage of cell type $c$ in metacluster $m$ of the integrated sample\n\nThe average FlowSOM mapping similarity among all paired samples is computed and used as the final metric value.\nIt is an horizontal metric.\n",
         "references" : {
           "doi" : [
@@ -3578,7 +3578,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/metrics/flowsom_mapping_similarity",
     "viash_version" : "0.9.4",
-    "git_commit" : "97ee9a283f1dfe72df0a714b320d49030dfd954d",
+    "git_commit" : "878a20d649d3ba6cf90c294559da816f4e092796",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
