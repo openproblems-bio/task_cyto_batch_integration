@@ -84,6 +84,8 @@
 
 * Changed cytonorm and cycombine clustering to use lineage markers (PR #54).
 
+* The metric `flowsom_mapping_similarity` now works at the cluster level (PR #68).
+
 ## BUG FIXES
 
 * Change n_inconsistent_peaks output to float and add R2 to main.nf (PR #40).
