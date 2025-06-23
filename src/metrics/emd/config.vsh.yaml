@@ -204,7 +204,8 @@ info:
         Earth Mover Distance (EMD), also known as the Wasserstein metric, measures the difference 
         between two probability distributions. 
         
-        Here, EMD is used to compare marker expression distributions between all integrated samples.
+        Here, EMD is used to compare marker expression distributions between all integrated 
+        samples from the same group.
         For each pair of samples and marker, the marker expression values are first converted into 
         probability distributions. 
         This is done by binning the expression values into a range from -100 to 100 with a bin width of 0.1.
@@ -243,7 +244,8 @@ info:
         Earth Mover Distance (EMD), also known as the Wasserstein metric, measures the difference 
         between two probability distributions. 
         
-        Here, EMD is used to compare marker expression distributions between all integrated samples.
+        Here, EMD is used to compare marker expression distributions between all integrated 
+        samples from the same group.
         For each pair of samples and marker, the marker expression values are first converted into 
         probability distributions. 
         This is done by binning the expression values into a range from -100 to 100 with a bin width of 0.1.

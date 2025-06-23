@@ -8,9 +8,7 @@ from scipy.stats import wasserstein_distance
 
 def calculate_vertical_emd(input_integrated: ad.AnnData, markers_to_assess: list):
     """
-    Compute vertical emd across every possible sample combination.
-    I think this is what we want, but we could also do it only
-    between samples from different batches?
+    Compute vertical emd across every possible sample combination from the same biological group.
 
     Args:
         input_integrated (ad.AnnData): Integrated adata.
@@ -25,14 +23,15 @@ def calculate_vertical_emd(input_integrated: ad.AnnData, markers_to_assess: list
 
     # calculate the global first, agnostic of cell type
 
-    # going for comparing every sample against every other samples
-    # as we only have 1 batch in perfect integration.
-    # if we compare samples across batches for methods but compare all samples against
-    # all samples in perfect integration, it'll make comparison between the two
-    # values difficult. Best standardise.
-    sample_combos = list(
-        itertools.combinations(np.unique(input_integrated.obs["sample"]), 2)
-    )
+    # comparing one sample against every other sample (one at a time).
+    # get all samples for each group first
+    sample_group_map = input_integrated.obs.groupby("group", observed=True)[
+        "sample"
+    ].apply(lambda x: list(set(x)))
+    # then get combinations of 2 for each group
+    sample_combos = np.array(
+        [list(itertools.combinations(x, 2)) for x in sample_group_map]
+    ).reshape(-1, 2)
 
     emd_dfs = []
     for sample_combo in sample_combos:
