@@ -1,0 +1,62 @@
+# The API specifies which type of component this is.
+# It contains specifications for:
+#   - The input/output files
+#   - Common parameters
+#   - A unit test
+__merge__: ../../api/comp_method.yaml
+
+# A unique identifier for your component (required).
+# Can contain only lowercase letters or underscores.
+name: cytonorm_healthy_controls
+# A relatively short label, used when rendering visualisations (required)
+label: CytoNorm with healthy controls
+# A one sentence summary of how this method works (required). Used when 
+# rendering summary tables.
+summary: CytoNorm Batch normalization algorithm which uses only healthy controls across batches.
+# A multi-line description of how this component works (required). Used
+# when rendering reference documentation.
+description: |
+  CytoNorm corrects batch effects by using reference control samples (aliquots of one sample, 
+  technical replicates) included with each batch. 
+  It clusters cells, then trains a model on the control samples to learn how marker 
+  expression distributions differ across batches for each population.
+  It then uses splines to align these distributions to a common reference (either the mean
+  of batches or to a single batch).
+  In this CytoNorm version, batches are aligned to the mean of the batches.
+  Clustering was performed by FlowSOM, using the default parameters provided by CytoNorm.
+references:
+  doi: 
+    - 10.1002/cyto.a.23904
+links:
+  # URL to the documentation for this method (required).
+  documentation: https://github.com/saeyslab/CytoNorm
+  # URL to the code repository for this method (required).
+  repository: https://github.com/saeyslab/CytoNorm
+
+# Metadata for your component
+# Resources required to run the component
+resources:
+  # The script of your component (required)
+  - type: r_script
+    path: script.R
+  - path: /src/utils/anndata_to_fcs.R
+
+engines:
+  # Specifications for the Docker image for this component.
+  - type: docker
+    image: openproblems/base_r:1
+    # Add custom dependencies here (optional). For more information, see
+    # https://viash.io/reference/config/engines/docker/#setup .
+    setup:
+      - type: r
+        github: [saeyslab/CytoNorm]
+        bioc: [ flowCore, Biobase ]
+        packages: [ anndata, docstring ]
+
+runners:
+  # This platform allows running the component natively
+  - type: executable
+  # Allows turning the component into a Nextflow module / pipeline.
+  - type: nextflow
+    directives:
+      label: [midtime,midmem,midcpu]
