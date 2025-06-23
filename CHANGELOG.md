@@ -84,6 +84,11 @@
 
 * Changed cytonorm and cycombine clustering to use lineage markers (PR #54).
 
+* Updated vertical EMD (PR #70):
+  * Metric is computed in group (condition) specific manner. 
+  * Split the metric into global and per cell type.
+  * Refactored horizontal EMD.
+
 ## BUG FIXES
 
 * Change n_inconsistent_peaks output to float and add R2 to main.nf (PR #40).
