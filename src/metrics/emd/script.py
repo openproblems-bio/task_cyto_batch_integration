@@ -79,7 +79,7 @@ emd_max_global_horiz = np.nanmax(
 )
 
 # calculate vertical EMD
-emd_mean_global_vert, emd_max_global_vert, emd_vert_mat = calculate_vertical_emd(
+emd_vert = calculate_vertical_emd(
     input_integrated=input_integrated,
     markers_to_assess=markers_to_assess,
 )
@@ -97,20 +97,24 @@ output = ad.AnnData(
             "emd_max_global_horiz",
             "emd_mean_global_vert",
             "emd_max_global_vert",
+            "emd_mean_ct_vert",
+            "emd_max_ct_vert",
         ],
         "metric_values": [
             emd_mean_ct_horiz,
             emd_max_ct_horiz,
             emd_mean_global_horiz,
             emd_max_global_horiz,
-            emd_mean_global_vert,
-            emd_max_global_vert,
+            emd_vert["mean_emd_global"],
+            emd_vert["max_emd_global"],
+            emd_vert["mean_emd_ct"],
+            emd_vert["max_emd_ct"],
         ],
         "emd_values": {
             "emd_values_horiz": pd.concat(
                 [emd_per_donor_ct_horiz, emd_per_donor_global_horiz]
             ),
-            "emd_values_vert": emd_vert_mat,
+            "emd_values_vert": emd_vert["emd_wide_dfs"],
         },
     }
 )
