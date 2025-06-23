@@ -174,10 +174,26 @@ def calculate_horizontal_emd(
     donor_list: list,
 ):
     """
-    Calculate horizontal EMD across a pair of samples.
+    Compute horizontal emd across every pair samples from a given donor.
+
+    Args:
+        input_integrated (ad.AnnData): Integrated adata.
+        input_validation (ad.AnnData): Validation adata.
+        markers_to_assess (list): list of markers to compute EMD for.
+        donor_list (list): list of donors to compute EMD for.
 
     Returns:
-        _type_: _description_
+        dict: a dictionary containing the following elements.
+            "mean_emd_global": np.float32: mean emd value computed from a flattened data frame containing
+                mean emd computed for every marker across all pairs of samples from a given donor.
+            "max_emd_global": np.float32: max emd value computed from a flattened data frame containing
+                max emd computed for every marker across all pairs of samples from a given donor.
+            "mean_emd_ct": np.float32: mean emd value computed from a flattened data frame containing
+                mean emd computed for every marker and cell type across all pairs of samples from a given donor.
+            "max_emd_ct": np.float32: max emd value computed from a flattened data frame containing
+                max emd computed for every marker and cell type across all pairs of samples from a given donor.
+            "emd_wide_dfs": pd.Dataframe showing emd value for each pair of sample
+                and marker at either cell type level or global.
     """
 
     emd_per_donor_per_ct = []
@@ -225,14 +241,39 @@ def calculate_horizontal_emd(
             first_sample_layer_name="integrated",
             second_sample_layer_name="preprocessed",
         )
-        emd_df["cell_type"] = "all_cell_types"
+        emd_df["cell_type"] = "global"
         emd_df["donor"] = donor
 
         emd_per_donor_global.append(emd_df)
 
     emd_per_donor_per_ct = pd.concat(emd_per_donor_per_ct)
     emd_per_donor_global = pd.concat(emd_per_donor_global)
-    return emd_per_donor_per_ct, emd_per_donor_global
+
+    # compute the mean and max per ct and for global.
+    mean_emd_ct = np.nanmean(
+        emd_per_donor_per_ct.drop(columns=["cell_type", "donor"]).values
+    )
+    max_emd_ct = np.nanmax(
+        emd_per_donor_per_ct.drop(columns=["cell_type", "donor"]).values
+    )
+
+    mean_emd_global = np.nanmean(
+        emd_per_donor_global.drop(columns=["cell_type", "donor"]).values
+    )
+    max_emd_global = np.nanmax(
+        emd_per_donor_global.drop(columns=["cell_type", "donor"]).values
+    )
+
+    # concatenate the global and cell type emd
+    emd_per_donor = pd.concat([emd_per_donor_per_ct, emd_per_donor_global])
+
+    return {
+        "mean_emd_global": mean_emd_global,
+        "max_emd_global": max_emd_global,
+        "mean_emd_ct": mean_emd_ct,
+        "max_emd_ct": max_emd_ct,
+        "emd_per_donor": emd_per_donor,
+    }
 
 
 def compute_emd(
