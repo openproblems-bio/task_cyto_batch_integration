@@ -76,6 +76,7 @@ dependencies:
   - name: methods/gaussnorm
   - name: methods/cytonorm_controls
   - name: methods/mnn
+  - name: methods/cytonorm_healthy_controls
   - name: metrics/emd
   - name: metrics/n_inconsistent_peaks
   - name: metrics/average_batch_r2

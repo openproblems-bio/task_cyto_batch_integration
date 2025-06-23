@@ -21,7 +21,8 @@ methods = [
   cytonorm_controls,
   mnn,
   batchadjust_one_control,
-  batchadjust_all_controls
+  batchadjust_all_controls,
+  cytonorm_healthy_controls
 ]
 
 // construct list of metrics
