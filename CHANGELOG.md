@@ -84,6 +84,8 @@
 
 * Changed cytonorm and cycombine clustering to use lineage markers (PR #54).
 
+* Schema defined in `src\api` has been modified to include dataset specific parameters (PR #71).
+
 ## BUG FIXES
 
 * Change n_inconsistent_peaks output to float and add R2 to main.nf (PR #40).
