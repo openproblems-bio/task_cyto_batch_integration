@@ -21,6 +21,7 @@ sys.path.append(meta["resources_dir"])
 from helper import call_peaks, get_kde_density
 from helper_functions import (
     get_obs_var_for_integrated,
+    remove_unlabelled,
     subset_markers_tocorrect,
     subset_nocontrols,
 )
@@ -35,8 +36,10 @@ print('Formatting input files', flush=True)
 input_integrated = get_obs_var_for_integrated(input_integrated,input_validation,input_unintegrated)
 input_integrated = subset_markers_tocorrect(input_integrated)
 input_integrated = subset_nocontrols(input_integrated)
+input_integrated = remove_unlabelled(input_integrated)
 #Format validation data
 input_validation = subset_markers_tocorrect(input_validation)
+input_validation = remove_unlabelled(input_validation)
 
 print('Compute metric (All cells)', flush=True)
 donor_list = input_integrated.obs['donor'].unique()

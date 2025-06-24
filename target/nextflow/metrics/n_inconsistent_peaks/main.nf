@@ -3572,7 +3572,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/metrics/n_inconsistent_peaks",
     "viash_version" : "0.9.4",
-    "git_commit" : "c7368fb0a335513a35a3c765da6bb9c20594c203",
+    "git_commit" : "56427b8498b109e82baf88dbf204fce4e1410888",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3724,6 +3724,7 @@ sys.path.append(meta["resources_dir"])
 from helper import call_peaks, get_kde_density
 from helper_functions import (
     get_obs_var_for_integrated,
+    remove_unlabelled,
     subset_markers_tocorrect,
     subset_nocontrols,
 )
@@ -3738,8 +3739,10 @@ print('Formatting input files', flush=True)
 input_integrated = get_obs_var_for_integrated(input_integrated,input_validation,input_unintegrated)
 input_integrated = subset_markers_tocorrect(input_integrated)
 input_integrated = subset_nocontrols(input_integrated)
+input_integrated = remove_unlabelled(input_integrated)
 #Format validation data
 input_validation = subset_markers_tocorrect(input_validation)
+input_validation = remove_unlabelled(input_validation)
 
 print('Compute metric (All cells)', flush=True)
 donor_list = input_integrated.obs['donor'].unique()
