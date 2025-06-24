@@ -1,14 +1,14 @@
 __merge__: ../../api/comp_method.yaml
 
-name: cycombine_nocontrols
+name: cycombine_no_controls
 label: cyCombine (no-controls)
-summary: "cyCombine perform batch correction by using self-organizing maps and ComBat."
+summary: "cyCombine without control samples"
 description: |
-  cyCombine perform batch integration by first using self-organizing maps (SOM) to 
-  group similar cells, then applies a ComBat-based method to correct batch effects within 
-  each group of similar cells. 
-  
-  Here, we run cyCombine without control samples (replicates in cyCombine terminology).
+  cyCombine perform batch integration using self-organizing maps and ComBat.
+  It first uses self-organizing maps (SOM) to group similar cells into clusters, 
+  then applies a ComBat-based method to correct batch effects within 
+  each cluster. 
+  Here, we run cyCombine without any control samples (replicates in cyCombine terminology).
 references:
   doi: 
     - 10.1038/s41467-022-29383-5

@@ -72,7 +72,8 @@ dependencies:
   - name: methods/harmonypy
   - name: methods/limma_remove_batch_effect
   - name: methods/combat
-  - name: methods/cycombine_nocontrols
+  - name: methods/cycombine_no_controls
+  - name: methods/cycombine_healthy_controls
   - name: methods/gaussnorm
   - name: methods/cytonorm_controls
   - name: methods/mnn
