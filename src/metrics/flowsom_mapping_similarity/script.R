@@ -117,5 +117,4 @@ output <- anndata::AnnData(
 
 cat("Output AnnData object:\n")
 print(output)
-
 output$write_h5ad(par[["output"]], compression = "gzip")

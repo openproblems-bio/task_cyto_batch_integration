@@ -84,6 +84,8 @@
 
 * Changed cytonorm and cycombine clustering to use lineage markers (PR #54).
 
+* The metric `flowsom_mapping_similarity` now works at the cluster level (PR #68).
+
 * Schema defined in `src\api` has been modified to include dataset specific parameters (PR #71).
 
 ## BUG FIXES
@@ -97,3 +99,5 @@
 * Fixed FlowSOM mapping similarity metric (PR #64).
 
 * Fixed get_obs_var_for_integrated function in helper.R giving out error in mac (PR #65).
+
+* Remove unlabelled cells when computing n_inconsistent_peaks metric (PR #69)
