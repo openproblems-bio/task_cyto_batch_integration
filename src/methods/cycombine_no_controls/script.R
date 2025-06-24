@@ -1,4 +1,4 @@
-library(anndata)
+requireNamespace("anndata", quietly = TRUE)
 requireNamespace("cyCombine", quietly = TRUE)
 
 ## VIASH START
@@ -6,7 +6,7 @@ par <- list(
     input = "resources_test/task_cyto_batch_integration/leomazzi_cyto_spleen_subset/unintegrated_censored.h5ad",
     output = "resources_test/task_cyto_batch_integration/leomazzi_cyto_spleen_subset/output.h5ad"
 )
-meta <- list(name = "cycombine")
+meta <- list(name = "cycombine_no_controls")
 ## VIASH END
 
 cat("Reading input files\n")
