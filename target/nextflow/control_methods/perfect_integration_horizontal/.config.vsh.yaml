@@ -341,7 +341,7 @@ build_info:
   output: "target/nextflow/control_methods/perfect_integration_horizontal"
   executable: "target/nextflow/control_methods/perfect_integration_horizontal/main.nf"
   viash_version: "0.9.4"
-  git_commit: "878a20d649d3ba6cf90c294559da816f4e092796"
+  git_commit: "c7368fb0a335513a35a3c765da6bb9c20594c203"
   git_remote: "https://github.com/openproblems-bio/task_cyto_batch_integration"
 package_config:
   name: "task_cyto_batch_integration"
