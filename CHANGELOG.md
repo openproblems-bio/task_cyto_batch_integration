@@ -66,7 +66,8 @@
 
 * Bump Viash version to 0.9.4 (PR #61, PR #62).
 
-* Added EMD vertical global metric and split perfect integration into horizontal and vertical for computing horizontal and vertical metrics (PR #63).
+* Added EMD vertical global metric and split perfect integration into horizontal and vertical 
+  for computing horizontal and vertical metrics (PR #63).
 
 ## MINOR CHANGES
 
@@ -85,6 +86,11 @@
 * Changed cytonorm and cycombine clustering to use lineage markers (PR #54).
 
 * The metric `flowsom_mapping_similarity` now works at the cluster level (PR #68).
+
+* Updated vertical EMD (PR #70):
+  * Metric is computed in group (condition) specific manner. 
+  * Split the metric into global and per cell type.
+  * Refactored horizontal EMD.
 
 ## BUG FIXES
 

@@ -8,33 +8,46 @@ from scipy.stats import wasserstein_distance
 
 def calculate_vertical_emd(input_integrated: ad.AnnData, markers_to_assess: list):
     """
-    Compute vertical emd across every possible sample combination.
-    I think this is what we want, but we could also do it only
-    between samples from different batches?
+    Compute vertical emd across every possible sample combination from the same biological group.
 
     Args:
         input_integrated (ad.AnnData): Integrated adata.
         markers_to_assess (list): list of markers to compute EMD for.
 
     Returns:
-        np.float32: mean emd value computed from a flattened data frame containing
-            emd computed for every marker across two samples.
-        dict: a 2d matrix where each row/column is a pair of sample and the cell contains
-            emd value computed for the sample pair.
+        dict: a dictionary containing the following elements.
+            "mean_emd_global": np.float32: mean emd value computed from a flattened data frame containing
+                mean emd computed for every marker across all pairing two samples from the same group.
+            "max_emd_global": np.float32: max emd value computed from a flattened data frame containing
+                max emd computed for every marker across all pairing two samples from the same group.
+            "mean_emd_ct": np.float32: mean emd value computed from a flattened data frame containing
+                mean emd computed for every marker and cell type across all pairing two samples from the same group.
+            "max_emd_ct": np.float32: max emd value computed from a flattened data frame containing
+                max emd computed for every marker and cell type across all pairing two samples from the same group.
+            "emd_wide_dfs": dict: each key is a marker. A value is yet another dictionary which value is
+                a 2d matrix where each row/column is a pair of sample and a cell contains
+                    emd value computed for the sample pair for either a given cell type
+                    or global. The key for this dictionary then is either a given cell type
+                    or global, depending on what the 2d matrix represents.
     """
 
     # calculate the global first, agnostic of cell type
 
-    # going for comparing every sample against every other samples
-    # as we only have 1 batch in perfect integration.
-    # if we compare samples across batches for methods but compare all samples against
-    # all samples in perfect integration, it'll make comparison between the two
-    # values difficult. Best standardise.
-    sample_combos = list(
-        itertools.combinations(np.unique(input_integrated.obs["sample"]), 2)
-    )
+    # comparing one sample against every other sample (one at a time).
+    # get all samples for each group first
+    sample_group_map = input_integrated.obs.groupby("group", observed=True)[
+        "sample"
+    ].apply(lambda x: list(set(x)))
+    # then get combinations of 2 for each group
+    sample_combos = np.array(
+        [list(itertools.combinations(x, 2)) for x in sample_group_map]
+    ).reshape(-1, 2)
 
-    emd_dfs = []
+    cell_types = input_integrated.obs["cell_type"].unique()
+
+    emd_dfs_global = []
+    emd_dfs_ct = []
+
     for sample_combo in sample_combos:
         # sample_combo = sample_combos[0]
 
@@ -45,6 +58,7 @@ def calculate_vertical_emd(input_integrated: ad.AnnData, markers_to_assess: list
             input_integrated.obs["sample"] == sample_combo[1]
         ]
 
+        # global emd
         emd_df = compute_emd(
             first_sample=first_sample_adata,
             second_sample=second_sample_adata,
@@ -52,14 +66,67 @@ def calculate_vertical_emd(input_integrated: ad.AnnData, markers_to_assess: list
             first_sample_layer_name="integrated",
             second_sample_layer_name="integrated",
         )
-        emd_dfs.append(emd_df)
+        emd_df["first_sample"] = sample_combo[0]
+        emd_df["second_sample"] = sample_combo[1]
+        emd_dfs_global.append(emd_df)
 
-    emd_dfs = pd.concat(emd_dfs)
+        # emd per cell type
+        for cell_type in cell_types:
+            # cell_type = cell_types[0]
+            first_sample_adata_ct = first_sample_adata[
+                first_sample_adata.obs["cell_type"] == cell_type
+            ]
+            second_sample_adata_ct = second_sample_adata[
+                second_sample_adata.obs["cell_type"] == cell_type
+            ]
+
+            # Do not calculate if we have less than 50 cells as it does not make sense.
+            if first_sample_adata_ct.n_obs < 50 or second_sample_adata_ct.n_obs < 50:
+                continue
+
+            emd_df = compute_emd(
+                first_sample=first_sample_adata_ct,
+                second_sample=second_sample_adata_ct,
+                markers_to_assess=markers_to_assess,
+                first_sample_layer_name="integrated",
+                second_sample_layer_name="integrated",
+            )
+            emd_df["cell_type"] = cell_type
+            emd_df["first_sample"] = sample_combo[0]
+            emd_df["second_sample"] = sample_combo[1]
+
+            emd_dfs_ct.append(emd_df)
+
+    # process the global emd
+    emd_dfs_global = pd.concat(emd_dfs_global)
     # aggregate into one metric by flattening all the values in the data frame
     # into one giant array and take a mean
-    mean_emd = np.nanmean(emd_dfs.to_numpy().flatten())
+    mean_emd_global = np.nanmean(
+        emd_dfs_global.drop(columns=["first_sample", "second_sample"])
+        .to_numpy()
+        .flatten()
+    )
+    max_emd_global = np.nanmax(
+        emd_dfs_global.drop(columns=["first_sample", "second_sample"])
+        .to_numpy()
+        .flatten()
+    )
 
-    max_emd = np.nanmax(emd_dfs.to_numpy().flatten())
+    # process the cell type specific emd
+    emd_dfs_ct = pd.concat(emd_dfs_ct)
+    # aggregate into one metric by flattening all the values in the data frame
+    # into one giant array and take a mean
+
+    mean_emd_ct = np.nanmean(
+        emd_dfs_ct.drop(columns=["cell_type", "first_sample", "second_sample"])
+        .to_numpy()
+        .flatten()
+    )
+    max_emd_ct = np.nanmax(
+        emd_dfs_ct.drop(columns=["cell_type", "first_sample", "second_sample"])
+        .to_numpy()
+        .flatten()
+    )
 
     # prepare the data to draw the heatmap in cytonorm 2 supp paper.
     # 1 row/column = 1 sample, a cell is emd for a given marker
@@ -67,18 +134,37 @@ def calculate_vertical_emd(input_integrated: ad.AnnData, markers_to_assess: list
     # note, only run this after calculating mean, otherwise you end up having to
     # remove the sample id columns.
 
-    emd_dfs["first_sample"] = [x[0] for x in sample_combos]
-    emd_dfs["second_sample"] = [x[1] for x in sample_combos]
-
     emd_wide_dfs = {}
     for marker in markers_to_assess:
         # marker = markers_to_assess[0]
-        emd_wide = emd_dfs.pivot(
+
+        # start with global
+        emd_wide = emd_dfs_global.pivot(
             index="second_sample", columns="first_sample", values=marker
         )
-        emd_wide_dfs[marker] = emd_wide
+        emd_wide_dfs[marker] = {"global": emd_wide}
 
-    return mean_emd, max_emd, emd_wide_dfs
+        # then per cell type
+        for ct in cell_types:
+            # ct = cell_types[0]
+            emd_df = emd_dfs_ct[emd_dfs_ct["cell_type"] == ct]
+
+            if emd_df.shape[0] > 0:
+                # safeguard. Only pivot if we compute the emd for the cell type.
+                # This is a safeguard in case there is a rare cell type which we don't have
+                # any samples with at least 50 cells for.
+                emd_wide = emd_df.pivot(
+                    index="second_sample", columns="first_sample", values=marker
+                )
+                emd_wide_dfs[marker][ct] = emd_wide
+
+    return {
+        "mean_emd_global": mean_emd_global,
+        "max_emd_global": max_emd_global,
+        "mean_emd_ct": mean_emd_ct,
+        "max_emd_ct": max_emd_ct,
+        "emd_wide_dfs": emd_wide_dfs,
+    }
 
 
 def calculate_horizontal_emd(
@@ -88,10 +174,26 @@ def calculate_horizontal_emd(
     donor_list: list,
 ):
     """
-    Calculate horizontal EMD across a pair of samples.
+    Compute horizontal emd across every pair samples from a given donor.
+
+    Args:
+        input_integrated (ad.AnnData): Integrated adata.
+        input_validation (ad.AnnData): Validation adata.
+        markers_to_assess (list): list of markers to compute EMD for.
+        donor_list (list): list of donors to compute EMD for.
 
     Returns:
-        _type_: _description_
+        dict: a dictionary containing the following elements.
+            "mean_emd_global": np.float32: mean emd value computed from a flattened data frame containing
+                mean emd computed for every marker across all pairs of samples from a given donor.
+            "max_emd_global": np.float32: max emd value computed from a flattened data frame containing
+                max emd computed for every marker across all pairs of samples from a given donor.
+            "mean_emd_ct": np.float32: mean emd value computed from a flattened data frame containing
+                mean emd computed for every marker and cell type across all pairs of samples from a given donor.
+            "max_emd_ct": np.float32: max emd value computed from a flattened data frame containing
+                max emd computed for every marker and cell type across all pairs of samples from a given donor.
+            "emd_wide_dfs": pd.Dataframe showing emd value for each pair of sample
+                and marker at either cell type level or global.
     """
 
     emd_per_donor_per_ct = []
@@ -139,14 +241,39 @@ def calculate_horizontal_emd(
             first_sample_layer_name="integrated",
             second_sample_layer_name="preprocessed",
         )
-        emd_df["cell_type"] = "all_cell_types"
+        emd_df["cell_type"] = "global"
         emd_df["donor"] = donor
 
         emd_per_donor_global.append(emd_df)
 
     emd_per_donor_per_ct = pd.concat(emd_per_donor_per_ct)
     emd_per_donor_global = pd.concat(emd_per_donor_global)
-    return emd_per_donor_per_ct, emd_per_donor_global
+
+    # compute the mean and max per ct and for global.
+    mean_emd_ct = np.nanmean(
+        emd_per_donor_per_ct.drop(columns=["cell_type", "donor"]).values
+    )
+    max_emd_ct = np.nanmax(
+        emd_per_donor_per_ct.drop(columns=["cell_type", "donor"]).values
+    )
+
+    mean_emd_global = np.nanmean(
+        emd_per_donor_global.drop(columns=["cell_type", "donor"]).values
+    )
+    max_emd_global = np.nanmax(
+        emd_per_donor_global.drop(columns=["cell_type", "donor"]).values
+    )
+
+    # concatenate the global and cell type emd
+    emd_per_donor = pd.concat([emd_per_donor_per_ct, emd_per_donor_global])
+
+    return {
+        "mean_emd_global": mean_emd_global,
+        "max_emd_global": max_emd_global,
+        "mean_emd_ct": mean_emd_ct,
+        "max_emd_ct": max_emd_ct,
+        "emd_per_donor": emd_per_donor,
+    }
 
 
 def compute_emd(
