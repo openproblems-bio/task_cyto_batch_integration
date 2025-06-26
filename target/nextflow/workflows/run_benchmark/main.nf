@@ -3293,19 +3293,19 @@ meta = [
                 {
                   "name" : "parameter_som_xdim",
                   "type" : "integer",
-                  "description" : "Parameter used to define the dimensions of the self-organizing map (SOM) grid used for flowsom clustering.",
+                  "description" : "Parameter used to define the width of the self-organizing map (SOM) grid. Usually between 10 and 20.",
                   "required" : true
                 },
                 {
                   "name" : "parameter_som_ydim",
                   "type" : "integer",
-                  "description" : "Parameter used to define the dimensions of the self-organizing map (SOM) grid used for flowsom clustering.",
+                  "description" : "Parameter used to define the height of the self-organizing map (SOM) grid. Usually between 10 and 20.",
                   "required" : true
                 },
                 {
                   "name" : "parameter_num_clusters",
                   "type" : "integer",
-                  "description" : "Parameter used to define the number of clusters used in the meta-clustering step of the flowsom algorithm.",
+                  "description" : "Parameter used to define the number of clusters. Set this number to be slightly higher than the number of cell types expected in the dataset.",
                   "required" : true
                 }
               ]
@@ -3466,7 +3466,8 @@ meta = [
                 {
                   "name" : "parameter_num_clusters",
                   "type" : "integer",
-                  "description" : "Parameter used to define the number of clusters. Set this number to be slightly higher than the number of cell types expected in the dataset."
+                  "description" : "Parameter used to define the number of clusters. Set this number to be slightly higher than the number of cell types expected in the dataset.",
+                  "required" : true
                 }
               ]
             }
@@ -3748,7 +3749,7 @@ meta = [
     "engine" : "native",
     "output" : "target/nextflow/workflows/run_benchmark",
     "viash_version" : "0.9.4",
-    "git_commit" : "3c6fa24b16cca22c4264689f0f82a26b76d1e4d4",
+    "git_commit" : "558e479fd1df44c8b4871cec0f5c0de7a4dd79a4",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
