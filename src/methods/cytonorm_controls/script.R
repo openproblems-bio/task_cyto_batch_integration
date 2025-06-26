@@ -13,7 +13,7 @@ meta <- list(
     temp_dir = "resources_test/task_cyto_batch_integration/tmp",
     resources_dir = "src/utils"
 )
-## VIASH ENDs
+## VIASH END
 
 source(paste0(meta$resources_dir, "/anndata_to_fcs.R"))
 

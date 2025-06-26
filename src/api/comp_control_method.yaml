@@ -29,5 +29,5 @@ test_resources:
     path: /common/component_tests/run_and_check_output.py
   - type: python_script
     path: /common/component_tests/check_config.py
-  - path: /resources_test/task_cyto_batch_integration/leomazzi_cyto_spleen_subset
-    dest: resources_test/task_cyto_batch_integration/leomazzi_cyto_spleen_subset
+  - path: /resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset
+    dest: resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset

@@ -12,3 +12,4 @@ trace-*
 /.vscode
 
 /resources_raw
+/*.tar
