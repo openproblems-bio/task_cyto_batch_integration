@@ -11,7 +11,7 @@ meta <- list(
   name = "gaussNorm",
   temp_dir: '/tmp'
 )
-## VIASH ENDs
+## VIASH END
 
 
 source(paste0(meta$resources_dir, "/anndata_to_fcs.R"))
