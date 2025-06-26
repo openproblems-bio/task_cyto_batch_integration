@@ -60,26 +60,12 @@ method_id = input_integrated.uns["method_id"]
 # get all donors in validation as these are the ones we need to validate
 donor_list = input_validation.obs["donor"].unique()
 
-emd_per_donor_ct_horiz, emd_per_donor_global_horiz = calculate_horizontal_emd(
+emd_horz = calculate_horizontal_emd(
     input_integrated, input_validation, markers_to_assess, donor_list
 )
 
-emd_mean_ct_horiz = np.nanmean(
-    emd_per_donor_ct_horiz.drop(columns=["cell_type", "donor"]).values
-)
-emd_max_ct_horiz = np.nanmax(
-    emd_per_donor_ct_horiz.drop(columns=["cell_type", "donor"]).values
-)
-
-emd_mean_global_horiz = np.nanmean(
-    emd_per_donor_global_horiz.drop(columns=["cell_type", "donor"]).values
-)
-emd_max_global_horiz = np.nanmax(
-    emd_per_donor_global_horiz.drop(columns=["cell_type", "donor"]).values
-)
-
 # calculate vertical EMD
-emd_mean_global_vert, emd_max_global_vert, emd_vert_mat = calculate_vertical_emd(
+emd_vert = calculate_vertical_emd(
     input_integrated=input_integrated,
     markers_to_assess=markers_to_assess,
 )
@@ -91,26 +77,28 @@ output = ad.AnnData(
         "dataset_id": dataset_id,
         "method_id": method_id,
         "metric_ids": [
-            "emd_mean_ct_horiz",
-            "emd_max_ct_horiz",
             "emd_mean_global_horiz",
             "emd_max_global_horiz",
+            "emd_mean_ct_horiz",
+            "emd_max_ct_horiz",
             "emd_mean_global_vert",
             "emd_max_global_vert",
+            "emd_mean_ct_vert",
+            "emd_max_ct_vert",
         ],
         "metric_values": [
-            emd_mean_ct_horiz,
-            emd_max_ct_horiz,
-            emd_mean_global_horiz,
-            emd_max_global_horiz,
-            emd_mean_global_vert,
-            emd_max_global_vert,
+            emd_horz["mean_emd_global"],
+            emd_horz["max_emd_global"],
+            emd_horz["mean_emd_ct"],
+            emd_horz["max_emd_ct"],
+            emd_vert["mean_emd_global"],
+            emd_vert["max_emd_global"],
+            emd_vert["mean_emd_ct"],
+            emd_vert["max_emd_ct"],
         ],
         "emd_values": {
-            "emd_values_horiz": pd.concat(
-                [emd_per_donor_ct_horiz, emd_per_donor_global_horiz]
-            ),
-            "emd_values_vert": emd_vert_mat,
+            "emd_values_horiz": emd_horz["emd_per_donor"],
+            "emd_values_vert": emd_vert["emd_wide_dfs"],
         },
     }
 )
