@@ -102,7 +102,7 @@ info:
         type: integer
         description: Parameter used to define the dimensions of the self-organizing map (SOM) grid used for flowsom clustering.
         required: true
-      - name: parameter_flowsom_ydim
+      - name: parameter_som_ydim
         type: integer
         description: Parameter used to define the dimensions of the self-organizing map (SOM) grid used for flowsom clustering.
         required: true
