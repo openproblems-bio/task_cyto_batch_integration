@@ -37,7 +37,7 @@ HERE
 
 # process dataset
 viash run src/data_processors/process_dataset/config.vsh.yaml -- \
-  --input $RAW_DATA/common_dataset.h5ad \
+  --input $DATASET_DIR/common_dataset.h5ad \
   --output_unintegrated $DATASET_DIR/unintegrated.h5ad \
   --output_unintegrated_censored $DATASET_DIR/unintegrated_censored.h5ad \
   --output_validation $DATASET_DIR/validation.h5ad
