@@ -38,6 +38,6 @@ HERE
 
 # only run this if you have access to the openproblems-data bucket
 aws s3 sync --profile op \
-  resources/datasets_raw/$DATASET_ID \
-  s3://openproblems-data/resources/task_cyto_batch_integration/datasets_raw/$DATASET_ID/ \
+  resources/datasets_raw/mouse_spleen_flow_cytometry \
+  s3://openproblems-data/resources/task_cyto_batch_integration/datasets_raw/mouse_spleen_flow_cytometry/ \
   --delete --dryrun
