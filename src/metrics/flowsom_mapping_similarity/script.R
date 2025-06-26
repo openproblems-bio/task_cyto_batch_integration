@@ -42,9 +42,9 @@ donor_list <- unique(input_integrated$obs$donor)
 lineage_markers <- input_validation$var_names[
   input_validation$var$marker_type == "lineage"
 ]
-n_clusters <- input_integrated$uns$parameter_flowsom_nclus
-grid_xdim <- input_integrated$uns$parameter_flowsom_xdim
-grid_ydim <- input_integrated$uns$parameter_flowsom_ydim
+n_clusters <- input_integrated$uns$parameter_num_clusters
+grid_xdim <- input_integrated$uns$parameter_som_xdim
+grid_ydim <- input_integrated$uns$parameter_som_ydim
 
 print("Computing mapping similarity\n")
 fs_mapping_similarity_allres <- list()
