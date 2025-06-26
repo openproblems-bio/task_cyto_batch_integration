@@ -98,7 +98,7 @@ info:
         type: string
         description: The organism of the sample in the dataset.
         required: false
-      - name: parameter_flowsom_xdim
+      - name: parameter_som_xdim
         type: integer
         description: Parameter used to define the dimensions of the self-organizing map (SOM) grid used for flowsom clustering.
         required: true
