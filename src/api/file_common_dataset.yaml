@@ -109,3 +109,4 @@ info:
       - name: parameter_num_clusters
         type: integer
         description: Parameter used to define the number of clusters. Set this number to be slightly higher than the number of cell types expected in the dataset.
+        required: true
