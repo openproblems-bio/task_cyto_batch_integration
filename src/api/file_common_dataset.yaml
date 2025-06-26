@@ -109,4 +109,4 @@ info:
       - name: parameter_num_clusters
         type: integer
         description: Parameter used to define the number of clusters used in the meta-clustering step of the flowsom algorithm.
-        required: true 
+        required: true

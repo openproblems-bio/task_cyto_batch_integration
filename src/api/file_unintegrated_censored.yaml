@@ -8,7 +8,7 @@ summary: |
   The batch correction algorithm should not have to rely on these information 
   to properly integrate different batches.
   This dataset is used as the input for the batch correction algorithm. 
-  The cells therein are identical to those in the unintegrated dataset. 
+  The cells therein are identical to those in the unintegrated dataset.
 info:
   format:
     type: h5ad
@@ -97,4 +97,4 @@ info:
       - name: parameter_num_clusters
         type: integer
         description: Parameter used to define the number of clusters used in the meta-clustering step of the flowsom algorithm.
-        required: true 
+        required: true
