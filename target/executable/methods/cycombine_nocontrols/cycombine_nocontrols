@@ -451,9 +451,9 @@ RUN Rscript -e 'options(warn = 2); if (!requireNamespace("remotes", quietly = TR
   Rscript -e 'options(warn = 2); remotes::install_github(c("biosurf/cyCombine"), repos = "https://cran.rstudio.com")'
 
 LABEL org.opencontainers.image.description="Companion container for running component methods cycombine_nocontrols"
-LABEL org.opencontainers.image.created="2025-06-25T01:15:34Z"
+LABEL org.opencontainers.image.created="2025-06-26T09:40:34Z"
 LABEL org.opencontainers.image.source="https://github.com/biosurf/cyCombine"
-LABEL org.opencontainers.image.revision="6c05139d6767936116895150d3c88f3ffd4cd6ac"
+LABEL org.opencontainers.image.revision="3c6fa24b16cca22c4264689f0f82a26b76d1e4d4"
 LABEL org.opencontainers.image.version="build_main"
 
 VIASHDOCKER
@@ -585,12 +585,12 @@ function ViashHelp {
   echo "    --input"
   echo "        type: file, required parameter, file must exist"
   echo "        example:"
-  echo "resources_test/task_cyto_batch_integration/leomazzi_cyto_spleen_subset/unintegrated_censored.h5ad"
+  echo "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/unintegrated_censored.h5ad"
   echo ""
   echo "    --output"
   echo "        type: file, required parameter, output, file must exist"
   echo "        example:"
-  echo "resources_test/task_cyto_batch_integration/leomazzi_cyto_spleen_subset/integrated.h5ad"
+  echo "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/integrated.h5ad"
   echo ""
   echo "Viash built in Computational Requirements:"
   echo "    ---cpus=INT"

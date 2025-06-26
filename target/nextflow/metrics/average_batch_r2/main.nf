@@ -3042,7 +3042,7 @@ meta = [
           "name" : "--input_validation",
           "label" : "Validation",
           "summary" : "Hold-out dataset for validation.",
-          "description" : "Dataset containing cells from samples that were held out for evaluating batch integration output. \nThe cells that are in this dataset belong to samples which are not included in the unintegrated \nor unintegrated_censored datasets.\nFor example, if samples from donor A are present in batch 1 and 2, the sample from batch 1\nmay be used as input for the batch correction algorithm (and thus present in unintegrated\nand unintegrated_censored datasets). \nThe sample from batch 2, may not be included as an input for the batch correction algorithm,\nbut is needed to validate whether whether the algorithm managed to correct the batch effect\nin batch 2 towards batch 1.\nThis sample will then be included in this dataset (but not in unintegrated\nand unintegrated_censored datasets).  \n",
+          "description" : "Dataset containing cells from samples that were held out for evaluating batch integration output. \nThe cells that are in this dataset belong to samples which are not included in the unintegrated \nor unintegrated_censored datasets.\nFor example, if samples from donor A are present in batch 1 and 2, the sample from batch 1\nmay be used as input for the batch correction algorithm (and thus present in unintegrated\nand unintegrated_censored datasets). \nThe sample from batch 2, may not be included as an input for the batch correction algorithm,\nbut is needed to validate whether whether the algorithm managed to correct the batch effect\nin batch 2 towards batch 1.\nThis sample will then be included in this dataset (but not in unintegrated\nand unintegrated_censored datasets).\n",
           "info" : {
             "format" : {
               "type" : "h5ad",
@@ -3166,12 +3166,29 @@ meta = [
                   "type" : "string",
                   "description" : "The organism of the sample in the dataset.",
                   "required" : false
+                },
+                {
+                  "name" : "parameter_som_xdim",
+                  "type" : "integer",
+                  "description" : "Parameter used to define the width of the self-organizing map (SOM) grid. Usually between 10 and 20.",
+                  "required" : true
+                },
+                {
+                  "name" : "parameter_som_ydim",
+                  "type" : "integer",
+                  "description" : "Parameter used to define the height of the self-organizing map (SOM) grid. Usually between 10 and 20.",
+                  "required" : true
+                },
+                {
+                  "name" : "parameter_num_clusters",
+                  "type" : "integer",
+                  "description" : "Parameter used to define the number of clusters. Set this number to be slightly higher than the number of cell types expected in the dataset."
                 }
               ]
             }
           },
           "example" : [
-            "resources_test/task_cyto_batch_integration/leomazzi_cyto_spleen_subset/validation.h5ad"
+            "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/validation.h5ad"
           ],
           "must_exist" : true,
           "create_parent" : true,
@@ -3308,12 +3325,30 @@ meta = [
                   "type" : "string",
                   "description" : "The organism of the sample in the dataset.",
                   "required" : false
+                },
+                {
+                  "name" : "parameter_som_xdim",
+                  "type" : "integer",
+                  "description" : "Parameter used to define the dimensions of the self-organizing map (SOM) grid used for flowsom clustering.",
+                  "required" : true
+                },
+                {
+                  "name" : "parameter_som_ydim",
+                  "type" : "integer",
+                  "description" : "Parameter used to define the dimensions of the self-organizing map (SOM) grid used for flowsom clustering.",
+                  "required" : true
+                },
+                {
+                  "name" : "parameter_num_clusters",
+                  "type" : "integer",
+                  "description" : "Parameter used to define the number of clusters used in the meta-clustering step of the flowsom algorithm.",
+                  "required" : true
                 }
               ]
             }
           },
           "example" : [
-            "resources_test/task_cyto_batch_integration/leomazzi_cyto_spleen_subset/unintegrated.h5ad"
+            "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/unintegrated.h5ad"
           ],
           "must_exist" : true,
           "create_parent" : true,
@@ -3361,7 +3396,7 @@ meta = [
             }
           },
           "example" : [
-            "resources_test/task_cyto_batch_integration/leomazzi_cyto_spleen_subset/integrated.h5ad"
+            "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/integrated.h5ad"
           ],
           "must_exist" : true,
           "create_parent" : true,
@@ -3409,7 +3444,7 @@ meta = [
             }
           },
           "example" : [
-            "resources_test/task_cyto_batch_integration/leomazzi_cyto_spleen_subset/score.h5ad"
+            "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/score.h5ad"
           ],
           "must_exist" : true,
           "create_parent" : true,
@@ -3449,8 +3484,8 @@ meta = [
     },
     {
       "type" : "file",
-      "path" : "/resources_test/task_cyto_batch_integration/leomazzi_cyto_spleen_subset",
-      "dest" : "resources_test/task_cyto_batch_integration/leomazzi_cyto_spleen_subset"
+      "path" : "/resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset",
+      "dest" : "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset"
     }
   ],
   "info" : {
@@ -3572,7 +3607,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/metrics/average_batch_r2",
     "viash_version" : "0.9.4",
-    "git_commit" : "6c05139d6767936116895150d3c88f3ffd4cd6ac",
+    "git_commit" : "3c6fa24b16cca22c4264689f0f82a26b76d1e4d4",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {

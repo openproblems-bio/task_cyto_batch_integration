@@ -4,10 +4,10 @@ import openproblems as op
 
 ## VIASH START
 par = {
-    'input': 'resources_test/task_cyto_batch_integration/leomazzi_cyto_spleen_subset/common_dataset.h5ad',
-    'output_unintegrated': 'resources_test/task_cyto_batch_integration/leomazzi_cyto_spleen_subset/unintegrated.h5ad',
-    'output_unintegrated_censored': 'resources_test/task_cyto_batch_integration/leomazzi_cyto_spleen_subset/unintegrated_censored.h5ad',
-    'output_validation': 'resources_test/task_cyto_batch_integration/leomazzi_cyto_spleen_subset/validation.h5ad'
+    'input': 'resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/common_dataset.h5ad',
+    'output_unintegrated': 'resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/unintegrated.h5ad',
+    'output_unintegrated_censored': 'resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/unintegrated_censored.h5ad',
+    'output_validation': 'resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/validation.h5ad'
 }
 meta = {
     'resources_dir': 'target/executable/data_processors/process_dataset',

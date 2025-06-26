@@ -3041,7 +3041,7 @@ meta = [
           "type" : "file",
           "name" : "--input",
           "label" : "Unintegrated Censored",
-          "summary" : "An unintegrated dataset with certain columns (cells metadata), such as the donor information, hidden.\nThese columns are intentionally hidden to prevent bias.\nThe batch correction algorithm should not have to rely on these information \nto properly integrate different batches.\nThis dataset is used as the input for the batch correction algorithm. \nThe cells therein are identical to those in the unintegrated dataset. \n",
+          "summary" : "An unintegrated dataset with certain columns (cells metadata), such as the donor information, hidden.\nThese columns are intentionally hidden to prevent bias.\nThe batch correction algorithm should not have to rely on these information \nto properly integrate different batches.\nThis dataset is used as the input for the batch correction algorithm. \nThe cells therein are identical to those in the unintegrated dataset.\n",
           "info" : {
             "format" : {
               "type" : "h5ad",
@@ -3152,7 +3152,7 @@ meta = [
             }
           },
           "example" : [
-            "resources_test/task_cyto_batch_integration/leomazzi_cyto_spleen_subset/unintegrated_censored.h5ad"
+            "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/unintegrated_censored.h5ad"
           ],
           "must_exist" : true,
           "create_parent" : true,
@@ -3200,7 +3200,7 @@ meta = [
             }
           },
           "example" : [
-            "resources_test/task_cyto_batch_integration/leomazzi_cyto_spleen_subset/integrated.h5ad"
+            "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/integrated.h5ad"
           ],
           "must_exist" : true,
           "create_parent" : true,
@@ -3235,8 +3235,8 @@ meta = [
     },
     {
       "type" : "file",
-      "path" : "/resources_test/task_cyto_batch_integration/leomazzi_cyto_spleen_subset",
-      "dest" : "resources_test/task_cyto_batch_integration/leomazzi_cyto_spleen_subset"
+      "path" : "/resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset",
+      "dest" : "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset"
     }
   ],
   "info" : {
@@ -3337,7 +3337,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/methods/harmonypy",
     "viash_version" : "0.9.4",
-    "git_commit" : "6c05139d6767936116895150d3c88f3ffd4cd6ac",
+    "git_commit" : "3c6fa24b16cca22c4264689f0f82a26b76d1e4d4",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {

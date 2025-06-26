@@ -453,9 +453,9 @@ RUN pip install --upgrade pip && \
   pip install --upgrade --no-cache-dir "anndata" "numpy" "pandas" "scipy"
 
 LABEL org.opencontainers.image.description="Companion container for running component metrics flowsom_mapping_similarity"
-LABEL org.opencontainers.image.created="2025-06-25T01:15:33Z"
+LABEL org.opencontainers.image.created="2025-06-26T09:40:33Z"
 LABEL org.opencontainers.image.source="https://github.com/openproblems-bio/task_cyto_batch_integration"
-LABEL org.opencontainers.image.revision="6c05139d6767936116895150d3c88f3ffd4cd6ac"
+LABEL org.opencontainers.image.revision="3c6fa24b16cca22c4264689f0f82a26b76d1e4d4"
 LABEL org.opencontainers.image.version="build_main"
 
 VIASHDOCKER
@@ -579,7 +579,7 @@ function ViashHelp {
   echo "    --input_validation"
   echo "        type: file, required parameter, file must exist"
   echo "        example:"
-  echo "resources_test/task_cyto_batch_integration/leomazzi_cyto_spleen_subset/validation.h5ad"
+  echo "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/validation.h5ad"
   echo "        Dataset containing cells from samples that were held out for evaluating"
   echo "        batch integration output."
   echo "        The cells that are in this dataset belong to samples which are not"
@@ -602,17 +602,17 @@ function ViashHelp {
   echo "    --input_unintegrated"
   echo "        type: file, required parameter, file must exist"
   echo "        example:"
-  echo "resources_test/task_cyto_batch_integration/leomazzi_cyto_spleen_subset/unintegrated.h5ad"
+  echo "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/unintegrated.h5ad"
   echo ""
   echo "    --input_integrated"
   echo "        type: file, required parameter, file must exist"
   echo "        example:"
-  echo "resources_test/task_cyto_batch_integration/leomazzi_cyto_spleen_subset/integrated.h5ad"
+  echo "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/integrated.h5ad"
   echo ""
   echo "    --output"
   echo "        type: file, required parameter, output, file must exist"
   echo "        example:"
-  echo "resources_test/task_cyto_batch_integration/leomazzi_cyto_spleen_subset/score.h5ad"
+  echo "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/score.h5ad"
   echo ""
   echo "Viash built in Computational Requirements:"
   echo "    ---cpus=INT"
@@ -1144,11 +1144,6 @@ rm(.viash_orig_warn)
 
 ## VIASH END
 
-# TODO: make these parameters dataset-specific?
-n_clusters <- 25
-grid_xdim <- 15
-grid_ydim <- 15
-
 source(paste0(meta\$resources_dir, "/helper.R"))
 source(paste0(meta\$resources_dir, "/helper_functions.R"))
 
@@ -1176,6 +1171,9 @@ donor_list <- unique(input_integrated\$obs\$donor)
 lineage_markers <- input_validation\$var_names[
   input_validation\$var\$marker_type == "lineage"
 ]
+n_clusters <- input_validation\$uns\$parameter_num_clusters
+grid_xdim <- input_validation\$uns\$parameter_som_xdim
+grid_ydim <- input_validation\$uns\$parameter_som_ydim
 
 print("Computing mapping similarity\\n")
 fs_mapping_similarity_allres <- list()
