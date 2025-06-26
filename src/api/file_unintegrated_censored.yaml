@@ -86,15 +86,3 @@ info:
         type: string
         description: The organism of the sample in the dataset.
         required: false
-      - name: parameter_som_xdim
-        type: integer
-        description: Parameter used to define the dimensions of the self-organizing map (SOM) grid used for flowsom clustering.
-        required: true
-      - name: parameter_som_ydim
-        type: integer
-        description: Parameter used to define the dimensions of the self-organizing map (SOM) grid used for flowsom clustering.
-        required: true
-      - name: parameter_num_clusters
-        type: integer
-        description: Parameter used to define the number of clusters used in the meta-clustering step of the flowsom algorithm.
-        required: true

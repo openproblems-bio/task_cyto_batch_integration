@@ -105,13 +105,12 @@ info:
         required: false
       - name: parameter_som_xdim
         type: integer
-        description: Parameter used to define the dimensions of the self-organizing map (SOM) grid used for flowsom clustering.
+        description: Parameter used to define the width of the self-organizing map (SOM) grid. Usually between 10 and 20.
         required: true
       - name: parameter_som_ydim
         type: integer
-        description: Parameter used to define the dimensions of the self-organizing map (SOM) grid used for flowsom clustering.
+        description: Parameter used to define the height of the self-organizing map (SOM) grid. Usually between 10 and 20.
         required: true
       - name: parameter_num_clusters
         type: integer
-        description: Parameter used to define the number of clusters used in the meta-clustering step of the flowsom algorithm.
-        required: true
+        description: Parameter used to define the number of clusters. Set this number to be slightly higher than the number of cell types expected in the dataset.
