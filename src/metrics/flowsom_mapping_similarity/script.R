@@ -3,9 +3,9 @@ library(FlowSOM, quietly = TRUE)
 
 ## VIASH START
 par <- list(
-  input_validation = "resources_test/task_cyto_batch_integration/leomazzi_cyto_spleen_subset/validation.h5ad",
-  input_unintegrated = "resources_test/task_cyto_batch_integration/leomazzi_cyto_spleen_subset/unintegrated.h5ad",
-  input_integrated = "resources_test/task_cyto_batch_integration/leomazzi_cyto_spleen_subset/integrated.h5ad",
+  input_validation = "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/validation.h5ad",
+  input_unintegrated = "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/unintegrated.h5ad",
+  input_integrated = "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/integrated.h5ad",
   output = "output.h5ad"
 )
 meta <- list(
