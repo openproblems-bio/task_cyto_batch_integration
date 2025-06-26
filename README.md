@@ -114,9 +114,9 @@ Data structure:
 | `uns["dataset_summary"]` | `string` | Short description of the dataset. |
 | `uns["dataset_description"]` | `string` | Long description of the dataset. |
 | `uns["dataset_organism"]` | `string` | (*Optional*) The organism of the sample in the dataset. |
-| `uns["parameter_som_xdim"]` | `integer` | Parameter used to define the dimensions of the self-organizing map (SOM) grid used for flowsom clustering. |
-| `uns["parameter_som_ydim"]` | `integer` | Parameter used to define the dimensions of the self-organizing map (SOM) grid used for flowsom clustering. |
-| `uns["parameter_num_clusters"]` | `integer` | Parameter used to define the number of clusters used in the meta-clustering step of the flowsom algorithm. |
+| `uns["parameter_som_xdim"]` | `integer` | Parameter used to define the width of the self-organizing map (SOM) grid. Usually between 10 and 20. |
+| `uns["parameter_som_ydim"]` | `integer` | Parameter used to define the height of the self-organizing map (SOM) grid. Usually between 10 and 20. |
+| `uns["parameter_num_clusters"]` | `integer` | Parameter used to define the number of clusters. Set this number to be slightly higher than the number of cell types expected in the dataset. |
 
 </div>
 
@@ -157,7 +157,7 @@ Format:
      obs: 'batch', 'sample', 'is_control'
      var: 'numeric_id', 'channel', 'marker', 'marker_type', 'to_correct'
      layers: 'preprocessed'
-     uns: 'dataset_id', 'dataset_name', 'dataset_url', 'dataset_reference', 'dataset_summary', 'dataset_description', 'dataset_organism', 'parameter_som_xdim', 'parameter_som_ydim', 'parameter_num_clusters'
+     uns: 'dataset_id', 'dataset_name', 'dataset_url', 'dataset_reference', 'dataset_summary', 'dataset_description', 'dataset_organism'
 
 </div>
 
@@ -183,9 +183,6 @@ Data structure:
 | `uns["dataset_summary"]` | `string` | Short description of the dataset. |
 | `uns["dataset_description"]` | `string` | Long description of the dataset. |
 | `uns["dataset_organism"]` | `string` | (*Optional*) The organism of the sample in the dataset. |
-| `uns["parameter_som_xdim"]` | `integer` | Parameter used to define the dimensions of the self-organizing map (SOM) grid used for flowsom clustering. |
-| `uns["parameter_som_ydim"]` | `integer` | Parameter used to define the dimensions of the self-organizing map (SOM) grid used for flowsom clustering. |
-| `uns["parameter_num_clusters"]` | `integer` | Parameter used to define the number of clusters used in the meta-clustering step of the flowsom algorithm. |
 
 </div>
 
@@ -300,9 +297,9 @@ Data structure:
 | `uns["dataset_summary"]` | `string` | Short description of the dataset. |
 | `uns["dataset_description"]` | `string` | Long description of the dataset. |
 | `uns["dataset_organism"]` | `string` | (*Optional*) The organism of the sample in the dataset. |
-| `uns["parameter_som_xdim"]` | `integer` | Parameter used to define the dimensions of the self-organizing map (SOM) grid used for flowsom clustering. |
-| `uns["parameter_som_ydim"]` | `integer` | Parameter used to define the dimensions of the self-organizing map (SOM) grid used for flowsom clustering. |
-| `uns["parameter_num_clusters"]` | `integer` | Parameter used to define the number of clusters used in the meta-clustering step of the flowsom algorithm. |
+| `uns["parameter_som_xdim"]` | `integer` | Parameter used to define the width of the self-organizing map (SOM) grid. Usually between 10 and 20. |
+| `uns["parameter_som_ydim"]` | `integer` | Parameter used to define the height of the self-organizing map (SOM) grid. Usually between 10 and 20. |
+| `uns["parameter_num_clusters"]` | `integer` | Parameter used to define the number of clusters. Set this number to be slightly higher than the number of cell types expected in the dataset. |
 
 </div>
 
