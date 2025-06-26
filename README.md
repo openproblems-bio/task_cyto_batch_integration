@@ -84,7 +84,7 @@ Format:
      obs: 'cell_type', 'batch', 'sample', 'donor', 'group', 'is_control', 'is_validation'
      var: 'numeric_id', 'channel', 'marker', 'marker_type', 'to_correct'
      layers: 'preprocessed'
-     uns: 'dataset_id', 'dataset_name', 'dataset_url', 'dataset_reference', 'dataset_summary', 'dataset_description', 'dataset_organism'
+     uns: 'dataset_id', 'dataset_name', 'dataset_url', 'dataset_reference', 'dataset_summary', 'dataset_description', 'dataset_organism', 'parameter_som_xdim', 'parameter_som_ydim', 'parameter_num_clusters'
 
 </div>
 
@@ -114,6 +114,9 @@ Data structure:
 | `uns["dataset_summary"]` | `string` | Short description of the dataset. |
 | `uns["dataset_description"]` | `string` | Long description of the dataset. |
 | `uns["dataset_organism"]` | `string` | (*Optional*) The organism of the sample in the dataset. |
+| `uns["parameter_som_xdim"]` | `integer` | Parameter used to define the dimensions of the self-organizing map (SOM) grid used for flowsom clustering. |
+| `uns["parameter_som_ydim"]` | `integer` | Parameter used to define the dimensions of the self-organizing map (SOM) grid used for flowsom clustering. |
+| `uns["parameter_num_clusters"]` | `integer` | Parameter used to define the number of clusters used in the meta-clustering step of the flowsom algorithm. |
 
 </div>
 
@@ -154,7 +157,7 @@ Format:
      obs: 'batch', 'sample', 'is_control'
      var: 'numeric_id', 'channel', 'marker', 'marker_type', 'to_correct'
      layers: 'preprocessed'
-     uns: 'dataset_id', 'dataset_name', 'dataset_url', 'dataset_reference', 'dataset_summary', 'dataset_description', 'dataset_organism'
+     uns: 'dataset_id', 'dataset_name', 'dataset_url', 'dataset_reference', 'dataset_summary', 'dataset_description', 'dataset_organism', 'parameter_som_xdim', 'parameter_som_ydim', 'parameter_num_clusters'
 
 </div>
 
@@ -180,6 +183,9 @@ Data structure:
 | `uns["dataset_summary"]` | `string` | Short description of the dataset. |
 | `uns["dataset_description"]` | `string` | Long description of the dataset. |
 | `uns["dataset_organism"]` | `string` | (*Optional*) The organism of the sample in the dataset. |
+| `uns["parameter_som_xdim"]` | `integer` | Parameter used to define the dimensions of the self-organizing map (SOM) grid used for flowsom clustering. |
+| `uns["parameter_som_ydim"]` | `integer` | Parameter used to define the dimensions of the self-organizing map (SOM) grid used for flowsom clustering. |
+| `uns["parameter_num_clusters"]` | `integer` | Parameter used to define the number of clusters used in the meta-clustering step of the flowsom algorithm. |
 
 </div>
 
@@ -200,7 +206,7 @@ Format:
      obs: 'cell_type', 'batch', 'sample', 'donor', 'group', 'is_control'
      var: 'numeric_id', 'channel', 'marker', 'marker_type', 'to_correct'
      layers: 'preprocessed'
-     uns: 'dataset_id', 'dataset_name', 'dataset_url', 'dataset_reference', 'dataset_summary', 'dataset_description', 'dataset_organism'
+     uns: 'dataset_id', 'dataset_name', 'dataset_url', 'dataset_reference', 'dataset_summary', 'dataset_description', 'dataset_organism', 'parameter_som_xdim', 'parameter_som_ydim', 'parameter_num_clusters'
 
 </div>
 
@@ -229,6 +235,9 @@ Data structure:
 | `uns["dataset_summary"]` | `string` | Short description of the dataset. |
 | `uns["dataset_description"]` | `string` | Long description of the dataset. |
 | `uns["dataset_organism"]` | `string` | (*Optional*) The organism of the sample in the dataset. |
+| `uns["parameter_som_xdim"]` | `integer` | Parameter used to define the dimensions of the self-organizing map (SOM) grid used for flowsom clustering. |
+| `uns["parameter_som_ydim"]` | `integer` | Parameter used to define the dimensions of the self-organizing map (SOM) grid used for flowsom clustering. |
+| `uns["parameter_num_clusters"]` | `integer` | Parameter used to define the number of clusters used in the meta-clustering step of the flowsom algorithm. |
 
 </div>
 
@@ -262,7 +271,7 @@ Format:
      obs: 'cell_type', 'batch', 'sample', 'donor', 'group', 'is_control'
      var: 'numeric_id', 'channel', 'marker', 'marker_type', 'to_correct'
      layers: 'preprocessed'
-     uns: 'dataset_id', 'dataset_name', 'dataset_url', 'dataset_reference', 'dataset_summary', 'dataset_description', 'dataset_organism'
+     uns: 'dataset_id', 'dataset_name', 'dataset_url', 'dataset_reference', 'dataset_summary', 'dataset_description', 'dataset_organism', 'parameter_som_xdim', 'parameter_som_ydim', 'parameter_num_clusters'
 
 </div>
 
@@ -291,6 +300,9 @@ Data structure:
 | `uns["dataset_summary"]` | `string` | Short description of the dataset. |
 | `uns["dataset_description"]` | `string` | Long description of the dataset. |
 | `uns["dataset_organism"]` | `string` | (*Optional*) The organism of the sample in the dataset. |
+| `uns["parameter_som_xdim"]` | `integer` | Parameter used to define the dimensions of the self-organizing map (SOM) grid used for flowsom clustering. |
+| `uns["parameter_som_ydim"]` | `integer` | Parameter used to define the dimensions of the self-organizing map (SOM) grid used for flowsom clustering. |
+| `uns["parameter_num_clusters"]` | `integer` | Parameter used to define the number of clusters used in the meta-clustering step of the flowsom algorithm. |
 
 </div>
 
