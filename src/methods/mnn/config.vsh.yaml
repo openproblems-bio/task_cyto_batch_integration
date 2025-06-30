@@ -51,8 +51,8 @@ info:
 # Resources required to run the component
 resources:
   # The script of your component (required)
-  - type: python_script
-    path: script.py
+  - type: r_script
+    path: script.R
   # Additional resources your script needs (optional)
   # - type: file
   #   path: weights.pt
@@ -60,12 +60,12 @@ resources:
 engines:
   # Specifications for the Docker image for this component.
   - type: docker
-    image: openproblems/base_python:1.0.0
+    image: openproblems/base_r:1.0.0
     # Add custom dependencies here (optional). For more information, see
     # https://viash.io/reference/config/engines/docker/#setup .
     # setup:
-    #   - type: python
-    #     packages: numpy<2
+    #   - type: r
+    #     packages: tibble
 
 runners:
   # This platform allows running the component natively
