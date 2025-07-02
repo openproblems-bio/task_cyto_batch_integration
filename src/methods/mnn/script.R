@@ -11,12 +11,6 @@ meta <- list(
 )
 ## VIASH END
 
-print(par)
-for(el in names(par)) {
-  print(el)
-  print(typeof(par[[el]]))
-  print(par[[el]])
-}
 cat("Reading input files\n")
 input <- anndata::read_h5ad(par[["input"]])
 
