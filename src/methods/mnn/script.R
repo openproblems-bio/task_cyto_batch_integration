@@ -54,5 +54,4 @@ output <- anndata::AnnData(
   )
 )
 
-print(output)
 output$write_h5ad(par[["output"]], compression = "gzip")
