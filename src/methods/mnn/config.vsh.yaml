@@ -69,7 +69,6 @@ arguments:
         upper: 1
     default: 0
     description: A numeric scalar in (0, 1) specifying the proportion of cells in each dataset to use for mutual nearest neighbor searching. If set, the number of nearest neighbors used for the MNN search in each batch is redefined as max(k, prop.k*N) where N is the number of cells in that batch. If 0 is set to NULL.
-
   - name: "--sigma_value"
     type: double
     info:
