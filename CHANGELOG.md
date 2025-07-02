@@ -37,6 +37,8 @@
 
 * Added `metrics/flowsom_mapping_similarity` (PR #59).
 
+* Added `methods/mnn` (PR #75).
+
 ## MAJOR CHANGES
 
 * Updated file schema (PR #18): 
