@@ -9,44 +9,76 @@ __merge__: ../../api/comp_method.yaml
 # Can contain only lowercase letters or underscores.
 name: mnn
 # A relatively short label, used when rendering visualisations (required)
-label: Mnn
+label: mnn
 # A one sentence summary of how this method works (required). Used when 
 # rendering summary tables.
-summary: "FILL IN: A one sentence summary of this method."
+summary: "Original implementation of the Mutual Nearest Neighbors (MNN) algorithm by Haghverdi et al."
 # A multi-line description of how this component works (required). Used
 # when rendering reference documentation.
 description: |
-  FILL IN: A (multi-line) description of how this method works.
-# references:
-#   doi: 
-#     - 10.1000/xx.123456.789
-#   bibtex:
-#     - |
-#       @article{foo,
-#         title={Foo},
-#         author={Bar},
-#         journal={Baz},
-#         year={2024}
-#       }
+  Correct for batch effect using mutual nearest neighbors (MNNs).
+  Mutual nearest neighbors are identified as pairs of cells from different batches that are
+  within each other's set of k nearest neighbors. Cell pairs that have been identified as MNNs are assumed to
+  belong to the same biological state (or cell type), so that differences in the expression profiles of MNNs can
+  be used to infer direction and degree of batch effect.
+  The method was originally developed for single-cell RNA-sequencing data, but it is often used
+  for other types of data as well. 
+  This component uses the implementation from the `batchelor` bioconductor package.
+
+references:
+  doi: 
+    - 10.1038/nbt.4091
+  bibtex:
+    - |
+      @article{haghverdi2018batch,
+        title={Batch effects in single-cell RNA-sequencing data are corrected by matching mutual nearest neighbors},
+        author={Haghverdi, Laleh and Lun, Aaron TL and Morgan, Michael D and Marioni, John C},
+        journal={Nature biotechnology},
+        volume={36},
+        number={5},
+        pages={421--427},
+        year={2018},
+        publisher={Nature Publishing Group}
+      }
 links:
   # URL to the documentation for this method (required).
-  documentation: https://url.to/the/documentation
+  documentation: https://bioconductor.org/packages/devel/bioc/html/batchelor.html
   # URL to the code repository for this method (required).
-  repository: https://github.com/organisation/repository
+  repository: https://github.com/LTLA/batchelor/tree/master
 
-
-
-# Metadata for your component
-info:
-  # Which normalisation method this component prefers to use (required).
-  preferred_normalization: log_cp10k
 
 # Component-specific parameters (optional)
-# arguments:
-#   - name: "--n_neighbors"
-#     type: "integer"
-#     default: 5
-#     description: Number of neighbors to use.
+# argument_groups:
+#   - name: "Parameters"
+arguments:
+  - name: "--num_nn"
+    type: integer
+    info:
+      optimize:
+      type: linear
+      lower: 10
+      upper: 100
+    default: 20
+    description: An integer scalar specifying the number of nearest neighbors to consider when identifying MNNs.
+  - name: "--prop_num_nn"
+    type: double
+    info:
+      optimize:
+        type: expuniform
+        lower: 0
+        upper: 1
+    default: 0
+    description: A numeric scalar in (0, 1) specifying the proportion of cells in each dataset to use for mutual nearest neighbor searching. If set, the number of nearest neighbors used for the MNN search in each batch is redefined as max(k, prop.k*N) where N is the number of cells in that batch. If 0 is set to NULL.
+
+  - name: "--sigma_value"
+    type: double
+    info:
+      optimize:
+        type: expuniform
+        lower: 0.01
+        upper: 100
+    default: 0.1
+    description: A numeric scalar specifying the bandwidth of the Gaussian smoothing kernel used to compute the correction vector for each cell.
 
 # Resources required to run the component
 resources:
@@ -63,9 +95,9 @@ engines:
     image: openproblems/base_r:1.0.0
     # Add custom dependencies here (optional). For more information, see
     # https://viash.io/reference/config/engines/docker/#setup .
-    # setup:
-    #   - type: r
-    #     packages: tibble
+    setup:
+      - type: r
+        bioc: [batchelor]
 
 runners:
   # This platform allows running the component natively

@@ -1,4 +1,5 @@
 library(anndata)
+library(batchelor)
 
 ## VIASH START
 par <- list(
@@ -10,20 +11,54 @@ meta <- list(
 )
 ## VIASH END
 
+print(par)
+for(el in names(par)) {
+  print(el)
+  print(typeof(par[[el]]))
+  print(par[[el]])
+}
 cat("Reading input files\n")
 input <- anndata::read_h5ad(par[["input"]])
 
-cat("Preprocess data\n")
-# ... preprocessing ...
+cat("Subset data\n")
+data_not_correct <- input[, !input$var$to_correct]
+data_to_correct <- input[, input$var$to_correct]
 
-cat("Train model\n")
-# ... train model ...
+cat("Run MNN\n")
 
-cat("Generate predictions\n")
-# ... generate predictions ...
+# If prop_num_nn is set to 0, it is set to NULL
+if (par[["prop_num_nn"]] == 0.0) {
+  print("'prop_num_nn' = 0, setting it to NULL")
+  par[["prop_num_nn"]] <- NULL
+}
+
+corrected_data <- mnnCorrect(Matrix::t(data_to_correct$layers[["preprocessed"]]),
+              batch = data_to_correct$obs$batch,
+              k= par[["num_nn"]],
+              prop.k = par[["prop_num_nn"]],
+              sigma = par[["sigma_value"]],
+              cos.norm.in = FALSE,
+              cos.norm.out = FALSE)
+
+cat("Preparing output Anndata\n")
+corrected_data <- Matrix::t(assay(corrected_data))
+corrected_data <- cbind(corrected_data, data_not_correct$layers[["preprocessed"]])
 
 cat("Write output AnnData to file\n")
 output <- anndata::AnnData(
-  
+  obs = input$obs[, integer(0)],
+  var = input$var[colnames(corrected_data), integer(0)],
+  layers = list(integrated = corrected_data),
+  uns = list(
+    dataset_id = input$uns$dataset_id,
+    method_id = meta$name,
+    parameters = list(
+      "k" = par[["num_nn"]],
+      "prop.k" = par["prop_num_nn"],
+      "sigma" = par[["sigma_value"]]
+    )
+  )
 )
+
+print(output)
 output$write_h5ad(par[["output"]], compression = "gzip")
