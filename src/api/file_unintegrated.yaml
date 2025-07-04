@@ -1,6 +1,6 @@
 #TODO: Change to the required and/or optional fields of the anndata
 type: file
-example: "resources_test/task_cyto_batch_integration/leomazzi_cyto_spleen_subset/unintegrated.h5ad"
+example: "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/unintegrated.h5ad"
 label: Unintegrated
 summary: |
   The complete unintegrated dataset, including all cells' metadata (columns) from the 
@@ -95,3 +95,15 @@ info:
         type: string
         description: The organism of the sample in the dataset.
         required: false
+      - name: parameter_som_xdim
+        type: integer
+        description: Parameter used to define the width of the self-organizing map (SOM) grid. Usually between 10 and 20.
+        required: true
+      - name: parameter_som_ydim
+        type: integer
+        description: Parameter used to define the height of the self-organizing map (SOM) grid. Usually between 10 and 20.
+        required: true
+      - name: parameter_num_clusters
+        type: integer
+        description: Parameter used to define the number of clusters. Set this number to be slightly higher than the number of cell types expected in the dataset.
+        required: true

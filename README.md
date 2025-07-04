@@ -74,7 +74,7 @@ flowchart TB
 A subset of the common dataset.
 
 Example file:
-`resources_test/task_cyto_batch_integration/leomazzi_cyto_spleen_subset/common_dataset.h5ad`
+`resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/common_dataset.h5ad`
 
 Format:
 
@@ -84,7 +84,7 @@ Format:
      obs: 'cell_type', 'batch', 'sample', 'donor', 'group', 'is_control', 'is_validation'
      var: 'numeric_id', 'channel', 'marker', 'marker_type', 'to_correct'
      layers: 'preprocessed'
-     uns: 'dataset_id', 'dataset_name', 'dataset_url', 'dataset_reference', 'dataset_summary', 'dataset_description', 'dataset_organism'
+     uns: 'dataset_id', 'dataset_name', 'dataset_url', 'dataset_reference', 'dataset_summary', 'dataset_description', 'dataset_organism', 'parameter_som_xdim', 'parameter_som_ydim', 'parameter_num_clusters'
 
 </div>
 
@@ -114,6 +114,9 @@ Data structure:
 | `uns["dataset_summary"]` | `string` | Short description of the dataset. |
 | `uns["dataset_description"]` | `string` | Long description of the dataset. |
 | `uns["dataset_organism"]` | `string` | (*Optional*) The organism of the sample in the dataset. |
+| `uns["parameter_som_xdim"]` | `integer` | Parameter used to define the width of the self-organizing map (SOM) grid. Usually between 10 and 20. |
+| `uns["parameter_som_ydim"]` | `integer` | Parameter used to define the height of the self-organizing map (SOM) grid. Usually between 10 and 20. |
+| `uns["parameter_num_clusters"]` | `integer` | Parameter used to define the number of clusters. Set this number to be slightly higher than the number of cell types expected in the dataset. |
 
 </div>
 
@@ -144,7 +147,7 @@ is used as the input for the batch correction algorithm. The cells
 therein are identical to those in the unintegrated dataset.
 
 Example file:
-`resources_test/task_cyto_batch_integration/leomazzi_cyto_spleen_subset/unintegrated_censored.h5ad`
+`resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/unintegrated_censored.h5ad`
 
 Format:
 
@@ -190,7 +193,7 @@ The complete unintegrated dataset, including all cells’ metadata
 dataset are the same to those in the unintegrated_censored dataset.
 
 Example file:
-`resources_test/task_cyto_batch_integration/leomazzi_cyto_spleen_subset/unintegrated.h5ad`
+`resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/unintegrated.h5ad`
 
 Format:
 
@@ -200,7 +203,7 @@ Format:
      obs: 'cell_type', 'batch', 'sample', 'donor', 'group', 'is_control'
      var: 'numeric_id', 'channel', 'marker', 'marker_type', 'to_correct'
      layers: 'preprocessed'
-     uns: 'dataset_id', 'dataset_name', 'dataset_url', 'dataset_reference', 'dataset_summary', 'dataset_description', 'dataset_organism'
+     uns: 'dataset_id', 'dataset_name', 'dataset_url', 'dataset_reference', 'dataset_summary', 'dataset_description', 'dataset_organism', 'parameter_som_xdim', 'parameter_som_ydim', 'parameter_num_clusters'
 
 </div>
 
@@ -229,6 +232,9 @@ Data structure:
 | `uns["dataset_summary"]` | `string` | Short description of the dataset. |
 | `uns["dataset_description"]` | `string` | Long description of the dataset. |
 | `uns["dataset_organism"]` | `string` | (*Optional*) The organism of the sample in the dataset. |
+| `uns["parameter_som_xdim"]` | `integer` | Parameter used to define the dimensions of the self-organizing map (SOM) grid used for flowsom clustering. |
+| `uns["parameter_som_ydim"]` | `integer` | Parameter used to define the dimensions of the self-organizing map (SOM) grid used for flowsom clustering. |
+| `uns["parameter_num_clusters"]` | `integer` | Parameter used to define the number of clusters used in the meta-clustering step of the flowsom algorithm. |
 
 </div>
 
@@ -237,7 +243,7 @@ Data structure:
 Hold-out dataset for validation.
 
 Example file:
-`resources_test/task_cyto_batch_integration/leomazzi_cyto_spleen_subset/validation.h5ad`
+`resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/validation.h5ad`
 
 Description:
 
@@ -262,7 +268,7 @@ Format:
      obs: 'cell_type', 'batch', 'sample', 'donor', 'group', 'is_control'
      var: 'numeric_id', 'channel', 'marker', 'marker_type', 'to_correct'
      layers: 'preprocessed'
-     uns: 'dataset_id', 'dataset_name', 'dataset_url', 'dataset_reference', 'dataset_summary', 'dataset_description', 'dataset_organism'
+     uns: 'dataset_id', 'dataset_name', 'dataset_url', 'dataset_reference', 'dataset_summary', 'dataset_description', 'dataset_organism', 'parameter_som_xdim', 'parameter_som_ydim', 'parameter_num_clusters'
 
 </div>
 
@@ -291,6 +297,9 @@ Data structure:
 | `uns["dataset_summary"]` | `string` | Short description of the dataset. |
 | `uns["dataset_description"]` | `string` | Long description of the dataset. |
 | `uns["dataset_organism"]` | `string` | (*Optional*) The organism of the sample in the dataset. |
+| `uns["parameter_som_xdim"]` | `integer` | Parameter used to define the width of the self-organizing map (SOM) grid. Usually between 10 and 20. |
+| `uns["parameter_som_ydim"]` | `integer` | Parameter used to define the height of the self-organizing map (SOM) grid. Usually between 10 and 20. |
+| `uns["parameter_num_clusters"]` | `integer` | Parameter used to define the number of clusters. Set this number to be slightly higher than the number of cell types expected in the dataset. |
 
 </div>
 
@@ -347,7 +356,7 @@ Arguments:
 Integrated dataset which batch effect was corrected by an algorithm
 
 Example file:
-`resources_test/task_cyto_batch_integration/leomazzi_cyto_spleen_subset/integrated.h5ad`
+`resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/integrated.h5ad`
 
 Format:
 
@@ -377,7 +386,7 @@ Data structure:
 File indicating the score of a metric.
 
 Example file:
-`resources_test/task_cyto_batch_integration/leomazzi_cyto_spleen_subset/score.h5ad`
+`resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/score.h5ad`
 
 Format:
 

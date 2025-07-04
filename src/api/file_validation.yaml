@@ -1,7 +1,7 @@
 type: file
-example: "resources_test/task_cyto_batch_integration/leomazzi_cyto_spleen_subset/validation.h5ad"
+example: "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/validation.h5ad"
 label: Validation
-summary: Hold-out dataset for validation. 
+summary: Hold-out dataset for validation.
 description: |
   Dataset containing cells from samples that were held out for evaluating batch integration output. 
   The cells that are in this dataset belong to samples which are not included in the unintegrated 
@@ -13,7 +13,7 @@ description: |
   but is needed to validate whether whether the algorithm managed to correct the batch effect
   in batch 2 towards batch 1.
   This sample will then be included in this dataset (but not in unintegrated
-  and unintegrated_censored datasets).  
+  and unintegrated_censored datasets).
 info:
   format:
     type: h5ad
@@ -103,3 +103,15 @@ info:
         type: string
         description: The organism of the sample in the dataset.
         required: false
+      - name: parameter_som_xdim
+        type: integer
+        description: Parameter used to define the width of the self-organizing map (SOM) grid. Usually between 10 and 20.
+        required: true
+      - name: parameter_som_ydim
+        type: integer
+        description: Parameter used to define the height of the self-organizing map (SOM) grid. Usually between 10 and 20.
+        required: true
+      - name: parameter_num_clusters
+        type: integer
+        description: Parameter used to define the number of clusters. Set this number to be slightly higher than the number of cell types expected in the dataset.
+        required: true

@@ -3,9 +3,9 @@ library(FlowSOM, quietly = TRUE)
 
 ## VIASH START
 par <- list(
-  input_validation = "resources_test/task_cyto_batch_integration/leomazzi_cyto_spleen_subset/validation.h5ad",
-  input_unintegrated = "resources_test/task_cyto_batch_integration/leomazzi_cyto_spleen_subset/unintegrated.h5ad",
-  input_integrated = "resources_test/task_cyto_batch_integration/leomazzi_cyto_spleen_subset/integrated.h5ad",
+  input_validation = "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/validation.h5ad",
+  input_unintegrated = "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/unintegrated.h5ad",
+  input_integrated = "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/integrated.h5ad",
   output = "output.h5ad"
 )
 meta <- list(
@@ -14,11 +14,6 @@ meta <- list(
   temp_dir = "/tmp"
 )
 ## VIASH END
-
-# TODO: make these parameters dataset-specific?
-n_clusters <- 25
-grid_xdim <- 15
-grid_ydim <- 15
 
 source(paste0(meta$resources_dir, "/helper.R"))
 source(paste0(meta$resources_dir, "/helper_functions.R"))
@@ -47,6 +42,9 @@ donor_list <- unique(input_integrated$obs$donor)
 lineage_markers <- input_validation$var_names[
   input_validation$var$marker_type == "lineage"
 ]
+n_clusters <- input_validation$uns$parameter_num_clusters
+grid_xdim <- input_validation$uns$parameter_som_xdim
+grid_ydim <- input_validation$uns$parameter_som_ydim
 
 print("Computing mapping similarity\n")
 fs_mapping_similarity_allres <- list()

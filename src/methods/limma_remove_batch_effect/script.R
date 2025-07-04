@@ -3,7 +3,7 @@ requireNamespace("limma", quietly = TRUE)
 
 ## VIASH START
 par <- list(
-  input = "resources_test/task_cyto_batch_integration/leomazzi_cyto_spleen_subset/unintegrated_censored.h5ad",
+  input = "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/unintegrated_censored.h5ad",
   output = "output.h5ad"
 )
 meta <- list(
