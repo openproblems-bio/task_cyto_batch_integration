@@ -21,22 +21,42 @@ info:
       label: Cms
       # A one sentence summary of how this metric works (required). Used when 
       # rendering summary tables.
-      summary: "FILL IN: A one sentence summary of this metric."
+      summary: "Cellspecific Mixing Score (cms) quantifies batch effects at the cell level by computing batch-specific distance distributions towards k-nearest neighbouring cells."
       # A multi-line description of how this component works (required). Used
       # when rendering reference documentation.
       description: |
-        FILL IN: A (multi-line) description of how this metric works.
-      # references:
-      #   doi: 
-      #     - 10.1000/xx.123456.789
-      #   bibtex:
-      #     - |
-      #       @article{foo,
-      #         title={Foo},
-      #         author={Bar},
-      #         journal={Baz},
-      #         year={2024}
-      #       }
+        The cellspecific mixing score cms tests for each cell the hypothesis that batch-specific distance 
+        distributions towards it's k-nearest neighbouring (knn) cells are derived from the same unspecified 
+        underlying distribution using the Anderson-Darling test. The test considers differences in the number of cells 
+        from each batch, making the cms a robust metric when evaluating batch effects in datasets with unbalanced batch sizes.
+
+        The cms for each cell can be interpreted as a P-value, that is, the probability of observing deviations 
+        in the batch specific distance distributions by chance (assuming they are all derived from the same distribution).
+        Thus, enrichment of low P-values is indicative of poor batch mixing and a dataset with randomly shuffled batch 
+        labels should yield uniformly distributed P-values.
+
+        A high cms score refers to good mixing, while a low score indicates batch-specific bias.
+        Thus, enrichment of low cms scores is indicative of poor batch mixing.
+        It has been empirically observed that a uniform distribution of cms scores across cells 
+        in a dataset is indicative of good mixing.
+
+
+      references:
+        doi: 
+          - 10.26508/lsa.202001004
+        bibtex:
+          - |
+            @article{lutge2021cellmixs,
+              title={CellMixS: quantifying and visualizing batch effects in single-cell RNA-seq data},
+              author={L{\"u}tge, Almut and Zyprych-Walczak, Joanna and Kunzmann, Urszula Brykczynska and Crowell, Helena L and Calini, Daniela and Malhotra, Dheeraj and Soneson, Charlotte and Robinson, Mark D},
+              journal={Life science alliance},
+              volume={4},
+              number={6},
+              year={2021},
+              publisher={Life Science Alliance}
+            }
+          - |
+
       links:
         # URL to the documentation for this metric (required).
         documentation: https://url.to/the/documentation
@@ -47,7 +67,7 @@ info:
       # The maximum possible value for this metric (required)
       max: 1
       # Whether a higher value represents a 'better' solution (required)
-      maximize: true
+      maximize: false
 
 # Component-specific parameters (optional)
 # arguments:
