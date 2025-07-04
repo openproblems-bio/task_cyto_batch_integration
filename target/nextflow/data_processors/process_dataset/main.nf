@@ -3755,7 +3755,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/data_processors/process_dataset",
     "viash_version" : "0.9.4",
-    "git_commit" : "558e479fd1df44c8b4871cec0f5c0de7a4dd79a4",
+    "git_commit" : "62d95da464ed450df35a6d60389fa765f2f8591a",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {

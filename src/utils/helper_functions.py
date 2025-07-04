@@ -19,30 +19,29 @@ def get_obs_var_for_integrated(
     import warnings
 
     if i_adata.uns["method_id"] == "perfect_integration_horizontal":
-        assert (
-            i_adata.shape[0] == v_adata.shape[0]
-        ), "The number of cells in the integrated (perfect_integration_horizontal) and validation datasets do not match"
+        assert i_adata.shape[0] == v_adata.shape[0], (
+            "The number of cells in the integrated (perfect_integration_horizontal) and validation datasets do not match"
+        )
         i_adata.obs = v_adata.obs.loc[i_adata.obs_names]
         i_adata.var = v_adata.var.loc[i_adata.var_names]
 
     elif i_adata.uns["method_id"] == "perfect_integration_vertical":
-
         obs_adata = ad.concat([v_adata, u_adata])
         # subset to just batch 1
         # purposely hard code this so if the batch used for perfect integration vertical
         # changes, this will have to be purposely changed.
         obs_adata = obs_adata[obs_adata.obs["batch"] == 1]
 
-        assert (
-            i_adata.shape[0] == obs_adata.shape[0]
-        ), "The number of cells in the integrated (perfect_integration_vertical) and validation + unintegrated datasets do not match"
+        assert i_adata.shape[0] == obs_adata.shape[0], (
+            "The number of cells in the integrated (perfect_integration_vertical) and validation + unintegrated datasets do not match"
+        )
         i_adata.obs = obs_adata.obs.loc[i_adata.obs_names]
         i_adata.var = v_adata.var.loc[i_adata.var_names]
 
     else:
-        assert (
-            i_adata.shape[0] == u_adata.shape[0]
-        ), "The number of cells in the integrated and unintegrated datasets do not match"
+        assert i_adata.shape[0] == u_adata.shape[0], (
+            "The number of cells in the integrated and unintegrated datasets do not match"
+        )
         if False in list(i_adata.obs.index == u_adata.obs.index):
             warnings.warn(
                 "The cell ordering in the integrated and unintegrated datasets do not match"
@@ -66,9 +65,9 @@ def subset_nocontrols(adata) -> ad.AnnData:
     adata: AnnData object with cells from control samples removed
     """
 
-    assert (
-        "is_control" in adata.obs.columns
-    ), "The column 'is_control' is not present in the adata object."
+    assert "is_control" in adata.obs.columns, (
+        "The column 'is_control' is not present in the adata object."
+    )
 
     # subset the adata to remove cells which is_control != 0
     adata = adata[adata.obs["is_control"] == 0].copy()
