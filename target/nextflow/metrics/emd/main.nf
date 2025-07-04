@@ -3731,7 +3731,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/metrics/emd",
     "viash_version" : "0.9.4",
-    "git_commit" : "62d95da464ed450df35a6d60389fa765f2f8591a",
+    "git_commit" : "62d719a700835cdf7535117eb9c1d5d6db8885d1",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
