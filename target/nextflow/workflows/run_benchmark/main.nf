@@ -3669,6 +3669,12 @@ meta = [
       }
     },
     {
+      "name" : "methods/mnn",
+      "repository" : {
+        "type" : "local"
+      }
+    },
+    {
       "name" : "metrics/emd",
       "repository" : {
         "type" : "local"
@@ -3749,7 +3755,7 @@ meta = [
     "engine" : "native",
     "output" : "target/nextflow/workflows/run_benchmark",
     "viash_version" : "0.9.4",
-    "git_commit" : "62d719a700835cdf7535117eb9c1d5d6db8885d1",
+    "git_commit" : "5f5baa0461be6dcb57e78330684b9fcb1b5eba4a",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3864,6 +3870,7 @@ include { combat } from "${meta.resources_dir}/../../../nextflow/methods/combat/
 include { cycombine_nocontrols } from "${meta.resources_dir}/../../../nextflow/methods/cycombine_nocontrols/main.nf"
 include { gaussnorm } from "${meta.resources_dir}/../../../nextflow/methods/gaussnorm/main.nf"
 include { cytonorm_controls } from "${meta.resources_dir}/../../../nextflow/methods/cytonorm_controls/main.nf"
+include { mnn } from "${meta.resources_dir}/../../../nextflow/methods/mnn/main.nf"
 include { emd } from "${meta.resources_dir}/../../../nextflow/metrics/emd/main.nf"
 include { n_inconsistent_peaks } from "${meta.resources_dir}/../../../nextflow/metrics/n_inconsistent_peaks/main.nf"
 include { average_batch_r2 } from "${meta.resources_dir}/../../../nextflow/metrics/average_batch_r2/main.nf"
@@ -3891,7 +3898,8 @@ methods = [
   combat,
   cycombine_nocontrols,
   gaussnorm,
-  cytonorm_controls
+  cytonorm_controls,
+  mnn
 ]
 
 // construct list of metrics

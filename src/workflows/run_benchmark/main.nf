@@ -18,7 +18,8 @@ methods = [
   combat,
   cycombine_nocontrols,
   gaussnorm,
-  cytonorm_controls
+  cytonorm_controls,
+  mnn
 ]
 
 // construct list of metrics
