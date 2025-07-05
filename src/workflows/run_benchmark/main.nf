@@ -21,6 +21,7 @@ methods = [
   gaussnorm,
   cytonorm_controls,
   cytonorm_healthy_controls
+  mnn
 ]
 
 // construct list of metrics

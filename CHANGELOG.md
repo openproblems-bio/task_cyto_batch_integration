@@ -37,6 +37,8 @@
 
 * Added `metrics/flowsom_mapping_similarity` (PR #59).
 
+* Added `methods/mnn` (PR #75).
+
 ## MAJOR CHANGES
 
 * Updated file schema (PR #18): 
@@ -111,3 +113,5 @@
 * Fix vertical EMD (PR #76):
   * Return NA if there are less than 2 samples per group in the data.
   * Refactoring and introduced "global" variable for output.
+
+* Add MNN to run script (PR #77).
