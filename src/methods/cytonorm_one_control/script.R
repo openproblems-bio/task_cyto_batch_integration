@@ -9,7 +9,7 @@ par <- list(
     output = "resources_test/output.h5ad"
 )
 meta <- list(
-    name = "cytonorm_control",
+    name = "cytonorm_one_control",
     temp_dir = "resources_test/task_cyto_batch_integration/tmp",
     resources_dir = "src/utils"
 )

@@ -73,10 +73,10 @@ dependencies:
   - name: methods/limma_remove_batch_effect
   - name: methods/combat
   - name: methods/cycombine_no_controls
-  - name: methods/cycombine_healthy_controls
+  - name: methods/cycombine_one_control
   - name: methods/gaussnorm
-  - name: methods/cytonorm_controls
-  - name: methods/cytonorm_healthy_controls
+  - name: methods/cytonorm_all_controls
+  - name: methods/cytonorm_one_control
   - name: methods/mnn
   - name: metrics/emd
   - name: metrics/n_inconsistent_peaks

@@ -7,12 +7,12 @@ __merge__: ../../api/comp_method.yaml
 
 # A unique identifier for your component (required).
 # Can contain only lowercase letters or underscores.
-name: cytonorm_healthy_controls
+name: cytonorm_one_control
 # A relatively short label, used when rendering visualisations (required)
-label: CytoNorm with healthy controls
+label: CytoNorm with one control
 # A one sentence summary of how this method works (required). Used when 
 # rendering summary tables.
-summary: CytoNorm Batch normalization algorithm which uses only healthy controls across batches.
+summary: CytoNorm with only control samples from one group.
 # A multi-line description of how this component works (required). Used
 # when rendering reference documentation.
 description: |
@@ -22,7 +22,8 @@ description: |
   expression distributions differ across batches for each population.
   It then uses splines to align these distributions to a common reference (either the mean
   of batches or to a single batch).
-  In this CytoNorm version, batches are aligned to the mean of the batches.
+  In this CytoNorm version, batches are aligned to the mean of the batches, and 
+  only control samples from one condition/group is used.
   Clustering was performed by FlowSOM, using the default parameters provided by CytoNorm.
 references:
   doi: 

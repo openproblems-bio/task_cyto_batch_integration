@@ -17,10 +17,10 @@ methods = [
   perfect_integration_vertical,
   combat,
   cycombine_no_controls,
-  cycombine_healthy_controls,
+  cycombine_one_control,
   gaussnorm,
-  cytonorm_controls,
-  cytonorm_healthy_controls
+  cytonorm_all_controls,
+  cytonorm_one_control
   mnn
 ]
 
