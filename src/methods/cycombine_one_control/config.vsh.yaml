@@ -7,18 +7,18 @@ __merge__: ../../api/comp_method.yaml
 
 # A unique identifier for your component (required).
 # Can contain only lowercase letters or underscores.
-name: cycombine_healthy_controls
+name: cycombine_one_control
 # A relatively short label, used when rendering visualisations (required)
-label: Cycombine with Healthy Controls
+label: Cycombine with one Control
 # A one sentence summary of how this method works (required). Used when 
 # rendering summary tables.
-summary: "cyCombine with healthy control samples"
+summary: "cyCombine with one control samples"
 description: |
   cyCombine perform batch integration using self-organizing maps and ComBat.
   It first uses self-organizing maps (SOM) to group similar cells into clusters, 
   then applies a ComBat-based method to correct batch effects within 
   each cluster. 
-  Here, we run cyCombine with just healthy control samples (replicates in cyCombine terminology).
+  Here, we run cyCombine with control samples from just one condition/group (replicates in cyCombine terminology).
 references:
   doi: 
     - 10.1038/s41467-022-29383-5

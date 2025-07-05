@@ -6,7 +6,7 @@ par <- list(
     input = "resources_test/task_cyto_batch_integration/leomazzi_cyto_spleen_subset/unintegrated_censored.h5ad",
     output = "resources_test/task_cyto_batch_integration/leomazzi_cyto_spleen_subset/output.h5ad"
 )
-meta <- list(name = "cycombine_healthy_controls")
+meta <- list(name = "cycombine_one_control")
 ## VIASH END
 
 cat("Reading input files\n")
