@@ -110,4 +110,8 @@
 
 * Remove unlabelled cells when computing n_inconsistent_peaks metric (PR #69).
 
+* Fix vertical EMD (PR #76):
+  * Return NA if there are less than 2 samples per group in the data.
+  * Refactoring and introduced "global" variable for output.
 
+* Add MNN to run script (PR #77).

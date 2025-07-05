@@ -5,6 +5,13 @@ import numpy as np
 import pandas as pd
 from scipy.stats import wasserstein_distance
 
+KEY_MEAN_EMD_GLOBAL = "mean_emd_global"
+KEY_MAX_EMD_GLOBAL = "max_emd_global"
+KEY_MEAN_EMD_CT = "mean_emd_ct"
+KEY_MAX_EMD_CT = "max_emd_ct"
+KEY_EMD_VERT_MAT = "emd_vert_mat"
+KEY_EMD_HORZ_PER_DONOR = "emd_horz_per_donor"
+
 
 def calculate_vertical_emd(input_integrated: ad.AnnData, markers_to_assess: list):
     """
@@ -42,6 +49,17 @@ def calculate_vertical_emd(input_integrated: ad.AnnData, markers_to_assess: list
     sample_combos = np.array(
         [list(itertools.combinations(x, 2)) for x in sample_group_map]
     ).reshape(-1, 2)
+
+    if len(sample_combos) == 0:
+        # this means the data processed do not have at least 2 samples per group.
+        # thus it is impossible to compute this metric.
+        return {
+            KEY_MEAN_EMD_GLOBAL: np.nan,
+            KEY_MAX_EMD_GLOBAL: np.nan,
+            KEY_MEAN_EMD_CT: np.nan,
+            KEY_MAX_EMD_CT: np.nan,
+            KEY_EMD_VERT_MAT: np.nan,
+        }
 
     cell_types = input_integrated.obs["cell_type"].unique()
 
@@ -159,11 +177,11 @@ def calculate_vertical_emd(input_integrated: ad.AnnData, markers_to_assess: list
                 emd_wide_dfs[marker][ct] = emd_wide
 
     return {
-        "mean_emd_global": mean_emd_global,
-        "max_emd_global": max_emd_global,
-        "mean_emd_ct": mean_emd_ct,
-        "max_emd_ct": max_emd_ct,
-        "emd_wide_dfs": emd_wide_dfs,
+        KEY_MEAN_EMD_GLOBAL: mean_emd_global,
+        KEY_MAX_EMD_GLOBAL: max_emd_global,
+        KEY_MEAN_EMD_CT: mean_emd_ct,
+        KEY_MAX_EMD_CT: max_emd_ct,
+        KEY_EMD_VERT_MAT: emd_wide_dfs,
     }
 
 
@@ -268,11 +286,11 @@ def calculate_horizontal_emd(
     emd_per_donor = pd.concat([emd_per_donor_per_ct, emd_per_donor_global])
 
     return {
-        "mean_emd_global": mean_emd_global,
-        "max_emd_global": max_emd_global,
-        "mean_emd_ct": mean_emd_ct,
-        "max_emd_ct": max_emd_ct,
-        "emd_per_donor": emd_per_donor,
+        KEY_MEAN_EMD_GLOBAL: mean_emd_global,
+        KEY_MAX_EMD_GLOBAL: max_emd_global,
+        KEY_MEAN_EMD_CT: mean_emd_ct,
+        KEY_MAX_EMD_CT: max_emd_ct,
+        KEY_EMD_HORZ_PER_DONOR: emd_per_donor,
     }
 
 
