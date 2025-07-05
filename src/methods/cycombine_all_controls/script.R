@@ -6,7 +6,7 @@ par <- list(
     input = "resources_test/task_cyto_batch_integration/leomazzi_cyto_spleen_subset/unintegrated_censored.h5ad",
     output = "resources_test/task_cyto_batch_integration/leomazzi_cyto_spleen_subset/output.h5ad"
 )
-meta <- list(name = "cycombine_one_control")
+meta <- list(name = "cycombine_all_controls")
 ## VIASH END
 
 cat("Reading input files\n")
@@ -35,7 +35,7 @@ df_to_correct$anchor <- as.character(adata_to_correct$obs$sample)
 
 # get sample name for controls
 control_samples_name <- as.vector(
-    unique(adata_to_correct$obs[adata_to_correct$obs$is_control == 1, "sample"])
+    unique(adata_to_correct$obs[adata_to_correct$obs$is_control != 0, "sample"])
 )
 
 # change the "anchor" column values for this controls

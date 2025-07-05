@@ -18,9 +18,10 @@ methods = [
   combat,
   cycombine_no_controls,
   cycombine_one_control,
+  cycombine_all_controls,
   gaussnorm,
   cytonorm_all_controls,
-  cytonorm_one_control
+  cytonorm_one_control,
   mnn
 ]
 
