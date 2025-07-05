@@ -108,4 +108,6 @@
 
 * Fixed get_obs_var_for_integrated function in helper.R giving out error in mac (PR #65).
 
-* Remove unlabelled cells when computing n_inconsistent_peaks metric (PR #69)
+* Remove unlabelled cells when computing n_inconsistent_peaks metric (PR #69).
+
+
