@@ -76,7 +76,7 @@ dependencies:
   - name: methods/cycombine_one_control
   - name: methods/cycombine_all_controls
   - name: methods/gaussnorm
-  - name: methods/cytonorm_controls
+  - name: methods/cytonorm_no_controls
   - name: methods/cytonorm_all_controls
   - name: methods/cytonorm_one_control
   - name: methods/mnn
