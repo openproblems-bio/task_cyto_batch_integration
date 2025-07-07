@@ -45,8 +45,8 @@ cluster_labels <- cyCombine::create_som(
     markers = lineage_markers,
     rlen = 10,
     seed = 42,
-    xdim = 8,
-    ydim = 8
+    xdim = par[["som_grid_size"]],
+    ydim = par[["som_grid_size"]]
 )
 
 # Batch correct using default parameter values
