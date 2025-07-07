@@ -33,6 +33,7 @@ names(fset_per_batch) <- batches
 # create aggregate per batch
 # TODO change to a parameter
 n_cells_agg <- 1000
+set.seed(42)
 agg_per_batch <- lapply(batches, function(bt) {
     ff_obj <- FlowSOM::AggregateFlowFrames(
         fileNames = fset_per_batch[[bt]],

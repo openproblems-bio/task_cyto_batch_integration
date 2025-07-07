@@ -8,13 +8,31 @@ description: |
   It first uses self-organizing maps (SOM) to group similar cells into clusters, 
   then applies a ComBat-based method to correct batch effects within 
   each cluster. 
-  Here, we run cyCombine without any control samples (replicates in cyCombine terminology).
+  Here, we run cyCombine without any control samples (replicates in cyCombine terminology) 
+  using square SOM grid.
+  The size of the SOM grid is varied linearly between value of 6-12, with default set to 8.
+  Rlen, which is the number of times data is presented to the SOM network is fixed to 
+  the default 10 and not varied in parameter optimisation as we are not assessing how
+  effective SOM is for clustering.
 references:
   doi: 
     - 10.1038/s41467-022-29383-5
 links:
   documentation: https://biosurf.org/cyCombine.html
   repository: https://github.com/biosurf/cyCombine
+
+argument_groups:
+  - name: Parameters
+    arguments:
+      - type: integer
+        name: --som_grid_size
+        info:
+          optimize:
+            type: linear
+            lower: 6
+            upper: 12
+        default: 8
+        description: SOM grid size used by create_som
 
 resources:
   # The script of your component (required)

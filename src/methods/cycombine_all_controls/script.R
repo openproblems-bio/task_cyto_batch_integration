@@ -52,6 +52,8 @@ cat("Run cyCombine\n")
 
 # use the default parameters in normalize
 # do the normalisation on all markers to be corrected
+# use z-score normalisation because we are merging batches
+# from a single study.
 df_to_correct_norm <- cyCombine::normalize(
     df = df_to_correct,
     markers = markers_to_correct,
@@ -65,8 +67,8 @@ cluster_labels <- cyCombine::create_som(
     markers = lineage_markers,
     rlen = 10,
     seed = 42,
-    xdim = 8,
-    ydim = 8
+    xdim = par[["som_grid_size"]],
+    ydim = par[["som_grid_size"]]
 )
 
 # Batch correct using default parameter values
