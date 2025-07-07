@@ -29,17 +29,19 @@ df_to_correct$sample <- adata_to_correct$obs$sample
 # add an "anchor" column which specify which samples are the technical replicates
 # this is a bit weird as the anchor information should be a column name or character vector
 # giving all anchors the same label and every other sample a unique label.
-# so for our controls, i have to give it the same name, but unique for others..
-# as character is needed as otherwise we will get NAs for those controls..
-df_to_correct$anchor <- as.character(adata_to_correct$obs$sample)
+# so for our controls (replicate samples), i have to give it the same name,
+# while non-replicate sample should be given a unique identifier.
+# hence for non-replicate samples, we will just use the values in the "sample" column.
+# for the replicate samples, we will use the values in the "is_control" column.
+# that way, samples from the same donor will have the same label, and
+# cycombine can identify which samples are technical replicates of each other.
+# the as.character function is needed as otherwise we will get NAs for those controls..
 
-# get sample name for controls
-control_samples_name <- as.vector(
-    unique(adata_to_correct$obs[adata_to_correct$obs$is_control == 1, "sample"])
+df_to_correct$anchor <- ifelse(
+    adata_to_correct$obs$is_control == 1,
+    paste0("control_", adata_to_correct$obs$is_control),
+    as.character(adata_to_correct$obs$sample)
 )
-
-# change the "anchor" column values for this controls
-df_to_correct$anchor[df_to_correct$anchor %in% control_samples_name] <- "control"
 
 lineage_markers <- as.vector(input_adata$var_names[
     input_adata$var$marker_type == "lineage"
