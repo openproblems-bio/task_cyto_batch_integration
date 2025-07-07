@@ -3,6 +3,8 @@ library(anndata)
 library(Biobase)
 library(CytoNorm)
 
+requireNamespace("FlowSOM", quietly = TRUE)
+
 ## VIASH START
 par <- list(
     input = "resources_test/task_cyto_batch_integration/cyto_spleen_subset/unintegrated_censored.h5ad",
