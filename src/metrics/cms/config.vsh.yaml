@@ -38,9 +38,10 @@ info:
         The medcouple statistic returns values between -1 and 1, where:
         - A value close to -1 indicates a pronounced left-skewed distribution, reflecting abundance of cells with high cms scores
         - A value close to 1 indicates a pronounced right-skewed distribution, reflecting abundance of cells with low cms scores
+        - A value around 0 indicates a symmetrical distribution of cms scores
 
         It has been empirically observed that a uniform (thus, symmetrical) distribution of cms scores across cells in a dataset is indicative of good mixing
-        (e.g. via random shuffling of batch labels in a dataset). Therefore, a medcouple of 0 or lower is considered a good mixing score.
+        (e.g. via random shuffling of batch labels in a dataset). Therefore, a medcouple around 0 or lower is considered a good mixing score.
 
       references:
         doi: 
