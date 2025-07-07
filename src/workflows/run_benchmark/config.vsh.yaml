@@ -75,10 +75,12 @@ dependencies:
   - name: methods/cycombine_nocontrols
   - name: methods/gaussnorm
   - name: methods/cytonorm_controls
+  - name: methods/mnn
   - name: metrics/emd
   - name: metrics/n_inconsistent_peaks
   - name: metrics/average_batch_r2
   - name: metrics/flowsom_mapping_similarity
+  - name: metrics/cms
 
 runners:
   - type: nextflow

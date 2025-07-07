@@ -1,15 +1,8 @@
-# The API specifies which type of component this is.
-# It contains specifications for:
-#   - The input/output files
-#   - Common parameters
-#   - A unit test
 __merge__: ../../api/comp_metric.yaml
 
 # A unique identifier for your component (required).
 # Can contain only lowercase letters or underscores.
 name: cms
-
-
 
 # Metadata for your component
 info:
@@ -18,7 +11,7 @@ info:
       # Can contain only lowercase letters or underscores.
     - name: cms
       # A relatively short label, used when rendering visualisarions (required)
-      label: Cms
+      label: Cell Mixing Score
       # A one sentence summary of how this metric works (required). Used when 
       # rendering summary tables.
       summary: "Cellspecific Mixing Score (cms) quantifies batch effects at the cell level by computing batch-specific distance distributions towards k-nearest neighbouring cells."
@@ -29,17 +22,25 @@ info:
         distributions towards it's k-nearest neighbouring (knn) cells are derived from the same unspecified 
         underlying distribution using the Anderson-Darling test. The test considers differences in the number of cells 
         from each batch, making the cms a robust metric when evaluating batch effects in datasets with unbalanced batch sizes.
+        This implementation uses k = 50 knn cells and the first 10 principal components for distance computations.
 
         The cms for each cell can be interpreted as a P-value, that is, the probability of observing deviations 
         in the batch specific distance distributions by chance (assuming they are all derived from the same distribution).
-        Thus, enrichment of low P-values is indicative of poor batch mixing and a dataset with randomly shuffled batch 
-        labels should yield uniformly distributed P-values.
+        Therefore, for a given cell:
+        - A low cms score indicates that the batch-specific distance distributions towards its knn cells are significantly different, 
+          suggesting that the cell is influenced by batch effects.
+        - A high cms score indicates that the batch-specific distance distributions towards its knn cells are similar, 
+          suggesting that the cell is not influenced by batch effects.
+        
 
-        A high cms score refers to good mixing, while a low score indicates batch-specific bias.
-        Thus, enrichment of low cms scores is indicative of poor batch mixing.
-        It has been empirically observed that a uniform distribution of cms scores across cells 
-        in a dataset is indicative of good mixing.
+        To characterize the overall batch mixing in a dataset, we use the medcouple statistic on the distribution of cms scores.
+        The medcouple is a robust measure of skewness, which is less sensitive to outliers than the traditional skewness measure.
+        The medcouple statistic returns values between -1 and 1, where:
+        - A value close to -1 indicates a pronounced left-skewed distribution, reflecting abundance of cells with high cms scores
+        - A value close to 1 indicates a pronounced right-skewed distribution, reflecting abundance of cells with low cms scores
 
+        It has been empirically observed that a uniform (thus, symmetrical) distribution of cms scores across cells in a dataset is indicative of good mixing
+        (e.g. via random shuffling of batch labels in a dataset). Therefore, a medcouple of 0 or lower is considered a good mixing score.
 
       references:
         doi: 
@@ -56,44 +57,55 @@ info:
               publisher={Life Science Alliance}
             }
           - |
+            @article{brys2004robust,
+              title={A robust measure of skewness},
+              author={Brys, Guy and Hubert, Mia and Struyf, Anja},
+              journal={Journal of Computational and Graphical Statistics},
+              volume={13},
+              number={4},
+              pages={996--1017},
+              year={2004},
+              publisher={Taylor \& Francis}
+            }
 
       links:
         # URL to the documentation for this metric (required).
-        documentation: https://url.to/the/documentation
+        documentation: https://bioconductor.org/packages/release/bioc/html/CellMixS.html
         # URL to the code repository for this metric (required).
-        repository: https://github.com/organisation/repository
+        repository: https://github.com/almutlue/CellMixS
       # The minimum possible value for this metric (required)
-      min: 0
+      min: -1
       # The maximum possible value for this metric (required)
       max: 1
       # Whether a higher value represents a 'better' solution (required)
       maximize: false
 
 # Component-specific parameters (optional)
-# arguments:
-#   - name: "--n_neighbors"
-#     type: "integer"
-#     default: 5
-#     description: Number of neighbors to use.
+arguments:
+  - name: "--n_neighbors"
+    type: "integer"
+    default: 50
+    description: Number of k-nearest neighbours (knn) to use when computing cms scores.
+  - name: "--n_dim"
+    type: "integer"
+    default: 10
+    description: Number of principal components to use when computing cms scores.
 
 # Resources required to run the component
 resources:
   # The script of your component (required)
   - type: r_script
     path: script.R
-  # Additional resources your script needs (optional)
-  # - type: file
-  #   path: weights.pt
 
 engines:
   # Specifications for the Docker image for this component.
   - type: docker
     image: openproblems/base_r:1.0.0
-    # Add custom dependencies here (optional). For more information, see
-    # https://viash.io/reference/config/engines/docker/#setup .
-    # setup:
-    #   - type: r
-    #     packages: tibble
+    setup:
+      - type: r
+        packages: [robustbase, hdf5r]
+        bioc: [CellMixS, SingleCellExperiment, Biocparallel]
+        github: [scverse/anndataR]
 
 runners:
   # This platform allows running the component natively

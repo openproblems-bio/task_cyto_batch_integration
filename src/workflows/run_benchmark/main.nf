@@ -18,7 +18,8 @@ methods = [
   combat,
   cycombine_nocontrols,
   gaussnorm,
-  cytonorm_controls
+  cytonorm_controls,
+  mnn
 ]
 
 // construct list of metrics
@@ -26,7 +27,8 @@ metrics = [
   emd,
   n_inconsistent_peaks,
   average_batch_r2,
-  flowsom_mapping_similarity
+  flowsom_mapping_similarity,
+  cms
 ]
 
 workflow run_wf {
