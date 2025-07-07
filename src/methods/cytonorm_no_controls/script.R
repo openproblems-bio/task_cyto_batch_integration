@@ -6,7 +6,12 @@ library(CytoNorm)
 ## VIASH START
 par <- list(
     input = "resources_test/task_cyto_batch_integration/cyto_spleen_subset/unintegrated_censored.h5ad",
-    output = "resources_test/output.h5ad"
+    output = "resources_test/output.h5ad",
+    prop_cells_agg = 0.5,
+    som_grid_size = 10,
+    num_metacluster = 10,
+    n_quantiles = 99,
+    prop_cells_flowsom = 0.7
 )
 meta <- list(
     name = "cytonorm_no_control",
@@ -31,23 +36,42 @@ fset_per_batch <- lapply(batches, function(bt) {
 names(fset_per_batch) <- batches
 
 # create aggregate per batch
-# TODO change to a parameter
-n_cells_agg <- 1000
 set.seed(42)
 agg_per_batch <- lapply(batches, function(bt) {
+
+    # compute how many cells to aggregate
+    n_cells_per_sample <- fsApply(fset_per_batch[[bt]], function(ff) nrow(exprs(ff)))
+    # it'll be nice if we can set the number stratified by samples
+    # but i don't think it is possible.
+    # even if we do proportion * n_cells_per_sample, then sum, we can't guarantee stratified sampling.
+    # so just do simple sum then multiply by proportion.
+    n_cells_to_aggregate <- sum(n_cells_per_sample) * par[["prop_cells_agg"]]
+
     ff_obj <- FlowSOM::AggregateFlowFrames(
         fileNames = fset_per_batch[[bt]],
-        cTotal = length(fset_per_batch[[bt]]) * n_cells_agg
+        cTotal = n_cells_to_aggregate
     )
     # change the object name as otherwise it seems to just refer to the 1st sample
     # in the batch.. and it is unintuitive.
-    description(ff_obj)$GUID <- paste0("batch", bt)
+    # TODO remove the suppress warning for keyword when flowCore fixed it.
+    suppressWarnings(description(ff_obj)$GUID <- paste0("batch", bt))
     return(ff_obj)
 })
+
+cat("Setting up some variables for training the model\n")
 
 markers_to_correct <- as.vector(adata$var$channel[adata$var$to_correct])
 
 lineage_markers <- as.vector(adata$var$channel[adata$var$marker_type == "lineage"])
+
+# get number of cells for clustering
+# computed as the proportion (defined in parameters to tune) of total number of cells available.
+n_cells_per_batch <- fsApply(flowSet(agg_per_batch), function(ff) nrow(exprs(ff)))
+# it'll be nice if we can set the number stratified by samples
+# but i don't think it is possible.
+# even if we do proportion * n_cells_per_sample, then sum, we can't guarantee stratified sampling.
+# so just do simple sum then multiply by proportion.
+n_cells_for_clustering <- sum(n_cells_per_batch) * par[["prop_cells_flowsom"]]
 
 cat("Training Cytonorm model using aggregates\n")
 
@@ -58,15 +82,15 @@ model <- CytoNorm::CytoNorm.train(
     channels = markers_to_correct,
     outputDir = tmp_path,
     FlowSOM.params = list(
-        nCells = 1000000,
-        xdim = 15,
-        ydim = 15,
-        nClus = 10,
+        nCells = n_cells_for_clustering,
+        xdim = par[["som_grid_size"]],
+        ydim = par[["som_grid_size"]],
+        nClus = par[["num_metacluster"]],
         scale = FALSE,
         colsToUse = lineage_markers
     ),
     transformList = NULL,
-    normParams = list(nQ = 99, goal = "mean"),
+    normParams = list(nQ = par[["n_quantiles"]], goal = "mean"),
     seed = 42,
     verbose = FALSE
 )

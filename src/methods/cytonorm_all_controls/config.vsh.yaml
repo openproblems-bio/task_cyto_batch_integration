@@ -22,9 +22,20 @@ description: |
   expression distributions differ across batches for each population.
   It then uses splines to align these distributions to a common reference (either the mean
   of batches or to a single batch).
+  The parameter nQ, which specifies the number of quantiles used when computing the splines
+  is varied linearly between value of 80-120, with default set to 99 following the default value provided by CytoNorm.
   In this CytoNorm version, batches are aligned to the mean of the batches using
   all available control samples.
-  Clustering was performed by FlowSOM, using the default parameters provided by CytoNorm.
+  Clustering was performed by FlowSOM.
+  The size of the SOM grid is varied linearly between value of 6-16, with default set to 15
+  following the default value provided by CytoNorm.
+  The number of metaclusters is varied linearly between value of 8-20, with default set to 10
+  following the default value provided by CytoNorm.
+  The number of cells clustered by FlowSOM is set to be a proportion of cells used
+  for training the model, i.e., the control samples.
+  This number is varied linearly between value of 0.1 and 0.7 with default set to 0.5, i.e.,
+  using 50% of the cells in the control samples.
+
 references:
   doi: 
     - 10.1002/cyto.a.23904
@@ -33,6 +44,46 @@ links:
   documentation: https://github.com/saeyslab/CytoNorm
   # URL to the code repository for this method (required).
   repository: https://github.com/saeyslab/CytoNorm
+
+argument_groups:
+  - name: Parameters
+    arguments:
+      - type: integer
+        name: --som_grid_size
+        info:
+          optimize:
+            type: linear
+            lower: 6
+            upper: 16
+        default: 15
+        description: SOM grid size used when training CytoNorm model.
+      - type: integer
+        name: --num_metacluster
+        info:
+          optimize:
+            type: linear
+            lower: 8
+            upper: 20
+        default: 10
+        description: Number of metaclusters generated when training CytoNorm model.
+      - type: double
+        name: --prop_cells_flowsom
+        info:
+          optimize:
+            type: expuniform
+            lower: 0.1
+            upper: 0.7
+        default: 0.5
+        description: Proportion of cells used for clustering when training CytoNorm model.
+      - type: integer
+        name: --n_quantiles 
+        info:
+          optimize:
+            type: linear
+            lower: 80
+            upper: 120
+        default: 99
+        description: Number of quantiles to use when training the CytoNorm model. 
 
 # Metadata for your component
 # Resources required to run the component
