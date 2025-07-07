@@ -20,6 +20,7 @@ methods = [
   cycombine_one_control,
   cycombine_all_controls,
   gaussnorm,
+  cytonorm_no_controls,
   cytonorm_all_controls,
   cytonorm_one_control,
   mnn
