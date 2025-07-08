@@ -115,3 +115,5 @@
   * Refactoring and introduced "global" variable for output.
 
 * Add MNN to run script (PR #77).
+
+* Added `argument_groups` field in `methods/mnn` config file (PR #81).
