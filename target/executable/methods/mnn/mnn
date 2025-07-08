@@ -449,9 +449,9 @@ RUN Rscript -e 'options(warn = 2); if (!requireNamespace("BiocManager", quietly 
   Rscript -e 'options(warn = 2); if (!requireNamespace("batchelor", quietly = TRUE)) BiocManager::install("batchelor")'
 
 LABEL org.opencontainers.image.description="Companion container for running component methods mnn"
-LABEL org.opencontainers.image.created="2025-07-05T01:31:01Z"
+LABEL org.opencontainers.image.created="2025-07-08T10:17:02Z"
 LABEL org.opencontainers.image.source="https://github.com/LTLA/batchelor/tree/master"
-LABEL org.opencontainers.image.revision="5f5baa0461be6dcb57e78330684b9fcb1b5eba4a"
+LABEL org.opencontainers.image.revision="e4cf3576ac128369c63f0acbc825ecbff9e761ab"
 LABEL org.opencontainers.image.version="build_main"
 
 VIASHDOCKER
@@ -585,17 +585,7 @@ function ViashHelp {
   echo "This component uses the implementation from the \`batchelor\` bioconductor"
   echo "package."
   echo ""
-  echo "Arguments:"
-  echo "    --input"
-  echo "        type: file, required parameter, file must exist"
-  echo "        example:"
-  echo "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/unintegrated_censored.h5ad"
-  echo ""
-  echo "    --output"
-  echo "        type: file, required parameter, output, file must exist"
-  echo "        example:"
-  echo "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/integrated.h5ad"
-  echo ""
+  echo "Parameters:"
   echo "    --num_nn"
   echo "        type: integer"
   echo "        default: 20"
@@ -616,6 +606,17 @@ function ViashHelp {
   echo "        default: 0.1"
   echo "        A numeric scalar specifying the bandwidth of the Gaussian smoothing"
   echo "        kernel used to compute the correction vector for each cell."
+  echo ""
+  echo "Arguments:"
+  echo "    --input"
+  echo "        type: file, required parameter, file must exist"
+  echo "        example:"
+  echo "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/unintegrated_censored.h5ad"
+  echo ""
+  echo "    --output"
+  echo "        type: file, required parameter, output, file must exist"
+  echo "        example:"
+  echo "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/integrated.h5ad"
   echo ""
   echo "Viash built in Computational Requirements:"
   echo "    ---cpus=INT"
@@ -667,28 +668,6 @@ while [[ $# -gt 0 ]]; do
             echo "mnn build_main"
             exit
             ;;
-        --input)
-            [ -n "$VIASH_PAR_INPUT" ] && ViashError Bad arguments for option \'--input\': \'$VIASH_PAR_INPUT\' \& \'$2\' - you should provide exactly one argument for this option. && exit 1
-            VIASH_PAR_INPUT="$2"
-            [ $# -lt 2 ] && ViashError Not enough arguments passed to --input. Use "--help" to get more information on the parameters. && exit 1
-            shift 2
-            ;;
-        --input=*)
-            [ -n "$VIASH_PAR_INPUT" ] && ViashError Bad arguments for option \'--input=*\': \'$VIASH_PAR_INPUT\' \& \'$2\' - you should provide exactly one argument for this option. && exit 1
-            VIASH_PAR_INPUT=$(ViashRemoveFlags "$1")
-            shift 1
-            ;;
-        --output)
-            [ -n "$VIASH_PAR_OUTPUT" ] && ViashError Bad arguments for option \'--output\': \'$VIASH_PAR_OUTPUT\' \& \'$2\' - you should provide exactly one argument for this option. && exit 1
-            VIASH_PAR_OUTPUT="$2"
-            [ $# -lt 2 ] && ViashError Not enough arguments passed to --output. Use "--help" to get more information on the parameters. && exit 1
-            shift 2
-            ;;
-        --output=*)
-            [ -n "$VIASH_PAR_OUTPUT" ] && ViashError Bad arguments for option \'--output=*\': \'$VIASH_PAR_OUTPUT\' \& \'$2\' - you should provide exactly one argument for this option. && exit 1
-            VIASH_PAR_OUTPUT=$(ViashRemoveFlags "$1")
-            shift 1
-            ;;
         --num_nn)
             [ -n "$VIASH_PAR_NUM_NN" ] && ViashError Bad arguments for option \'--num_nn\': \'$VIASH_PAR_NUM_NN\' \& \'$2\' - you should provide exactly one argument for this option. && exit 1
             VIASH_PAR_NUM_NN="$2"
@@ -720,6 +699,28 @@ while [[ $# -gt 0 ]]; do
         --sigma_value=*)
             [ -n "$VIASH_PAR_SIGMA_VALUE" ] && ViashError Bad arguments for option \'--sigma_value=*\': \'$VIASH_PAR_SIGMA_VALUE\' \& \'$2\' - you should provide exactly one argument for this option. && exit 1
             VIASH_PAR_SIGMA_VALUE=$(ViashRemoveFlags "$1")
+            shift 1
+            ;;
+        --input)
+            [ -n "$VIASH_PAR_INPUT" ] && ViashError Bad arguments for option \'--input\': \'$VIASH_PAR_INPUT\' \& \'$2\' - you should provide exactly one argument for this option. && exit 1
+            VIASH_PAR_INPUT="$2"
+            [ $# -lt 2 ] && ViashError Not enough arguments passed to --input. Use "--help" to get more information on the parameters. && exit 1
+            shift 2
+            ;;
+        --input=*)
+            [ -n "$VIASH_PAR_INPUT" ] && ViashError Bad arguments for option \'--input=*\': \'$VIASH_PAR_INPUT\' \& \'$2\' - you should provide exactly one argument for this option. && exit 1
+            VIASH_PAR_INPUT=$(ViashRemoveFlags "$1")
+            shift 1
+            ;;
+        --output)
+            [ -n "$VIASH_PAR_OUTPUT" ] && ViashError Bad arguments for option \'--output\': \'$VIASH_PAR_OUTPUT\' \& \'$2\' - you should provide exactly one argument for this option. && exit 1
+            VIASH_PAR_OUTPUT="$2"
+            [ $# -lt 2 ] && ViashError Not enough arguments passed to --output. Use "--help" to get more information on the parameters. && exit 1
+            shift 2
+            ;;
+        --output=*)
+            [ -n "$VIASH_PAR_OUTPUT" ] && ViashError Bad arguments for option \'--output=*\': \'$VIASH_PAR_OUTPUT\' \& \'$2\' - you should provide exactly one argument for this option. && exit 1
+            VIASH_PAR_OUTPUT=$(ViashRemoveFlags "$1")
             shift 1
             ;;
         ---engine)
@@ -1127,11 +1128,11 @@ library(batchelor)
 .viash_orig_warn <- options(warn = 2)
 
 par <- list(
-  "input" = $( if [ ! -z ${VIASH_PAR_INPUT+x} ]; then echo -n "'"; echo -n "$VIASH_PAR_INPUT" | sed "s#['\\]#\\\\&#g"; echo "'"; else echo NULL; fi ),
-  "output" = $( if [ ! -z ${VIASH_PAR_OUTPUT+x} ]; then echo -n "'"; echo -n "$VIASH_PAR_OUTPUT" | sed "s#['\\]#\\\\&#g"; echo "'"; else echo NULL; fi ),
   "num_nn" = $( if [ ! -z ${VIASH_PAR_NUM_NN+x} ]; then echo -n "as.integer('"; echo -n "$VIASH_PAR_NUM_NN" | sed "s#['\\]#\\\\&#g"; echo "')"; else echo NULL; fi ),
   "prop_num_nn" = $( if [ ! -z ${VIASH_PAR_PROP_NUM_NN+x} ]; then echo -n "as.numeric('"; echo -n "$VIASH_PAR_PROP_NUM_NN" | sed "s#['\\]#\\\\&#g"; echo "')"; else echo NULL; fi ),
-  "sigma_value" = $( if [ ! -z ${VIASH_PAR_SIGMA_VALUE+x} ]; then echo -n "as.numeric('"; echo -n "$VIASH_PAR_SIGMA_VALUE" | sed "s#['\\]#\\\\&#g"; echo "')"; else echo NULL; fi )
+  "sigma_value" = $( if [ ! -z ${VIASH_PAR_SIGMA_VALUE+x} ]; then echo -n "as.numeric('"; echo -n "$VIASH_PAR_SIGMA_VALUE" | sed "s#['\\]#\\\\&#g"; echo "')"; else echo NULL; fi ),
+  "input" = $( if [ ! -z ${VIASH_PAR_INPUT+x} ]; then echo -n "'"; echo -n "$VIASH_PAR_INPUT" | sed "s#['\\]#\\\\&#g"; echo "'"; else echo NULL; fi ),
+  "output" = $( if [ ! -z ${VIASH_PAR_OUTPUT+x} ]; then echo -n "'"; echo -n "$VIASH_PAR_OUTPUT" | sed "s#['\\]#\\\\&#g"; echo "'"; else echo NULL; fi )
 )
 meta <- list(
   "name" = $( if [ ! -z ${VIASH_META_NAME+x} ]; then echo -n "'"; echo -n "$VIASH_META_NAME" | sed "s#['\\]#\\\\&#g"; echo "'"; else echo NULL; fi ),

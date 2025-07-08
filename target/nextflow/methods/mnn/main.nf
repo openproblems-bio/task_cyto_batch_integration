@@ -3035,6 +3035,66 @@ meta = [
   "version" : "build_main",
   "argument_groups" : [
     {
+      "name" : "Parameters",
+      "arguments" : [
+        {
+          "type" : "integer",
+          "name" : "--num_nn",
+          "description" : "An integer scalar specifying the number of nearest neighbors to consider when identifying MNNs.",
+          "info" : {
+            "type" : "linear",
+            "lower" : 10,
+            "upper" : 100
+          },
+          "default" : [
+            20
+          ],
+          "required" : false,
+          "direction" : "input",
+          "multiple" : false,
+          "multiple_sep" : ";"
+        },
+        {
+          "type" : "double",
+          "name" : "--prop_num_nn",
+          "description" : "A numeric scalar in (0, 1) specifying the proportion of cells in each dataset to use for mutual nearest neighbor searching. If set, the number of nearest neighbors used for the MNN search in each batch is redefined as max(k, prop.k*N) where N is the number of cells in that batch. If 0 is set to NULL.",
+          "info" : {
+            "optimize" : {
+              "type" : "expuniform",
+              "lower" : 0,
+              "upper" : 1
+            }
+          },
+          "default" : [
+            0.0
+          ],
+          "required" : false,
+          "direction" : "input",
+          "multiple" : false,
+          "multiple_sep" : ";"
+        },
+        {
+          "type" : "double",
+          "name" : "--sigma_value",
+          "description" : "A numeric scalar specifying the bandwidth of the Gaussian smoothing kernel used to compute the correction vector for each cell.",
+          "info" : {
+            "optimize" : {
+              "type" : "expuniform",
+              "lower" : 0.01,
+              "upper" : 100
+            }
+          },
+          "default" : [
+            0.1
+          ],
+          "required" : false,
+          "direction" : "input",
+          "multiple" : false,
+          "multiple_sep" : ";"
+        }
+      ]
+    },
+    {
       "name" : "Arguments",
       "arguments" : [
         {
@@ -3208,61 +3268,6 @@ meta = [
           "direction" : "output",
           "multiple" : false,
           "multiple_sep" : ";"
-        },
-        {
-          "type" : "integer",
-          "name" : "--num_nn",
-          "description" : "An integer scalar specifying the number of nearest neighbors to consider when identifying MNNs.",
-          "info" : {
-            "type" : "linear",
-            "lower" : 10,
-            "upper" : 100
-          },
-          "default" : [
-            20
-          ],
-          "required" : false,
-          "direction" : "input",
-          "multiple" : false,
-          "multiple_sep" : ";"
-        },
-        {
-          "type" : "double",
-          "name" : "--prop_num_nn",
-          "description" : "A numeric scalar in (0, 1) specifying the proportion of cells in each dataset to use for mutual nearest neighbor searching. If set, the number of nearest neighbors used for the MNN search in each batch is redefined as max(k, prop.k*N) where N is the number of cells in that batch. If 0 is set to NULL.",
-          "info" : {
-            "optimize" : {
-              "type" : "expuniform",
-              "lower" : 0,
-              "upper" : 1
-            }
-          },
-          "default" : [
-            0.0
-          ],
-          "required" : false,
-          "direction" : "input",
-          "multiple" : false,
-          "multiple_sep" : ";"
-        },
-        {
-          "type" : "double",
-          "name" : "--sigma_value",
-          "description" : "A numeric scalar specifying the bandwidth of the Gaussian smoothing kernel used to compute the correction vector for each cell.",
-          "info" : {
-            "optimize" : {
-              "type" : "expuniform",
-              "lower" : 0.01,
-              "upper" : 100
-            }
-          },
-          "default" : [
-            0.1
-          ],
-          "required" : false,
-          "direction" : "input",
-          "multiple" : false,
-          "multiple_sep" : ";"
         }
       ]
     }
@@ -3394,7 +3399,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/methods/mnn",
     "viash_version" : "0.9.4",
-    "git_commit" : "5f5baa0461be6dcb57e78330684b9fcb1b5eba4a",
+    "git_commit" : "e4cf3576ac128369c63f0acbc825ecbff9e761ab",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3512,11 +3517,11 @@ library(batchelor)
 .viash_orig_warn <- options(warn = 2)
 
 par <- list(
-  "input" = $( if [ ! -z ${VIASH_PAR_INPUT+x} ]; then echo -n "'"; echo -n "$VIASH_PAR_INPUT" | sed "s#['\\\\]#\\\\\\\\&#g"; echo "'"; else echo NULL; fi ),
-  "output" = $( if [ ! -z ${VIASH_PAR_OUTPUT+x} ]; then echo -n "'"; echo -n "$VIASH_PAR_OUTPUT" | sed "s#['\\\\]#\\\\\\\\&#g"; echo "'"; else echo NULL; fi ),
   "num_nn" = $( if [ ! -z ${VIASH_PAR_NUM_NN+x} ]; then echo -n "as.integer('"; echo -n "$VIASH_PAR_NUM_NN" | sed "s#['\\\\]#\\\\\\\\&#g"; echo "')"; else echo NULL; fi ),
   "prop_num_nn" = $( if [ ! -z ${VIASH_PAR_PROP_NUM_NN+x} ]; then echo -n "as.numeric('"; echo -n "$VIASH_PAR_PROP_NUM_NN" | sed "s#['\\\\]#\\\\\\\\&#g"; echo "')"; else echo NULL; fi ),
-  "sigma_value" = $( if [ ! -z ${VIASH_PAR_SIGMA_VALUE+x} ]; then echo -n "as.numeric('"; echo -n "$VIASH_PAR_SIGMA_VALUE" | sed "s#['\\\\]#\\\\\\\\&#g"; echo "')"; else echo NULL; fi )
+  "sigma_value" = $( if [ ! -z ${VIASH_PAR_SIGMA_VALUE+x} ]; then echo -n "as.numeric('"; echo -n "$VIASH_PAR_SIGMA_VALUE" | sed "s#['\\\\]#\\\\\\\\&#g"; echo "')"; else echo NULL; fi ),
+  "input" = $( if [ ! -z ${VIASH_PAR_INPUT+x} ]; then echo -n "'"; echo -n "$VIASH_PAR_INPUT" | sed "s#['\\\\]#\\\\\\\\&#g"; echo "'"; else echo NULL; fi ),
+  "output" = $( if [ ! -z ${VIASH_PAR_OUTPUT+x} ]; then echo -n "'"; echo -n "$VIASH_PAR_OUTPUT" | sed "s#['\\\\]#\\\\\\\\&#g"; echo "'"; else echo NULL; fi )
 )
 meta <- list(
   "name" = $( if [ ! -z ${VIASH_META_NAME+x} ]; then echo -n "'"; echo -n "$VIASH_META_NAME" | sed "s#['\\\\]#\\\\\\\\&#g"; echo "'"; else echo NULL; fi ),

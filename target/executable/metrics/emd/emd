@@ -449,9 +449,9 @@ RUN pip install --upgrade pip && \
   pip install --upgrade --no-cache-dir "anndata" "numpy" "pandas" "scipy"
 
 LABEL org.opencontainers.image.description="Companion container for running component metrics emd"
-LABEL org.opencontainers.image.created="2025-07-05T01:31:01Z"
+LABEL org.opencontainers.image.created="2025-07-08T10:17:02Z"
 LABEL org.opencontainers.image.source="https://github.com/openproblems-bio/task_cyto_batch_integration"
-LABEL org.opencontainers.image.revision="5f5baa0461be6dcb57e78330684b9fcb1b5eba4a"
+LABEL org.opencontainers.image.revision="e4cf3576ac128369c63f0acbc825ecbff9e761ab"
 LABEL org.opencontainers.image.version="build_main"
 
 VIASHDOCKER
