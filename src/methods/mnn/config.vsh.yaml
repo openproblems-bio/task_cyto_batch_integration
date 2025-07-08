@@ -48,36 +48,36 @@ links:
 
 
 # Component-specific parameters (optional)
-# argument_groups:
-#   - name: "Parameters"
-arguments:
-  - name: "--num_nn"
-    type: integer
-    info:
-      optimize:
-      type: linear
-      lower: 10
-      upper: 100
-    default: 20
-    description: An integer scalar specifying the number of nearest neighbors to consider when identifying MNNs.
-  - name: "--prop_num_nn"
-    type: double
-    info:
-      optimize:
-        type: expuniform
-        lower: 0
-        upper: 1
-    default: 0
-    description: A numeric scalar in (0, 1) specifying the proportion of cells in each dataset to use for mutual nearest neighbor searching. If set, the number of nearest neighbors used for the MNN search in each batch is redefined as max(k, prop.k*N) where N is the number of cells in that batch. If 0 is set to NULL.
-  - name: "--sigma_value"
-    type: double
-    info:
-      optimize:
-        type: expuniform
-        lower: 0.01
-        upper: 100
-    default: 0.1
-    description: A numeric scalar specifying the bandwidth of the Gaussian smoothing kernel used to compute the correction vector for each cell.
+argument_groups:
+  - name: "Parameters"
+    arguments:
+      - name: "--num_nn"
+        type: integer
+        info:
+          optimize:
+          type: linear
+          lower: 10
+          upper: 100
+        default: 20
+        description: An integer scalar specifying the number of nearest neighbors to consider when identifying MNNs.
+      - name: "--prop_num_nn"
+        type: double
+        info:
+          optimize:
+            type: expuniform
+            lower: 0
+            upper: 1
+        default: 0
+        description: A numeric scalar in (0, 1) specifying the proportion of cells in each dataset to use for mutual nearest neighbor searching. If set, the number of nearest neighbors used for the MNN search in each batch is redefined as max(k, prop.k*N) where N is the number of cells in that batch. If 0 is set to NULL.
+      - name: "--sigma_value"
+        type: double
+        info:
+          optimize:
+            type: expuniform
+            lower: 0.01
+            upper: 100
+        default: 0.1
+        description: A numeric scalar specifying the bandwidth of the Gaussian smoothing kernel used to compute the correction vector for each cell.
 
 # Resources required to run the component
 resources:
