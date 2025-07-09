@@ -12,9 +12,9 @@ description: |
   using square SOM grid.
   The size of the SOM grid is varied linearly between value of 6-16, with default set to 8
   following the default value in create_som function in cyCombine.
-  Rlen, which is the number of times data is presented to the SOM network is fixed to 
-  the default 10 and not varied in parameter optimisation as we are not assessing how
-  effective SOM is for clustering.
+  Rlen, which is the number of times data is presented to the SOM network and can impact
+  clustering quality. 
+  It is varied linearly between value of 10-20 with default set to 10.
 references:
   doi: 
     - 10.1038/s41467-022-29383-5
@@ -34,6 +34,15 @@ argument_groups:
             upper: 16
         default: 8
         description: SOM grid size used by create_som
+      - type: integer
+        name: --rlen
+        info:
+          optimize:
+            type: linear
+            lower: 10
+            upper: 20
+        default: 10
+        description: The number of time data is presented to SOM when clustering
 
 resources:
   # The script of your component (required)
