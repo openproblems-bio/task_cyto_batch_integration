@@ -63,7 +63,7 @@ df_to_correct_norm <- cyCombine::normalize(
 cluster_labels <- cyCombine::create_som(
     df = df_to_correct_norm,
     markers = lineage_markers,
-    rlen = 10,
+    rlen = par[["rlen"]],
     seed = 42,
     xdim = par[["som_grid_size"]],
     ydim = par[["som_grid_size"]]
