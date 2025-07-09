@@ -103,7 +103,28 @@ output <- anndata::AnnData(
     uns = list(
         dataset_id = input_adata$uns$dataset_id,
         method_id = meta$name,
-        parameters = list()
+        parameters = list(
+            "normalize" = list(
+                "markers" = markers_to_correct,
+                "norm_method" = "scale",
+                "ties.method" = "average"
+            ),
+            "create_som" = list(
+                "markers" = lineage_markers,
+                "seed" = 42,
+                "rlen" = par[["rlen"]],
+                "xdim" = par[["som_grid_size"]],
+                "ydim" = par[["som_grid_size"]]
+            ),
+            "correct_data" = list(
+                "markers" = markers_to_correct,
+                "method" = "ComBat",
+                "covar" = NULL,
+                "anchor" = "anchor",
+                "ref.batch" = NULL,
+                "parametric" = TRUE
+            )
+        )
     )
 )
 
