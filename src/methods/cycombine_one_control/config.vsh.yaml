@@ -18,7 +18,7 @@ description: |
   It first uses self-organizing maps (SOM) to group similar cells into clusters, 
   then applies a ComBat-based method to correct batch effects within 
   each cluster. 
-  Here, we run cyCombine with control samples from just one condition/group 
+  Here, we run cyCombine with control samples from just one donor
   (replicates in cyCombine terminology) using square SOM grid.
   The size of the SOM grid is varied linearly between value of 6-16, with default set to 8
   following the default value in create_som function in cyCombine.
