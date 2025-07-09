@@ -36,8 +36,8 @@ input <- anndata::read_h5ad(par[["input"]])
 input$layers["preprocessed"][, "Original_ID"] <- seq(1, dim(input)[1])
 
 cat("Split cells\n")
-input_controls <- input[input$obs$is_control != 0, ]
-input_no_controls <- input[input$obs$is_control == 0, ]
+input_controls <- input[input$obs$is_control == 1, ]
+input_no_controls <- input[input$obs$is_control != 1, ]
 
 print("Cells in control sample:")
 print(unique(input_controls$obs$sample))
