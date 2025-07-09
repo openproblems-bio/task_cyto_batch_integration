@@ -22,8 +22,8 @@ description: |
   expression distributions differ across batches for each population.
   It then uses splines to align these distributions to a common reference (either the mean
   of batches or to a single batch).
-  In this CytoNorm version, an aggregate of each batch is created using 1,000 cells per
-  sample in the batch, and subsequently used as a proxy for the control samples of that batch.
+  In this CytoNorm version, an aggregate of each batch is created and subsequently used as a 
+  proxy for the control samples.
   Clustering was performed by FlowSOM.
   The size of the SOM grid is varied linearly between value of 6-16, with default set to 15
   following the default value provided by CytoNorm.

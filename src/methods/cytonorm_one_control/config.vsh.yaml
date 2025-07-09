@@ -22,10 +22,9 @@ description: |
   expression distributions differ across batches for each population.
   It then uses splines to align these distributions to a common reference (either the mean
   of batches or to a single batch).
+  Here, we run CytoNorm using only control samples from one donor, aligning to the mean of the batches.
   The parameter nQ, which specifies the number of quantiles used when computing the splines
   is varied linearly between value of 80-120, with default set to 99 following the default value provided by CytoNorm.
-  In this CytoNorm version, batches are aligned to the mean of the batches, and 
-  only control samples from one condition/group is used.
   Clustering was performed by FlowSOM.
   The size of the SOM grid is varied linearly between value of 6-16, with default set to 15
   following the default value provided by CytoNorm.
