@@ -43,6 +43,9 @@
   * cyCombine with all controls or one control (samples from only one condition).
   * CytoNorm with one control (samples from only one condition) or aggregate of samples as controls.
   * Added parameters to tune for cyCombine and CytoNorm.
+* Added `metrics/cms` (PR #79).
+
+* Added `methods/batchadjust_one_control` and `methods/batchadjust_all_controls` (PR #82).
 
 ## MAJOR CHANGES
 
@@ -120,3 +123,5 @@
   * Refactoring and introduced "global" variable for output.
 
 * Add MNN to run script (PR #77).
+
+* Added `argument_groups` field in `methods/mnn` config file (PR #81).

@@ -23,7 +23,9 @@ methods = [
   cytonorm_no_controls,
   cytonorm_all_controls,
   cytonorm_one_control,
-  mnn
+  mnn,
+  batchadjust_one_control,
+  batchadjust_all_controls
 ]
 
 // construct list of metrics
@@ -31,7 +33,8 @@ metrics = [
   emd,
   n_inconsistent_peaks,
   average_batch_r2,
-  flowsom_mapping_similarity
+  flowsom_mapping_similarity,
+  cms
 ]
 
 workflow run_wf {
