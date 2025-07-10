@@ -39,6 +39,8 @@
 
 * Added `methods/mnn` (PR #75).
 
+* Added `metrics/cms` (PR #79).
+
 * Added `methods/batchadjust_one_control` and `methods/batchadjust_all_controls` (PR #82).
 
 ## MAJOR CHANGES

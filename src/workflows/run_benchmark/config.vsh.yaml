@@ -82,7 +82,7 @@ dependencies:
   - name: metrics/flowsom_mapping_similarity
   - name: methods/batchadjust_one_control
   - name: methods/batchadjust_all_controls
-
+  - name: metrics/cms
 
 runners:
   - type: nextflow
