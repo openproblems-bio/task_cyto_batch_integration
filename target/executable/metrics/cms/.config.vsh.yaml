@@ -1,127 +1,9 @@
-name: "shuffle_integration"
-namespace: "control_methods"
+name: "cms"
+namespace: "metrics"
 version: "build_main"
 argument_groups:
 - name: "Arguments"
   arguments:
-  - type: "file"
-    name: "--input_unintegrated"
-    label: "Unintegrated"
-    summary: "The complete unintegrated dataset, including all cells' metadata (columns)\
-      \ from the \nunintegrated_censored dataset. \nThe cells in this dataset are\
-      \ the same to those in the unintegrated_censored dataset.\n"
-    info:
-      format:
-        type: "h5ad"
-        layers:
-        - type: "double"
-          name: "preprocessed"
-          description: "preprocessed data, e.g. already compensated, transformed and\
-            \ debris/doublets removed"
-          required: true
-        obs:
-        - type: "string"
-          name: "cell_type"
-          description: "Cell type information"
-          required: true
-        - type: "string"
-          name: "batch"
-          description: "Batch information"
-          required: true
-        - type: "string"
-          name: "sample"
-          description: "Sample ID"
-          required: true
-        - type: "string"
-          name: "donor"
-          description: "Donor ID"
-          required: true
-        - type: "string"
-          name: "group"
-          description: "Biological group of the donor"
-          required: true
-        - type: "integer"
-          name: "is_control"
-          description: "Whether the sample the cell came from can be used as a control\
-            \ for batch \neffect correction.\n0: cannot be used as a control.\n>=\
-            \ 1: can be used as a control.\nFor cells with >= 1: cells with the same\
-            \ value come from the same donor.\nDifferent values indicate different\
-            \ donors.\n"
-          required: true
-        var:
-        - type: "integer"
-          name: "numeric_id"
-          description: "Numeric ID associated with each marker"
-          required: true
-        - type: "string"
-          name: "channel"
-          description: "The channel / detector of the instrument"
-          required: true
-        - type: "string"
-          name: "marker"
-          description: "The marker name associated with the channel"
-          required: false
-        - type: "string"
-          name: "marker_type"
-          description: "Whether the marker is a functional or lineage marker"
-          required: true
-        - type: "boolean"
-          name: "to_correct"
-          description: "Whether the marker will be batch corrected"
-          required: true
-        uns:
-        - type: "string"
-          name: "dataset_id"
-          description: "A unique identifier for the dataset"
-          required: true
-        - name: "dataset_name"
-          type: "string"
-          description: "Nicely formatted name."
-          required: true
-        - type: "string"
-          name: "dataset_url"
-          description: "Link to the original source of the dataset."
-          required: false
-        - name: "dataset_reference"
-          type: "string"
-          description: "Bibtex reference of the paper in which the dataset was published."
-          required: false
-        - name: "dataset_summary"
-          type: "string"
-          description: "Short description of the dataset."
-          required: true
-        - name: "dataset_description"
-          type: "string"
-          description: "Long description of the dataset."
-          required: true
-        - name: "dataset_organism"
-          type: "string"
-          description: "The organism of the sample in the dataset."
-          required: false
-        - name: "parameter_som_xdim"
-          type: "integer"
-          description: "Parameter used to define the width of the self-organizing\
-            \ map (SOM) grid. Usually between 10 and 20."
-          required: true
-        - name: "parameter_som_ydim"
-          type: "integer"
-          description: "Parameter used to define the height of the self-organizing\
-            \ map (SOM) grid. Usually between 10 and 20."
-          required: true
-        - name: "parameter_num_clusters"
-          type: "integer"
-          description: "Parameter used to define the number of clusters. Set this\
-            \ number to be slightly higher than the number of cell types expected\
-            \ in the dataset."
-          required: true
-    example:
-    - "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/unintegrated.h5ad"
-    must_exist: true
-    create_parent: true
-    required: true
-    direction: "input"
-    multiple: false
-    multiple_sep: ";"
   - type: "file"
     name: "--input_validation"
     label: "Validation"
@@ -249,7 +131,125 @@ argument_groups:
     multiple: false
     multiple_sep: ";"
   - type: "file"
-    name: "--output"
+    name: "--input_unintegrated"
+    label: "Unintegrated"
+    summary: "The complete unintegrated dataset, including all cells' metadata (columns)\
+      \ from the \nunintegrated_censored dataset. \nThe cells in this dataset are\
+      \ the same to those in the unintegrated_censored dataset.\n"
+    info:
+      format:
+        type: "h5ad"
+        layers:
+        - type: "double"
+          name: "preprocessed"
+          description: "preprocessed data, e.g. already compensated, transformed and\
+            \ debris/doublets removed"
+          required: true
+        obs:
+        - type: "string"
+          name: "cell_type"
+          description: "Cell type information"
+          required: true
+        - type: "string"
+          name: "batch"
+          description: "Batch information"
+          required: true
+        - type: "string"
+          name: "sample"
+          description: "Sample ID"
+          required: true
+        - type: "string"
+          name: "donor"
+          description: "Donor ID"
+          required: true
+        - type: "string"
+          name: "group"
+          description: "Biological group of the donor"
+          required: true
+        - type: "integer"
+          name: "is_control"
+          description: "Whether the sample the cell came from can be used as a control\
+            \ for batch \neffect correction.\n0: cannot be used as a control.\n>=\
+            \ 1: can be used as a control.\nFor cells with >= 1: cells with the same\
+            \ value come from the same donor.\nDifferent values indicate different\
+            \ donors.\n"
+          required: true
+        var:
+        - type: "integer"
+          name: "numeric_id"
+          description: "Numeric ID associated with each marker"
+          required: true
+        - type: "string"
+          name: "channel"
+          description: "The channel / detector of the instrument"
+          required: true
+        - type: "string"
+          name: "marker"
+          description: "The marker name associated with the channel"
+          required: false
+        - type: "string"
+          name: "marker_type"
+          description: "Whether the marker is a functional or lineage marker"
+          required: true
+        - type: "boolean"
+          name: "to_correct"
+          description: "Whether the marker will be batch corrected"
+          required: true
+        uns:
+        - type: "string"
+          name: "dataset_id"
+          description: "A unique identifier for the dataset"
+          required: true
+        - name: "dataset_name"
+          type: "string"
+          description: "Nicely formatted name."
+          required: true
+        - type: "string"
+          name: "dataset_url"
+          description: "Link to the original source of the dataset."
+          required: false
+        - name: "dataset_reference"
+          type: "string"
+          description: "Bibtex reference of the paper in which the dataset was published."
+          required: false
+        - name: "dataset_summary"
+          type: "string"
+          description: "Short description of the dataset."
+          required: true
+        - name: "dataset_description"
+          type: "string"
+          description: "Long description of the dataset."
+          required: true
+        - name: "dataset_organism"
+          type: "string"
+          description: "The organism of the sample in the dataset."
+          required: false
+        - name: "parameter_som_xdim"
+          type: "integer"
+          description: "Parameter used to define the width of the self-organizing\
+            \ map (SOM) grid. Usually between 10 and 20."
+          required: true
+        - name: "parameter_som_ydim"
+          type: "integer"
+          description: "Parameter used to define the height of the self-organizing\
+            \ map (SOM) grid. Usually between 10 and 20."
+          required: true
+        - name: "parameter_num_clusters"
+          type: "integer"
+          description: "Parameter used to define the number of clusters. Set this\
+            \ number to be slightly higher than the number of cell types expected\
+            \ in the dataset."
+          required: true
+    example:
+    - "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/unintegrated.h5ad"
+    must_exist: true
+    create_parent: true
+    required: true
+    direction: "input"
+    multiple: false
+    multiple_sep: ";"
+  - type: "file"
+    name: "--input_integrated"
     label: "Integrated"
     summary: "Integrated dataset which batch effect was corrected by an algorithm"
     info:
@@ -278,18 +278,67 @@ argument_groups:
     must_exist: true
     create_parent: true
     required: true
+    direction: "input"
+    multiple: false
+    multiple_sep: ";"
+  - type: "file"
+    name: "--output"
+    label: "Score"
+    summary: "File indicating the score of a metric."
+    info:
+      format:
+        type: "h5ad"
+        uns:
+        - type: "string"
+          name: "dataset_id"
+          description: "A unique identifier for the dataset"
+          required: true
+        - type: "string"
+          name: "method_id"
+          description: "A unique identifier for the batch correction method"
+          required: true
+        - type: "string"
+          name: "metric_ids"
+          description: "One or more unique metric identifiers"
+          multiple: true
+          required: true
+        - type: "double"
+          name: "metric_values"
+          description: "The metric values obtained. Must be of same length as 'metric_ids'."
+          multiple: true
+          required: true
+    example:
+    - "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/score.h5ad"
+    must_exist: true
+    create_parent: true
+    required: true
     direction: "output"
     multiple: false
     multiple_sep: ";"
+  - type: "integer"
+    name: "--n_neighbors"
+    description: "Number of k-nearest neighbours (knn) to use when computing cms scores."
+    info: null
+    default:
+    - 50
+    required: false
+    direction: "input"
+    multiple: false
+    multiple_sep: ";"
+  - type: "integer"
+    name: "--n_dim"
+    description: "Number of principal components to use when computing cms scores."
+    info: null
+    default:
+    - 10
+    required: false
+    direction: "input"
+    multiple: false
+    multiple_sep: ";"
 resources:
-- type: "python_script"
-  path: "script.py"
+- type: "r_script"
+  path: "script.R"
   is_executable: true
-- type: "file"
-  path: "utils.py"
-label: "Shuffle integration"
-summary: "Integrations are randomly permuted"
-description: "Integrations are randomly permuted"
 test_resources:
 - type: "python_script"
   path: "run_and_check_output.py"
@@ -301,15 +350,64 @@ test_resources:
   path: "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset"
   dest: "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset"
 info:
-  type: "control_method"
+  metrics:
+  - name: "cms"
+    label: "Cell Mixing Score"
+    summary: "Cellspecific Mixing Score (cms) quantifies batch effects at the cell\
+      \ level by computing batch-specific distance distributions towards k-nearest\
+      \ neighbouring cells."
+    description: "The cellspecific mixing score cms tests for each cell the hypothesis\
+      \ that batch-specific distance \ndistributions towards it's k-nearest neighbouring\
+      \ (knn) cells are derived from the same unspecified \nunderlying distribution\
+      \ using the Anderson-Darling test. The test considers differences in the number\
+      \ of cells \nfrom each batch, making the cms a robust metric when evaluating\
+      \ batch effects in datasets with unbalanced batch sizes.\nThis implementation\
+      \ uses k = 50 knn cells and the first 10 principal components for distance computations.\n\
+      \nThe cms for each cell can be interpreted as a P-value, that is, the probability\
+      \ of observing deviations \nin the batch specific distance distributions by\
+      \ chance (assuming they are all derived from the same distribution).\nTherefore,\
+      \ for a given cell:\n- A low cms score indicates that the batch-specific distance\
+      \ distributions towards its knn cells are significantly different, \n  suggesting\
+      \ that the cell is influenced by batch effects.\n- A high cms score indicates\
+      \ that the batch-specific distance distributions towards its knn cells are similar,\
+      \ \n  suggesting that the cell is not influenced by batch effects.\n\n\nTo characterize\
+      \ the overall batch mixing in a dataset, we use the medcouple statistic on the\
+      \ distribution of cms scores.\nThe medcouple is a robust measure of skewness,\
+      \ which is less sensitive to outliers than the traditional skewness measure.\n\
+      The medcouple statistic returns values between -1 and 1, where:\n- A value close\
+      \ to -1 indicates a pronounced left-skewed distribution, reflecting abundance\
+      \ of cells with high cms scores\n- A value close to 1 indicates a pronounced\
+      \ right-skewed distribution, reflecting abundance of cells with low cms scores\n\
+      - A value around 0 indicates a symmetrical distribution of cms scores\n\nIt\
+      \ has been empirically observed that a uniform (thus, symmetrical) distribution\
+      \ of cms scores across cells in a dataset is indicative of good mixing\n(e.g.\
+      \ via random shuffling of batch labels in a dataset). Therefore, a medcouple\
+      \ around 0 or lower is considered a good mixing score.\n"
+    references:
+      doi:
+      - "10.26508/lsa.202001004"
+      bibtex:
+      - "@article{lutge2021cellmixs,\n  title={CellMixS: quantifying and visualizing\
+        \ batch effects in single-cell RNA-seq data},\n  author={L{\\\"u}tge, Almut\
+        \ and Zyprych-Walczak, Joanna and Kunzmann, Urszula Brykczynska and Crowell,\
+        \ Helena L and Calini, Daniela and Malhotra, Dheeraj and Soneson, Charlotte\
+        \ and Robinson, Mark D},\n  journal={Life science alliance},\n  volume={4},\n\
+        \  number={6},\n  year={2021},\n  publisher={Life Science Alliance}\n}\n"
+      - "@article{brys2004robust,\n  title={A robust measure of skewness},\n  author={Brys,\
+        \ Guy and Hubert, Mia and Struyf, Anja},\n  journal={Journal of Computational\
+        \ and Graphical Statistics},\n  volume={13},\n  number={4},\n  pages={996--1017},\n\
+        \  year={2004},\n  publisher={Taylor \\& Francis}\n}\n"
+    links:
+      documentation: "https://bioconductor.org/packages/release/bioc/html/CellMixS.html"
+      repository: "https://github.com/almutlue/CellMixS"
+    min: -1
+    max: 1
+    maximize: false
+  type: "metric"
   type_info:
-    label: "Control Method"
-    summary: "Quality control methods for verifying the pipeline."
-    description: "This folder contains control components for the task. \nThese components\
-      \ have the same interface as the regular methods\nbut also receive the solution\
-      \ object as input. It serves as a\nstarting point to test the relative accuracy\
-      \ of new methods in\nthe task, and also as a quality control for the metrics\
-      \ defined\nin the task.\n"
+    label: "Metric"
+    summary: "A task template metric."
+    description: "A metric for evaluating method predictions.\n"
 status: "enabled"
 scope:
   image: "public"
@@ -333,7 +431,7 @@ runners:
     label:
     - "midtime"
     - "midmem"
-    - "lowcpu"
+    - "midcpu"
     tag: "$id"
   auto:
     simplifyInput: true
@@ -357,16 +455,29 @@ runners:
 engines:
 - type: "docker"
   id: "docker"
-  image: "openproblems/base_python:1"
+  image: "openproblems/base_r:1.0.0"
   namespace_separator: "/"
+  setup:
+  - type: "r"
+    packages:
+    - "robustbase"
+    - "hdf5r"
+    bioc:
+    - "CellMixS"
+    - "SingleCellExperiment"
+    - "Biocparallel"
+    github:
+    - "scverse/anndataR"
+    bioc_force_install: false
+    warnings_as_errors: true
   entrypoint: []
   cmd: null
 build_info:
-  config: "src/control_methods/shuffle_integration/config.vsh.yaml"
-  runner: "nextflow"
+  config: "src/metrics/cms/config.vsh.yaml"
+  runner: "executable"
   engine: "docker"
-  output: "target/nextflow/control_methods/shuffle_integration"
-  executable: "target/nextflow/control_methods/shuffle_integration/main.nf"
+  output: "target/executable/metrics/cms"
+  executable: "target/executable/metrics/cms/cms"
   viash_version: "0.9.4"
   git_commit: "ce02cdede082778df049e617e7f2ec84f7f28f7d"
   git_remote: "https://github.com/openproblems-bio/task_cyto_batch_integration"

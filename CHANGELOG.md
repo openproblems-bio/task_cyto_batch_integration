@@ -39,6 +39,8 @@
 
 * Added `methods/mnn` (PR #75).
 
+* Added `metrics/cms` (PR #79).
+
 ## MAJOR CHANGES
 
 * Updated file schema (PR #18): 
