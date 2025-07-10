@@ -80,6 +80,8 @@ dependencies:
   - name: metrics/n_inconsistent_peaks
   - name: metrics/average_batch_r2
   - name: metrics/flowsom_mapping_similarity
+  - name: methods/batchadjust_one_control
+  - name: methods/batchadjust_all_controls
   - name: metrics/cms
 
 runners:

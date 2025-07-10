@@ -3699,6 +3699,18 @@ meta = [
       }
     },
     {
+      "name" : "methods/batchadjust_one_control",
+      "repository" : {
+        "type" : "local"
+      }
+    },
+    {
+      "name" : "methods/batchadjust_all_controls",
+      "repository" : {
+        "type" : "local"
+      }
+    },
+    {
       "name" : "metrics/cms",
       "repository" : {
         "type" : "local"
@@ -3761,7 +3773,7 @@ meta = [
     "engine" : "native",
     "output" : "target/nextflow/workflows/run_benchmark",
     "viash_version" : "0.9.4",
-    "git_commit" : "ce02cdede082778df049e617e7f2ec84f7f28f7d",
+    "git_commit" : "fbed1ebfa038f3026d8aef47303489a2011d1914",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3881,6 +3893,8 @@ include { emd } from "${meta.resources_dir}/../../../nextflow/metrics/emd/main.n
 include { n_inconsistent_peaks } from "${meta.resources_dir}/../../../nextflow/metrics/n_inconsistent_peaks/main.nf"
 include { average_batch_r2 } from "${meta.resources_dir}/../../../nextflow/metrics/average_batch_r2/main.nf"
 include { flowsom_mapping_similarity } from "${meta.resources_dir}/../../../nextflow/metrics/flowsom_mapping_similarity/main.nf"
+include { batchadjust_one_control } from "${meta.resources_dir}/../../../nextflow/methods/batchadjust_one_control/main.nf"
+include { batchadjust_all_controls } from "${meta.resources_dir}/../../../nextflow/methods/batchadjust_all_controls/main.nf"
 include { cms } from "${meta.resources_dir}/../../../nextflow/metrics/cms/main.nf"
 
 // inner workflow
@@ -3906,7 +3920,9 @@ methods = [
   cycombine_nocontrols,
   gaussnorm,
   cytonorm_controls,
-  mnn
+  mnn,
+  batchadjust_one_control,
+  batchadjust_all_controls
 ]
 
 // construct list of metrics
