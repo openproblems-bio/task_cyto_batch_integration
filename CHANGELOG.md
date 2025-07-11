@@ -39,10 +39,10 @@
 
 * Added `methods/mnn` (PR #75).
 
-* Added more cyCombine and CytoNorm methods (PR #78):
+* Updated cyCombine:
   * cyCombine with all controls or one control (samples from only one condition).
-  * CytoNorm with one control (samples from only one condition) or aggregate of samples as controls.
-  * Added parameters to tune for cyCombine and CytoNorm.
+  * Added parameters to tune.
+
 * Added `metrics/cms` (PR #79).
 
 * Added `methods/batchadjust_one_control` and `methods/batchadjust_all_controls` (PR #82).
