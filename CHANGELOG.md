@@ -41,7 +41,7 @@
 
 * Updated cyCombine:
   * cyCombine with all controls or one control (samples from only one condition).
-  * Added parameters to tune.
+  * Added parameters to tune (PR #78).
 
 * Added `metrics/cms` (PR #79).
 
