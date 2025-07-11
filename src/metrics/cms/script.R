@@ -4,6 +4,7 @@ library(anndata)
 library(SingleCellExperiment)
 library(BiocParallel)
 library(robustbase)
+library(parallel)
 
 ## VIASH START
 par <- list(
@@ -31,6 +32,8 @@ input_integrated_sce <- input_integrated$as_SingleCellExperiment()
 input_integrated_sce <- input_integrated_sce[markers_to_correct, ]
 colData(input_integrated_sce)["batch"] <- batch_key
 
+cores_to_use <- parallel::detectCores() - 2
+
 cat("Compute Cell Mixing Score\n")
 cms_res <- cms(
   input_integrated_sce,
@@ -38,7 +41,7 @@ cms_res <- cms(
   assay_name = "integrated",
   k = par[["n_neighbors"]],
   n_dim = par[["n_dim"]],
-  BPPARAM = MulticoreParam(workers = 8)
+  BPPARAM = MulticoreParam(workers = cores_to_use)
 )
 
 cat("Compute Medcouple statistic\n")
@@ -56,7 +59,8 @@ output <- anndata::AnnData(
     cms_parameters = list(
       n_neighbors = par[["n_neighbors"]],
       n_dim = par[["n_dim"]]
-    )
+    ),
+    cms_distribution = cms_distr
   )
 )
 
