@@ -1,4 +1,4 @@
-library(anndata)
+requireNamespace("anndata", quietly = TRUE)
 requireNamespace("cyCombine", quietly = TRUE)
 
 ## VIASH START
@@ -6,7 +6,7 @@ par <- list(
     input = "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/unintegrated_censored.h5ad",
     output = "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/output.h5ad"
 )
-meta <- list(name = "cycombine")
+meta <- list(name = "cycombine_no_controls")
 ## VIASH END
 
 cat("Reading input files\n")
@@ -43,10 +43,10 @@ df_to_correct_norm <- cyCombine::normalize(
 cluster_labels <- cyCombine::create_som(
     df = df_to_correct_norm,
     markers = lineage_markers,
-    rlen = 10,
+    rlen = par[["rlen"]],
     seed = 42,
-    xdim = 8,
-    ydim = 8
+    xdim = par[["som_grid_size"]],
+    ydim = par[["som_grid_size"]]
 )
 
 # Batch correct using default parameter values
@@ -81,7 +81,28 @@ output <- anndata::AnnData(
     uns = list(
         dataset_id = input_adata$uns$dataset_id,
         method_id = meta$name,
-        parameters = list()
+        parameters = list(
+            "normalize" = list(
+                "markers" = markers_to_correct,
+                "norm_method" = "scale",
+                "ties.method" = "average"
+            ),
+            "create_som" = list(
+                "markers" = lineage_markers,
+                "seed" = 42,
+                "rlen" = par[["rlen"]],
+                "xdim" = par[["som_grid_size"]],
+                "ydim" = par[["som_grid_size"]]
+            ),
+            "correct_data" = list(
+                "markers" = markers_to_correct,
+                "method" = "ComBat",
+                "covar" = NULL,
+                "anchor" = NULL,
+                "ref.batch" = NULL,
+                "parametric" = TRUE
+            )
+        )
     )
 )
 
