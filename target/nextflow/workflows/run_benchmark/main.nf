@@ -3651,7 +3651,19 @@ meta = [
       }
     },
     {
-      "name" : "methods/cycombine_nocontrols",
+      "name" : "methods/cycombine_no_controls",
+      "repository" : {
+        "type" : "local"
+      }
+    },
+    {
+      "name" : "methods/cycombine_one_control",
+      "repository" : {
+        "type" : "local"
+      }
+    },
+    {
+      "name" : "methods/cycombine_all_controls",
       "repository" : {
         "type" : "local"
       }
@@ -3773,7 +3785,7 @@ meta = [
     "engine" : "native",
     "output" : "target/nextflow/workflows/run_benchmark",
     "viash_version" : "0.9.4",
-    "git_commit" : "fbed1ebfa038f3026d8aef47303489a2011d1914",
+    "git_commit" : "6262a07ca8e0feba79bf1675ed25138a120facca",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3885,7 +3897,9 @@ include { perfect_integration_vertical } from "${meta.resources_dir}/../../../ne
 include { harmonypy } from "${meta.resources_dir}/../../../nextflow/methods/harmonypy/main.nf"
 include { limma_remove_batch_effect } from "${meta.resources_dir}/../../../nextflow/methods/limma_remove_batch_effect/main.nf"
 include { combat } from "${meta.resources_dir}/../../../nextflow/methods/combat/main.nf"
-include { cycombine_nocontrols } from "${meta.resources_dir}/../../../nextflow/methods/cycombine_nocontrols/main.nf"
+include { cycombine_no_controls } from "${meta.resources_dir}/../../../nextflow/methods/cycombine_no_controls/main.nf"
+include { cycombine_one_control } from "${meta.resources_dir}/../../../nextflow/methods/cycombine_one_control/main.nf"
+include { cycombine_all_controls } from "${meta.resources_dir}/../../../nextflow/methods/cycombine_all_controls/main.nf"
 include { gaussnorm } from "${meta.resources_dir}/../../../nextflow/methods/gaussnorm/main.nf"
 include { cytonorm_controls } from "${meta.resources_dir}/../../../nextflow/methods/cytonorm_controls/main.nf"
 include { mnn } from "${meta.resources_dir}/../../../nextflow/methods/mnn/main.nf"
@@ -3917,7 +3931,9 @@ methods = [
   perfect_integration_horizontal,
   perfect_integration_vertical,
   combat,
-  cycombine_nocontrols,
+  cycombine_no_controls,
+  cycombine_one_control,
+  cycombine_all_controls,
   gaussnorm,
   cytonorm_controls,
   mnn,
