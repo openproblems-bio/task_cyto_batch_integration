@@ -32,7 +32,7 @@ input_integrated_sce <- input_integrated$as_SingleCellExperiment()
 input_integrated_sce <- input_integrated_sce[markers_to_correct, ]
 colData(input_integrated_sce)["batch"] <- batch_key
 
-cores_to_use <- parallel::detectCores() - 2
+# cores_to_use <- parallel::detectCores() - 2
 
 cat("Compute Cell Mixing Score\n")
 cms_res <- cms(
@@ -40,8 +40,7 @@ cms_res <- cms(
   group = "batch",
   assay_name = "integrated",
   k = par[["n_neighbors"]],
-  n_dim = par[["n_dim"]],
-  BPPARAM = MulticoreParam(workers = cores_to_use)
+  n_dim = par[["n_dim"]]
 )
 
 cat("Compute Medcouple statistic\n")
