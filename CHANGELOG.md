@@ -39,6 +39,10 @@
 
 * Added `methods/mnn` (PR #75).
 
+* Updated cyCombine (PR #78):
+  * cyCombine with all controls or one control (samples from only one condition).
+  * Added parameters to tune.
+
 * Added `metrics/cms` (PR #79).
 
 * Added `methods/batchadjust_one_control` and `methods/batchadjust_all_controls` (PR #82).
