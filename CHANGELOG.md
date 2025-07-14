@@ -104,6 +104,8 @@
 
 * Schema defined in `src\api` has been modified to include dataset specific parameters (PR #71).
 
+*  Disabled parallelization of `metrics/cms` + cms distributions are now kept in the output AnnData object(PR #83).
+
 ## BUG FIXES
 
 * Change n_inconsistent_peaks output to float and add R2 to main.nf (PR #40).

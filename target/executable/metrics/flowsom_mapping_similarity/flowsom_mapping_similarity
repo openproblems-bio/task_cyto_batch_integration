@@ -453,9 +453,9 @@ RUN pip install --upgrade pip && \
   pip install --upgrade --no-cache-dir "anndata" "numpy" "pandas" "scipy"
 
 LABEL org.opencontainers.image.description="Companion container for running component metrics flowsom_mapping_similarity"
-LABEL org.opencontainers.image.created="2025-07-13T04:09:28Z"
+LABEL org.opencontainers.image.created="2025-07-14T13:45:16Z"
 LABEL org.opencontainers.image.source="https://github.com/openproblems-bio/task_cyto_batch_integration"
-LABEL org.opencontainers.image.revision="6262a07ca8e0feba79bf1675ed25138a120facca"
+LABEL org.opencontainers.image.revision="1b2bc2a0e0e8fc33d979e5843c3b98abc25fb081"
 LABEL org.opencontainers.image.version="build_main"
 
 VIASHDOCKER
