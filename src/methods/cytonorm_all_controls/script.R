@@ -1,7 +1,7 @@
-library(flowCore)
-library(anndata)
-library(Biobase)
-library(CytoNorm)
+requireNamespace("flowCore", quietly = TRUE)
+requireNamespace("anndata", quietly = TRUE)
+requireNamespace("Biobase", quietly = TRUE)
+requireNamespace("CytoNorm", quietly = TRUE)
 
 ## VIASH START
 par <- list(
@@ -9,8 +9,7 @@ par <- list(
     output = "resources_test/output.h5ad",
     som_grid_size = 10,
     num_metacluster = 10,
-    n_quantiles = 99,
-    prop_cells_flowsom = 0.7
+    n_quantiles = 99
 )
 meta <- list(
     name = "cytonorm_control",
@@ -46,18 +45,17 @@ markers_to_correct <- as.vector(adata$var$channel[adata$var$to_correct])
 lineage_markers <- as.vector(adata$var$channel[adata$var$marker_type == "lineage"])
 
 # get number of cells for clustering.
-# computed as the proportion (defined in parameters to tune) of total number of cells available.
-n_cells_per_sample <- fsApply(fset_train, function(ff) nrow(exprs(ff)))
-# it'll be nice if we can set the number stratified by samples
-# but i don't think it is possible.
-# even if we do proportion * n_cells_per_sample, then sum, we can't guarantee stratified sampling.
-# so just do simple sum then multiply by proportion.
-n_cells_for_clustering <- sum(n_cells_per_sample) * par[["prop_cells_flowsom"]]
+# we will define this as the minimum of the smallest sample and 1,000,000.
+# and multiply this by how many samples we have - because internally,
+# this number is divided by the number of files to determine the amount to select from
+# each individual file.
+n_cells_per_control_sample <- flowCore::fsApply(fset_train, function(ff) nrow(exprs(ff)))
+n_cells_for_clustering <- min(n_cells_per_control_sample, 1000000) * length(n_cells_per_control_sample)
 
 cat("Training Cytonorm model using all control samples\n")
 
 # FlowSOM.params and normParams are the default parameters in cytonorm
-model <- CytoNorm.train(
+model <- CytoNorm::CytoNorm.train(
     files = fset_train,
     labels = batch_lab_train,
     channels = markers_to_correct,
@@ -83,7 +81,7 @@ batch_labs <- sapply(sampleNames(fset_all), function(samp) {
 
 cat("Normalising using Cytonorm model trained using all control samples\n")
 
-norm_fset_all <- CytoNorm.normalize(
+norm_fset_all <- CytoNorm::CytoNorm.normalize(
     model = model,
     files = fset_all,
     labels = batch_labs,
@@ -99,7 +97,7 @@ norm_fset_all <- CytoNorm.normalize(
 cat("Preparing output anndata\n")
 # cytonorm will return all markers corrected or not in the same order as the input data.
 # so we can just directly replace the colnames with var_names
-norm_mat <- fsApply(norm_fset_all, exprs)
+norm_mat <- flowCore::fsApply(norm_fset_all, exprs)
 colnames(norm_mat) <- adata$var_names
 
 norm_mat <- anndata::AnnData(

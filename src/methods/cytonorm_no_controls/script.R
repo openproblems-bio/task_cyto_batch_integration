@@ -1,19 +1,16 @@
-library(flowCore)
-library(anndata)
-library(Biobase)
-library(CytoNorm)
-
+requireNamespace("flowCore", quietly = TRUE)
+requireNamespace("anndata", quietly = TRUE)
+requireNamespace("Biobase", quietly = TRUE)
+requireNamespace("CytoNorm", quietly = TRUE)
 requireNamespace("FlowSOM", quietly = TRUE)
 
 ## VIASH START
 par <- list(
     input = "resources_test/task_cyto_batch_integration/cyto_spleen_subset/unintegrated_censored.h5ad",
     output = "resources_test/output.h5ad",
-    prop_cells_agg = 0.5,
     som_grid_size = 10,
     num_metacluster = 10,
-    n_quantiles = 99,
-    prop_cells_flowsom = 0.7
+    n_quantiles = 99
 )
 meta <- list(
     name = "cytonorm_no_control",
@@ -41,13 +38,8 @@ names(fset_per_batch) <- batches
 set.seed(42)
 agg_per_batch <- lapply(batches, function(bt) {
 
-    # compute how many cells to aggregate
-    n_cells_per_sample <- fsApply(fset_per_batch[[bt]], function(ff) nrow(exprs(ff)))
-    # it'll be nice if we can set the number stratified by samples
-    # but i don't think it is possible.
-    # even if we do proportion * n_cells_per_sample, then sum, we can't guarantee stratified sampling.
-    # so just do simple sum then multiply by proportion.
-    n_cells_to_aggregate <- sum(n_cells_per_sample) * par[["prop_cells_agg"]]
+    n_cells_per_sample <- flowCore::fsApply(fset_per_batch[[bt]], function(ff) nrow(exprs(ff)))
+    n_cells_to_aggregate <- min(n_cells_per_sample, 1000000) * length(n_cells_per_sample)
 
     ff_obj <- FlowSOM::AggregateFlowFrames(
         fileNames = fset_per_batch[[bt]],
@@ -59,6 +51,8 @@ agg_per_batch <- lapply(batches, function(bt) {
     suppressWarnings(description(ff_obj)$GUID <- paste0("batch", bt))
     return(ff_obj)
 })
+# convert to flowSet
+agg_per_batch <- flowCore::flowSet(agg_per_batch)
 
 cat("Setting up some variables for training the model\n")
 
@@ -66,14 +60,11 @@ markers_to_correct <- as.vector(adata$var$channel[adata$var$to_correct])
 
 lineage_markers <- as.vector(adata$var$channel[adata$var$marker_type == "lineage"])
 
-# get number of cells for clustering
-# computed as the proportion (defined in parameters to tune) of total number of cells available.
-n_cells_per_batch <- fsApply(flowSet(agg_per_batch), function(ff) nrow(exprs(ff)))
-# it'll be nice if we can set the number stratified by samples
-# but i don't think it is possible.
-# even if we do proportion * n_cells_per_sample, then sum, we can't guarantee stratified sampling.
-# so just do simple sum then multiply by proportion.
-n_cells_for_clustering <- sum(n_cells_per_batch) * par[["prop_cells_flowsom"]]
+# get number of cells for clustering.
+# we will define this as the minimum of the smallest aggregate and 1,000,000.
+# and multiply this by how many batches we have.
+n_cells_per_batch <- flowCore::fsApply(agg_per_batch, function(ff) nrow(exprs(ff)))
+n_cells_for_clustering <- min(n_cells_per_batch, 1000000) * length(n_cells_per_batch)
 
 cat("Training Cytonorm model using aggregates\n")
 
@@ -122,7 +113,7 @@ norm_fset_all <- CytoNorm::CytoNorm.normalize(
 cat("Preparing output anndata\n")
 # cytonorm will return all markers corrected or not in the same order as the input data.
 # so we can just directly replace the colnames with var_names
-norm_mat <- fsApply(norm_fset_all, exprs)
+norm_mat <- flowCore::fsApply(norm_fset_all, exprs)
 colnames(norm_mat) <- adata$var_names
 
 norm_mat <- anndata::AnnData(

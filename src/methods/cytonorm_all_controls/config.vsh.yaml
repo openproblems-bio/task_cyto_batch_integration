@@ -26,14 +26,13 @@ description: |
   The parameter nQ, which specifies the number of quantiles used when computing the splines
   is varied linearly between value of 80-120, with default set to 99 following the default value provided by CytoNorm.
   Clustering was performed by FlowSOM.
+  The number of cells clustered by FlowSOM is set to be number of cells in the smallest
+  control samples or 1,000,000, whichever is the smaller, multiplied by how many control samples
+  there are in the data.
   The size of the SOM grid is varied linearly between value of 6-16, with default set to 15
   following the default value provided by CytoNorm.
   The number of metaclusters is varied linearly between value of 8-20, with default set to 10
   following the default value provided by CytoNorm.
-  The number of cells clustered by FlowSOM is set to be a proportion of cells used
-  for training the model, i.e., the control samples.
-  This number is varied linearly between value of 0.1 and 0.7 with default set to 0.5, i.e.,
-  using 50% of the cells in the control samples.
 
 references:
   doi: 
@@ -65,15 +64,6 @@ argument_groups:
             upper: 20
         default: 10
         description: Number of metaclusters generated when training CytoNorm model.
-      - type: double
-        name: --prop_cells_flowsom
-        info:
-          optimize:
-            type: expuniform
-            lower: 0.1
-            upper: 0.7
-        default: 0.5
-        description: Proportion of cells used for clustering when training CytoNorm model.
       - type: integer
         name: --n_quantiles 
         info:

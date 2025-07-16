@@ -24,15 +24,16 @@ description: |
   of batches or to a single batch).
   In this CytoNorm version, an aggregate of each batch is created and subsequently used as a 
   proxy for the control samples.
+  The number of cells used to create an aggregate is set as the number of cells in the smallest 
+  sample or 1,000,000, whichever is the smaller, multiplied by how many samples there are in the batch.
   Clustering was performed by FlowSOM.
   The size of the SOM grid is varied linearly between value of 6-16, with default set to 15
   following the default value provided by CytoNorm.
   The number of metaclusters is varied linearly between value of 8-20, with default set to 10
   following the default value provided by CytoNorm.
-  The number of cells clustered by FlowSOM is set to be a proportion of cells used
-  for training the model, i.e., the number of cells in aggregate.
-  This number is varied linearly between value of 0.1 and 0.7 with default set to 0.5, i.e.,
-  using 50% of the cells in the control samples.
+  The number of cells clustered by FlowSOM is set as the number of cells in the smallest 
+  aggregate or 1,000,000, whichever is the smaller, multiplied by how many batches there are in the data
+  (because 1 aggregate = 1 batch).
 references:
   doi: 
     - 10.1002/cyto.a.23904
@@ -45,15 +46,6 @@ links:
 argument_groups:
   - name: Parameters
     arguments:
-      - type: double
-        name: --prop_cells_agg
-        info:
-          optimize:
-            type: expuniform
-            lower: 0.5
-            upper: 0.9
-        default: 0.7
-        description: Proportion of cells to aggregate per batch. Used for creating the aggregate control sample.
       - type: integer
         name: --som_grid_size
         info:
@@ -72,15 +64,6 @@ argument_groups:
             upper: 20
         default: 10
         description: Number of metaclusters generated when training CytoNorm model.
-      - type: double
-        name: --prop_cells_flowsom
-        info:
-          optimize:
-            type: expuniform
-            lower: 0.1
-            upper: 0.7
-        default: 0.5
-        description: Proportion of cells used for clustering when training CytoNorm model.
       - type: integer
         name: --n_quantiles 
         info:
