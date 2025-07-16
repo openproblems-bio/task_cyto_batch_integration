@@ -70,7 +70,7 @@ cat("Training Cytonorm model using aggregates\n")
 
 # FlowSOM.params and normParams are the default parameters in cytonorm
 model <- CytoNorm::CytoNorm.train(
-    files = flowSet(agg_per_batch),
+    files = agg_per_batch,
     labels = batches,
     channels = markers_to_correct,
     outputDir = tmp_path,
