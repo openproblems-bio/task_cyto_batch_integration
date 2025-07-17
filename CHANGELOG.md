@@ -133,3 +133,6 @@
 * Add MNN to run script (PR #77).
 
 * Added `argument_groups` field in `methods/mnn` config file (PR #81).
+
+* Fix unparseable characters in EMD metrics (PR #87).
+
