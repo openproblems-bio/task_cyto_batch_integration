@@ -40,12 +40,18 @@
 * Added `methods/mnn` (PR #75).
 
 * Updated cyCombine (PR #78):
-  * cyCombine with all controls or one control (samples from only one condition).
-  * Added parameters to tune.
+  * Added cyCombine with all controls (`methods/cycombine_all_controls`) 
+  * Added cyCombine with one control - samples from only one condition (`methods/cycombine_one_control`).
+  * Added parameters to tune cyCombine.
 
 * Added `metrics/cms` (PR #79).
 
 * Added `methods/batchadjust_one_control` and `methods/batchadjust_all_controls` (PR #82).
+
+* Updated CytoNorm methods (PR #84):
+  * Added CytoNorm with one control - samples from only one condition (`methods/cytonorm_one_control`)
+  * Added CytoNorm with aggregate of samples as controls (`methods/cytonorm_no_controls`).
+  * Added parameters to tune CytoNorm.
 
 ## MAJOR CHANGES
 
@@ -127,3 +133,6 @@
 * Add MNN to run script (PR #77).
 
 * Added `argument_groups` field in `methods/mnn` config file (PR #81).
+
+* Fix unparseable characters in EMD metrics (PR #87).
+

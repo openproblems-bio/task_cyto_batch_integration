@@ -1,7 +1,51 @@
-name: "cytonorm_controls"
+name: "cytonorm_no_controls"
 namespace: "methods"
 version: "build_main"
 argument_groups:
+- name: "Parameters"
+  arguments:
+  - type: "integer"
+    name: "--som_grid_size"
+    description: "SOM grid size used when training CytoNorm model."
+    info:
+      optimize:
+        type: "linear"
+        lower: 6
+        upper: 16
+    default:
+    - 15
+    required: false
+    direction: "input"
+    multiple: false
+    multiple_sep: ";"
+  - type: "integer"
+    name: "--num_metacluster"
+    description: "Number of metaclusters generated when training CytoNorm model."
+    info:
+      optimize:
+        type: "linear"
+        lower: 8
+        upper: 20
+    default:
+    - 10
+    required: false
+    direction: "input"
+    multiple: false
+    multiple_sep: ";"
+  - type: "integer"
+    name: "--n_quantiles"
+    description: "Number of quantiles to use when training the CytoNorm model."
+    info:
+      optimize:
+        type: "linear"
+        lower: 80
+        upper: 120
+    default:
+    - 99
+    required: false
+    direction: "input"
+    multiple: false
+    multiple_sep: ";"
 - name: "Arguments"
   arguments:
   - type: "file"
@@ -136,17 +180,25 @@ resources:
   is_executable: true
 - type: "file"
   path: "anndata_to_fcs.R"
-label: "CytoNorm with controls"
-summary: "CytoNorm Batch normalization algorithm which uses shared controls across\
-  \ batches."
+label: "CytoNorm without controls"
+summary: "CytoNorm without control samples."
 description: "CytoNorm corrects batch effects by using reference control samples (aliquots\
   \ of one sample, \ntechnical replicates) included with each batch. \nIt clusters\
   \ cells, then trains a model on the control samples to learn how marker \nexpression\
   \ distributions differ across batches for each population.\nIt then uses splines\
   \ to align these distributions to a common reference (either the mean\nof batches\
-  \ or to a single batch).\nIn this CytoNorm version, batches are aligned to the mean\
-  \ of the batches.\nClustering was performed by FlowSOM, using the default parameters\
-  \ provided by CytoNorm.\n"
+  \ or to a single batch).\nIn this CytoNorm version, an aggregate of each batch is\
+  \ created and subsequently used as a \nproxy for the control samples.\nThe number\
+  \ of cells used to create an aggregate is set as the number of cells in the smallest\
+  \ \nsample or 1,000,000, whichever is the smaller, multiplied by how many samples\
+  \ there are in the batch.\nClustering was performed by FlowSOM.\nThe size of the\
+  \ SOM grid is varied linearly between value of 6-16, with default set to 15\nfollowing\
+  \ the default value provided by CytoNorm.\nThe number of metaclusters is varied\
+  \ linearly between value of 8-20, with default set to 10\nfollowing the default\
+  \ value provided by CytoNorm.\nThe number of cells clustered by FlowSOM is set as\
+  \ the number of cells in the smallest \naggregate or 1,000,000, whichever is the\
+  \ smaller, multiplied by how many batches there are in the data\n(because 1 aggregate\
+  \ = 1 batch).\n"
 test_resources:
 - type: "python_script"
   path: "run_and_check_output.py"
@@ -225,19 +277,20 @@ engines:
     - "flowCore"
     - "Biobase"
     github:
-    - "saeyslab/CytoNorm"
+    - "saeyslab/cytoNorm"
+    - "saeyslab/FlowSOM"
     bioc_force_install: false
     warnings_as_errors: true
   entrypoint: []
   cmd: null
 build_info:
-  config: "src/methods/cytonorm_controls/config.vsh.yaml"
-  runner: "executable"
+  config: "src/methods/cytonorm_no_controls/config.vsh.yaml"
+  runner: "nextflow"
   engine: "docker"
-  output: "target/executable/methods/cytonorm_controls"
-  executable: "target/executable/methods/cytonorm_controls/cytonorm_controls"
+  output: "target/nextflow/methods/cytonorm_no_controls"
+  executable: "target/nextflow/methods/cytonorm_no_controls/main.nf"
   viash_version: "0.9.4"
-  git_commit: "1b2bc2a0e0e8fc33d979e5843c3b98abc25fb081"
+  git_commit: "0863702fcb88d20a9839727ccbec7434fa953b89"
   git_remote: "https://github.com/openproblems-bio/task_cyto_batch_integration"
 package_config:
   name: "task_cyto_batch_integration"

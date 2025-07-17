@@ -20,10 +20,12 @@ methods = [
   cycombine_one_control,
   cycombine_all_controls,
   gaussnorm,
-  cytonorm_controls,
   mnn,
   batchadjust_one_control,
-  batchadjust_all_controls
+  batchadjust_all_controls,
+  cytonorm_no_controls,
+  cytonorm_all_controls,
+  cytonorm_one_control,
 ]
 
 // construct list of metrics

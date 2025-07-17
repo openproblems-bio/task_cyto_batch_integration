@@ -156,11 +156,14 @@ def calculate_vertical_emd(input_integrated: ad.AnnData, markers_to_assess: list
     for marker in markers_to_assess:
         # marker = markers_to_assess[0]
 
+        # remove unparsable characters like "/"
+        marker_name = marker.replace("/", "_")
+
         # start with global
         emd_wide = emd_dfs_global.pivot(
             index="second_sample", columns="first_sample", values=marker
         )
-        emd_wide_dfs[marker] = {"global": emd_wide}
+        emd_wide_dfs[marker_name] = {"global": emd_wide}
 
         # then per cell type
         for ct in cell_types:
@@ -174,7 +177,8 @@ def calculate_vertical_emd(input_integrated: ad.AnnData, markers_to_assess: list
                 emd_wide = emd_df.pivot(
                     index="second_sample", columns="first_sample", values=marker
                 )
-                emd_wide_dfs[marker][ct] = emd_wide
+
+                emd_wide_dfs[marker_name][ct] = emd_wide
 
     return {
         KEY_MEAN_EMD_GLOBAL: mean_emd_global,
@@ -284,6 +288,8 @@ def calculate_horizontal_emd(
 
     # concatenate the global and cell type emd
     emd_per_donor = pd.concat([emd_per_donor_per_ct, emd_per_donor_global])
+
+    emd_per_donor.columns = emd_per_donor.columns.str.replace("/", "_", regex=False)
 
     return {
         KEY_MEAN_EMD_GLOBAL: mean_emd_global,

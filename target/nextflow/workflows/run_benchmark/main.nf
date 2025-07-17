@@ -3675,7 +3675,19 @@ meta = [
       }
     },
     {
-      "name" : "methods/cytonorm_controls",
+      "name" : "methods/cytonorm_no_controls",
+      "repository" : {
+        "type" : "local"
+      }
+    },
+    {
+      "name" : "methods/cytonorm_all_controls",
+      "repository" : {
+        "type" : "local"
+      }
+    },
+    {
+      "name" : "methods/cytonorm_one_control",
       "repository" : {
         "type" : "local"
       }
@@ -3785,7 +3797,7 @@ meta = [
     "engine" : "native",
     "output" : "target/nextflow/workflows/run_benchmark",
     "viash_version" : "0.9.4",
-    "git_commit" : "1b2bc2a0e0e8fc33d979e5843c3b98abc25fb081",
+    "git_commit" : "0863702fcb88d20a9839727ccbec7434fa953b89",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3901,7 +3913,9 @@ include { cycombine_no_controls } from "${meta.resources_dir}/../../../nextflow/
 include { cycombine_one_control } from "${meta.resources_dir}/../../../nextflow/methods/cycombine_one_control/main.nf"
 include { cycombine_all_controls } from "${meta.resources_dir}/../../../nextflow/methods/cycombine_all_controls/main.nf"
 include { gaussnorm } from "${meta.resources_dir}/../../../nextflow/methods/gaussnorm/main.nf"
-include { cytonorm_controls } from "${meta.resources_dir}/../../../nextflow/methods/cytonorm_controls/main.nf"
+include { cytonorm_no_controls } from "${meta.resources_dir}/../../../nextflow/methods/cytonorm_no_controls/main.nf"
+include { cytonorm_all_controls } from "${meta.resources_dir}/../../../nextflow/methods/cytonorm_all_controls/main.nf"
+include { cytonorm_one_control } from "${meta.resources_dir}/../../../nextflow/methods/cytonorm_one_control/main.nf"
 include { mnn } from "${meta.resources_dir}/../../../nextflow/methods/mnn/main.nf"
 include { emd } from "${meta.resources_dir}/../../../nextflow/metrics/emd/main.nf"
 include { n_inconsistent_peaks } from "${meta.resources_dir}/../../../nextflow/metrics/n_inconsistent_peaks/main.nf"
@@ -3935,10 +3949,12 @@ methods = [
   cycombine_one_control,
   cycombine_all_controls,
   gaussnorm,
-  cytonorm_controls,
   mnn,
   batchadjust_one_control,
-  batchadjust_all_controls
+  batchadjust_all_controls,
+  cytonorm_no_controls,
+  cytonorm_all_controls,
+  cytonorm_one_control,
 ]
 
 // construct list of metrics
