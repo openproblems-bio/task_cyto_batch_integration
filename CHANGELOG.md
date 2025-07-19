@@ -136,3 +136,7 @@
 
 * Fix unparseable characters in EMD metrics (PR #87).
 
+* Fix missing anndata in yaml file and set the base_r docker image version to 1 instead of 1.0.0 (PR #89).
+
+
+

@@ -443,17 +443,17 @@ function ViashDockerfile {
 
   if [[ "$engine_id" == "docker" ]]; then
     cat << 'VIASHDOCKER'
-FROM openproblems/base_r:1.0.0
+FROM openproblems/base_r:1
 ENTRYPOINT []
 RUN Rscript -e 'options(warn = 2); if (!requireNamespace("remotes", quietly = TRUE)) install.packages("remotes")' && \
   Rscript -e 'options(warn = 2); if (!requireNamespace("BiocManager", quietly = TRUE)) install.packages("BiocManager")' && \
   Rscript -e 'options(warn = 2); if (!requireNamespace("flowCore", quietly = TRUE)) BiocManager::install("flowCore")' && \
-  Rscript -e 'options(warn = 2); remotes::install_cran(c("docstring"), repos = "https://cran.rstudio.com")'
+  Rscript -e 'options(warn = 2); remotes::install_cran(c("docstring", "anndata"), repos = "https://cran.rstudio.com")'
 
 LABEL org.opencontainers.image.description="Companion container for running component methods batchadjust_one_control"
-LABEL org.opencontainers.image.created="2025-07-17T14:12:43Z"
+LABEL org.opencontainers.image.created="2025-07-19T11:44:33Z"
 LABEL org.opencontainers.image.source="https://github.com/CUHIMSR/CytofBatchAdjust"
-LABEL org.opencontainers.image.revision="0863702fcb88d20a9839727ccbec7434fa953b89"
+LABEL org.opencontainers.image.revision="b8140c6fb13bc4b4016ccdf9c20eda5f6b198a9d"
 LABEL org.opencontainers.image.version="build_main"
 
 VIASHDOCKER

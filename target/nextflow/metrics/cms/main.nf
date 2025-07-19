@@ -3600,14 +3600,15 @@ meta = [
     {
       "type" : "docker",
       "id" : "docker",
-      "image" : "openproblems/base_r:1.0.0",
+      "image" : "openproblems/base_r:1",
       "namespace_separator" : "/",
       "setup" : [
         {
           "type" : "r",
           "packages" : [
             "robustbase",
-            "hdf5r"
+            "hdf5r",
+            "anndata"
           ],
           "bioc" : [
             "CellMixS",
@@ -3629,7 +3630,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/metrics/cms",
     "viash_version" : "0.9.4",
-    "git_commit" : "0863702fcb88d20a9839727ccbec7434fa953b89",
+    "git_commit" : "b8140c6fb13bc4b4016ccdf9c20eda5f6b198a9d",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
