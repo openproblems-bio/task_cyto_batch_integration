@@ -91,12 +91,13 @@ resources:
 engines:
   # Specifications for the Docker image for this component.
   - type: docker
-    image: openproblems/base_r:1.0.0
+    image: openproblems/base_r:1
     # Add custom dependencies here (optional). For more information, see
     # https://viash.io/reference/config/engines/docker/#setup .
     setup:
       - type: r
         bioc: [batchelor]
+        packages: [anndata]
 
 runners:
   # This platform allows running the component natively

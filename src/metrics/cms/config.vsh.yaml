@@ -101,10 +101,10 @@ resources:
 engines:
   # Specifications for the Docker image for this component.
   - type: docker
-    image: openproblems/base_r:1.0.0
+    image: openproblems/base_r:1
     setup:
       - type: r
-        packages: [robustbase, hdf5r]
+        packages: [robustbase, hdf5r, anndata]
         bioc: [CellMixS, SingleCellExperiment, Biocparallel]
         github: [scverse/anndataR]
 
