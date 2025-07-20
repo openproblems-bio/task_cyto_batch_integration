@@ -17,6 +17,7 @@ methods = [
   perfect_integration_vertical,
   combat,
   cycombine_no_controls_to_mid,
+  cycombine_no_controls_to_goal,
   cycombine_one_control_to_mid,
   cycombine_all_controls_to_mid,
   cycombine_all_controls_to_goal,
