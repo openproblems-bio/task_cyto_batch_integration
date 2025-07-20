@@ -23,8 +23,8 @@ adata_to_correct <- input_adata[, markers_to_correct]
 df_to_correct <- as.data.frame(
     adata_to_correct$layers[["preprocessed"]]
 )
-df_to_correct$batch <- adata_to_correct$obs$batch
-df_to_correct$sample <- adata_to_correct$obs$sample
+df_to_correct$batch <- as.factor(adata_to_correct$obs$batch)
+df_to_correct$sample <- as.factor(adata_to_correct$obs$sample)
 
 # add an "anchor" column which specify which samples are the technical replicates
 # this is a bit weird as the anchor information should be a column name or character vector
@@ -42,6 +42,7 @@ df_to_correct$anchor <- ifelse(
     paste0("control_", adata_to_correct$obs$is_control),
     as.character(adata_to_correct$obs$sample)
 )
+df_to_correct$anchor <- as.factor(df_to_correct$anchor)
 
 lineage_markers <- as.vector(input_adata$var_names[
     input_adata$var$marker_type == "lineage"
