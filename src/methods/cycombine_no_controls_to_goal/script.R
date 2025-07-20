@@ -4,7 +4,9 @@ requireNamespace("cyCombine", quietly = TRUE)
 ## VIASH START
 par <- list(
     input = "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/unintegrated_censored.h5ad",
-    output = "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/output.h5ad"
+    output = "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/output.h5ad",
+    som_grid_size = 8,
+    rlen = 10
 )
 meta <- list(name = "cycombine_no_controls")
 ## VIASH END
@@ -25,8 +27,8 @@ lineage_markers <- as.vector(input_adata$var_names[
 df_to_correct <- as.data.frame(
     adata_to_correct$layers[["preprocessed"]]
 )
-df_to_correct$batch <- adata_to_correct$obs$batch
-df_to_correct$sample <- adata_to_correct$obs$sample
+df_to_correct$batch <- as.factor(adata_to_correct$obs$batch)
+df_to_correct$sample <- as.factor(adata_to_correct$obs$sample)
 
 cat("Run cyCombine\n")
 
@@ -57,7 +59,7 @@ df_corrected <- cyCombine::correct_data(
     method = "ComBat",
     covar = NULL,
     anchor = NULL,
-    ref.batch = NULL,
+    ref.batch = "1",
     parametric = TRUE
 )
 
@@ -99,7 +101,7 @@ output <- anndata::AnnData(
                 "method" = "ComBat",
                 "covar" = NULL,
                 "anchor" = NULL,
-                "ref.batch" = NULL,
+                "ref.batch" = "1",
                 "parametric" = TRUE
             )
         )
