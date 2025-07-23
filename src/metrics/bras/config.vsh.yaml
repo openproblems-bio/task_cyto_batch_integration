@@ -21,27 +21,34 @@ info:
       label: Bras
       # A one sentence summary of how this metric works (required). Used when 
       # rendering summary tables.
-      summary: "FILL IN: A one sentence summary of this metric."
+      summary: "Batch removal adapted silhouette (BRAS)."
       # A multi-line description of how this component works (required). Used
       # when rendering reference documentation.
       description: |
-        FILL IN: A (multi-line) description of how this metric works.
-      # references:
-      #   doi: 
-      #     - 10.1000/xx.123456.789
-      #   bibtex:
-      #     - |
-      #       @article{foo,
-      #         title={Foo},
-      #         author={Bar},
-      #         journal={Baz},
-      #         year={2024}
-      #       }
+        BRAS evaluates batch effect removal with respect to batch ids within each label (cell type annotations derived from manual gating),
+        using a modified silhouette score that accounts for nested batch effects.
+        Unlike standard silhouette, BRAS computes between-cluster distances using the between_cluster_distances method rather than nearest-cluster approach. 
+        The implementation is based on the scib-metrics package.
+        Cosine similarity is used as a distance measure.
+        A higher scores indicates better batch mixing.
+      references:
+        doi: 
+          - 10.1101/2025.01.21.634098
+        bibtex:
+          - |
+            @article{rautenstrauch2025metrics,
+              title={Metrics Matter: Why We Need to Stop Using Silhouette in Single-Cell Benchmarking},
+              author={Rautenstrauch, Pia and Ohler, Uwe},
+              journal={bioRxiv},
+              pages={2025--01},
+              year={2025},
+              publisher={Cold Spring Harbor Laboratory}
+            }
       links:
         # URL to the documentation for this metric (required).
-        documentation: https://url.to/the/documentation
+        documentation: https://scib-metrics.readthedocs.io/en/stable/generated/scib_metrics.bras.html
         # URL to the code repository for this metric (required).
-        repository: https://github.com/organisation/repository
+        repository: https://github.com/YosefLab/scib-metrics/blob/main/src/scib_metrics/metrics/_silhouette.py
       # The minimum possible value for this metric (required)
       min: 0
       # The maximum possible value for this metric (required)
@@ -61,19 +68,29 @@ resources:
   # The script of your component (required)
   - type: python_script
     path: script.py
-  # Additional resources your script needs (optional)
-  # - type: file
-  #   path: weights.pt
+  - path: /src/utils/helper_functions.py
+
 
 engines:
   # Specifications for the Docker image for this component.
   - type: docker
-    image: openproblems/base_python:1.0.0
-    # Add custom dependencies here (optional). For more information, see
-    # https://viash.io/reference/config/engines/docker/#setup .
-    # setup:
-    #   - type: python
-    #     packages: numpy<2
+    image: python:3.11.4
+    setup:
+      - type: apt
+        packages:
+          - procps
+      - type: python
+        packages:
+          - jax ~= 0.6.2
+          - jaxlib ~= 0.6.2
+          - anndata~=0.10.0
+          - scanpy~=1.10.0
+          - scib-metrics~=0.5.6
+          - pyyaml
+          - requests
+          - jsonschema
+        github:
+          - "openproblems-bio/core#subdirectory=packages/python/openproblems"
 
 runners:
   # This platform allows running the component natively
