@@ -87,6 +87,7 @@ dependencies:
   - name: methods/batchadjust_one_control
   - name: methods/batchadjust_all_controls
   - name: metrics/cms
+  - name: metrics/bras
 
 runners:
   - type: nextflow
