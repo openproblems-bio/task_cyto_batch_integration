@@ -53,6 +53,8 @@
   * Added CytoNorm with aggregate of samples as controls (`methods/cytonorm_no_controls`).
   * Added parameters to tune CytoNorm.
 
+* Added `metrics/bras`
+
 ## MAJOR CHANGES
 
 * Updated file schema (PR #18): 
