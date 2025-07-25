@@ -7,33 +7,35 @@ __merge__: ../../api/comp_method.yaml
 
 # A unique identifier for your component (required).
 # Can contain only lowercase letters or underscores.
-name: cytonorm_all_controls
+name: cytonorm_no_controls_to_goal
 # A relatively short label, used when rendering visualisations (required)
-label: CytoNorm with all controls
+label: CytoNorm (no-controls, to-goal)
 # A one sentence summary of how this method works (required). Used when 
 # rendering summary tables.
-summary: CytoNorm with all control samples.
+summary: CytoNorm run without control samples, correcting to a goal batch.
 # A multi-line description of how this component works (required). Used
 # when rendering reference documentation.
 description: |
   CytoNorm corrects batch effects by using reference control samples (aliquots of one sample, 
   technical replicates) included with each batch. 
-  It clusters cells, then trains a model on the control samples to learn how marker 
+  It clusters cells using FlowSOM, then trains a model on the control samples to learn how marker 
   expression distributions differ across batches for each population.
-  It then uses splines to align these distributions to a common reference (either the mean
-  of batches or to a single batch).
-  Here, we run CytoNorm using all control samples available, aligning to the mean of the batches.
-  The parameter nQ, which specifies the number of quantiles used when computing the splines
-  is varied linearly between value of 80-120, with default set to 99 following the default value provided by CytoNorm.
+  It then uses splines to align these distributions to a common reference (either a midpoint
+  derived from all batches or to a single batch).
+
+  In this CytoNorm version, an aggregate of each batch is created and subsequently used as a 
+  proxy for the control samples, aligning the batches to batch 1.
+
+  The number of cells used to create an aggregate is set as the number of cells in the smallest 
+  sample or 1,000,000, whichever is the smaller, multiplied by how many samples there are in the batch.
   Clustering was performed by FlowSOM.
-  The number of cells clustered by FlowSOM is set to be number of cells in the smallest
-  control samples or 1,000,000, whichever is the smaller, multiplied by how many control samples
-  there are in the data.
   The size of the SOM grid is varied linearly between value of 6-16, with default set to 15
   following the default value provided by CytoNorm.
   The number of metaclusters is varied linearly between value of 8-20, with default set to 10
   following the default value provided by CytoNorm.
-
+  The number of cells clustered by FlowSOM is set as the number of cells in the smallest 
+  aggregate or 1,000,000, whichever is the smaller, multiplied by how many batches there are in the data
+  (because 1 aggregate = 1 batch).
 references:
   doi: 
     - 10.1002/cyto.a.23904
@@ -90,7 +92,7 @@ engines:
     # https://viash.io/reference/config/engines/docker/#setup .
     setup:
       - type: r
-        github: [saeyslab/cytoNorm]
+        github: [saeyslab/cytoNorm, saeyslab/FlowSOM]
         bioc: [ flowCore, Biobase ]
         packages: [ anndata, docstring ]
 

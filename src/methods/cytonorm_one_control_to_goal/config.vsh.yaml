@@ -7,22 +7,24 @@ __merge__: ../../api/comp_method.yaml
 
 # A unique identifier for your component (required).
 # Can contain only lowercase letters or underscores.
-name: cytonorm_one_control
+name: cytonorm_one_control_to_goal
 # A relatively short label, used when rendering visualisations (required)
-label: CytoNorm with one control
+label: CytoNorm (one-control, to-goal)
 # A one sentence summary of how this method works (required). Used when 
 # rendering summary tables.
-summary: CytoNorm with only control samples from one group.
+summary: CytoNorm run with control sample from one group only, correcting to a goal batch
 # A multi-line description of how this component works (required). Used
 # when rendering reference documentation.
 description: |
   CytoNorm corrects batch effects by using reference control samples (aliquots of one sample, 
   technical replicates) included with each batch. 
-  It clusters cells, then trains a model on the control samples to learn how marker 
+  It clusters cells using FlowSOM, then trains a model on the control samples to learn how marker 
   expression distributions differ across batches for each population.
-  It then uses splines to align these distributions to a common reference (either the mean
-  of batches or to a single batch).
-  Here, we run CytoNorm using only control samples from one donor, aligning to the mean of the batches.
+  It then uses splines to align these distributions to a common reference (either a midpoint
+  derived from all batches or to a single batch).
+
+  Here, we run CytoNorm using only control samples from one donor, aligning the batches to batch 1.
+
   The parameter nQ, which specifies the number of quantiles used when computing the splines
   is varied linearly between value of 80-120, with default set to 99 following the default value provided by CytoNorm.
   Clustering was performed by FlowSOM.

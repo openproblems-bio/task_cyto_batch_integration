@@ -28,9 +28,9 @@ adata <- anndata::read_h5ad(par[["input"]])
 
 cat("Creating aggregates per batch\n")
 
-batches <- unique(adata$obs$batch)
+batches <- as.character(unique(adata$obs$batch))
 fset_per_batch <- lapply(batches, function(bt) {
-    anndata_to_fcs(adata[adata$obs$batch == bt, ])
+    anndata_to_fcs(adata[adata$obs$batch == as.numeric(bt), ])
 })
 names(fset_per_batch) <- batches
 
@@ -93,9 +93,13 @@ cat("Normalising using Cytonorm model trained using aggregates\n")
 # every sample, including the controls, pretty much the entire unintegrated data
 # will be corrected.
 fset_all <- anndata_to_fcs(adata)
-batch_labs_per_samp <- sapply(sampleNames(fset_all), function(samp) {
-    unique(adata[adata$obs$sample == samp]$obs$batch)[1]
-})
+batch_labs_per_samp <- vapply(sampleNames(fset_all), function(samp) {
+    as.character(
+        unique(
+            adata[adata$obs$sample == samp]$obs$batch
+        )[1]
+    )
+}, FUN.VALUE = character(1))
 
 norm_fset_all <- CytoNorm::CytoNorm.normalize(
     model = model,
