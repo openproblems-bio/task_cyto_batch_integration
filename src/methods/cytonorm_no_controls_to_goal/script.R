@@ -28,9 +28,9 @@ adata <- anndata::read_h5ad(par[["input"]])
 
 cat("Creating aggregates per batch\n")
 
-batches <- unique(adata$obs$batch)
+batches <- as.character(unique(adata$obs$batch))
 fset_per_batch <- lapply(batches, function(bt) {
-    anndata_to_fcs(adata[adata$obs$batch == bt, ])
+    anndata_to_fcs(adata[adata$obs$batch == as.numeric(bt), ])
 })
 names(fset_per_batch) <- batches
 
@@ -71,7 +71,7 @@ cat("Training Cytonorm model using aggregates\n")
 # FlowSOM.params and normParams are the default parameters in cytonorm
 model <- CytoNorm::CytoNorm.train(
     files = agg_per_batch,
-    labels = as.character(batches),
+    labels = batches,
     channels = markers_to_correct,
     outputDir = tmp_path,
     FlowSOM.params = list(

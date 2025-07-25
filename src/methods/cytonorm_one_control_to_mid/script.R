@@ -36,9 +36,22 @@ fset_all <- anndata_to_fcs(adata)
 cat("Setting up some variables for training the model\n")
 
 # get batch label for the training data
-batch_lab_train <- sapply(sampleNames(fset_train), function(samp) {
-    unique(adata[adata$obs$sample == samp]$obs$batch)[1]
-})
+batch_lab_train <- vapply(sampleNames(fset_train), function(samp) {
+    as.character(
+        unique(
+            adata[adata$obs$sample == samp]$obs$batch
+        )[1]
+    )
+}, FUN.VALUE = character(1))
+
+# get batch label for the all data
+batch_labs <- vapply(sampleNames(fset_all), function(samp) {
+    as.character(
+        unique(
+            adata[adata$obs$sample == samp]$obs$batch
+        )[1]
+    )
+}, FUN.VALUE = character(1))
 
 markers_to_correct <- as.vector(adata$var$channel[adata$var$to_correct])
 
@@ -73,11 +86,6 @@ model <- CytoNorm::CytoNorm.train(
     seed = 42,
     verbose = FALSE
 )
-
-# get batch label for the validation data
-batch_labs <- sapply(sampleNames(fset_all), function(samp) {
-    unique(adata[adata$obs$sample == samp]$obs$batch)[1]
-})
 
 cat("Normalising using Cytonorm model using control samples from one condition\n")
 
