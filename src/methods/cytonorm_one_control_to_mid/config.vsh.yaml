@@ -7,22 +7,25 @@ __merge__: ../../api/comp_method.yaml
 
 # A unique identifier for your component (required).
 # Can contain only lowercase letters or underscores.
-name: cytonorm_all_controls
+name: cytonorm_one_control_to_mid
 # A relatively short label, used when rendering visualisations (required)
-label: CytoNorm with all controls
+label: CytoNorm (one-control, to-middle)
 # A one sentence summary of how this method works (required). Used when 
 # rendering summary tables.
-summary: CytoNorm with all control samples.
+summary: CytoNorm run with control sample from one group only, correcting to a midpoint
 # A multi-line description of how this component works (required). Used
 # when rendering reference documentation.
 description: |
   CytoNorm corrects batch effects by using reference control samples (aliquots of one sample, 
   technical replicates) included with each batch. 
-  It clusters cells, then trains a model on the control samples to learn how marker 
+  It clusters cells using FlowSOM, then trains a model on the control samples to learn how marker 
   expression distributions differ across batches for each population.
-  It then uses splines to align these distributions to a common reference (either the mean
-  of batches or to a single batch).
-  Here, we run CytoNorm using all control samples available, aligning to the mean of the batches.
+  It then uses splines to align these distributions to a common reference (either a midpoint
+  derived from all batches or to a single batch).
+
+  Here, we run CytoNorm using only control samples from one donor, aligning to a 
+  midpoint derived from all batches.
+
   The parameter nQ, which specifies the number of quantiles used when computing the splines
   is varied linearly between value of 80-120, with default set to 99 following the default value provided by CytoNorm.
   Clustering was performed by FlowSOM.
@@ -33,7 +36,6 @@ description: |
   following the default value provided by CytoNorm.
   The number of metaclusters is varied linearly between value of 8-20, with default set to 10
   following the default value provided by CytoNorm.
-
 references:
   doi: 
     - 10.1002/cyto.a.23904
