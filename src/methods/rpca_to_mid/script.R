@@ -5,7 +5,7 @@ requireNamespace("Seurat", quietly = TRUE)
 par <- list(
   input = "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/unintegrated_censored.h5ad",
   output = "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/output.h5ad",
-  npcs = 50,
+  npcs = 10,
   n_neighbours = 5
 )
 meta <- list(
@@ -34,7 +34,7 @@ seurat_objs <- lapply(batches, function(batch) {
   ]$layers["preprocessed"])
 
   # have to transpose so cells are columns..
-  mat <- t(mat)
+  mat <- Matrix::t(mat)
 
   # convert to sparse matrix
   mat <- Matrix::Matrix(mat, sparse = TRUE)
@@ -76,23 +76,63 @@ names(seurat_objs) <- batches
 
 cat("Finding anchors\n")
 
-n_pcs_computed <- dim(
-  Seurat::Embeddings(
-    seurat_objs[[1]], reduction = "pca"
-  )
-)[2]
+# n_pcs_computed <- dim(
+#   Seurat::Embeddings(
+#     seurat_objs[[1]], reduction = "pca"
+#   )
+# )[2]
 # setting scale to FALSE as we have scaled the features.
 anchors <- Seurat::FindIntegrationAnchors(
     object.list = seurat_objs,
     anchor.features = markers_to_correct,
-    dims = seq(n_pcs_computed),
+    dims = seq(par[["npcs"]]),
     k.anchor = par[["n_neighbours"]],
     reduction = "rpca",
-    scale = FALSE
+    scale = FALSE,
+    verbose = FALSE
 )
+
+cat("Batch correct\n")
+
+batch_corrected_seurat_obj <- Seurat::IntegrateData(
+    anchorset = anchors,
+    features = markers_to_correct,
+    features.to.integrate = markers_to_correct,
+    dims = seq(par[["npcs"]]),
+    verbose = FALSE
+)
+# just to be sure!
+Seurat::DefaultAssay(batch_corrected_seurat_obj) <- "integrated"
+
+cat("Creating output AnnData\n")
+
+batch_corrected_mat <- Matrix::t(
+  Matrix::as.matrix(batch_corrected_seurat_obj[['integrated']]$data)
+)
+# cbind corrected matrix to matrix containing markers not corrected
+batch_corrected_mat <- cbind(
+  batch_corrected_mat,
+  input_adata[, !input_adata$var$to_correct]$layers[["preprocessed"]]
+)
+
+# make sure the row and column orders are matching 
+# between input adata and the batch corrected matrix
+batch_corrected_mat <- batch_corrected_mat[
+  input_adata$obs_names, input_adata$var_names
+]
 
 cat("Write output AnnData to file\n")
 output <- anndata::AnnData(
-  
+  obs = input_adata$obs[, integer(0)],
+  var = input_adata$var[colnames(batch_corrected_mat), integer(0)],
+  layers = list(integrated = batch_corrected_mat),
+  uns = list(
+    dataset_id = input_adata$uns$dataset_id,
+    method_id = meta$name,
+    parameters = list(
+      "npcs" = par[["npcs"]],
+      "n_neighbours" = par["n_neighbours"]
+    )
+  )
 )
 output$write_h5ad(par[["output"]], compression = "gzip")
