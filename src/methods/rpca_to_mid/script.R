@@ -5,8 +5,8 @@ requireNamespace("Seurat", quietly = TRUE)
 par <- list(
   input = "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/unintegrated_censored.h5ad",
   output = "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/output.h5ad",
-  npcs = 10,
-  n_neighbours = 5
+  npcs = 21,
+  n_neighbours = 50
 )
 meta <- list(
   name = "rpca_to_mid"
@@ -27,11 +27,13 @@ batches <- unique(input_adata$obs$batch)
 seurat_objs <- lapply(batches, function(batch) {
 
   cat(paste("Processing batch", batch))
-  # batch <- batches[1]
-  mat <- Matrix::as.matrix(input_adata[
+
+  adata_batch <- input_adata[
     input_adata$obs$batch == batch,
     input_adata$var$to_correct
-  ]$layers["preprocessed"])
+  ]
+  # batch <- batches[1]
+  mat <- Matrix::as.matrix(adata_batch$layers["preprocessed"])
 
   # have to transpose so cells are columns..
   mat <- Matrix::t(mat)
@@ -42,7 +44,8 @@ seurat_objs <- lapply(batches, function(batch) {
   seurat_obj <- Seurat::CreateSeuratObject(
       counts = mat,
       data = mat,
-      assay = "cyto"
+      assay = "cyto",
+      meta.data = adata_batch$obs
   )
 
   # save RAM
@@ -88,7 +91,6 @@ anchors <- Seurat::FindIntegrationAnchors(
     dims = seq(par[["npcs"]]),
     k.anchor = par[["n_neighbours"]],
     reduction = "rpca",
-    scale = FALSE,
     verbose = FALSE
 )
 
@@ -96,7 +98,6 @@ cat("Batch correct\n")
 
 batch_corrected_seurat_obj <- Seurat::IntegrateData(
     anchorset = anchors,
-    features = markers_to_correct,
     features.to.integrate = markers_to_correct,
     dims = seq(par[["npcs"]]),
     verbose = FALSE
@@ -131,8 +132,15 @@ output <- anndata::AnnData(
     method_id = meta$name,
     parameters = list(
       "npcs" = par[["npcs"]],
-      "n_neighbours" = par["n_neighbours"]
+      "n_neighbours" = par[["n_neighbours"]]
     )
   )
 )
 output$write_h5ad(par[["output"]], compression = "gzip")
+
+# batch_corrected_seurat_obj <- Seurat::ScaleData(batch_corrected_seurat_obj, verbose = FALSE, assay="cyto")
+# batch_corrected_seurat_obj <- Seurat::RunPCA(batch_corrected_seurat_obj, npcs = par[["npcs"]], verbose = FALSE, assay="cyto",
+# features = markers_to_correct)
+# batch_corrected_seurat_obj <- Seurat::RunUMAP(batch_corrected_seurat_obj, reduction = "pca", dims = seq(par[["npcs"]]), ssay="cyto")
+
+# Seurat::DimPlot(batch_corrected_seurat_obj, reduction = "umap", group.by = "batch")
