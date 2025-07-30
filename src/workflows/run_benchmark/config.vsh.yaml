@@ -72,9 +72,12 @@ dependencies:
   - name: methods/harmonypy
   - name: methods/limma_remove_batch_effect
   - name: methods/combat
-  - name: methods/cycombine_no_controls
-  - name: methods/cycombine_one_control
-  - name: methods/cycombine_all_controls
+  - name: methods/cycombine_no_controls_to_mid
+  - name: methods/cycombine_no_controls_to_goal
+  - name: methods/cycombine_one_control_to_mid
+  - name: methods/cycombine_one_control_to_goal
+  - name: methods/cycombine_all_controls_to_mid
+  - name: methods/cycombine_all_controls_to_goal
   - name: methods/gaussnorm
   - name: methods/cytonorm_no_controls_to_mid
   - name: methods/cytonorm_all_controls_to_mid
@@ -90,6 +93,7 @@ dependencies:
   - name: methods/batchadjust_one_control
   - name: methods/batchadjust_all_controls
   - name: metrics/cms
+  - name: metrics/bras
 
 runners:
   - type: nextflow

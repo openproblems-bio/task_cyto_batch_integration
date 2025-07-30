@@ -16,9 +16,12 @@ methods = [
   perfect_integration_horizontal,
   perfect_integration_vertical,
   combat,
-  cycombine_no_controls,
-  cycombine_one_control,
-  cycombine_all_controls,
+  cycombine_no_controls_to_mid,
+  cycombine_no_controls_to_goal,
+  cycombine_one_control_to_mid,
+  cycombine_one_control_to_goal,
+  cycombine_all_controls_to_mid,
+  cycombine_all_controls_to_goal,
   gaussnorm,
   mnn,
   batchadjust_one_control,
@@ -37,7 +40,8 @@ metrics = [
   n_inconsistent_peaks,
   average_batch_r2,
   flowsom_mapping_similarity,
-  cms
+  cms,
+  bras
 ]
 
 workflow run_wf {
