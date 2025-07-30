@@ -54,6 +54,7 @@
   * Added parameters to tune CytoNorm.
 
 * Added cyCombine correction to a reference batch (PR #90).
+* Added `metrics/bras`
 
 ## MAJOR CHANGES
 
