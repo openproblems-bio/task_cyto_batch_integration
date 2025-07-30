@@ -20,6 +20,8 @@ cat("Preparing input Anndata and df\n")
 adata_to_correct <- input_adata[, input_adata$var$to_correct]
 markers_to_correct <- input_adata$var_names[input_adata$var$to_correct]
 
+input_adata$obs$batch <- as.factor(input_adata$obs$batch)
+
 cat("Creating Seurat object and preprocess\n")
 # create one seurat object per batch
 batches <- unique(input_adata$obs$batch)
@@ -79,19 +81,16 @@ names(seurat_objs) <- batches
 
 cat("Finding anchors\n")
 
-# n_pcs_computed <- dim(
-#   Seurat::Embeddings(
-#     seurat_objs[[1]], reduction = "pca"
-#   )
-# )[2]
-# setting scale to FALSE as we have scaled the features.
+# TODO check: reference = NULL uses batch 1 internally? 
+# The output is the same as if i set the reference as 1.
 anchors <- Seurat::FindIntegrationAnchors(
     object.list = seurat_objs,
     anchor.features = markers_to_correct,
     dims = seq(par[["npcs"]]),
     k.anchor = par[["n_neighbours"]],
     reduction = "rpca",
-    verbose = FALSE
+    verbose = FALSE,
+    reference = NULL
 )
 
 cat("Batch correct\n")
@@ -121,6 +120,12 @@ batch_corrected_mat <- cbind(
 batch_corrected_mat <- batch_corrected_mat[
   input_adata$obs_names, input_adata$var_names
 ]
+
+batch_corrected_dt <- data.table::as.data.table(batch_corrected_mat)
+batch_corrected_dt$batch <- input_adata$obs$batch
+
+Spectre::run.umap(batch_corrected_dt, markers_to_correct)
+Spectre::make.colour.plot(batch_corrected_dt, "UMAP_X", "UMAP_Y", "batch", save.to.disk = FALSE)
 
 cat("Write output AnnData to file\n")
 output <- anndata::AnnData(

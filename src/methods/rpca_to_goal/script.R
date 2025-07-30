@@ -1,29 +1,142 @@
-library(anndata)
+requireNamespace("anndata", quietly = TRUE)
+requireNamespace("Seurat", quietly = TRUE)
 
 ## VIASH START
 par <- list(
-  input = "resources_test/.../input.h5ad",
-  output = "output.h5ad"
+  input = "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/unintegrated_censored.h5ad",
+  output = "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/output.h5ad",
+  npcs = 21,
+  n_neighbours = 50
 )
 meta <- list(
-  name = "rpca_to_goal"
+  name = "rpca_to_mid"
 )
 ## VIASH END
 
 cat("Reading input files\n")
-input <- anndata::read_h5ad(par[["input"]])
+input_adata <- anndata::read_h5ad(par[["input"]])
 
-cat("Preprocess data\n")
-# ... preprocessing ...
+cat("Preparing input Anndata and df\n")
+adata_to_correct <- input_adata[, input_adata$var$to_correct]
+markers_to_correct <- input_adata$var_names[input_adata$var$to_correct]
 
-cat("Train model\n")
-# ... train model ...
+input_adata$obs$batch <- as.factor(input_adata$obs$batch)
 
-cat("Generate predictions\n")
-# ... generate predictions ...
+cat("Creating Seurat object and preprocess\n")
+# create one seurat object per batch
+batches <- unique(input_adata$obs$batch)
+
+seurat_objs <- lapply(batches, function(batch) {
+
+  cat(paste("Processing batch", batch))
+
+  adata_batch <- input_adata[
+    input_adata$obs$batch == batch,
+    input_adata$var$to_correct
+  ]
+  # batch <- batches[1]
+  mat <- Matrix::as.matrix(adata_batch$layers["preprocessed"])
+
+  # have to transpose so cells are columns..
+  mat <- Matrix::t(mat)
+
+  # convert to sparse matrix
+  mat <- Matrix::Matrix(mat, sparse = TRUE)
+
+  seurat_obj <- Seurat::CreateSeuratObject(
+      counts = mat,
+      data = mat,
+      assay = "cyto",
+      meta.data = adata_batch$obs
+  )
+
+  # save RAM
+  rm(mat)
+
+  # scale all features/markers
+  seurat_obj <- Seurat::ScaleData(
+    object = seurat_obj,
+    features = markers_to_correct,
+    assay = "cyto",
+    verbose = FALSE
+  )
+
+  # run pca. mandatory
+  # if num pcs is more than number of markers, it'll be capped at
+  # the number of markers
+  # not using approximate pca as we don't have many markers
+  seurat_obj <- Seurat::RunPCA(
+    object = seurat_obj,
+    features = markers_to_correct,
+    assay = "cyto",
+    npcs = par[["npcs"]],
+    approx = FALSE,
+    verbose = FALSE
+  )
+
+  return(seurat_obj)
+})
+
+names(seurat_objs) <- batches
+
+cat("Finding anchors\n")
+
+anchors <- Seurat::FindIntegrationAnchors(
+    object.list = seurat_objs,
+    anchor.features = markers_to_correct,
+    dims = seq(par[["npcs"]]),
+    k.anchor = par[["n_neighbours"]],
+    reduction = "rpca",
+    verbose = FALSE,
+    reference = which(names(seurat_objs) == "1")
+)
+
+cat("Batch correct\n")
+
+batch_corrected_seurat_obj <- Seurat::IntegrateData(
+    anchorset = anchors,
+    features.to.integrate = markers_to_correct,
+    dims = seq(par[["npcs"]]),
+    verbose = FALSE
+)
+# just to be sure!
+Seurat::DefaultAssay(batch_corrected_seurat_obj) <- "integrated"
+
+cat("Creating output AnnData\n")
+
+batch_corrected_mat <- Matrix::t(
+  Matrix::as.matrix(batch_corrected_seurat_obj[['integrated']]$data)
+)
+# cbind corrected matrix to matrix containing markers not corrected
+batch_corrected_mat <- cbind(
+  batch_corrected_mat,
+  input_adata[, !input_adata$var$to_correct]$layers[["preprocessed"]]
+)
+
+# make sure the row and column orders are matching 
+# between input adata and the batch corrected matrix
+batch_corrected_mat <- batch_corrected_mat[
+  input_adata$obs_names, input_adata$var_names
+]
+
+batch_corrected_dt <- data.table::as.data.table(batch_corrected_mat)
+batch_corrected_dt$batch <- input_adata$obs$batch
+
+batch_corrected_dt <- Spectre::run.umap(batch_corrected_dt, markers_to_correct)
+Spectre::make.colour.plot(batch_corrected_dt, "UMAP_X", "UMAP_Y", "batch", save.to.disk = FALSE)
 
 cat("Write output AnnData to file\n")
 output <- anndata::AnnData(
-  
+  obs = input_adata$obs[, integer(0)],
+  var = input_adata$var[colnames(batch_corrected_mat), integer(0)],
+  layers = list(integrated = batch_corrected_mat),
+  uns = list(
+    dataset_id = input_adata$uns$dataset_id,
+    method_id = meta$name,
+    parameters = list(
+      "npcs" = par[["npcs"]],
+      "n_neighbours" = par[["n_neighbours"]]
+    )
+  )
 )
 output$write_h5ad(par[["output"]], compression = "gzip")
