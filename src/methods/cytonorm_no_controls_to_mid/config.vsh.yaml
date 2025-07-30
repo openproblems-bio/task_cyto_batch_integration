@@ -7,23 +7,25 @@ __merge__: ../../api/comp_method.yaml
 
 # A unique identifier for your component (required).
 # Can contain only lowercase letters or underscores.
-name: cytonorm_no_controls
+name: cytonorm_no_controls_to_mid
 # A relatively short label, used when rendering visualisations (required)
-label: CytoNorm without controls
+label: CytoNorm (no-controls, to-middle)
 # A one sentence summary of how this method works (required). Used when 
 # rendering summary tables.
-summary: CytoNorm without control samples.
+summary: CytoNorm run without control samples, correcting to a midpoint.
 # A multi-line description of how this component works (required). Used
 # when rendering reference documentation.
 description: |
   CytoNorm corrects batch effects by using reference control samples (aliquots of one sample, 
   technical replicates) included with each batch. 
-  It clusters cells, then trains a model on the control samples to learn how marker 
+  It clusters cells using FlowSOM, then trains a model on the control samples to learn how marker 
   expression distributions differ across batches for each population.
-  It then uses splines to align these distributions to a common reference (either the mean
-  of batches or to a single batch).
+  It then uses splines to align these distributions to a common reference (either a midpoint
+  derived from all batches or to a single batch).
+
   In this CytoNorm version, an aggregate of each batch is created and subsequently used as a 
-  proxy for the control samples.
+  proxy for the control samples, aligning to a midpoint derived from all batches.
+
   The number of cells used to create an aggregate is set as the number of cells in the smallest 
   sample or 1,000,000, whichever is the smaller, multiplied by how many samples there are in the batch.
   Clustering was performed by FlowSOM.

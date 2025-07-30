@@ -12,11 +12,11 @@ par <- list(
     n_quantiles = 99
 )
 meta <- list(
-    name = "cytonorm_control",
+    name = "cytonorm_one_control",
     temp_dir = "resources_test/task_cyto_batch_integration/tmp",
     resources_dir = "src/utils"
 )
-## VIASH END
+## VIASH ENDs
 
 source(paste0(meta$resources_dir, "/anndata_to_fcs.R"))
 
@@ -28,7 +28,7 @@ adata <- anndata::read_h5ad(par[["input"]])
 cat("Preparing training data\n")
 
 # get the control samples to be used for training the model
-fset_train <- anndata_to_fcs(adata[adata$obs$is_control != 0, ])
+fset_train <- anndata_to_fcs(adata[adata$obs$is_control == 1, ])
 # every sample, including the controls, pretty much the entire unintegrated data
 # will be corrected.
 fset_all <- anndata_to_fcs(adata)
@@ -36,9 +36,22 @@ fset_all <- anndata_to_fcs(adata)
 cat("Setting up some variables for training the model\n")
 
 # get batch label for the training data
-batch_lab_train <- sapply(sampleNames(fset_train), function(samp) {
-    unique(adata[adata$obs$sample == samp]$obs$batch)[1]
-})
+batch_lab_train <- vapply(sampleNames(fset_train), function(samp) {
+    as.character(
+        unique(
+            adata[adata$obs$sample == samp]$obs$batch
+        )[1]
+    )
+}, FUN.VALUE = character(1))
+
+# get batch label for the all data
+batch_labs <- vapply(sampleNames(fset_all), function(samp) {
+    as.character(
+        unique(
+            adata[adata$obs$sample == samp]$obs$batch
+        )[1]
+    )
+}, FUN.VALUE = character(1))
 
 markers_to_correct <- as.vector(adata$var$channel[adata$var$to_correct])
 
@@ -52,7 +65,7 @@ lineage_markers <- as.vector(adata$var$channel[adata$var$marker_type == "lineage
 n_cells_per_control_sample <- flowCore::fsApply(fset_train, function(ff) nrow(exprs(ff)))
 n_cells_for_clustering <- min(n_cells_per_control_sample, 1000000) * length(n_cells_per_control_sample)
 
-cat("Training Cytonorm model using all control samples\n")
+cat("Training Cytonorm model using control samples from one condition\n")
 
 # FlowSOM.params and normParams are the default parameters in cytonorm
 model <- CytoNorm::CytoNorm.train(
@@ -74,12 +87,7 @@ model <- CytoNorm::CytoNorm.train(
     verbose = FALSE
 )
 
-# get batch label for the validation data
-batch_labs <- sapply(sampleNames(fset_all), function(samp) {
-    unique(adata[adata$obs$sample == samp]$obs$batch)[1]
-})
-
-cat("Normalising using Cytonorm model trained using all control samples\n")
+cat("Normalising using Cytonorm model using control samples from one condition\n")
 
 norm_fset_all <- CytoNorm::CytoNorm.normalize(
     model = model,
