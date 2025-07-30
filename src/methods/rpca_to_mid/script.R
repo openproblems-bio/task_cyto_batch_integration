@@ -137,10 +137,3 @@ output <- anndata::AnnData(
   )
 )
 output$write_h5ad(par[["output"]], compression = "gzip")
-
-# batch_corrected_seurat_obj <- Seurat::ScaleData(batch_corrected_seurat_obj, verbose = FALSE, assay="cyto")
-# batch_corrected_seurat_obj <- Seurat::RunPCA(batch_corrected_seurat_obj, npcs = par[["npcs"]], verbose = FALSE, assay="cyto",
-# features = markers_to_correct)
-# batch_corrected_seurat_obj <- Seurat::RunUMAP(batch_corrected_seurat_obj, reduction = "pca", dims = seq(par[["npcs"]]), ssay="cyto")
-
-# Seurat::DimPlot(batch_corrected_seurat_obj, reduction = "umap", group.by = "batch")
