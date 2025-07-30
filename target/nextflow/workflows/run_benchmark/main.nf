@@ -3651,19 +3651,37 @@ meta = [
       }
     },
     {
-      "name" : "methods/cycombine_no_controls",
+      "name" : "methods/cycombine_no_controls_to_mid",
       "repository" : {
         "type" : "local"
       }
     },
     {
-      "name" : "methods/cycombine_one_control",
+      "name" : "methods/cycombine_no_controls_to_goal",
       "repository" : {
         "type" : "local"
       }
     },
     {
-      "name" : "methods/cycombine_all_controls",
+      "name" : "methods/cycombine_one_control_to_mid",
+      "repository" : {
+        "type" : "local"
+      }
+    },
+    {
+      "name" : "methods/cycombine_one_control_to_goal",
+      "repository" : {
+        "type" : "local"
+      }
+    },
+    {
+      "name" : "methods/cycombine_all_controls_to_mid",
+      "repository" : {
+        "type" : "local"
+      }
+    },
+    {
+      "name" : "methods/cycombine_all_controls_to_goal",
       "repository" : {
         "type" : "local"
       }
@@ -3803,7 +3821,7 @@ meta = [
     "engine" : "native",
     "output" : "target/nextflow/workflows/run_benchmark",
     "viash_version" : "0.9.4",
-    "git_commit" : "5ac7e519ff41b58a45929ee2a2a3aaf51a71f4ba",
+    "git_commit" : "fc83bb5f720742e55aae835dee5361d71f67fecc",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3915,9 +3933,12 @@ include { perfect_integration_vertical } from "${meta.resources_dir}/../../../ne
 include { harmonypy } from "${meta.resources_dir}/../../../nextflow/methods/harmonypy/main.nf"
 include { limma_remove_batch_effect } from "${meta.resources_dir}/../../../nextflow/methods/limma_remove_batch_effect/main.nf"
 include { combat } from "${meta.resources_dir}/../../../nextflow/methods/combat/main.nf"
-include { cycombine_no_controls } from "${meta.resources_dir}/../../../nextflow/methods/cycombine_no_controls/main.nf"
-include { cycombine_one_control } from "${meta.resources_dir}/../../../nextflow/methods/cycombine_one_control/main.nf"
-include { cycombine_all_controls } from "${meta.resources_dir}/../../../nextflow/methods/cycombine_all_controls/main.nf"
+include { cycombine_no_controls_to_mid } from "${meta.resources_dir}/../../../nextflow/methods/cycombine_no_controls_to_mid/main.nf"
+include { cycombine_no_controls_to_goal } from "${meta.resources_dir}/../../../nextflow/methods/cycombine_no_controls_to_goal/main.nf"
+include { cycombine_one_control_to_mid } from "${meta.resources_dir}/../../../nextflow/methods/cycombine_one_control_to_mid/main.nf"
+include { cycombine_one_control_to_goal } from "${meta.resources_dir}/../../../nextflow/methods/cycombine_one_control_to_goal/main.nf"
+include { cycombine_all_controls_to_mid } from "${meta.resources_dir}/../../../nextflow/methods/cycombine_all_controls_to_mid/main.nf"
+include { cycombine_all_controls_to_goal } from "${meta.resources_dir}/../../../nextflow/methods/cycombine_all_controls_to_goal/main.nf"
 include { gaussnorm } from "${meta.resources_dir}/../../../nextflow/methods/gaussnorm/main.nf"
 include { cytonorm_no_controls } from "${meta.resources_dir}/../../../nextflow/methods/cytonorm_no_controls/main.nf"
 include { cytonorm_all_controls } from "${meta.resources_dir}/../../../nextflow/methods/cytonorm_all_controls/main.nf"
@@ -3952,9 +3973,12 @@ methods = [
   perfect_integration_horizontal,
   perfect_integration_vertical,
   combat,
-  cycombine_no_controls,
-  cycombine_one_control,
-  cycombine_all_controls,
+  cycombine_no_controls_to_mid,
+  cycombine_no_controls_to_goal,
+  cycombine_one_control_to_mid,
+  cycombine_one_control_to_goal,
+  cycombine_all_controls_to_mid,
+  cycombine_all_controls_to_goal,
   gaussnorm,
   mnn,
   batchadjust_one_control,
