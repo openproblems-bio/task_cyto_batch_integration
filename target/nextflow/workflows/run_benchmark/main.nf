@@ -3739,6 +3739,12 @@ meta = [
       "repository" : {
         "type" : "local"
       }
+    },
+    {
+      "name" : "metrics/bras",
+      "repository" : {
+        "type" : "local"
+      }
     }
   ],
   "repositories" : [
@@ -3797,7 +3803,7 @@ meta = [
     "engine" : "native",
     "output" : "target/nextflow/workflows/run_benchmark",
     "viash_version" : "0.9.4",
-    "git_commit" : "b8140c6fb13bc4b4016ccdf9c20eda5f6b198a9d",
+    "git_commit" : "5ac7e519ff41b58a45929ee2a2a3aaf51a71f4ba",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3924,6 +3930,7 @@ include { flowsom_mapping_similarity } from "${meta.resources_dir}/../../../next
 include { batchadjust_one_control } from "${meta.resources_dir}/../../../nextflow/methods/batchadjust_one_control/main.nf"
 include { batchadjust_all_controls } from "${meta.resources_dir}/../../../nextflow/methods/batchadjust_all_controls/main.nf"
 include { cms } from "${meta.resources_dir}/../../../nextflow/metrics/cms/main.nf"
+include { bras } from "${meta.resources_dir}/../../../nextflow/metrics/bras/main.nf"
 
 // inner workflow
 // user-provided Nextflow code
@@ -3963,7 +3970,8 @@ metrics = [
   n_inconsistent_peaks,
   average_batch_r2,
   flowsom_mapping_similarity,
-  cms
+  cms,
+  bras
 ]
 
 workflow run_wf {

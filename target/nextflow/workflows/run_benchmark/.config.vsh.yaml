@@ -500,6 +500,9 @@ dependencies:
 - name: "metrics/cms"
   repository:
     type: "local"
+- name: "metrics/bras"
+  repository:
+    type: "local"
 repositories:
 - type: "github"
   name: "op"
@@ -540,7 +543,7 @@ build_info:
   output: "target/nextflow/workflows/run_benchmark"
   executable: "target/nextflow/workflows/run_benchmark/main.nf"
   viash_version: "0.9.4"
-  git_commit: "b8140c6fb13bc4b4016ccdf9c20eda5f6b198a9d"
+  git_commit: "5ac7e519ff41b58a45929ee2a2a3aaf51a71f4ba"
   git_remote: "https://github.com/openproblems-bio/task_cyto_batch_integration"
   dependencies:
   - "target/dependencies/github/openproblems-bio/openproblems/build/main/nextflow/utils/extract_uns_metadata"
@@ -568,6 +571,7 @@ build_info:
   - "target/nextflow/methods/batchadjust_one_control"
   - "target/nextflow/methods/batchadjust_all_controls"
   - "target/nextflow/metrics/cms"
+  - "target/nextflow/metrics/bras"
 package_config:
   name: "task_cyto_batch_integration"
   version: "build_main"
