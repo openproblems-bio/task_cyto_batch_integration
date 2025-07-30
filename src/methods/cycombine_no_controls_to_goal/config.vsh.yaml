@@ -1,25 +1,15 @@
-# The API specifies which type of component this is.
-# It contains specifications for:
-#   - The input/output files
-#   - Common parameters
-#   - A unit test
 __merge__: ../../api/comp_method.yaml
 
-# A unique identifier for your component (required).
-# Can contain only lowercase letters or underscores.
-name: cycombine_one_control
-# A relatively short label, used when rendering visualisations (required)
-label: cyCombine with one control
-# A one sentence summary of how this method works (required). Used when 
-# rendering summary tables.
-summary: "cyCombine with one control samples"
+name: cycombine_no_controls_to_goal
+label: cyCombine (no-controls, to-goal)
+summary: "cyCombine run without control samples, correcting to a goal batch"
 description: |
   cyCombine perform batch integration using self-organizing maps and ComBat.
   It first uses self-organizing maps (SOM) to group similar cells into clusters, 
   then applies a ComBat-based method to correct batch effects within 
   each cluster. 
-  Here, we run cyCombine with control samples from just one donor
-  (replicates in cyCombine terminology) using square SOM grid.
+  Here, we run cyCombine without any control samples (replicates, in cyCombine terms), 
+  with a square SOM grid and correct the batches to batch 1.
   The size of the SOM grid is varied linearly between value of 6-16, with default set to 8
   following the default value in create_som function in cyCombine.
   Rlen, which is the number of times data is presented to the SOM network and can impact

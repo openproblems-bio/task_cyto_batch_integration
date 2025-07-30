@@ -53,6 +53,7 @@
   * Added CytoNorm with aggregate of samples as controls (`methods/cytonorm_no_controls`).
   * Added parameters to tune CytoNorm.
 
+* Added cyCombine correction to a reference batch (PR #90).
 * Added `metrics/bras`
 
 ## MAJOR CHANGES
