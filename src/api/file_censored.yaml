@@ -1,6 +1,6 @@
 #TODO: Change to the required and/or optional fields of the anndata
 type: file
-example: "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/unintegrated_censored.h5ad"
+example: "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/censored.h5ad"
 label: Censored
 summary: |
   An unintegrated dataset with certain columns (cells metadata), such as the donor information, hidden.
