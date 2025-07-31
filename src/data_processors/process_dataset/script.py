@@ -53,7 +53,7 @@ print(f"output_censored_left: {output_censored_left}")
 
 print(">> Creating split 2 data", flush=True)
 
-output_censored_right = adata[(adata.obs.is_control>0) & (adata.obs.split==2)]
+output_censored_right = adata[(adata.obs.is_control>0) | (adata.obs.split==2)]
 
 print("Grouping comparison:", flush=True)
 print(output_censored_right.obs.groupby(["is_control", "split"]).size().to_dict())
