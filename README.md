@@ -46,7 +46,7 @@ signals were preserved.
 flowchart TB
   file_common_dataset("<a href='https://github.com/openproblems-bio/task_cyto_batch_integration#file-format-common-dataset'>Common Dataset</a>")
   comp_data_processor[/"<a href='https://github.com/openproblems-bio/task_cyto_batch_integration#component-type-data-processor'>Data processor</a>"/]
-  file_censored("<a href='https://github.com/openproblems-bio/task_cyto_batch_integration#file-format-unintegrated-censored'>Unintegrated Censored</a>")
+  file_censored("<a href='https://github.com/openproblems-bio/task_cyto_batch_integration#file-format-censored'>Censored</a>")
   file_unintegrated("<a href='https://github.com/openproblems-bio/task_cyto_batch_integration#file-format-unintegrated'>Unintegrated</a>")
   comp_method[/"<a href='https://github.com/openproblems-bio/task_cyto_batch_integration#component-type-method'>Method</a>"/]
   comp_control_method[/"<a href='https://github.com/openproblems-bio/task_cyto_batch_integration#component-type-control-method'>Control Method</a>"/]
@@ -136,7 +136,7 @@ Arguments:
 
 </div>
 
-## File format: Unintegrated Censored
+## File format: Censored
 
 An unintegrated dataset with certain columns (cells metadata), such as
 the donor information, hidden. These columns are intentionally hidden to
