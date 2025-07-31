@@ -53,7 +53,6 @@ flowchart TB
   comp_metric[/"<a href='https://github.com/openproblems-bio/task_cyto_batch_integration#component-type-metric'>Metric</a>"/]
   file_integrated("<a href='https://github.com/openproblems-bio/task_cyto_batch_integration#file-format-integrated'>Integrated</a>")
   file_score("<a href='https://github.com/openproblems-bio/task_cyto_batch_integration#file-format-score'>Score</a>")
-  file_validation("<a href='https://github.com/openproblems-bio/task_cyto_batch_integration#file-format-validation'>Validation</a>")
   file_common_dataset---comp_data_processor
   comp_data_processor-->file_censored
   comp_data_processor-->file_censored
@@ -63,10 +62,10 @@ flowchart TB
   file_unintegrated---comp_metric
   comp_method-->file_integrated
   comp_control_method-->file_integrated
+  comp_control_method-->file_integrated
   comp_metric-->file_score
   file_integrated---comp_metric
   file_integrated---comp_metric
-  file_validation---comp_control_method
 ```
 
 ## File format: Common Dataset
@@ -275,8 +274,8 @@ Arguments:
 | Name | Type | Description |
 |:---|:---|:---|
 | `--input_unintegrated` | `file` | The complete unintegrated dataset, including all cells’ metadata (columns) from the unintegrated_censored dataset. |
-| `--input_validation` | `file` | Hold-out dataset for validation. |
-| `--output` | `file` | (*Output*) Integrated dataset which batch effect was corrected by an algorithm. |
+| `--output_integrated_left` | `file` | (*Output*) Integrated dataset which batch effect was corrected by an algorithm. |
+| `--output_integrated_right` | `file` | (*Output*) Integrated dataset which batch effect was corrected by an algorithm. |
 
 </div>
 
@@ -353,71 +352,6 @@ Data structure:
 | `uns["method_id"]` | `string` | A unique identifier for the batch correction method. |
 | `uns["metric_ids"]` | `string` | One or more unique metric identifiers. |
 | `uns["metric_values"]` | `double` | The metric values obtained. Must be of same length as ‘metric_ids’. |
-
-</div>
-
-## File format: Validation
-
-Hold-out dataset for validation.
-
-Example file:
-`resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/validation.h5ad`
-
-Description:
-
-Dataset containing cells from samples that were held out for evaluating
-batch integration output. The cells that are in this dataset belong to
-samples which are not included in the unintegrated or
-unintegrated_censored datasets. For example, if samples from donor A are
-present in batch 1 and 2, the sample from batch 1 may be used as input
-for the batch correction algorithm (and thus present in unintegrated and
-unintegrated_censored datasets). The sample from batch 2, may not be
-included as an input for the batch correction algorithm, but is needed
-to validate whether whether the algorithm managed to correct the batch
-effect in batch 2 towards batch 1. This sample will then be included in
-this dataset (but not in unintegrated and unintegrated_censored
-datasets).
-
-Format:
-
-<div class="small">
-
-    AnnData object
-     obs: 'cell_type', 'batch', 'sample', 'donor', 'group', 'is_control'
-     var: 'numeric_id', 'channel', 'marker', 'marker_type', 'to_correct'
-     layers: 'preprocessed'
-     uns: 'dataset_id', 'dataset_name', 'dataset_url', 'dataset_reference', 'dataset_summary', 'dataset_description', 'dataset_organism', 'parameter_som_xdim', 'parameter_som_ydim', 'parameter_num_clusters'
-
-</div>
-
-Data structure:
-
-<div class="small">
-
-| Slot | Type | Description |
-|:---|:---|:---|
-| `obs["cell_type"]` | `string` | Cell type information. |
-| `obs["batch"]` | `string` | Batch information. |
-| `obs["sample"]` | `string` | Sample ID. |
-| `obs["donor"]` | `string` | Donor ID. |
-| `obs["group"]` | `string` | Biological group of the donor. |
-| `obs["is_control"]` | `integer` | Whether the sample the cell came from can be used as a control for batch effect correction. 0: cannot be used as a control. \>= 1: can be used as a control. For cells with \>= 1: cells with the same value come from the same donor. Different values indicate different donors. |
-| `var["numeric_id"]` | `integer` | Numeric ID associated with each marker. |
-| `var["channel"]` | `string` | The channel / detector of the instrument. |
-| `var["marker"]` | `string` | (*Optional*) The marker name associated with the channel. |
-| `var["marker_type"]` | `string` | Whether the marker is a functional or lineage marker. |
-| `var["to_correct"]` | `boolean` | Whether the marker will be batch corrected. |
-| `layers["preprocessed"]` | `double` | preprocessed data, e.g. already compensated, transformed and debris/doublets removed. |
-| `uns["dataset_id"]` | `string` | A unique identifier for the dataset. |
-| `uns["dataset_name"]` | `string` | Nicely formatted name. |
-| `uns["dataset_url"]` | `string` | (*Optional*) Link to the original source of the dataset. |
-| `uns["dataset_reference"]` | `string` | (*Optional*) Bibtex reference of the paper in which the dataset was published. |
-| `uns["dataset_summary"]` | `string` | Short description of the dataset. |
-| `uns["dataset_description"]` | `string` | Long description of the dataset. |
-| `uns["dataset_organism"]` | `string` | (*Optional*) The organism of the sample in the dataset. |
-| `uns["parameter_som_xdim"]` | `integer` | Parameter used to define the width of the self-organizing map (SOM) grid. Usually between 10 and 20. |
-| `uns["parameter_som_ydim"]` | `integer` | Parameter used to define the height of the self-organizing map (SOM) grid. Usually between 10 and 20. |
-| `uns["parameter_num_clusters"]` | `integer` | Parameter used to define the number of clusters. Set this number to be slightly higher than the number of cell types expected in the dataset. |
 
 </div>
 
