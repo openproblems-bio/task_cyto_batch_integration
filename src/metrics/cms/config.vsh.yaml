@@ -104,7 +104,7 @@ engines:
     image: openproblems/base_r:1
     setup:
       - type: r
-        packages: [robustbase, hdf5r, anndata]
+        packages: [robustbase, rhdf5]
         bioc: [CellMixS, SingleCellExperiment, Biocparallel]
         github: [scverse/anndataR]
 
