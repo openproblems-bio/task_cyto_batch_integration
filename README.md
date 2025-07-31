@@ -46,27 +46,27 @@ signals were preserved.
 flowchart TB
   file_common_dataset("<a href='https://github.com/openproblems-bio/task_cyto_batch_integration#file-format-common-dataset'>Common Dataset</a>")
   comp_data_processor[/"<a href='https://github.com/openproblems-bio/task_cyto_batch_integration#component-type-data-processor'>Data processor</a>"/]
-  file_unintegrated_censored("<a href='https://github.com/openproblems-bio/task_cyto_batch_integration#file-format-unintegrated-censored'>Unintegrated Censored</a>")
+  file_censored("<a href='https://github.com/openproblems-bio/task_cyto_batch_integration#file-format-unintegrated-censored'>Unintegrated Censored</a>")
   file_unintegrated("<a href='https://github.com/openproblems-bio/task_cyto_batch_integration#file-format-unintegrated'>Unintegrated</a>")
-  file_validation("<a href='https://github.com/openproblems-bio/task_cyto_batch_integration#file-format-validation'>Validation</a>")
   comp_method[/"<a href='https://github.com/openproblems-bio/task_cyto_batch_integration#component-type-method'>Method</a>"/]
   comp_control_method[/"<a href='https://github.com/openproblems-bio/task_cyto_batch_integration#component-type-control-method'>Control Method</a>"/]
   comp_metric[/"<a href='https://github.com/openproblems-bio/task_cyto_batch_integration#component-type-metric'>Metric</a>"/]
   file_integrated("<a href='https://github.com/openproblems-bio/task_cyto_batch_integration#file-format-integrated'>Integrated</a>")
   file_score("<a href='https://github.com/openproblems-bio/task_cyto_batch_integration#file-format-score'>Score</a>")
+  file_validation("<a href='https://github.com/openproblems-bio/task_cyto_batch_integration#file-format-validation'>Validation</a>")
   file_common_dataset---comp_data_processor
-  comp_data_processor-->file_unintegrated_censored
+  comp_data_processor-->file_censored
+  comp_data_processor-->file_censored
   comp_data_processor-->file_unintegrated
-  comp_data_processor-->file_validation
-  file_unintegrated_censored---comp_method
+  file_censored---comp_method
   file_unintegrated---comp_control_method
   file_unintegrated---comp_metric
-  file_validation---comp_control_method
-  file_validation---comp_metric
   comp_method-->file_integrated
   comp_control_method-->file_integrated
   comp_metric-->file_score
   file_integrated---comp_metric
+  file_integrated---comp_metric
+  file_validation---comp_control_method
 ```
 
 ## File format: Common Dataset
@@ -131,9 +131,9 @@ Arguments:
 | Name | Type | Description |
 |:---|:---|:---|
 | `--input` | `file` | A subset of the common dataset. |
-| `--output_unintegrated_censored` | `file` | (*Output*) An unintegrated dataset with certain columns (cells metadata), such as the donor information, hidden. These columns are intentionally hidden to prevent bias. The batch correction algorithm should not have to rely on these information to properly integrate different batches. This dataset is used as the input for the batch correction algorithm. The cells therein are identical to those in the unintegrated dataset. |
-| `--output_unintegrated` | `file` | (*Output*) The complete unintegrated dataset, including all cells’ metadata (columns) from the unintegrated_censored dataset. The cells in this dataset are the same to those in the unintegrated_censored dataset. |
-| `--output_validation` | `file` | (*Output*) Hold-out dataset for validation. |
+| `--output_censored_left` | `file` | (*Output*) An unintegrated dataset with certain columns (cells metadata), such as the donor information, hidden. These columns are intentionally hidden to prevent bias. |
+| `--output_censored_right` | `file` | (*Output*) An unintegrated dataset with certain columns (cells metadata), such as the donor information, hidden. These columns are intentionally hidden to prevent bias. |
+| `--output_unintegrated` | `file` | (*Output*) The complete unintegrated dataset, including all cells’ metadata (columns) from the unintegrated_censored dataset. |
 
 </div>
 
@@ -141,13 +141,19 @@ Arguments:
 
 An unintegrated dataset with certain columns (cells metadata), such as
 the donor information, hidden. These columns are intentionally hidden to
+prevent bias.
+
+Example file:
+`resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/unintegrated_censored.h5ad`
+
+Description:
+
+An unintegrated dataset with certain columns (cells metadata), such as
+the donor information, hidden. These columns are intentionally hidden to
 prevent bias. The batch correction algorithm should not have to rely on
 these information to properly integrate different batches. This dataset
 is used as the input for the batch correction algorithm. The cells
 therein are identical to those in the unintegrated dataset.
-
-Example file:
-`resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/unintegrated_censored.h5ad`
 
 Format:
 
@@ -189,11 +195,16 @@ Data structure:
 ## File format: Unintegrated
 
 The complete unintegrated dataset, including all cells’ metadata
-(columns) from the unintegrated_censored dataset. The cells in this
-dataset are the same to those in the unintegrated_censored dataset.
+(columns) from the unintegrated_censored dataset.
 
 Example file:
 `resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/unintegrated.h5ad`
+
+Description:
+
+The complete unintegrated dataset, including all cells’ metadata
+(columns) from the unintegrated_censored dataset. The cells in this
+dataset are the same to those in the unintegrated_censored dataset.
 
 Format:
 
@@ -232,9 +243,116 @@ Data structure:
 | `uns["dataset_summary"]` | `string` | Short description of the dataset. |
 | `uns["dataset_description"]` | `string` | Long description of the dataset. |
 | `uns["dataset_organism"]` | `string` | (*Optional*) The organism of the sample in the dataset. |
-| `uns["parameter_som_xdim"]` | `integer` | Parameter used to define the dimensions of the self-organizing map (SOM) grid used for flowsom clustering. |
-| `uns["parameter_som_ydim"]` | `integer` | Parameter used to define the dimensions of the self-organizing map (SOM) grid used for flowsom clustering. |
-| `uns["parameter_num_clusters"]` | `integer` | Parameter used to define the number of clusters used in the meta-clustering step of the flowsom algorithm. |
+| `uns["parameter_som_xdim"]` | `integer` | Parameter used to define the width of the self-organizing map (SOM) grid. Usually between 10 and 20. |
+| `uns["parameter_som_ydim"]` | `integer` | Parameter used to define the height of the self-organizing map (SOM) grid. Usually between 10 and 20. |
+| `uns["parameter_num_clusters"]` | `integer` | Parameter used to define the number of clusters. Set this number to be slightly higher than the number of cell types expected in the dataset. |
+
+</div>
+
+## Component type: Method
+
+A method for integrating batch effects in cytometry data.
+
+Arguments:
+
+<div class="small">
+
+| Name | Type | Description |
+|:---|:---|:---|
+| `--input` | `file` | An unintegrated dataset with certain columns (cells metadata), such as the donor information, hidden. These columns are intentionally hidden to prevent bias. |
+| `--output` | `file` | (*Output*) Integrated dataset which batch effect was corrected by an algorithm. |
+
+</div>
+
+## Component type: Control Method
+
+Quality control methods for verifying the pipeline.
+
+Arguments:
+
+<div class="small">
+
+| Name | Type | Description |
+|:---|:---|:---|
+| `--input_unintegrated` | `file` | The complete unintegrated dataset, including all cells’ metadata (columns) from the unintegrated_censored dataset. |
+| `--input_validation` | `file` | Hold-out dataset for validation. |
+| `--output` | `file` | (*Output*) Integrated dataset which batch effect was corrected by an algorithm. |
+
+</div>
+
+## Component type: Metric
+
+A task template metric.
+
+Arguments:
+
+<div class="small">
+
+| Name | Type | Description |
+|:---|:---|:---|
+| `--input_unintegrated` | `file` | The complete unintegrated dataset, including all cells’ metadata (columns) from the unintegrated_censored dataset. |
+| `--input_integrated_left` | `file` | Integrated dataset which batch effect was corrected by an algorithm. |
+| `--input_integrated_right` | `file` | Integrated dataset which batch effect was corrected by an algorithm. |
+| `--output` | `file` | (*Output*) File indicating the score of a metric. |
+
+</div>
+
+## File format: Integrated
+
+Integrated dataset which batch effect was corrected by an algorithm
+
+Example file:
+`resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/integrated.h5ad`
+
+Format:
+
+<div class="small">
+
+    AnnData object
+     layers: 'integrated'
+     uns: 'dataset_id', 'method_id', 'parameters'
+
+</div>
+
+Data structure:
+
+<div class="small">
+
+| Slot | Type | Description |
+|:---|:---|:---|
+| `layers["integrated"]` | `double` | The integrated data as returned by a batch correction method. |
+| `uns["dataset_id"]` | `string` | A unique identifier for the dataset. |
+| `uns["method_id"]` | `string` | A unique identifier for the method. |
+| `uns["parameters"]` | `object` | (*Optional*) The parameters used for the integration. |
+
+</div>
+
+## File format: Score
+
+File indicating the score of a metric.
+
+Example file:
+`resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/score.h5ad`
+
+Format:
+
+<div class="small">
+
+    AnnData object
+     uns: 'dataset_id', 'method_id', 'metric_ids', 'metric_values'
+
+</div>
+
+Data structure:
+
+<div class="small">
+
+| Slot | Type | Description |
+|:---|:---|:---|
+| `uns["dataset_id"]` | `string` | A unique identifier for the dataset. |
+| `uns["method_id"]` | `string` | A unique identifier for the batch correction method. |
+| `uns["metric_ids"]` | `string` | One or more unique metric identifiers. |
+| `uns["metric_values"]` | `double` | The metric values obtained. Must be of same length as ‘metric_ids’. |
 
 </div>
 
@@ -300,113 +418,6 @@ Data structure:
 | `uns["parameter_som_xdim"]` | `integer` | Parameter used to define the width of the self-organizing map (SOM) grid. Usually between 10 and 20. |
 | `uns["parameter_som_ydim"]` | `integer` | Parameter used to define the height of the self-organizing map (SOM) grid. Usually between 10 and 20. |
 | `uns["parameter_num_clusters"]` | `integer` | Parameter used to define the number of clusters. Set this number to be slightly higher than the number of cell types expected in the dataset. |
-
-</div>
-
-## Component type: Method
-
-A method for integrating batch effects in cytometry data.
-
-Arguments:
-
-<div class="small">
-
-| Name | Type | Description |
-|:---|:---|:---|
-| `--input` | `file` | An unintegrated dataset with certain columns (cells metadata), such as the donor information, hidden. These columns are intentionally hidden to prevent bias. The batch correction algorithm should not have to rely on these information to properly integrate different batches. This dataset is used as the input for the batch correction algorithm. The cells therein are identical to those in the unintegrated dataset. |
-| `--output` | `file` | (*Output*) Integrated dataset which batch effect was corrected by an algorithm. |
-
-</div>
-
-## Component type: Control Method
-
-Quality control methods for verifying the pipeline.
-
-Arguments:
-
-<div class="small">
-
-| Name | Type | Description |
-|:---|:---|:---|
-| `--input_unintegrated` | `file` | The complete unintegrated dataset, including all cells’ metadata (columns) from the unintegrated_censored dataset. The cells in this dataset are the same to those in the unintegrated_censored dataset. |
-| `--input_validation` | `file` | Hold-out dataset for validation. |
-| `--output` | `file` | (*Output*) Integrated dataset which batch effect was corrected by an algorithm. |
-
-</div>
-
-## Component type: Metric
-
-A task template metric.
-
-Arguments:
-
-<div class="small">
-
-| Name | Type | Description |
-|:---|:---|:---|
-| `--input_validation` | `file` | Hold-out dataset for validation. |
-| `--input_unintegrated` | `file` | The complete unintegrated dataset, including all cells’ metadata (columns) from the unintegrated_censored dataset. The cells in this dataset are the same to those in the unintegrated_censored dataset. |
-| `--input_integrated` | `file` | Integrated dataset which batch effect was corrected by an algorithm. |
-| `--output` | `file` | (*Output*) File indicating the score of a metric. |
-
-</div>
-
-## File format: Integrated
-
-Integrated dataset which batch effect was corrected by an algorithm
-
-Example file:
-`resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/integrated.h5ad`
-
-Format:
-
-<div class="small">
-
-    AnnData object
-     layers: 'integrated'
-     uns: 'dataset_id', 'method_id', 'parameters'
-
-</div>
-
-Data structure:
-
-<div class="small">
-
-| Slot | Type | Description |
-|:---|:---|:---|
-| `layers["integrated"]` | `double` | The integrated data as returned by a batch correction method. |
-| `uns["dataset_id"]` | `string` | A unique identifier for the dataset. |
-| `uns["method_id"]` | `string` | A unique identifier for the method. |
-| `uns["parameters"]` | `object` | (*Optional*) The parameters used for the integration. |
-
-</div>
-
-## File format: Score
-
-File indicating the score of a metric.
-
-Example file:
-`resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/score.h5ad`
-
-Format:
-
-<div class="small">
-
-    AnnData object
-     uns: 'dataset_id', 'method_id', 'metric_ids', 'metric_values'
-
-</div>
-
-Data structure:
-
-<div class="small">
-
-| Slot | Type | Description |
-|:---|:---|:---|
-| `uns["dataset_id"]` | `string` | A unique identifier for the dataset. |
-| `uns["method_id"]` | `string` | A unique identifier for the batch correction method. |
-| `uns["metric_ids"]` | `string` | One or more unique metric identifiers. |
-| `uns["metric_values"]` | `double` | The metric values obtained. Must be of same length as ‘metric_ids’. |
 
 </div>
 
