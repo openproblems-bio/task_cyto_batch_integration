@@ -24,6 +24,15 @@ import anndata as ad
 
 adata = ad.read_h5ad("$RAW_DATA/common_dataset.h5ad")
 
+# determine split from is_validation and is_control
+# if is_control >= 1 → 0
+# else if not is_validation → 1
+# else → 2
+adata.obs["split"] = 1
+adata.obs.loc[adata.obs["is_validation"], "split"] = 2
+adata.obs.loc[adata.obs["is_control"] >= 1, "split"] = 0
+
+# override dataset_id and dataset_name
 adata.uns["dataset_id"] = "$DATASET_ID"
 adata.uns["dataset_name"] = "Mouse Spleen Flow Cytometry Subset"
 
@@ -39,28 +48,34 @@ HERE
 viash run src/data_processors/process_dataset/config.vsh.yaml -- \
   --input $DATASET_DIR/common_dataset.h5ad \
   --output_unintegrated $DATASET_DIR/unintegrated.h5ad \
-  --output_unintegrated_censored $DATASET_DIR/unintegrated_censored.h5ad \
-  --output_validation $DATASET_DIR/validation.h5ad
+  --output_censored_left $DATASET_DIR/censored_left.h5ad \
+  --output_censored_right $DATASET_DIR/censored_right.h5ad
 
 # run one method
 viash run src/methods/harmonypy/config.vsh.yaml -- \
-  --input $DATASET_DIR/unintegrated.h5ad \
-  --output $DATASET_DIR/integrated.h5ad
+  --input $DATASET_DIR/censored_left.h5ad \
+  --output $DATASET_DIR/integrated_left.h5ad
+
+# run one method
+viash run src/methods/harmonypy/config.vsh.yaml -- \
+  --input $DATASET_DIR/censored_right.h5ad \
+  --output $DATASET_DIR/integrated_right.h5ad
 
 # run one metric
 viash run src/metrics/emd/config.vsh.yaml -- \
-    --input_validation $DATASET_DIR/validation.h5ad \
     --input_unintegrated $DATASET_DIR/unintegrated.h5ad \
-    --input_integrated $DATASET_DIR/integrated.h5ad \
+    --input_integrated_left $DATASET_DIR/integrated_left.h5ad \
+    --input_integrated_right $DATASET_DIR/integrated_right.h5ad \
     --output $DATASET_DIR/score.h5ad
 
 # write manual state.yaml
 cat > $DATASET_DIR/state.yaml << HERE
 id: $DATASET_ID
-integrated: !file integrated.h5ad
 unintegrated: !file unintegrated.h5ad
-unintegrated_censored: !file unintegrated_censored.h5ad
-validation: !file validation.h5ad
+censored_left: !file censored_left.h5ad
+censored_right: !file censored_right.h5ad
+integrated_left: !file integrated_left.h5ad
+integrated_right: !file integrated_right.h5ad
 score: !file score.h5ad
 HERE
 
