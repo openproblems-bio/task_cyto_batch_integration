@@ -34,9 +34,11 @@ info:
         description: |
           Whether the sample the cell came from can be used as a control for batch 
           effect correction.
-          0: cannot be used as a control.
-          >= 1: can be used as a control.
-          For cells with >= 1: cells with the same value come from the same donor.
+          
+          * 0: cannot be used as a control.
+          * >= 1: can be used as a control.
+          * For cells with >= 1: cells with the same value come from the same donor.
+          
           Different values indicate different donors.
         required: true
     var:
