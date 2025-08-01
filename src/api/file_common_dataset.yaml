@@ -118,7 +118,3 @@ info:
         type: integer
         description: Parameter used to define the number of clusters. Set this number to be slightly higher than the number of cell types expected in the dataset.
         required: true
-      - name: goal_batch
-        type: integer
-        description: ...
-        required: true
