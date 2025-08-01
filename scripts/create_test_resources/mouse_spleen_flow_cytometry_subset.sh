@@ -32,6 +32,9 @@ adata.obs["split"] = 1
 adata.obs.loc[adata.obs["is_validation"], "split"] = 2
 adata.obs.loc[adata.obs["is_control"] >= 1, "split"] = 0
 
+# add goal_batch
+adata.uns["goal_batch"] = 1
+
 # override dataset_id and dataset_name
 adata.uns["dataset_id"] = "$DATASET_ID"
 adata.uns["dataset_name"] = "Mouse Spleen Flow Cytometry Subset"
@@ -41,6 +44,7 @@ adata.uns["parameter_som_xdim"] = int(adata.uns.pop("parameter_flowsom_xdim"))
 adata.uns["parameter_som_ydim"] = int(adata.uns.pop("parameter_flowsom_ydim"))
 adata.uns["parameter_num_clusters"] = int(adata.uns.pop("parameter_flowsom_nclus"))
 
+# make sure the output is compressed
 adata.write_h5ad("$DATASET_DIR/common_dataset.h5ad", compression='gzip')
 HERE
 
