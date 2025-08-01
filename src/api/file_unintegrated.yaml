@@ -3,12 +3,10 @@ type: file
 example: "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/unintegrated.h5ad"
 label: Unintegrated
 summary: |
-  The complete unintegrated dataset, including all cells' metadata (columns) from the
-  unintegrated_censored dataset.
+  The complete unintegrated dataset.
 description: |
-  The complete unintegrated dataset, including all cells' metadata (columns) from the
-  unintegrated_censored dataset.
-  The cells in this dataset are the same to those in the unintegrated_censored dataset.
+  The complete unintegrated dataset.
+  The cells in this dataset are the same to those in the censored dataset.
 info:
   format:
     type: h5ad

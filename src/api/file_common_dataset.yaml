@@ -102,6 +102,10 @@ info:
         type: string
         description: The organism of the sample in the dataset.
         required: false
+      - name: goal_batch
+        type: integer
+        description: Parameter to set the reference batch to which the batch aligment is performed. Only useful for tools that perform the batch integration "towards a goal batch"
+        required: true
       - name: parameter_som_xdim
         type: integer
         description: Parameter used to define the width of the self-organizing map (SOM) grid. Usually between 10 and 20.

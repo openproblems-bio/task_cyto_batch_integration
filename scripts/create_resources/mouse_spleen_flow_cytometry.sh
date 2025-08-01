@@ -28,6 +28,9 @@ adata.obs["split"] = 1
 adata.obs.loc[adata.obs["is_validation"], "split"] = 2
 adata.obs.loc[adata.obs["is_control"] >= 1, "split"] = 0
 
+# add goal_batch
+adata.uns["goal_batch"] = 1
+
 # override dataset_id and dataset_name
 adata.uns["dataset_id"] = "$DATASET_ID"
 adata.uns["dataset_name"] = "Mouse Spleen Flow Cytometry"
