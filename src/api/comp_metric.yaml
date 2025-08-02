@@ -7,15 +7,15 @@ info:
     description: |
       A metric for evaluating method predictions.
 arguments:
-  - name: "--input_validation"
-    __merge__: file_validation.yaml
-    direction: input
-    required: true
   - name: "--input_unintegrated"
     __merge__: file_unintegrated.yaml
     direction: input
     required: true
-  - name: "--input_integrated"
+  - name: "--input_integrated_left"
+    __merge__: file_integrated.yaml
+    direction: input
+    required: true
+  - name: "--input_integrated_right"
     __merge__: file_integrated.yaml
     direction: input
     required: true
