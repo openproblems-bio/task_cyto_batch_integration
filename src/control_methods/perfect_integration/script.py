@@ -18,11 +18,10 @@ adata = ad.read_h5ad(par["input_unintegrated"])
 
 print("Extracting and splitting unintegrated data", flush=True)
 #split 1
-adata_left = adata[(adata.obs.is_control>0) | (adata.obs.split==1)]
+adata_left = adata[(adata.obs.is_control>0) | (adata.obs.batch==1)]
 integrated_left = adata_left.layers["preprocessed"]
 #split 2 == split 1 in this case
-adata_right = adata[(adata.obs.is_control>0) | (adata.obs.split==1)]
-integrated_right = adata_right.layers["preprocessed"]
+
 
 print("Write output AnnData to file", flush=True)
 #split 1
@@ -40,7 +39,7 @@ output_left = ad.AnnData(
 output_right = ad.AnnData(
     obs=adata_right.obs[[]],
     var=adata_right.var[[]],
-    layers={"integrated": integrated_right},
+    layers={"integrated": integrated_left},
     uns={
         "dataset_id": adata.uns["dataset_id"],
         "method_id": meta["name"],
