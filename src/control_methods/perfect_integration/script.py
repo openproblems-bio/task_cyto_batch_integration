@@ -37,8 +37,8 @@ output_left = ad.AnnData(
 )
 #split 2
 output_right = ad.AnnData(
-    obs=adata_right.obs[[]],
-    var=adata_right.var[[]],
+    obs=adata_left.obs[[]],
+    var=adata_left.var[[]],
     layers={"integrated": integrated_left},
     uns={
         "dataset_id": adata.uns["dataset_id"],
