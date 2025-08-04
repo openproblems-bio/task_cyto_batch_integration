@@ -5,7 +5,7 @@ requireNamespace("Seurat", quietly = TRUE)
 par <- list(
     input = "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/unintegrated_censored.h5ad",
     output = "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/output.h5ad",
-    npcs = 21,
+    npcs = 10,
     n_neighbours = 50
 )
 meta <- list(
@@ -82,10 +82,16 @@ names(seurat_objs) <- batches
 
 cat("Finding anchors\n")
 
+# get how many PCs we have calculated
+# if the number of PCs is more than how many markers
+# seurat set that to how many markers.
+# hence we can't just use par[["npcs"]] below.
+npcs_computed <- dim(seurat_objs[[1]][["pca"]])[2]
+
 anchors <- Seurat::FindIntegrationAnchors(
     object.list = seurat_objs,
     anchor.features = markers_to_correct,
-    dims = seq(par[["npcs"]]),
+    dims = seq(npcs_computed),
     k.anchor = par[["n_neighbours"]],
     reduction = "rpca",
     verbose = FALSE,
@@ -99,8 +105,9 @@ cat("Batch correct\n")
 # Not sure why. But the object has data layer.
 batch_corrected_seurat_obj <- Seurat::IntegrateData(
     anchorset = anchors,
+    features = markers_to_correct,
     features.to.integrate = markers_to_correct,
-    dims = seq(par[["npcs"]]),
+    dims = seq(npcs_computed),
     verbose = FALSE
 )
 # just to be sure!
@@ -123,11 +130,11 @@ batch_corrected_mat <- batch_corrected_mat[
     input_adata$obs_names, input_adata$var_names
 ]
 
-batch_corrected_dt <- data.table::as.data.table(batch_corrected_mat)
-batch_corrected_dt$batch <- input_adata$obs$batch
+# batch_corrected_dt <- data.table::as.data.table(batch_corrected_mat)
+# batch_corrected_dt$batch <- input_adata$obs$batch
 
-batch_corrected_dt <- Spectre::run.umap(batch_corrected_dt, markers_to_correct)
-Spectre::make.colour.plot(batch_corrected_dt, "UMAP_X", "UMAP_Y", "batch", save.to.disk = FALSE)
+# batch_corrected_dt <- Spectre::run.umap(batch_corrected_dt, markers_to_correct)
+# Spectre::make.colour.plot(batch_corrected_dt, "UMAP_X", "UMAP_Y", "batch", save.to.disk = FALSE)
 
 cat("Write output AnnData to file\n")
 output <- anndata::AnnData(

@@ -9,20 +9,20 @@ __merge__: ../../api/comp_method.yaml
 # Can contain only lowercase letters or underscores.
 name: rpca_to_goal
 # A relatively short label, used when rendering visualisations (required)
-label: Seurat RPCA To Goal
+label: Seurat RPCA (to-goal)
 
 # A one sentence summary of how this method works (required). Used when 
 # rendering summary tables.
-summary: "Integrates query datasets into a reference (goal) batch using mutual nearest neighbors identified via reciprocal PCA."
+summary: "Batch integrate data to a goal batch using mutual nearest neighbors identified via Seurat reciprocal PCA."
 
 # A multi-line description of how this component works (required). Used
 # when rendering reference documentation.
 description: |
-  This method performs batch integration by projecting each query dataset into the PCA space of a reference (goal) batch, and identifying anchors 
-  (corresponding biological states) using reciprocal PCA (RPCA). 
-  RPCA identifies mutual nearest neighbors between the reference and query datasets in their shared low-dimensional space, which are used to align 
-  and integrate the query into the reference. This is a supervised integration approach, preserving biological variation while correcting 
-  for batch effects, and is particularly suitable when the reference batch is well-annotated or biologically representative.
+  Seurat RPCA performs batch integration by projecting each query dataset into the PCA space 
+  of a goal batch, and identifying anchors using reciprocal PCA (RPCA). 
+  RPCA identifies mutual nearest neighbors between the goal batch and the remaining batches 
+  in their shared low-dimensional space (PCA), which are used to align 
+  and integrate the batches into the goal batch. 
 
 references:
   doi: 
@@ -46,33 +46,43 @@ links:
   # URL to the code repository for this method (required).
   repository: https://github.com/satijalab/seurat
 
-
-
-# Component-specific parameters (optional)
-# arguments:
-#   - name: "--n_neighbors"
-#     type: "integer"
-#     default: 5
-#     description: Number of neighbors to use.
+argument_groups:
+  - name: Parameters
+    arguments:
+      - type: integer
+        name: --npcs
+        info:
+          optimize:
+            type: linear
+            lower: 10
+            upper: 20
+        default: 10
+        description: The number of principal component (PC) dimensions to use when computing anchors between batches.
+      - type: integer
+        name: --n_neighbours
+        info:
+          optimize:
+            type: linear
+            lower: 5
+            upper: 50
+        default: 5
+        description: The number of mutual nearest neighbors that are used when identifying anchors between batches
 
 # Resources required to run the component
 resources:
   # The script of your component (required)
   - type: r_script
     path: script.R
-  # Additional resources your script needs (optional)
-  # - type: file
-  #   path: weights.pt
 
 engines:
   # Specifications for the Docker image for this component.
   - type: docker
-    image: openproblems/base_r:1.0.0
+    image: openproblems/base_r:1
     # Add custom dependencies here (optional). For more information, see
     # https://viash.io/reference/config/engines/docker/#setup .
-    # setup:
-    #   - type: r
-    #     packages: tibble
+    setup:
+      - type: r
+        packages: [anndata, Seurat]
 
 runners:
   # This platform allows running the component natively

@@ -83,12 +83,18 @@ names(seurat_objs) <- batches
 
 cat("Finding anchors\n")
 
-# TODO check: reference = NULL uses batch 1 internally? 
+# get how many PCs we have calculated
+# if the number of PCs is more than how many markers
+# seurat set that to how many markers.
+# hence we can't just use par[["npcs"]] below.
+npcs_computed <- dim(seurat_objs[[1]][["pca"]])[2]
+
+# TODO check: reference = NULL uses batch 1 internally?
 # The output is the same as if i set the reference as 1.
 anchors <- Seurat::FindIntegrationAnchors(
     object.list = seurat_objs,
     anchor.features = markers_to_correct,
-    dims = seq(par[["npcs"]]),
+    dims = seq(npcs_computed),
     k.anchor = par[["n_neighbours"]],
     reduction = "rpca",
     verbose = FALSE,
@@ -100,8 +106,8 @@ cat("Batch correct\n")
 batch_corrected_seurat_obj <- Seurat::IntegrateData(
     anchorset = anchors,
     features.to.integrate = markers_to_correct,
-    dims = seq(par[["npcs"]]),
-    verbose = FALSE
+    dims = seq(npcs_computed),
+    verbose = FALSE,
 )
 # just to be sure!
 Seurat::DefaultAssay(batch_corrected_seurat_obj) <- "integrated"
@@ -117,17 +123,17 @@ batch_corrected_mat <- cbind(
     input_adata[, !input_adata$var$to_correct]$layers[["preprocessed"]]
 )
 
-# make sure the row and column orders are matching 
+# make sure the row and column orders are matching
 # between input adata and the batch corrected matrix
 batch_corrected_mat <- batch_corrected_mat[
     input_adata$obs_names, input_adata$var_names
 ]
 
-batch_corrected_dt <- data.table::as.data.table(batch_corrected_mat)
-batch_corrected_dt$batch <- input_adata$obs$batch
+# batch_corrected_dt <- data.table::as.data.table(batch_corrected_mat)
+# batch_corrected_dt$batch <- input_adata$obs$batch
 
-Spectre::run.umap(batch_corrected_dt, markers_to_correct)
-Spectre::make.colour.plot(batch_corrected_dt, "UMAP_X", "UMAP_Y", "batch", save.to.disk = FALSE)
+# Spectre::run.umap(batch_corrected_dt, markers_to_correct)
+# Spectre::make.colour.plot(batch_corrected_dt, "UMAP_X", "UMAP_Y", "batch", save.to.disk = FALSE)
 
 cat("Write output AnnData to file\n")
 output <- anndata::AnnData(
