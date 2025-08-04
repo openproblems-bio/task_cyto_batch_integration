@@ -9,37 +9,44 @@ __merge__: ../../api/comp_method.yaml
 # Can contain only lowercase letters or underscores.
 name: rpca_to_goal
 # A relatively short label, used when rendering visualisations (required)
-label: Rpca To Goal
+label: Seurat RPCA To Goal
+
 # A one sentence summary of how this method works (required). Used when 
 # rendering summary tables.
-summary: "FILL IN: A one sentence summary of this method."
+summary: "Integrates query datasets into a reference (goal) batch using mutual nearest neighbors identified via reciprocal PCA."
+
 # A multi-line description of how this component works (required). Used
 # when rendering reference documentation.
 description: |
-  FILL IN: A (multi-line) description of how this method works.
-# references:
-#   doi: 
-#     - 10.1000/xx.123456.789
-#   bibtex:
-#     - |
-#       @article{foo,
-#         title={Foo},
-#         author={Bar},
-#         journal={Baz},
-#         year={2024}
-#       }
+  This method performs batch integration by projecting each query dataset into the PCA space of a reference (goal) batch, and identifying anchors 
+  (corresponding biological states) using reciprocal PCA (RPCA). 
+  RPCA identifies mutual nearest neighbors between the reference and query datasets in their shared low-dimensional space, which are used to align 
+  and integrate the query into the reference. This is a supervised integration approach, preserving biological variation while correcting 
+  for batch effects, and is particularly suitable when the reference batch is well-annotated or biologically representative.
+
+references:
+  doi: 
+    - 10.1016/j.cell.2021.04.048
+  bibtex:
+    - |
+      @article{hao2021integrated,
+        title={Integrated analysis of multimodal single-cell data},
+        author={Hao, Yuhan and Hao, Stephanie and Andersen-Nissen, Erica and Mauck, William M and Zheng, Shiwei and Butler, Andrew and Lee, Madison J and Wilk, Aaron J and Darby, Charlotte and Zager, Michael and others},
+        journal={Cell},
+        volume={184},
+        number={13},
+        pages={3573--3587},
+        year={2021},
+        publisher={Elsevier}
+      }
+
 links:
   # URL to the documentation for this method (required).
-  documentation: https://url.to/the/documentation
+  documentation: https://satijalab.org/seurat/articles/integration_rpca.html
   # URL to the code repository for this method (required).
-  repository: https://github.com/organisation/repository
+  repository: https://github.com/satijalab/seurat
 
 
-
-# Metadata for your component
-info:
-  # Which normalisation method this component prefers to use (required).
-  preferred_normalization: log_cp10k
 
 # Component-specific parameters (optional)
 # arguments:
