@@ -130,12 +130,6 @@ batch_corrected_mat <- batch_corrected_mat[
     input_adata$obs_names, input_adata$var_names
 ]
 
-# batch_corrected_dt <- data.table::as.data.table(batch_corrected_mat)
-# batch_corrected_dt$batch <- input_adata$obs$batch
-
-# batch_corrected_dt <- Spectre::run.umap(batch_corrected_dt, markers_to_correct)
-# Spectre::make.colour.plot(batch_corrected_dt, "UMAP_X", "UMAP_Y", "batch", save.to.disk = FALSE)
-
 cat("Write output AnnData to file\n")
 output <- anndata::AnnData(
     obs = input_adata$obs[, integer(0)],
