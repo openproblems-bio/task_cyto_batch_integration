@@ -3607,8 +3607,7 @@ meta = [
           "type" : "r",
           "packages" : [
             "robustbase",
-            "hdf5r",
-            "anndata"
+            "rhdf5"
           ],
           "bioc" : [
             "CellMixS",
@@ -3630,7 +3629,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/metrics/cms",
     "viash_version" : "0.9.4",
-    "git_commit" : "aaefc2c4fb1e7669f35dd73026afcdc22faba46d",
+    "git_commit" : "7c23f9683e49a02fb8d2ce41f8f4049bb2aeb27a",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
