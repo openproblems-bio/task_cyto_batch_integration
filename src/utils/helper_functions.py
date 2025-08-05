@@ -2,55 +2,73 @@ import anndata as ad
 
 
 def get_obs_var_for_integrated(
-    i_adata: ad.AnnData, v_adata: ad.AnnData, u_adata: ad.AnnData
-) -> ad.AnnData:
+    s1_adata: ad.AnnData, s2_adata: ad.AnnData, u_adata: ad.AnnData
+) :
     """
-    Adds annotations (.var and .obs) from the unintegrated dataset to the integrated dataset.
-    In the case of the control method 'perfect_integration', the function will fetch annotations from the validation dataset instead.
+    Fetch annotations (.var and .obs) from the unintegrated dataset to the integrated datasets (left and right).
+    In the case of the control method 'perfect_integration', annotations are fetched only from batch 1.
 
     Inputs:
-    i_adata: AnnData object, batch-integrated dataset
-    v_adata: AnnData object, validation dataset
+    s1_adata: AnnData object, split == 1 dataset
+    s2_adata: AnnData object, split == 2 dataset
     u_adata: AnnData object, unintegrated dataset
 
     Outputs:
-    i_adata: AnnData object with .var and .obs added
+    s1_adata: AnnData object, split == 1 dataset with annotations 
+    s2_adata: AnnData object, split == 2 dataset with annotations 
     """
-    import warnings
 
-    if i_adata.uns["method_id"] == "perfect_integration_horizontal":
-        assert i_adata.shape[0] == v_adata.shape[0], (
-            "The number of cells in the integrated (perfect_integration_horizontal) and validation datasets do not match"
+    s1_adata.obs = u_adata.obs.loc[s1_adata.obs_names]
+    s1_adata.var = u_adata.var.loc[s1_adata.var_names]
+    s2_adata.obs = u_adata.obs.loc[s2_adata.obs_names]
+    s2_adata.var = u_adata.var.loc[s2_adata.var_names]
+
+    if s1_adata.uns['method_id'] == 'perfect_integration':
+        print(
+            "Control method 'perfect_integration' detected. Changing batch labels for split 2"
         )
-        i_adata.obs = v_adata.obs.loc[i_adata.obs_names]
-        i_adata.var = v_adata.var.loc[i_adata.var_names]
 
-    elif i_adata.uns["method_id"] == "perfect_integration_vertical":
-        obs_adata = ad.concat([v_adata, u_adata])
-        # subset to just batch 1
-        # purposely hard code this so if the batch used for perfect integration vertical
-        # changes, this will have to be purposely changed.
-        obs_adata = obs_adata[obs_adata.obs["batch"] == 1]
+        #Apply mapping to all non-control cells of split 1 and split 2 (+ change the split label)
+        split_dict_s1 = get_donor_batch_map(u_adata, split_of_interest=1)
+        s1_adata.obs.loc[(u_adata.obs.is_control==0), 'batch'] = s1_adata.obs['donor'].map(split_dict_s1)
+        s1_adata.obs.loc[(u_adata.obs.is_control==0), 'split'] = 1
 
-        assert i_adata.shape[0] == obs_adata.shape[0], (
-            "The number of cells in the integrated (perfect_integration_vertical) and validation + unintegrated datasets do not match"
-        )
-        i_adata.obs = obs_adata.obs.loc[i_adata.obs_names]
-        i_adata.var = v_adata.var.loc[i_adata.var_names]
+        split_dict_s2 = get_donor_batch_map(u_adata, split_of_interest=2)
+        s2_adata.obs.loc[(u_adata.obs.is_control==0), 'batch'] = s2_adata.obs['donor'].map(split_dict_s2)
+        s2_adata.obs.loc[(u_adata.obs.is_control==0), 'split'] = 2
 
-    else:
-        assert i_adata.shape[0] == u_adata.shape[0], (
-            "The number of cells in the integrated and unintegrated datasets do not match"
-        )
-        if False in list(i_adata.obs.index == u_adata.obs.index):
-            warnings.warn(
-                "The cell ordering in the integrated and unintegrated datasets do not match"
-            )
+    return s1_adata, s2_adata
 
-        i_adata.obs = u_adata.obs.loc[i_adata.obs_names]
-        i_adata.var = u_adata.var.loc[i_adata.var_names]
+def get_donor_batch_map(
+    u_adata: ad.AnnData, split_of_interest: int) -> dict:
+    """
+    Create a dictionary that represent the correct donor/batch mapping for a split of interest.
+    Note: This helper function is only meant to be used for 'perfect_integration' control method.
 
-    return i_adata
+    Inputs:
+    u_adata: AnnData object, unintegrated dataset
+    split_of_interest: int, the split number from which the mapping is created
+
+    Outputs:
+    split_dict: Dictionary mapping donor/batch mapping for a split of interest
+    """
+    import pandas as pd
+
+    split_dict = (
+        u_adata[(u_adata.obs.is_control==0) & (u_adata.obs.split==split_of_interest)].obs
+        .groupby('donor')['batch']
+        .apply(pd.Series.unique)
+        .apply(list)
+        .to_dict()
+    )
+
+    #Safeguard to ensure that each donor has a unique batch in the split
+    assert False not in [True if np.unique(el).size == 1 else False for el in split_dict.values()], "Donor/Batch mapping is ambiguous. Some donors have multiple batches in the same split."
+
+    #transform the elements of the dictionary in integers
+    split_dict = {k: int(v[0]) for k, v in split_dict.items()}
+
+    return split_dict
 
 
 def subset_nocontrols(adata) -> ad.AnnData:
