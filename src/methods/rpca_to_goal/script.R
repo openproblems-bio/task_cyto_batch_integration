@@ -46,9 +46,16 @@ seurat_objs <- lapply(batches, function(batch) {
 
     seurat_obj <- Seurat::CreateSeuratObject(
         counts = mat,
-        data = mat,
+        # data = mat,
         assay = "cyto",
         meta.data = adata_batch$obs
+    )
+
+    SeuratObject::SetAssayData(
+        object = seurat_obj,
+        slot = "data",
+        new.data = mat,
+        assay = "cyto"
     )
 
     # save RAM
@@ -116,7 +123,7 @@ Seurat::DefaultAssay(batch_corrected_seurat_obj) <- "integrated"
 cat("Creating output AnnData\n")
 
 batch_corrected_mat <- Matrix::t(
-    Matrix::as.matrix(batch_corrected_seurat_obj[["integrated"]]$data)
+    Matrix::as.matrix(Seurat::GetAssayData(batch_corrected_seurat_obj))
 )
 # cbind corrected matrix to matrix containing markers not corrected
 batch_corrected_mat <- cbind(

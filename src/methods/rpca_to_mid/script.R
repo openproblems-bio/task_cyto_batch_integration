@@ -115,7 +115,7 @@ Seurat::DefaultAssay(batch_corrected_seurat_obj) <- "integrated"
 cat("Creating output AnnData\n")
 
 batch_corrected_mat <- Matrix::t(
-    Matrix::as.matrix(batch_corrected_seurat_obj[["integrated"]]$data)
+    Matrix::as.matrix(Seurat::GetAssayData(batch_corrected_seurat_obj))
 )
 # cbind corrected matrix to matrix containing markers not corrected
 batch_corrected_mat <- cbind(

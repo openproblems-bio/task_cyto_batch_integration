@@ -24,6 +24,13 @@ description: |
   in their shared low-dimensional space (PCA), which are used to align 
   and integrate the batches into the goal batch. 
 
+  We ran Seurat RPCA implemented in Seurat v4.4.0, available on their github.
+  This is because subsequent version (>= v5) does not support getting corrected
+  count matrix, only corrected PC space.
+  See: https://github.com/satijalab/seurat/issues/8551.
+
+  We varied the number of PCs and nearest neighbours considered when running RPCA.
+
 references:
   doi: 
     - 10.1016/j.cell.2021.04.048
@@ -82,7 +89,8 @@ engines:
     # https://viash.io/reference/config/engines/docker/#setup .
     setup:
       - type: r
-        packages: [anndata, Seurat]
+        github: [satijalab/seurat@v4.4.0, satijalab/seurat-object@v4.1.4]
+        packages: [ anndata ]
 
 runners:
   # This platform allows running the component natively
