@@ -1,61 +1,82 @@
 # NOTE: These helper functions are ports of the original Python functions in 'helper_functions.py'
 
-#' Adds annotations (.var and .obs) from the unintegrated dataset to the
-#' integrated dataset. In the case of the control method "perfect_integration",
-#' the function will fetch annotations from the validation dataset instead.
+library(dplyr)
+requireNamespace("anndataR", quietly = TRUE)
+
+#' Adds annotations (.var and .obs) from the unintegrated data to the
+#' integrated dataset. 
+#' In the case of the control method "perfect_integration",
+#' the function will fetch the batch label from the unintegrated data 
+#' based on the split.
+#' i.e., if in split 1, donor 3-5 is from batch 2, then the batch label for that split
+#' will be changed from batch 1 to batch 2.
 #'
-#' @param i_adata AnnData object, batch-integrated dataset
-#' @param v_adata AnnData object, validation dataset
+#' @param s1_adata AnnData object, integrated data from split 1
+#' @param s2_adata AnnData object, integrated data from split 2
 #' @param u_adata AnnData object, unintegrated dataset
 #' @return AnnData object with .var and .obs added
-get_obs_var_for_integrated <- function(i_adata, v_adata, u_adata) {
-  if (i_adata$uns$method_id == "perfect_integration_horizontal") {
-    if (i_adata$n_obs != v_adata$n_obs) {
-      stop(
-        "The number of cells in the integrated (perfect_integration_horizontal) ",
-        "and validation datasets do not match"
-      )
-    }
-    i_adata$obs <- v_adata$obs[rownames(i_adata), , drop = FALSE]
-    i_adata$var <- v_adata$var[colnames(i_adata), , drop = FALSE]
-  } else if (i_adata$uns$method_id == "perfect_integration_vertical") {
-    comb_adata <- anndata::concat(list(v_adata, u_adata))
-    # subset to just batch 1
-    # Check if 'batch' column exists
-    if (!"batch" %in% colnames(comb_adata$obs)) {
-      stop(
-        "Column 'batch' not found in comb_adata$obs for ",
-        "perfect_integration_vertical."
-      )
-    }
-    comb_adata <- comb_adata[comb_adata$obs$batch == 1, ]
+#'
+get_obs_var_for_integrated <- function(s1_adata, s2_adata, u_adata) {
+    
+    s1_adata$obs <- u_adata$obs[s1_adata$obs_names, ]
+    s2_adata$obs <- u_adata$obs[s2_adata$obs_names, ]
+    s1_adata$var <- u_adata$var[s1_adata$var_names, ]
+    s2_adata$var <- u_adata$var[s2_adata$var_names, ]
 
-    if (i_adata$n_obs != comb_adata$n_obs) {
-      stop(
-        "The number of cells in the integrated (perfect_integration_vertical) ",
-        "and validation + unintegrated datasets do not match."
-      )
-    }
-    i_adata$obs <- comb_adata$obs[rownames(i_adata), , drop = FALSE]
-    i_adata$var <- v_adata$var[colnames(i_adata), , drop = FALSE]
-  } else {
-    if (i_adata$n_obs != u_adata$n_obs) {
-      stop(
-        "The number of cells in the integrated and unintegrated datasets do not match"
-      )
-    }
-    # Compare obs_names for ordering
-    if (!all(rownames(i_adata) == rownames(u_adata))) {
-      warning(
-        "The cell ordering in the integrated and unintegrated datasets do not match"
-      )
+    # if integrated data came from perfect integration, change the batch labels of the samples
+    # everything is from batch 1, but some samples need to be labelled to come from batch 2
+    if (s1_adata$uns["method_id"] == "perfect_integration") {
+        cat(
+            "Control method 'perfect_integration' detected. Changing batch labels for split 2.\n"
+        )
+        
+        cat("Computing new batch labels\n")
+        # mutate is needed as donors that are used for controls, we won't have the mapping
+        s1_adata_new_batch_labels <- get_batch_label_perfect_integration(
+            u_adata = u_adata,
+            i_adata = s1_adata,
+            split_id = 1
+        )
+
+        s2_adata_new_batch_labels <- get_batch_label_perfect_integration(
+            u_adata = u_adata,
+            i_adata = s2_adata,
+            split_id = 2
+        )
+
+        cat("Attaching new batch labels\n")
+        s1_adata$obs$batch <- s1_adata_new_batch_labels$new_batch_label
+        s2_adata$obs$batch <- s2_adata_new_batch_labels$new_batch_label
     }
 
-    i_adata$obs <- u_adata$obs[rownames(i_adata), , drop = FALSE]
-    i_adata$var <- u_adata$var[colnames(i_adata), , drop = FALSE]
-  }
+    return(list(
+        "s1_adata" = s1_adata,
+        "s2_adata" = s2_adata
+    ))
+}
 
-  i_adata
+#' Helper function to get the batch label for perfect integration.
+#' First, get donor batch map for a given split.
+#' Then apply the map to the integrated data.
+#' 
+#' @param u_adata AnnData object, unintegrated dataset.
+#' @param i_adata AnnData object, integrated data.
+#' @param split_id numeric, split id of the integrated data.
+#' 
+#' @return a dataframe with donor and new batch label
+#' 
+get_batch_label_perfect_integration <- function(u_adata, i_adata, split_id) {
+    actual_donor_batch_map <- unique(
+        u_adata$obs[(u_adata$obs$split == split_id), 
+        c("donor", "batch")]
+    )
+    # mutate is needed as donors that are used for controls, we won't have the mapping
+    i_adata_new_batch_labels <- i_adata$obs[, c("donor", "batch")] %>%
+        left_join(actual_donor_batch_map, by="donor", suffix = c("_old", "_new")) %>%
+        mutate(new_batch_label = ifelse(is.na(batch_new), batch_old, batch_new)) %>%
+        select(donor, new_batch_label)
+
+    return(i_adata_new_batch_labels)
 }
 
 #' Subsets the anndata object to remove the control cells.
@@ -64,12 +85,12 @@ get_obs_var_for_integrated <- function(i_adata, v_adata, u_adata) {
 #' @param adata AnnData object
 #' @return AnnData object with cells from control samples removed
 subset_nocontrols <- function(adata) {
-  if (!"is_control" %in% colnames(adata$obs)) {
-    stop("The column 'is_control' is not present in the adata object.")
-  }
+    if (!"is_control" %in% colnames(adata$obs)) {
+        stop("The column 'is_control' is not present in the adata object.")
+    }
 
-  # Subset the adata to remove cells where is_control != 0
-  adata[adata$obs$is_control == 0, ]
+    # Subset the adata to remove cells where is_control != 0
+    adata[adata$obs$is_control == 0, ]
 }
 
 #' Subsets the anndata object to only include markers that need to be
@@ -79,7 +100,7 @@ subset_nocontrols <- function(adata) {
 #' @param adata AnnData object
 #' @return AnnData object with only the markers to correct
 subset_markers_tocorrect <- function(adata) {
-  adata[, adata$var$to_correct]
+    adata[, adata$var$to_correct]
 }
 
 #' Subsets the anndata object to remove all cells where the marker is not
@@ -89,12 +110,12 @@ subset_markers_tocorrect <- function(adata) {
 #' @param adata AnnData object
 #' @return AnnData object with only the labeled cells
 remove_unlabelled <- function(adata) {
-  if (!"cell_type" %in% colnames(adata$obs)) {
-    stop("The column 'cell_type' is not present in the adata object.")
-  }
+    if (!"cell_type" %in% colnames(adata$obs)) {
+        stop("The column 'cell_type' is not present in the adata object.")
+    }
 
-  # Convert to lowercase and filter out "unlabelled" and "unlabeled"
-  is_unlabelled <- tolower(adata$obs$cell_type) %in%
-    c("unlabelled", "unlabeled")
-  adata[!is_unlabelled, ]
+    # Convert to lowercase and filter out "unlabelled" and "unlabeled"
+    is_unlabelled <- tolower(adata$obs$cell_type) %in%
+        c("unlabelled", "unlabeled")
+    adata[!is_unlabelled, ]
 }
