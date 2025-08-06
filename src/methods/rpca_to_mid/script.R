@@ -16,12 +16,11 @@ meta <- list(
 cat("Reading input files\n")
 input_adata <- anndata::read_h5ad(par[["input"]])
 
-cat("Preparing input Anndata and df\n")
+cat("Preparing input Anndata\n")
 input_adata$obs$batch <- as.factor(input_adata$obs$batch)
 
 adata_to_correct <- input_adata[, input_adata$var$to_correct]
 markers_to_correct <- input_adata$var_names[input_adata$var$to_correct]
-
 
 cat("Creating Seurat object and preprocess\n")
 

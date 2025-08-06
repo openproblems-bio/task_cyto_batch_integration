@@ -46,16 +46,9 @@ seurat_objs <- lapply(batches, function(batch) {
 
     seurat_obj <- Seurat::CreateSeuratObject(
         counts = mat,
-        # data = mat,
+        data = mat,
         assay = "cyto",
         meta.data = adata_batch$obs
-    )
-
-    SeuratObject::SetAssayData(
-        object = seurat_obj,
-        slot = "data",
-        new.data = mat,
-        assay = "cyto"
     )
 
     # save RAM
