@@ -11,47 +11,47 @@ requireNamespace("anndataR", quietly = TRUE)
 #' i.e., if in split 1, donor 3-5 is from batch 2, then the batch label for that split
 #' will be changed from batch 1 to batch 2.
 #'
-#' @param s1_adata AnnData object, integrated data from split 1
-#' @param s2_adata AnnData object, integrated data from split 2
+#' @param left_adata AnnData object, integrated data from split 1
+#' @param right_adata AnnData object, integrated data from split 2
 #' @param u_adata AnnData object, unintegrated dataset
 #' @return AnnData object with .var and .obs added
 #'
-get_obs_var_for_integrated <- function(s1_adata, s2_adata, u_adata) {
-    
-    s1_adata$obs <- u_adata$obs[s1_adata$obs_names, ]
-    s2_adata$obs <- u_adata$obs[s2_adata$obs_names, ]
-    s1_adata$var <- u_adata$var[s1_adata$var_names, ]
-    s2_adata$var <- u_adata$var[s2_adata$var_names, ]
+get_obs_var_for_integrated <- function(left_adata, right_adata, u_adata) {
+
+    left_adata$obs <- u_adata$obs[left_adata$obs_names, ]
+    right_adata$obs <- u_adata$obs[right_adata$obs_names, ]
+    left_adata$var <- u_adata$var[left_adata$var_names, ]
+    right_adata$var <- u_adata$var[right_adata$var_names, ]
 
     # if integrated data came from perfect integration, change the batch labels of the samples
     # everything is from batch 1, but some samples need to be labelled to come from batch 2
-    if (s1_adata$uns["method_id"] == "perfect_integration") {
+    if (left_adata$uns["method_id"] == "perfect_integration") {
         cat(
             "Control method 'perfect_integration' detected. Changing batch labels for split 2.\n"
         )
         
         cat("Computing new batch labels\n")
         # mutate is needed as donors that are used for controls, we won't have the mapping
-        s1_adata_new_batch_labels <- get_batch_label_perfect_integration(
+        left_adata_new_batch_labels <- get_batch_label_perfect_integration(
             u_adata = u_adata,
-            i_adata = s1_adata,
+            i_adata = left_adata,
             split_id = 1
         )
 
-        s2_adata_new_batch_labels <- get_batch_label_perfect_integration(
+        right_adata_new_batch_labels <- get_batch_label_perfect_integration(
             u_adata = u_adata,
-            i_adata = s2_adata,
+            i_adata = right_adata,
             split_id = 2
         )
 
         cat("Attaching new batch labels\n")
-        s1_adata$obs$batch <- s1_adata_new_batch_labels$new_batch_label
-        s2_adata$obs$batch <- s2_adata_new_batch_labels$new_batch_label
+        left_adata$obs$batch <- left_adata_new_batch_labels$new_batch_label
+        right_adata$obs$batch <- right_adata_new_batch_labels$new_batch_label
     }
 
     return(list(
-        "s1_adata" = s1_adata,
-        "s2_adata" = s2_adata
+        "left_adata" = left_adata,
+        "right_adata" = right_adata
     ))
 }
 
