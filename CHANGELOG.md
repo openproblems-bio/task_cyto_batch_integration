@@ -56,7 +56,9 @@
 
 * Added CytoNorm correction to a goal batch (PR #92).
 * Added cyCombine correction to a reference batch (PR #90).
-* Added `metrics/bras`
+* Added `metrics/bras` (PR #91).
+
+* Added Seurat rPCA (PR #95).
 
 
 ## MAJOR CHANGES
