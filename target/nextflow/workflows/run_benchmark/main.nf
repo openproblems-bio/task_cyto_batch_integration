@@ -3735,6 +3735,30 @@ meta = [
       }
     },
     {
+      "name" : "methods/batchadjust_one_control",
+      "repository" : {
+        "type" : "local"
+      }
+    },
+    {
+      "name" : "methods/batchadjust_all_controls",
+      "repository" : {
+        "type" : "local"
+      }
+    },
+    {
+      "name" : "methods/rpca_to_goal",
+      "repository" : {
+        "type" : "local"
+      }
+    },
+    {
+      "name" : "methods/rpca_to_mid",
+      "repository" : {
+        "type" : "local"
+      }
+    },
+    {
       "name" : "metrics/emd",
       "repository" : {
         "type" : "local"
@@ -3754,18 +3778,6 @@ meta = [
     },
     {
       "name" : "metrics/flowsom_mapping_similarity",
-      "repository" : {
-        "type" : "local"
-      }
-    },
-    {
-      "name" : "methods/batchadjust_one_control",
-      "repository" : {
-        "type" : "local"
-      }
-    },
-    {
-      "name" : "methods/batchadjust_all_controls",
       "repository" : {
         "type" : "local"
       }
@@ -3839,7 +3851,7 @@ meta = [
     "engine" : "native",
     "output" : "target/nextflow/workflows/run_benchmark",
     "viash_version" : "0.9.4",
-    "git_commit" : "7c23f9683e49a02fb8d2ce41f8f4049bb2aeb27a",
+    "git_commit" : "f90b44189d30c691910d425021cf1683bc37e2c7",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3965,12 +3977,14 @@ include { cytonorm_no_controls_to_goal } from "${meta.resources_dir}/../../../ne
 include { cytonorm_all_controls_to_goal } from "${meta.resources_dir}/../../../nextflow/methods/cytonorm_all_controls_to_goal/main.nf"
 include { cytonorm_one_control_to_goal } from "${meta.resources_dir}/../../../nextflow/methods/cytonorm_one_control_to_goal/main.nf"
 include { mnn } from "${meta.resources_dir}/../../../nextflow/methods/mnn/main.nf"
+include { batchadjust_one_control } from "${meta.resources_dir}/../../../nextflow/methods/batchadjust_one_control/main.nf"
+include { batchadjust_all_controls } from "${meta.resources_dir}/../../../nextflow/methods/batchadjust_all_controls/main.nf"
+include { rpca_to_goal } from "${meta.resources_dir}/../../../nextflow/methods/rpca_to_goal/main.nf"
+include { rpca_to_mid } from "${meta.resources_dir}/../../../nextflow/methods/rpca_to_mid/main.nf"
 include { emd } from "${meta.resources_dir}/../../../nextflow/metrics/emd/main.nf"
 include { n_inconsistent_peaks } from "${meta.resources_dir}/../../../nextflow/metrics/n_inconsistent_peaks/main.nf"
 include { average_batch_r2 } from "${meta.resources_dir}/../../../nextflow/metrics/average_batch_r2/main.nf"
 include { flowsom_mapping_similarity } from "${meta.resources_dir}/../../../nextflow/metrics/flowsom_mapping_similarity/main.nf"
-include { batchadjust_one_control } from "${meta.resources_dir}/../../../nextflow/methods/batchadjust_one_control/main.nf"
-include { batchadjust_all_controls } from "${meta.resources_dir}/../../../nextflow/methods/batchadjust_all_controls/main.nf"
 include { cms } from "${meta.resources_dir}/../../../nextflow/metrics/cms/main.nf"
 include { bras } from "${meta.resources_dir}/../../../nextflow/metrics/bras/main.nf"
 
@@ -4009,7 +4023,9 @@ methods = [
   cytonorm_one_control_to_mid,
   cytonorm_no_controls_to_goal,
   cytonorm_all_controls_to_goal,
-  cytonorm_one_control_to_goal
+  cytonorm_one_control_to_goal,
+  rpca_to_goal,
+  rpca_to_mid
 ]
 
 // construct list of metrics
