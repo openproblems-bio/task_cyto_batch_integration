@@ -89,8 +89,11 @@ engines:
     # https://viash.io/reference/config/engines/docker/#setup .
     setup:
       - type: r
-        github: [satijalab/seurat@v4.4.0, satijalab/seurat-object@v4.1.4]
         packages: [ anndata ]
+        url: [
+          https://cran.r-project.org/src/contrib/Archive/Seurat/Seurat_4.4.0.tar.gz,
+          https://cran.r-project.org/src/contrib/Archive/SeuratObject/SeuratObject_4.1.4.tar.gz
+        ]
 
 runners:
   # This platform allows running the component natively
