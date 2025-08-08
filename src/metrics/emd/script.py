@@ -60,6 +60,30 @@ method_id = input_integrated_left.uns["method_id"]
 # calculate horizontal EMD for each donor across integrated left and right
 donor_list = input_integrated_left.obs["donor"].unique()
 
+# check that the data for each donor in integrated left and right are actually from two different batches!
+for donor in donor_list:
+    # donor = donor_list[0]
+    batch_left = input_integrated_left.obs[input_integrated_left.obs["donor"] == donor][
+        "batch"
+    ].unique()
+    batch_right = input_integrated_right.obs[
+        input_integrated_right.obs["donor"] == donor
+    ]["batch"].unique()
+
+    if len(batch_left) > 1 or len(batch_right) > 1:
+        raise ValueError(
+            f"Donor {donor} has samples in {len(batch_left)} batches in integrated left"
+            f" and {len(batch_right)} batches in integrated right.It should only have"
+            f"samples in exactly ONE batch in each of integrated left and integrated right."
+        )
+
+    if batch_left[0] == batch_right[0]:
+        raise ValueError(
+            f"Donor {donor} has samples in the same batch for both integrated left and right.\n"
+            f"Integrated left batch id: {batch_left[0]}.\n"
+            f"Integrated right batch id: {batch_right[0]}."
+        )
+
 emd_horz = emd_helper.calculate_horizontal_emd(
     i_left_adata=input_integrated_left,
     i_right_adata=input_integrated_right,
