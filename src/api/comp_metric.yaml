@@ -12,11 +12,11 @@ arguments:
     direction: input
     required: true
   - name: "--input_integrated_left"
-    __merge__: file_integrated.yaml
+    __merge__: file_integrated_left.yaml
     direction: input
     required: true
   - name: "--input_integrated_right"
-    __merge__: file_integrated.yaml
+    __merge__: file_integrated_right.yaml
     direction: input
     required: true
   - name: "--output"
