@@ -21,8 +21,8 @@ nextflow run . \
   -resume \
   -c common/nextflow_helpers/labels_ci.config \
   --id mouse_spleen_flow_cytometry_subset \
-  --input_unintegrated_censored resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/unintegrated_censored.h5ad \
   --input_unintegrated resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/unintegrated.h5ad \
-  --input_validation resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/validation.h5ad \
+  --input_censored_left resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/censored_left.h5ad \
+  --input_censored_right resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/censored_right.h5ad \
   --output_state state.yaml \
   --publish_dir "$publish_dir"

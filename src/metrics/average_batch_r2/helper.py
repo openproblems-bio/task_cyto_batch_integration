@@ -3,27 +3,27 @@ import pandas as pd
 import anndata as ad
 
 
-def concat_paired_samples(adata_i: ad.AnnData,
-                          adata_v:ad.AnnData) -> pd.DataFrame:
+def concat_paired_samples(adata_s1: ad.AnnData,
+                          adata_s2: ad.AnnData) -> pd.DataFrame:
     '''
-    Concatenate the integrated and validation datasets to a single dataframe. Columns are markers, except last column ('batch')
+    Concatenate split 1 and split 2 datasets to a single dataframe. Columns are markers, except last column ('batch')
 
     Inputs:
-    adata_i: AnnData object, batch-integrated dataset
-    adata_v: AnnData object, validation dataset
+    adata_s1: AnnData object, split 1 integrated dataset
+    adata_s2: AnnData object, split 2 integrated dataset
 
     Returns:
-    df: pd.DataFrame with the integrated and validation datasets concatenated
+    df: pd.DataFrame with the split 1 and split 2 datasets concatenated
     '''
-    assert adata_i.shape[1] == adata_v.shape[1], "The number of markers in the integrated and validation datasets do not match"
+    assert adata_s1.shape[1] == adata_s2.shape[1], "The number of markers in the split 1 and split 2 datasets do not match"
 
-    df_int = adata_i.to_df(layer='integrated')
-    df_int['batch'] = adata_i.obs['batch']
+    df_s1 = adata_s1.to_df(layer='integrated')
+    df_s1['batch'] = adata_s1.obs['batch']
 
-    df_val = adata_v.to_df(layer='preprocessed')
-    df_val['batch'] = adata_v.obs['batch']
+    df_s2 = adata_s2.to_df(layer='integrated')
+    df_s2['batch'] = adata_s2.obs['batch']
 
-    df = pd.concat([df_int, df_val], axis=0)
+    df = pd.concat([df_s1, df_s2], axis=0)
 
     return df
 
@@ -56,25 +56,24 @@ def fit_r2(df: pd.DataFrame, markername: str) -> float:
     return r2
 
 
-def batch_r2(adata_i: ad.AnnData,
-                           adata_v:ad.AnnData) -> (list, list):
+def batch_r2(adata_s1: ad.AnnData, adata_s2: ad.AnnData) -> tuple[list, list]:
     '''
-    Calculate the batch R^2 metric given 2 paired samples (integrated and validation).
+    Calculate the batch R^2 metric given 2 paired samples (split 1 and split 2).
     For each marker, the function calculates the R^2 value between the marker expression and batch covariate.
-    Note: since adata_i and adata_v are paired samples, they have to come from the same donor.
+    Note: since adata_s1 and adata_s2 are paired samples, they have to come from the same donor.
 
     Inputs:
-    adata_i: AnnData object, batch-integrated dataset
-    adata_v: AnnData object, validation dataset
+    adata_s1: AnnData object, split 1 integrated dataset
+    adata_s2: AnnData object, split 2 integrated dataset
 
     Outputs:
     markers_r2: list of floats, R^2 values for each marker
     markerlist: list of str, marker
     '''
-    
-    assert np.unique(adata_i.obs[ 'donor']) == np.unique(adata_v.obs[ 'donor']), "The donors in the integrated and validation datasets do not match"
 
-    df = concat_paired_samples(adata_i, adata_v)
+    assert np.unique(adata_s1.obs[ 'donor']) == np.unique(adata_s2.obs[ 'donor']), "The donors in the split 1 and split 2 datasets do not match"
+
+    df = concat_paired_samples(adata_s1, adata_s2)
 
     markers_r2 = []
     markerlist = []

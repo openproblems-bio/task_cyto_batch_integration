@@ -4,8 +4,8 @@ import numpy as np
 
 ## VIASH START
 par = {
-    "input": "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/unintegrated_censored.h5ad",
-    "output": "output.h5ad",
+    "input": "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/censored_right.h5ad",
+    "output": "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/output_harmony_right.h5ad",
 }
 meta = {"name": "harmonypy"}
 ## VIASH END
@@ -30,7 +30,7 @@ out = harmonypy.run_harmony(
 )
 
 # have to add in the uncorrected markers as well
-uncorrected_data = adata[:, markers_not_correct].layers['preprocessed']
+uncorrected_data = adata[:, markers_not_correct].layers["preprocessed"]
 out_matrix = np.concatenate([out.Z_corr.transpose(), uncorrected_data], axis=1)
 out_var_idx = np.concatenate([markers_to_correct, markers_not_correct])
 

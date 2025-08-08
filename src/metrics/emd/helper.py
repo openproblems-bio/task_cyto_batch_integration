@@ -9,16 +9,20 @@ KEY_MEAN_EMD_GLOBAL = "mean_emd_global"
 KEY_MAX_EMD_GLOBAL = "max_emd_global"
 KEY_MEAN_EMD_CT = "mean_emd_ct"
 KEY_MAX_EMD_CT = "max_emd_ct"
-KEY_EMD_VERT_MAT = "emd_vert_mat"
+KEY_EMD_VERT_MAT_LEFT = "emd_vert_mat_left"
+KEY_EMD_VERT_MAT_RIGHT = "emd_vert_mat_right"
 KEY_EMD_HORZ_PER_DONOR = "emd_horz_per_donor"
 
 
-def calculate_vertical_emd(input_integrated: ad.AnnData, markers_to_assess: list):
+def calculate_vertical_emd(
+    i_left_adata: ad.AnnData, i_right_adata: ad.AnnData, markers_to_assess: list
+):
     """
     Compute vertical emd across every possible sample combination from the same biological group.
 
     Args:
-        input_integrated (ad.AnnData): Integrated adata.
+        i_left_adata (ad.AnnData): Left integrated adata.
+        i_right_adata (ad.AnnData): Right integrated adata.
         markers_to_assess (list): list of markers to compute EMD for.
 
     Returns:
@@ -38,13 +42,75 @@ def calculate_vertical_emd(input_integrated: ad.AnnData, markers_to_assess: list
                     or global, depending on what the 2d matrix represents.
     """
 
+    emd_left_long, emd_left_wide = get_vert_emd_for_integrated_adata(
+        i_adata=i_left_adata, markers_to_assess=markers_to_assess
+    )
+
+    emd_right_long, emd_right_wide = get_vert_emd_for_integrated_adata(
+        i_adata=i_right_adata, markers_to_assess=markers_to_assess
+    )
+
+    emd_long = pd.concat([emd_left_long, emd_right_long])
+
+    # mean global emd across all sample combinations, markers, and splits
+    mean_emd_global = np.nanmean(
+        emd_long[emd_long["cell_type"] == "global"]
+        .drop(columns=["cell_type", "first_sample", "second_sample"])
+        .to_numpy()
+        .flatten()
+    )
+    max_emd_global = np.nanmax(
+        emd_long[emd_long["cell_type"] == "global"]
+        .drop(columns=["cell_type", "first_sample", "second_sample"])
+        .to_numpy()
+        .flatten()
+    )
+
+    # mean cell type emd across all sample combinations, markers, and splits
+    mean_emd_ct = np.nanmean(
+        emd_long[emd_long["cell_type"] != "global"]
+        .drop(columns=["cell_type", "first_sample", "second_sample"])
+        .to_numpy()
+        .flatten()
+    )
+    max_emd_ct = np.nanmax(
+        emd_long[emd_long["cell_type"] != "global"]
+        .drop(columns=["cell_type", "first_sample", "second_sample"])
+        .to_numpy()
+        .flatten()
+    )
+
+    return {
+        KEY_MEAN_EMD_GLOBAL: mean_emd_global,
+        KEY_MAX_EMD_GLOBAL: max_emd_global,
+        KEY_MEAN_EMD_CT: mean_emd_ct,
+        KEY_MAX_EMD_CT: max_emd_ct,
+        KEY_EMD_VERT_MAT_LEFT: emd_left_wide,
+        KEY_EMD_VERT_MAT_RIGHT: emd_right_wide,
+    }
+
+
+def get_vert_emd_for_integrated_adata(i_adata: ad.AnnData, markers_to_assess: list):
+    """
+    Compute vertical emd across every possible sample combination from the same biological group.
+
+    Args:
+        i_left_adata (ad.AnnData): An integrated adata.
+        markers_to_assess (list): list of markers to compute EMD for.
+
+    Returns:
+        emd_dfs_ct: EMD per cell type,
+        emd_dfs_global: EMD per donor,
+        emd_wide_dfs: the break down of EMD per donor and cell type.
+    """
+
     # calculate the global first, agnostic of cell type
 
     # comparing one sample against every other sample (one at a time).
     # get all samples for each group first
-    sample_group_map = input_integrated.obs.groupby("group", observed=True)[
-        "sample"
-    ].apply(lambda x: list(set(x)))
+    sample_group_map = i_adata.obs.groupby("group", observed=True)["sample"].apply(
+        lambda x: list(set(x))
+    )
     # then get combinations of 2 for each group
     sample_combos = np.array(
         [list(itertools.combinations(x, 2)) for x in sample_group_map]
@@ -53,40 +119,34 @@ def calculate_vertical_emd(input_integrated: ad.AnnData, markers_to_assess: list
     if len(sample_combos) == 0:
         # this means the data processed do not have at least 2 samples per group.
         # thus it is impossible to compute this metric.
-        return {
-            KEY_MEAN_EMD_GLOBAL: np.nan,
-            KEY_MAX_EMD_GLOBAL: np.nan,
-            KEY_MEAN_EMD_CT: np.nan,
-            KEY_MAX_EMD_CT: np.nan,
-            KEY_EMD_VERT_MAT: np.nan,
-        }
 
-    cell_types = input_integrated.obs["cell_type"].unique()
+        print(
+            f"{i_adata.uns['dataset_id']} from {i_adata.uns['method_id']} does not have"
+            f"at least 2 samples per group. Skipping EMD vertical calculation."
+        )
 
-    emd_dfs_global = []
-    emd_dfs_ct = []
+        return np.nan, np.nan, np.nan
+
+    cell_types = i_adata.obs["cell_type"].unique()
+
+    emd_vals = []
 
     for sample_combo in sample_combos:
         # sample_combo = sample_combos[0]
 
-        first_sample_adata = input_integrated[
-            input_integrated.obs["sample"] == sample_combo[0]
-        ]
-        second_sample_adata = input_integrated[
-            input_integrated.obs["sample"] == sample_combo[1]
-        ]
+        first_sample_adata = i_adata[i_adata.obs["sample"] == sample_combo[0]]
+        second_sample_adata = i_adata[i_adata.obs["sample"] == sample_combo[1]]
 
         # global emd
         emd_df = compute_emd(
-            first_sample=first_sample_adata,
-            second_sample=second_sample_adata,
+            left_sample=first_sample_adata,
+            right_sample=second_sample_adata,
             markers_to_assess=markers_to_assess,
-            first_sample_layer_name="integrated",
-            second_sample_layer_name="integrated",
         )
+        emd_df["cell_type"] = "global"
         emd_df["first_sample"] = sample_combo[0]
         emd_df["second_sample"] = sample_combo[1]
-        emd_dfs_global.append(emd_df)
+        emd_vals.append(emd_df)
 
         # emd per cell type
         for cell_type in cell_types:
@@ -103,48 +163,18 @@ def calculate_vertical_emd(input_integrated: ad.AnnData, markers_to_assess: list
                 continue
 
             emd_df = compute_emd(
-                first_sample=first_sample_adata_ct,
-                second_sample=second_sample_adata_ct,
+                left_sample=first_sample_adata_ct,
+                right_sample=second_sample_adata_ct,
                 markers_to_assess=markers_to_assess,
-                first_sample_layer_name="integrated",
-                second_sample_layer_name="integrated",
             )
             emd_df["cell_type"] = cell_type
             emd_df["first_sample"] = sample_combo[0]
             emd_df["second_sample"] = sample_combo[1]
 
-            emd_dfs_ct.append(emd_df)
+            emd_vals.append(emd_df)
 
-    # process the global emd
-    emd_dfs_global = pd.concat(emd_dfs_global)
-    # aggregate into one metric by flattening all the values in the data frame
-    # into one giant array and take a mean
-    mean_emd_global = np.nanmean(
-        emd_dfs_global.drop(columns=["first_sample", "second_sample"])
-        .to_numpy()
-        .flatten()
-    )
-    max_emd_global = np.nanmax(
-        emd_dfs_global.drop(columns=["first_sample", "second_sample"])
-        .to_numpy()
-        .flatten()
-    )
-
-    # process the cell type specific emd
-    emd_dfs_ct = pd.concat(emd_dfs_ct)
-    # aggregate into one metric by flattening all the values in the data frame
-    # into one giant array and take a mean
-
-    mean_emd_ct = np.nanmean(
-        emd_dfs_ct.drop(columns=["cell_type", "first_sample", "second_sample"])
-        .to_numpy()
-        .flatten()
-    )
-    max_emd_ct = np.nanmax(
-        emd_dfs_ct.drop(columns=["cell_type", "first_sample", "second_sample"])
-        .to_numpy()
-        .flatten()
-    )
+    # concatenate EMD values
+    emd_vals = pd.concat(emd_vals)
 
     # prepare the data to draw the heatmap in cytonorm 2 supp paper.
     # 1 row/column = 1 sample, a cell is emd for a given marker
@@ -152,46 +182,36 @@ def calculate_vertical_emd(input_integrated: ad.AnnData, markers_to_assess: list
     # note, only run this after calculating mean, otherwise you end up having to
     # remove the sample id columns.
 
-    emd_wide_dfs = {}
+    emd_wide = {}
+
+    emd_types = emd_vals["cell_type"].unique()
+
     for marker in markers_to_assess:
         # marker = markers_to_assess[0]
 
         # remove unparsable characters like "/"
         marker_name = marker.replace("/", "_")
+        # have to initialise the dictionary..
+        emd_wide[marker_name] = {}
 
-        # start with global
-        emd_wide = emd_dfs_global.pivot(
-            index="second_sample", columns="first_sample", values=marker
-        )
-        emd_wide_dfs[marker_name] = {"global": emd_wide}
-
-        # then per cell type
-        for ct in cell_types:
+        for emd_type in emd_types:
             # ct = cell_types[0]
-            emd_df = emd_dfs_ct[emd_dfs_ct["cell_type"] == ct]
+            emd_df = emd_vals[emd_vals["cell_type"] == emd_type]
 
             if emd_df.shape[0] > 0:
-                # safeguard. Only pivot if we compute the emd for the cell type.
+                # safeguard. Only pivot if we computed the emd.
                 # This is a safeguard in case there is a rare cell type which we don't have
                 # any samples with at least 50 cells for.
-                emd_wide = emd_df.pivot(
+                emd_wide[marker_name][emd_type] = emd_df.pivot(
                     index="second_sample", columns="first_sample", values=marker
                 )
 
-                emd_wide_dfs[marker_name][ct] = emd_wide
-
-    return {
-        KEY_MEAN_EMD_GLOBAL: mean_emd_global,
-        KEY_MAX_EMD_GLOBAL: max_emd_global,
-        KEY_MEAN_EMD_CT: mean_emd_ct,
-        KEY_MAX_EMD_CT: max_emd_ct,
-        KEY_EMD_VERT_MAT: emd_wide_dfs,
-    }
+    return emd_vals, emd_wide
 
 
 def calculate_horizontal_emd(
-    input_integrated: ad.AnnData,
-    input_validation: ad.AnnData,
+    i_left_adata: ad.AnnData,
+    i_right_adata: ad.AnnData,
     markers_to_assess: list,
     donor_list: list,
 ):
@@ -199,8 +219,8 @@ def calculate_horizontal_emd(
     Compute horizontal emd across every pair samples from a given donor.
 
     Args:
-        input_integrated (ad.AnnData): Integrated adata.
-        input_validation (ad.AnnData): Validation adata.
+        i_left_adata (ad.AnnData): Left integrated adata.
+        i_right_adata (ad.AnnData): Right integrated adata.
         markers_to_assess (list): list of markers to compute EMD for.
         donor_list (list): list of donors to compute EMD for.
 
@@ -224,31 +244,46 @@ def calculate_horizontal_emd(
 
     for donor in donor_list:
         # donor = donor_list[0]
-        integrated_view = input_integrated[input_integrated.obs["donor"] == donor]
-        validation_view = input_validation[input_validation.obs["donor"] == donor]
+        i_left_donor = i_left_adata[i_left_adata.obs["donor"] == donor]
+        i_right_donor = i_right_adata[i_right_adata.obs["donor"] == donor]
+
+        # safe check
+        cell_type_not_in_both = np.setxor1d(
+            i_left_donor.obs["cell_type"].unique(),
+            i_right_donor.obs["cell_type"].unique(),
+        )
+        if len(cell_type_not_in_both) > 1:
+            print(
+                f"In donor {donor}: some cell types are in left integrated output"
+                f" but not in right integrated output.\n"
+                f"Cell types missing: {''.join(cell_type_not_in_both)}]n"
+                f"Computing cell type EMD using just cell types common in both."
+            )
 
         # assuming each cell type is present in both validation and integrated
-        cell_types = validation_view.obs["cell_type"].unique()
+        cell_types = np.intersect1d(
+            i_left_donor.obs["cell_type"].unique(),
+            i_right_donor.obs["cell_type"].unique(),
+        )
 
         for cell_type in cell_types:
             # cell_type = cell_types[0]
-            integrated_ct = integrated_view[
-                integrated_view.obs["cell_type"] == cell_type
-            ]
-            validation_ct = validation_view[
-                validation_view.obs["cell_type"] == cell_type
-            ]
+            i_left_ct = i_left_donor[i_left_donor.obs["cell_type"] == cell_type]
+            i_right_ct = i_right_donor[i_right_donor.obs["cell_type"] == cell_type]
 
             # Do not calculate if we have less than 50 cells as it does not make sense.
-            if integrated_ct.n_obs < 50 or validation_ct.n_obs < 50:
+            if i_left_ct.n_obs < 50 or i_right_ct.n_obs < 50:
+                print(
+                    f"There are less than 50 cells for either left or right integrated "
+                    f"data for donor {donor} and cell type {cell_type}.\n"
+                    f"Skipping calculating EMD for this donor and cell type."
+                )
                 continue
 
             emd_df = compute_emd(
-                first_sample=integrated_ct,
-                second_sample=validation_ct,
+                left_sample=i_left_ct,
+                right_sample=i_right_ct,
                 markers_to_assess=markers_to_assess,
-                first_sample_layer_name="integrated",
-                second_sample_layer_name="preprocessed",
             )
             emd_df["cell_type"] = cell_type
             emd_df["donor"] = donor
@@ -257,11 +292,9 @@ def calculate_horizontal_emd(
 
         # calculate EMD when combining all cell types as well.
         emd_df = compute_emd(
-            first_sample=integrated_view,
-            second_sample=validation_view,
+            left_sample=i_left_donor,
+            right_sample=i_right_donor,
             markers_to_assess=markers_to_assess,
-            first_sample_layer_name="integrated",
-            second_sample_layer_name="preprocessed",
         )
         emd_df["cell_type"] = "global"
         emd_df["donor"] = donor
@@ -301,11 +334,7 @@ def calculate_horizontal_emd(
 
 
 def compute_emd(
-    first_sample: ad.AnnData,
-    second_sample: ad.AnnData,
-    markers_to_assess: list,
-    first_sample_layer_name: str,
-    second_sample_layer_name: str,
+    left_sample: ad.AnnData, right_sample: ad.AnnData, markers_to_assess: list
 ) -> pd.DataFrame:
     """
     Calculate EMD metric
@@ -318,10 +347,6 @@ def compute_emd(
             that was not batch corrected, i.e., the one used in validation data.
             For vertical EMD, this will be just another sample that has been batch corrected.
         markers_to_assess (list): list of markers to compute EMD for.
-        first_sample_layer_name (str): name of the layer to get the data out of.
-            Should be integrated for horizontal EMD.
-        second_sample_layer_name (str): name of the layer to get the data out of.
-            Should be integrated or preprocessed for vertical or horizontal EMD respectively.
 
     Returns:
         pd.DataFrame: 1 row data frame where a column is a marker. Value is the EMD.
@@ -332,19 +357,17 @@ def compute_emd(
     for marker in markers_to_assess:
         # marker = markers_to_assess[0]
 
-        mexp_integrated = np.array(
-            first_sample[:, marker].layers[first_sample_layer_name]
-        ).flatten()
-        mexp_validation = np.array(
-            second_sample[:, marker].layers[second_sample_layer_name]
-        ).flatten()
+        mexp_left = np.array(left_sample[:, marker].layers["integrated"]).flatten()
+        mexp_right = np.array(right_sample[:, marker].layers["integrated"]).flatten()
 
-        i_values, i_weights = bin_array(mexp_integrated)
-        v_values, v_weights = bin_array(mexp_validation)
+        left_values, left_weights = bin_array(mexp_left)
+        right_values, right_weights = bin_array(mexp_right)
 
-        # i_values (and v_values) are the explicit support (set of all possible bin values)
-        # of the probability distribution i_weights (and v_weights).
-        emd = wasserstein_distance(i_values, v_values, i_weights, v_weights)
+        # left_values (and right_values) are the explicit support (set of all possible bin values)
+        # of the probability distribution left_weights (and right_weights).
+        emd = wasserstein_distance(
+            left_values, right_values, left_weights, right_weights
+        )
         emd_vals[marker] = [emd]
 
     emd_df = pd.DataFrame.from_dict(emd_vals)

@@ -8,7 +8,7 @@ info:
       A method for integrating batch effects in cytometry data.
 arguments:
   - name: --input
-    __merge__: file_unintegrated_censored.yaml
+    __merge__: file_censored.yaml
     required: true
     direction: input
   - name: --output
