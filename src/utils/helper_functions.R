@@ -4,71 +4,56 @@ library(dplyr)
 requireNamespace("anndataR", quietly = TRUE)
 
 #' Adds annotations (.var and .obs) from the unintegrated data to the
-#' integrated dataset. 
+#' integrated dataset.
 #' In the case of the control method "perfect_integration",
-#' the function will fetch the batch label from the unintegrated data 
+#' the function will fetch the batch label from the unintegrated data
 #' based on the split.
 #' i.e., if in split 1, donor 3-5 is from batch 2, then the batch label for that split
 #' will be changed from batch 1 to batch 2.
 #'
-#' @param left_adata AnnData object, integrated data from split 1
-#' @param right_adata AnnData object, integrated data from split 2
+#' @param i_adata AnnData object, integrated data
 #' @param u_adata AnnData object, unintegrated dataset
 #' @return AnnData object with .var and .obs added
 #'
-get_obs_var_for_integrated <- function(left_adata, right_adata, u_adata) {
+get_obs_var_for_integrated <- function(i_adata, u_adata) {
 
-    left_adata$obs <- u_adata$obs[left_adata$obs_names, ]
-    right_adata$obs <- u_adata$obs[right_adata$obs_names, ]
-    left_adata$var <- u_adata$var[left_adata$var_names, ]
-    right_adata$var <- u_adata$var[right_adata$var_names, ]
+    i_adata$obs <- u_adata$obs[i_adata$obs_names, ]
+    i_adata$var <- u_adata$var[i_adata$var_names, ]
 
     # if integrated data came from perfect integration, change the batch labels of the samples
     # everything is from batch 1, but some samples need to be labelled to come from batch 2
-    if (left_adata$uns["method_id"] == "perfect_integration") {
+    if (i_adata$uns["method_id"] == "perfect_integration") {
         cat(
             "Control method 'perfect_integration' detected. Changing batch labels for split 2.\n"
         )
-        
         cat("Computing new batch labels\n")
         # mutate is needed as donors that are used for controls, we won't have the mapping
-        left_adata_new_batch_labels <- get_batch_label_perfect_integration(
+        i_adata_new_batch_labels <- get_batch_label_perfect_integration(
             u_adata = u_adata,
-            i_adata = left_adata,
+            i_adata = i_adata,
             split_id = 1
         )
 
-        right_adata_new_batch_labels <- get_batch_label_perfect_integration(
-            u_adata = u_adata,
-            i_adata = right_adata,
-            split_id = 2
-        )
-
         cat("Attaching new batch labels\n")
-        left_adata$obs$batch <- left_adata_new_batch_labels$new_batch_label
-        right_adata$obs$batch <- right_adata_new_batch_labels$new_batch_label
+        i_adata$obs$batch <- i_adata_new_batch_labels$new_batch_label
     }
 
-    return(list(
-        "left_adata" = left_adata,
-        "right_adata" = right_adata
-    ))
+    return(i_adata)
 }
 
 #' Helper function to get the batch label for perfect integration.
 #' First, get donor batch map for a given split.
 #' Then apply the map to the integrated data.
-#' 
+#'
 #' @param u_adata AnnData object, unintegrated dataset.
 #' @param i_adata AnnData object, integrated data.
 #' @param split_id numeric, split id of the integrated data.
-#' 
+#'
 #' @return a dataframe with donor and new batch label
-#' 
+#'
 get_batch_label_perfect_integration <- function(u_adata, i_adata, split_id) {
     actual_donor_batch_map <- unique(
-        u_adata$obs[(u_adata$obs$split == split_id), 
-        c("donor", "batch")]
+        u_adata$obs[(u_adata$obs$split == split_id), c("donor", "batch")]
     )
     # mutate is needed as donors that are used for controls, we won't have the mapping
     i_adata_new_batch_labels <- i_adata$obs[, c("donor", "batch")] %>%
