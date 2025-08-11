@@ -1,4 +1,5 @@
 import anndata as ad
+import numpy as np
 import sys
 from scib_metrics import bras
 
@@ -24,37 +25,59 @@ from helper_functions import (
     subset_nocontrols,
 )
 
-print('Reading input files', flush=True)
-input_validation = ad.read_h5ad(par['input_validation'])
-input_unintegrated = ad.read_h5ad(par['input_unintegrated'])
-input_integrated = ad.read_h5ad(par['input_integrated'])
+print("Reading input files", flush=True)
+integrated_s1 = ad.read_h5ad(par["input_integrated_left"])
+integrated_s2 = ad.read_h5ad(par["input_integrated_right"])
+unintegrated = ad.read_h5ad(par["input_unintegrated"])
 
-print('Formatting input files', flush=True)
-#Format data integrated data
-input_integrated = get_obs_var_for_integrated(input_integrated,input_validation,input_unintegrated)
-input_integrated = subset_markers_tocorrect(input_integrated)
-input_integrated = subset_nocontrols(input_integrated)
-input_integrated = remove_unlabelled(input_integrated)
+print("Formatting input files", flush=True)
+integrated_s1, integrated_s2 = get_obs_var_for_integrated(
+    integrated_s1, integrated_s2, unintegrated
+)
+
+integrated_s1 = subset_nocontrols(integrated_s1)
+integrated_s1 = subset_markers_tocorrect(integrated_s1)
+integrated_s1 = subset_nocontrols(integrated_s1)
+integrated_s1 = remove_unlabelled(integrated_s1)
+
+integrated_s2 = subset_nocontrols(integrated_s2)
+integrated_s2 = subset_markers_tocorrect(integrated_s2)
+integrated_s2 = subset_nocontrols(integrated_s2)
+integrated_s2 = remove_unlabelled(integrated_s2)
 
 print('Compute metrics', flush=True)
-batch_labels = input_integrated.obs['batch'].values
-cell_labels = input_integrated.obs['cell_type'].values
+batch_labels_s1 = integrated_s1.obs['batch'].values
+ct_labels_s1 = integrated_s1.obs['cell_type'].values
 
-bras_score = bras(input_integrated.layers['integrated'], 
-                  labels = cell_labels,
-                  batch = batch_labels,
-                  metric='cosine')
-                  
+bras_s1 = bras(
+    integrated_s1.layers["integrated"],
+    labels = batch_labels_s1,
+    batch = ct_labels_s1,
+    metric='cosine'
+)
 
-print(bras_score)
+batch_labels_s2 = integrated_s2.obs['batch'].values
+ct_labels_s2 = integrated_s2.obs['cell_type'].values
+
+bras_s2 = bras(
+    integrated_s2.layers["integrated"],
+    labels = batch_labels_s2,
+    batch = ct_labels_s2,
+    metric='cosine'
+)
+
+bras_score = np.mean([bras_s1, bras_s2])
 
 print("Write output AnnData to file", flush=True)
 output = ad.AnnData(
     uns={
-    'dataset_id': input_integrated.uns['dataset_id'],
-    'method_id': input_integrated.uns['method_id'],
+    'dataset_id': integrated_s1.uns['dataset_id'],
+    'method_id': integrated_s1.uns['method_id'],
     'metric_ids': ['bras'],
-    'metric_values': [bras_score]
+    'metric_values': [bras_score],
+    'bras_s1': bras_s1,
+    'bras_s2': bras_s2
   }
 )
 output.write_h5ad(par['output'], compression='gzip')
+

@@ -28,7 +28,7 @@ info:
         BRAS evaluates batch effect removal with respect to batch ids within each label (cell type annotations derived from manual gating),
         using a modified silhouette score that accounts for nested batch effects.
         Unlike standard silhouette, BRAS computes between-cluster distances using the between_cluster_distances method rather than nearest-cluster approach. 
-        The implementation is based on the scib-metrics package.
+        The implementation is based on the scib-metrics package. The final bras score is the average of the bras scores for both data splits.
         Cosine similarity is used as a distance measure.
         A higher scores indicates better batch mixing.
       references:
