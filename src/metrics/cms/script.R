@@ -56,8 +56,11 @@ integrated_left_sce <- integrated_left_sce[markers_to_correct, ]
 integrated_right_sce <- integrated_right$as_SingleCellExperiment()
 integrated_right_sce <- integrated_right_sce[markers_to_correct, ]
 
-cores_to_use <- ceiling(parallel::detectCores() / 2)
-
+cores_to_use <- min(5, ceiling(parallel::detectCores() / 2))
+# cores_to_use <- 5
+bpparam <- BiocParallel::MulticoreParam(
+    workers = cores_to_use
+)
 cat(paste("Compute Cell Mixing Score using", cores_to_use, "cores for split 1\n"))
 
 integrated_left_sce <- CellMixS::cms(
@@ -66,9 +69,7 @@ integrated_left_sce <- CellMixS::cms(
     assay_name = "integrated",
     k = par[["n_neighbors"]],
     n_dim = par[["n_dim"]],
-    BPPARAM = BiocParallel::MulticoreParam(
-        workers = cores_to_use
-    )
+    BPPARAM = bpparam
 )
 
 cat(paste("Compute Cell Mixing Score using", cores_to_use, "cores for split 2\n"))
@@ -79,9 +80,7 @@ integrated_right_sce <- CellMixS::cms(
     assay_name = "integrated",
     k = par[["n_neighbors"]],
     n_dim = par[["n_dim"]],
-    BPPARAM = BiocParallel::MulticoreParam(
-        workers = cores_to_use
-    )
+    BPPARAM = bpparam
 )
 
 cat("Compute Medcouple statistic\n")
