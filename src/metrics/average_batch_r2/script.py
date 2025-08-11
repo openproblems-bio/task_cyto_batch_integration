@@ -32,7 +32,6 @@ integrated_s2 = ad.read_h5ad(par["input_integrated_right"])
 unintegrated = ad.read_h5ad(par["input_unintegrated"])
 
 print("Formatting input files", flush=True)
-# Format data integrated data
 integrated_s1, integrated_s2 = get_obs_var_for_integrated(
     integrated_s1, integrated_s2, unintegrated
 )
