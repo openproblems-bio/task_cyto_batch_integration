@@ -19,9 +19,15 @@ par <- list(
 )
 meta <- list(
     name = "cms",
-    resources_dir = "src/utils"
+    resources_dir = "src/utils",
+    cpus = NULL
 )
 ## VIASH END
+
+cores_to_use <- meta$cpus
+if (is.null(cores_to_use)) {
+    cores_to_use <- min(5, parallel::detectCores() - 2)
+}
 
 source(paste0(meta$resources_dir, "/helper_functions.R"))
 
@@ -56,7 +62,6 @@ integrated_split1_sce <- integrated_split1_sce[markers_to_correct, ]
 integrated_split2_sce <- integrated_split2$as_SingleCellExperiment()
 integrated_split2_sce <- integrated_split2_sce[markers_to_correct, ]
 
-cores_to_use <- min(5, parallel::detectCores() - 2)
 # cores_to_use <- 5
 bpparam <- BiocParallel::MulticoreParam(
     workers = cores_to_use
