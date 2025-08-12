@@ -9,12 +9,12 @@ argument_groups:
         direction: input
         required: true
       - name: "--input_censored_split1"
-        __merge__: /src/api/file_censored.yaml
+        __merge__: /src/api/file_censored_split1.yaml
         type: file
         direction: input
         required: true
       - name: "--input_censored_split2"
-        __merge__: /src/api/file_censored.yaml
+        __merge__: /src/api/file_censored_split2.yaml
         type: file
         direction: input
         required: true
