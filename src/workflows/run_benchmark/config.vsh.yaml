@@ -3,18 +3,18 @@ namespace: workflows
 argument_groups:
   - name: Inputs
     arguments:
-      - name: "--input_unintegrated_censored"
-        __merge__: /src/api/file_unintegrated_censored.yaml
-        type: file
-        direction: input
-        required: true
       - name: "--input_unintegrated"
         __merge__: /src/api/file_unintegrated.yaml
         type: file
         direction: input
         required: true
-      - name: "--input_validation"
-        __merge__: /src/api/file_validation.yaml
+      - name: "--input_censored_split1"
+        __merge__: /src/api/file_censored_split1.yaml
+        type: file
+        direction: input
+        required: true
+      - name: "--input_censored_split2"
+        __merge__: /src/api/file_censored_split2.yaml
         type: file
         direction: input
         required: true
@@ -63,12 +63,11 @@ resources:
 dependencies:
   - name: utils/extract_uns_metadata
     repository: op
-  - name: control_methods/shuffle_integration
-  - name: control_methods/shuffle_integration_by_batch
-  - name: control_methods/shuffle_integration_by_cell_type
+  # - name: control_methods/shuffle_integration
+  # - name: control_methods/shuffle_integration_by_batch
+  # - name: control_methods/shuffle_integration_by_cell_type
   - name: control_methods/no_integration
-  - name: control_methods/perfect_integration_horizontal
-  - name: control_methods/perfect_integration_vertical
+  - name: control_methods/perfect_integration
   - name: methods/harmonypy
   - name: methods/limma_remove_batch_effect
   - name: methods/combat
@@ -91,7 +90,7 @@ dependencies:
   - name: methods/rpca_to_goal
   - name: methods/rpca_to_mid
   - name: metrics/emd
-  - name: metrics/n_inconsistent_peaks
+  # - name: metrics/n_inconsistent_peaks
   - name: metrics/average_batch_r2
   - name: metrics/flowsom_mapping_similarity
   - name: metrics/cms

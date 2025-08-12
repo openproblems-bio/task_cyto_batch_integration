@@ -18,31 +18,30 @@ info:
       description: |
         The metric is based on the FlowSOM algorithm, a popular method which uses self-organizing maps for the viasualization/interpretation/clustering of cytometry data. 
         The FlowSOM algorithm creates a tree structure that represents the relationships between different cell populations in the data.
-        
-        For each paired sample (where 'int' is the batch-integrated sample and 'val' is the validation sample)
-        1. A FlowSOM tree is created using validation data.
-        2. Data from the integrated sample is mapped onto the FlowSOM tree created in step 1.
-        3. A similarity measure is computed by comparing cell type proportions of 'val' and 'int' in each flowsom cluster.
-        
-        Ideally, the proportions of cell types in the flowsom clusters of the integrated sample should be very similar to those in the validation sample,
-        as we assume that only technical variability is present between these two samples.
+
+        For each paired sample of technical replicates (where 'split1' are integrated technical replicates from split 1 and 'split2' are integrated technical replicates from split 2)
+        1. A FlowSOM tree is created using cells in the sample from split 1.
+        2. Cells from the sample in split 2 are mapped onto the FlowSOM tree created in step 1.
+        3. A similarity measure is computed by comparing cell type proportions of 'split2' and 'split1' in each flowsom cluster.
+
+        Ideally, the proportions of cell types in the flowsom clusters of the paired samples should be similar, as they are technical replicates.
 
         The FlowSOM mapping similarity measure can be expressed as follows:
         $\text{FlowSOM mapping similarity} = 100 - \text{FlowSOM mapping dissimilarity}$
 
         The $\text{FlowSOM mapping dissimilarity}$ is:
 
-        $\text{FlowSOM mapping dissimilarity} = \sum_{k=1}^{K}w_{k}\sum_{c=1}^{C}\abs{P^{val}_{k,c} - P^{int}_{k,c}}$
-        
+        $\text{FlowSOM mapping dissimilarity} = \sum_{k=1}^{K}w_{k}\sum_{c=1}^{C}\abs{P^{split1}_{k,c} - P^{split2}_{k,c}}$
+
         Where:
         - $K$ is the number of flowsom clusters
         - $C$ is the number of cell types
         - $w_{k}$ is the weight of flowsom cluster $k$. It refers to the number of cells in flowsom cluster $k$, divided by the total number of cells in the flowsom tree. Note: the flowsom tree contains all the cells of a sample pair (both integrated and validation). 
-        - $P^{val}_{k,c}$ is the percentage of cell type $c$ in flowsom cluster $k$ of the validation sample
-        - $P^{int}_{k,c}$ is the percentage of cell type $c$ in flowsom cluster $k$ of the integrated sample
+        - $P^{split1}_{k,c}$ is the percentage of cell type $c$ in flowsom cluster $k$ of the split 1 sample
+        - $P^{split2}_{k,c}$ is the percentage of cell type $c$ in flowsom cluster $k$ of the split 2 sample
 
         The average FlowSOM mapping similarity among all paired samples is computed and reported as the final metric value.
-        Unlabelled cells are excluded from the analysis. It is an horizontal metric.
+        Unlabelled cells are excluded from the analysis.
 
       references:
         doi: 
@@ -75,8 +74,6 @@ engines:
     setup:
       - type: r
         bioc: [FlowSOM, flowCore]
-      - type: python
-        packages: [anndata, numpy, pandas, scipy]
 runners:
   # This platform allows running the component natively
   - type: executable

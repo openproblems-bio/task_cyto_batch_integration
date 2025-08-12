@@ -1,19 +1,17 @@
+#TODO: Change to the required and/or optional fields of the anndata
 type: file
-example: "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/validation.h5ad"
-label: Validation
-summary: Hold-out dataset for validation.
+example: "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/censored_split1.h5ad"
+label: Censored (split 1)
+summary: |
+  An unintegrated dataset with certain columns (cells metadata), such as the donor information, hidden.
+  These columns are intentionally hidden to prevent bias.
 description: |
-  Dataset containing cells from samples that were held out for evaluating batch integration output. 
-  The cells that are in this dataset belong to samples which are not included in the unintegrated 
-  or unintegrated_censored datasets.
-  For example, if samples from donor A are present in batch 1 and 2, the sample from batch 1
-  may be used as input for the batch correction algorithm (and thus present in unintegrated
-  and unintegrated_censored datasets). 
-  The sample from batch 2, may not be included as an input for the batch correction algorithm,
-  but is needed to validate whether whether the algorithm managed to correct the batch effect
-  in batch 2 towards batch 1.
-  This sample will then be included in this dataset (but not in unintegrated
-  and unintegrated_censored datasets).
+  An unintegrated dataset with certain columns (cells metadata), such as the donor information, hidden.
+  These columns are intentionally hidden to prevent bias.
+  The batch correction algorithm should not have to rely on these information 
+  to properly integrate different batches.
+  This dataset is used as the input for the batch correction algorithm. 
+  The cells therein are identical to those in the unintegrated dataset.
 info:
   format:
     type: h5ad
@@ -24,10 +22,6 @@ info:
         required: true
     obs:
       - type: string
-        name: cell_type
-        description: Cell type information
-        required: true
-      - type: string
         name: batch
         description: Batch information
         required: true
@@ -35,22 +29,16 @@ info:
         name: sample
         description: Sample ID
         required: true
-      - type: string
-        name: donor
-        description: Donor ID
-        required: true
-      - type: string
-        name: group
-        description: Biological group of the donor
-        required: true
       - type: integer
         name: is_control
         description: |
           Whether the sample the cell came from can be used as a control for batch 
           effect correction.
-          0: cannot be used as a control.
-          >= 1: can be used as a control.
-          For cells with >= 1: cells with the same value come from the same donor.
+          
+          * 0: cannot be used as a control.
+          * >= 1: can be used as a control.
+          * For cells with >= 1: cells with the same value come from the same donor.
+          
           Different values indicate different donors.
         required: true
     var:
@@ -103,15 +91,3 @@ info:
         type: string
         description: The organism of the sample in the dataset.
         required: false
-      - name: parameter_som_xdim
-        type: integer
-        description: Parameter used to define the width of the self-organizing map (SOM) grid. Usually between 10 and 20.
-        required: true
-      - name: parameter_som_ydim
-        type: integer
-        description: Parameter used to define the height of the self-organizing map (SOM) grid. Usually between 10 and 20.
-        required: true
-      - name: parameter_num_clusters
-        type: integer
-        description: Parameter used to define the number of clusters. Set this number to be slightly higher than the number of cell types expected in the dataset.
-        required: true

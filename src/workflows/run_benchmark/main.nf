@@ -7,14 +7,13 @@ workflow auto {
 
 // construct list of methods and control methods
 methods = [
-  shuffle_integration,
-  shuffle_integration_by_batch,
-  shuffle_integration_by_cell_type,
+  // shuffle_integration,
+  // shuffle_integration_by_batch,
+  // shuffle_integration_by_cell_type,
   harmonypy,
   limma_remove_batch_effect,
   no_integration,
-  perfect_integration_horizontal,
-  perfect_integration_vertical,
+  perfect_integration,
   combat,
   cycombine_no_controls_to_mid,
   cycombine_no_controls_to_goal,
@@ -39,7 +38,7 @@ methods = [
 // construct list of metrics
 metrics = [
   emd,
-  n_inconsistent_peaks,
+  // n_inconsistent_peaks,
   average_batch_r2,
   flowsom_mapping_similarity,
   cms,
@@ -52,16 +51,6 @@ workflow run_wf {
 
   main:
 
-  // input_ch is a channel containing:
-  // [id, state]
-  // where id is a unique string
-  // and state is a dictionary
-  // in this case, state:
-  // [
-  //   input_unintegrated_censored: ...,
-  //   input_unintegrated: ...,
-  // ]
-
   /****************************
    * EXTRACT DATASET METADATA *
    ****************************/
@@ -70,27 +59,6 @@ workflow run_wf {
     | map{ id, state -> 
       [id, state + ["_meta": [join_id: id]]]
     }
-
-    // // for your information:
-    // | harmonypy.run(
-    //   fromState: [input: "input_unintegrated_censored"],
-    //   args: [alpha: 10],
-    //   toState: [output_method: "output"]
-    // )
-    // 
-    // | harmonypy.run(
-    //   fromState: { id, state ->
-    //     [
-    //       input: state.input_unintegrated_censored,
-    //       alpha: 10
-    //     ]
-    //   },
-    //   toState: { id, output, state ->
-    //     state + [
-    //       output_method: output.output
-    //     ]
-    //   }
-    // )
 
     // extract the dataset metadata
     | extract_uns_metadata.run(
@@ -105,15 +73,17 @@ workflow run_wf {
   /***************************
    * RUN METHODS AND METRICS *
    ***************************/
-  score_ch = dataset_ch
+  method_outputs_ch = dataset_ch
 
-    // run all methods
+    // run methods on censored split1
     | runEach(
       components: methods,
 
-      // use the 'filter' argument to only run a method on the normalisation the component is asking for
+      // run only non-control methods & filter by method_ids
       filter: { id, state, comp ->
-        !state.method_ids || state.method_ids.contains(comp.config.name)
+        def id_filter = !state.method_ids || state.method_ids.contains(comp.config.name)
+        def method_filter = comp.config.info.type == "method"
+        id_filter && method_filter
       },
 
       // define a new 'id' by appending the method name to the dataset id
@@ -122,27 +92,67 @@ workflow run_wf {
       },
 
       // use 'fromState' to fetch the arguments the component requires from the overall state
-      fromState: { id, state, comp ->
-        if (comp.config.info.type == "control_method") {
-          [
-            input_unintegrated: state.input_unintegrated,
-            input_validation: state.input_validation
-          ]
-        } else {
-          [
-            input: state.input_unintegrated_censored
-          ]
-        }
-      },
+      fromState: [ input: "input_censored_split1" ],
 
       // use 'toState' to publish that component's outputs to the overall state
       toState: { id, output, state, comp ->
         state + [
           method_id: comp.config.name,
-          method_output: output.output
+          integrated_split1: output.output
         ]
       }
     )
+
+    // run methods on censored split2
+    | runEach(
+      components: methods,
+
+      // use the 'filter' argument to only run a method on the normalisation the component is asking for
+      filter: { id, state, comp ->
+        state.method_id == comp.config.name
+      },
+
+      // use 'fromState' to fetch the arguments the component requires from the overall state
+      fromState: [ input: "input_censored_split2" ],
+
+      // use 'toState' to publish that component's outputs to the overall state
+      toState: [ integrated_split2: "output" ]
+    )
+
+  control_method_outputs_ch = dataset_ch
+
+    // run control methods on unintegrated data
+    | runEach(
+      components: methods,
+
+      // run only control methods & filter by method_ids
+      filter: { id, state, comp ->
+        def id_filter = !state.method_ids || state.method_ids.contains(comp.config.name)
+        def method_filter = comp.config.info.type == "control_method"
+        id_filter && method_filter
+      },
+
+      // define a new 'id' by appending the method name to the dataset id
+      id: { id, state, comp ->
+        id + "." + comp.config.name
+      },
+
+      // use 'fromState' to fetch the arguments the component requires from the overall state
+      fromState: [ input_unintegrated: "input_unintegrated" ],
+
+      // use 'toState' to publish that component's outputs to the overall state
+      toState: { id, output, state, comp ->
+        state + [
+          method_id: comp.config.name,
+          integrated_split1: output.output_integrated_split1,
+          integrated_split2: output.output_integrated_split2
+        ]
+      }
+    )
+
+
+  score_ch = method_outputs_ch
+    | mix(control_method_outputs_ch)
 
     // run all metrics
     | runEach(
@@ -152,9 +162,9 @@ workflow run_wf {
       },
       // use 'fromState' to fetch the arguments the component requires from the overall state
       fromState: [
-        input_validation: "input_validation", 
         input_unintegrated: "input_unintegrated",
-        input_integrated: "method_output",
+        input_integrated_split1: "integrated_split1", 
+        input_integrated_split2: "integrated_split2"
       ],
       // use 'toState' to publish that component's outputs to the overall state
       toState: { id, output, state, comp ->

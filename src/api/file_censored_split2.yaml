@@ -1,8 +1,11 @@
 #TODO: Change to the required and/or optional fields of the anndata
 type: file
-example: "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/unintegrated_censored.h5ad"
-label: Unintegrated Censored
+example: "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/censored_split2.h5ad"
+label: Censored (split 2)
 summary: |
+  An unintegrated dataset with certain columns (cells metadata), such as the donor information, hidden.
+  These columns are intentionally hidden to prevent bias.
+description: |
   An unintegrated dataset with certain columns (cells metadata), such as the donor information, hidden.
   These columns are intentionally hidden to prevent bias.
   The batch correction algorithm should not have to rely on these information 
@@ -31,9 +34,11 @@ info:
         description: |
           Whether the sample the cell came from can be used as a control for batch 
           effect correction.
-          0: cannot be used as a control.
-          >= 1: can be used as a control.
-          For cells with >= 1: cells with the same value come from the same donor.
+          
+          * 0: cannot be used as a control.
+          * >= 1: can be used as a control.
+          * For cells with >= 1: cells with the same value come from the same donor.
+          
           Different values indicate different donors.
         required: true
     var:

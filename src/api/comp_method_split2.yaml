@@ -1,3 +1,5 @@
+# NOTE: this component API file should not be used and is only here to ensure that the API diagram is generated correctly.
+
 namespace: "methods"
 info:
   type: method
@@ -8,11 +10,11 @@ info:
       A method for integrating batch effects in cytometry data.
 arguments:
   - name: --input
-    __merge__: file_censored_split1.yaml
+    __merge__: file_censored_split2.yaml
     required: true
     direction: input
   - name: --output
-    __merge__: file_integrated_split1.yaml
+    __merge__: file_integrated_split2.yaml
     required: true
     direction: output
 test_resources:

@@ -94,7 +94,7 @@ engines:
       - type: r
         github: [saeyslab/cytoNorm]
         bioc: [ flowCore, Biobase ]
-        packages: [ anndata, docstring ]
+        packages: [ docstring ]
 
 runners:
   # This platform allows running the component natively

@@ -36,17 +36,21 @@ info:
         description: |
           Whether the sample the cell came from can be used as a control for batch 
           effect correction.
-          0: cannot be used as a control.
-          >= 1: can be used as a control.
-          For cells with >= 1: cells with the same value come from the same donor.
+          
+          * 0: cannot be used as a control.
+          * >= 1: can be used as a control.
+          * For cells with >= 1: cells with the same value come from the same donor.
+          
           Different values indicate different donors.
         required: true
-      - type: boolean
-        name: is_validation
+      - type: integer
+        name: split
         description: |
-          Whether the cell will be used as validation data or not.
-          If FALSE, then the cell will only be included in unintegrated and unintegrated_censored.
-          If TRUE, then the cell will only be included in validation.
+          Which split the cell will be used in.
+          
+          * 0: control samples
+          * 1: split 1
+          * 2: split 2
         required: true
     var:
       - type: integer
@@ -98,6 +102,10 @@ info:
         type: string
         description: The organism of the sample in the dataset.
         required: false
+      - name: goal_batch
+        type: integer
+        description: Parameter to set the reference batch to which the batch aligment is performed. Only useful for tools that perform the batch integration "towards a goal batch"
+        required: true
       - name: parameter_som_xdim
         type: integer
         description: Parameter used to define the width of the self-organizing map (SOM) grid. Usually between 10 and 20.

@@ -5,8 +5,8 @@ import openproblems as op
 ## VIASH START
 par = {
     'input': 'resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/common_dataset.h5ad',
-    'output_unintegrated': 'resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/unintegrated.h5ad',
-    'output_unintegrated_censored': 'resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/unintegrated_censored.h5ad',
+    'output_censored_split1': 'resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/censored_split1.h5ad',
+    'output_censored_split2': 'resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/censored_split2.h5ad',
     'output_validation': 'resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/validation.h5ad'
 }
 meta = {
@@ -28,7 +28,7 @@ print("input:", adata)
 
 print(">> Creating unintegrated data", flush=True)
 
-adata_unintegrated = adata[adata.obs.is_validation==False]
+adata_unintegrated = adata.copy()
 
 output_unintegrated = subset_h5ad_by_format(
     adata_unintegrated,
@@ -37,26 +37,35 @@ output_unintegrated = subset_h5ad_by_format(
 )
 print(f"output_unintegrated: {output_unintegrated}")
 
-print(">> Creating test data", flush=True)
-output_unintegrated_censored = subset_h5ad_by_format(
-    adata_unintegrated,
+print(">> Creating split 1 data", flush=True)
+
+output_censored_split1 = adata[(adata.obs.is_control>0) | (adata.obs.split==1)]
+
+print("Grouping comparison:", flush=True)
+print(output_censored_split1.obs.groupby(["is_control", "split"]).size().to_dict())
+
+output_censored_split1 = subset_h5ad_by_format(
+    output_censored_split1,
     config,
-    "output_unintegrated_censored"
+    "output_censored_split1"
 )
-print(f"output_unintegrated_censored: {output_unintegrated_censored}")
+print(f"output_censored_split1: {output_censored_split1}")
 
-print(">> Creating validation data", flush=True)
+print(">> Creating split 2 data", flush=True)
 
-adata_validation = adata[adata.obs.is_validation==True]
+output_censored_split2 = adata[(adata.obs.is_control>0) | (adata.obs.split==2)]
 
-output_validation = subset_h5ad_by_format(
-    adata_validation,
+print("Grouping comparison:", flush=True)
+print(output_censored_split2.obs.groupby(["is_control", "split"]).size().to_dict())
+
+output_censored_split2 = subset_h5ad_by_format(
+    output_censored_split2,
     config,
-    "output_validation"
+    "output_censored_split2"
 )
-print(f"output_validation: {output_validation}")
+print(f"output_censored_split2: {output_censored_split2}")
 
 print(">> Writing data", flush=True)
 output_unintegrated.write_h5ad(par["output_unintegrated"], compression="gzip")
-output_unintegrated_censored.write_h5ad(par["output_unintegrated_censored"], compression="gzip")
-output_validation.write_h5ad(par["output_validation"], compression="gzip")
+output_censored_split1.write_h5ad(par["output_censored_split1"], compression="gzip")
+output_censored_split2.write_h5ad(par["output_censored_split2"], compression="gzip")
