@@ -56,7 +56,7 @@ integrated_left_sce <- integrated_left_sce[markers_to_correct, ]
 integrated_right_sce <- integrated_right$as_SingleCellExperiment()
 integrated_right_sce <- integrated_right_sce[markers_to_correct, ]
 
-cores_to_use <- min(5, ceiling(parallel::detectCores() / 2))
+cores_to_use <- min(5, parallel::detectCores() - 2)
 # cores_to_use <- 5
 bpparam <- BiocParallel::MulticoreParam(
     workers = cores_to_use
