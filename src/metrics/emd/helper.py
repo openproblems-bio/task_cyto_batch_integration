@@ -50,35 +50,48 @@ def calculate_vertical_emd(
         i_adata=i_split2_adata, markers_to_assess=markers_to_assess
     )
 
-    emd_long = pd.concat([emd_split1_long, emd_split2_long])
+    # safeguard
+    mean_emd_global = np.nan
+    max_emd_global = np.nan
+    mean_emd_ct = np.nan
+    max_emd_ct = np.nan
 
-    # mean global emd across all sample combinations, markers, and splits
-    mean_emd_global = np.nanmean(
-        emd_long[emd_long["cell_type"] == "global"]
-        .drop(columns=["cell_type", "first_sample", "second_sample"])
-        .to_numpy()
-        .flatten()
-    )
-    max_emd_global = np.nanmax(
-        emd_long[emd_long["cell_type"] == "global"]
-        .drop(columns=["cell_type", "first_sample", "second_sample"])
-        .to_numpy()
-        .flatten()
-    )
+    # compute these only if we can.
+    emd_long = []
+    for df in [emd_split1_long, emd_split2_long]:
+        if isinstance(df, pd.DataFrame):
+            emd_long.append(df)
 
-    # mean cell type emd across all sample combinations, markers, and splits
-    mean_emd_ct = np.nanmean(
-        emd_long[emd_long["cell_type"] != "global"]
-        .drop(columns=["cell_type", "first_sample", "second_sample"])
-        .to_numpy()
-        .flatten()
-    )
-    max_emd_ct = np.nanmax(
-        emd_long[emd_long["cell_type"] != "global"]
-        .drop(columns=["cell_type", "first_sample", "second_sample"])
-        .to_numpy()
-        .flatten()
-    )
+    if len(emd_long) > 0:
+        emd_long = pd.concat(emd_long)
+
+        # mean global emd across all sample combinations, markers, and splits
+        mean_emd_global = np.nanmean(
+            emd_long[emd_long["cell_type"] == "global"]
+            .drop(columns=["cell_type", "first_sample", "second_sample"])
+            .to_numpy()
+            .flatten()
+        )
+        max_emd_global = np.nanmax(
+            emd_long[emd_long["cell_type"] == "global"]
+            .drop(columns=["cell_type", "first_sample", "second_sample"])
+            .to_numpy()
+            .flatten()
+        )
+
+        # mean cell type emd across all sample combinations, markers, and splits
+        mean_emd_ct = np.nanmean(
+            emd_long[emd_long["cell_type"] != "global"]
+            .drop(columns=["cell_type", "first_sample", "second_sample"])
+            .to_numpy()
+            .flatten()
+        )
+        max_emd_ct = np.nanmax(
+            emd_long[emd_long["cell_type"] != "global"]
+            .drop(columns=["cell_type", "first_sample", "second_sample"])
+            .to_numpy()
+            .flatten()
+        )
 
     return {
         KEY_MEAN_EMD_GLOBAL: mean_emd_global,
@@ -122,10 +135,10 @@ def get_vert_emd_for_integrated_adata(i_adata: ad.AnnData, markers_to_assess: li
 
         print(
             f"{i_adata.uns['dataset_id']} from {i_adata.uns['method_id']} does not have"
-            f"at least 2 samples per group. Skipping EMD vertical calculation."
+            f" at least 2 samples per group. Skipping EMD vertical calculation."
         )
 
-        return np.nan, np.nan, np.nan
+        return np.nan, np.nan
 
     cell_types = i_adata.obs["cell_type"].unique()
 
