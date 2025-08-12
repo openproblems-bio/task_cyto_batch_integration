@@ -145,7 +145,7 @@ the donor information, hidden. These columns are intentionally hidden to
 prevent bias.
 
 Example file:
-`resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/censored.h5ad`
+`resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/censored_split1.h5ad`
 
 Description:
 
