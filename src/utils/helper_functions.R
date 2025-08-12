@@ -10,6 +10,7 @@ requireNamespace("anndataR", quietly = TRUE)
 #' based on the split.
 #' i.e., if in split 1, donor 3-5 is from batch 2, then the batch label for that split
 #' will be changed from batch 1 to batch 2.
+#' Note: this implementation slightly differs from the `get_obs_var_for_integrated` python version as it has to be run each time for each split.
 #'
 #' @param i_adata AnnData object, integrated data
 #' @param u_adata AnnData object, unintegrated dataset
