@@ -12,11 +12,11 @@ arguments:
     direction: input
     required: true
   - name: "--output_censored_split1"
-    __merge__: file_censored.yaml
+    __merge__: file_censored_split1.yaml
     direction: output
     required: true
   - name: "--output_censored_split2"
-    __merge__: file_censored.yaml
+    __merge__: file_censored_split2.yaml
     direction: output
     required: true
   - name: "--output_unintegrated"

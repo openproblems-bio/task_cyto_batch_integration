@@ -46,19 +46,20 @@ signals were preserved.
 flowchart TB
   file_common_dataset("<a href='https://github.com/openproblems-bio/task_cyto_batch_integration#file-format-common-dataset'>Common Dataset</a>")
   comp_data_processor[/"<a href='https://github.com/openproblems-bio/task_cyto_batch_integration#component-type-data-processor'>Data processor</a>"/]
-  file_censored("<a href='https://github.com/openproblems-bio/task_cyto_batch_integration#file-format-censored'>Censored</a>")
+  file_censored_split1("<a href='https://github.com/openproblems-bio/task_cyto_batch_integration#file-format-censored--split-1-'>Censored (split 1)</a>")
+  file_censored_split2("<a href='https://github.com/openproblems-bio/task_cyto_batch_integration#file-format-censored--split-2-'>Censored (split 2)</a>")
   file_unintegrated("<a href='https://github.com/openproblems-bio/task_cyto_batch_integration#file-format-unintegrated'>Unintegrated</a>")
   comp_method[/"<a href='https://github.com/openproblems-bio/task_cyto_batch_integration#component-type-method'>Method</a>"/]
   comp_control_method[/"<a href='https://github.com/openproblems-bio/task_cyto_batch_integration#component-type-control-method'>Control Method</a>"/]
   comp_metric[/"<a href='https://github.com/openproblems-bio/task_cyto_batch_integration#component-type-metric'>Metric</a>"/]
-  file_integrated_split1("<a href='https://github.com/openproblems-bio/task_cyto_batch_integration#file-format-integrated'>Integrated</a>")
-  file_integrated_split2("<a href='https://github.com/openproblems-bio/task_cyto_batch_integration#file-format-integrated'>Integrated</a>")
+  file_integrated_split1("<a href='https://github.com/openproblems-bio/task_cyto_batch_integration#file-format-integrated--split-1-'>Integrated (split 1)</a>")
+  file_integrated_split2("<a href='https://github.com/openproblems-bio/task_cyto_batch_integration#file-format-integrated--split-2-'>Integrated (split 2)</a>")
   file_score("<a href='https://github.com/openproblems-bio/task_cyto_batch_integration#file-format-score'>Score</a>")
   file_common_dataset---comp_data_processor
-  comp_data_processor-->file_censored
-  comp_data_processor-->file_censored
+  comp_data_processor-->file_censored_split1
+  comp_data_processor-->file_censored_split2
   comp_data_processor-->file_unintegrated
-  file_censored---comp_method
+  file_censored_split1---comp_method
   file_unintegrated---comp_control_method
   file_unintegrated---comp_metric
   comp_method-->file_integrated_split1
@@ -138,7 +139,7 @@ Arguments:
 
 </div>
 
-## File format: Censored
+## File format: Censored (split 1)
 
 An unintegrated dataset with certain columns (cells metadata), such as
 the donor information, hidden. These columns are intentionally hidden to
@@ -146,6 +147,61 @@ prevent bias.
 
 Example file:
 `resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/censored_split1.h5ad`
+
+Description:
+
+An unintegrated dataset with certain columns (cells metadata), such as
+the donor information, hidden. These columns are intentionally hidden to
+prevent bias. The batch correction algorithm should not have to rely on
+these information to properly integrate different batches. This dataset
+is used as the input for the batch correction algorithm. The cells
+therein are identical to those in the unintegrated dataset.
+
+Format:
+
+<div class="small">
+
+    AnnData object
+     obs: 'batch', 'sample', 'is_control'
+     var: 'numeric_id', 'channel', 'marker', 'marker_type', 'to_correct'
+     layers: 'preprocessed'
+     uns: 'dataset_id', 'dataset_name', 'dataset_url', 'dataset_reference', 'dataset_summary', 'dataset_description', 'dataset_organism'
+
+</div>
+
+Data structure:
+
+<div class="small">
+
+| Slot | Type | Description |
+|:---|:---|:---|
+| `obs["batch"]` | `string` | Batch information. |
+| `obs["sample"]` | `string` | Sample ID. |
+| `obs["is_control"]` | `integer` | Whether the sample the cell came from can be used as a control for batch effect correction. \* 0: cannot be used as a control. \* \>= 1: can be used as a control. \* For cells with \>= 1: cells with the same value come from the same donor. Different values indicate different donors. |
+| `var["numeric_id"]` | `integer` | Numeric ID associated with each marker. |
+| `var["channel"]` | `string` | The channel / detector of the instrument. |
+| `var["marker"]` | `string` | (*Optional*) The marker name associated with the channel. |
+| `var["marker_type"]` | `string` | Whether the marker is a functional or lineage marker. |
+| `var["to_correct"]` | `boolean` | Whether the marker will be batch corrected. |
+| `layers["preprocessed"]` | `double` | preprocessed data, e.g. already compensated, transformed and debris/doublets removed. |
+| `uns["dataset_id"]` | `string` | A unique identifier for the dataset. |
+| `uns["dataset_name"]` | `string` | Nicely formatted name. |
+| `uns["dataset_url"]` | `string` | (*Optional*) Link to the original source of the dataset. |
+| `uns["dataset_reference"]` | `string` | (*Optional*) Bibtex reference of the paper in which the dataset was published. |
+| `uns["dataset_summary"]` | `string` | Short description of the dataset. |
+| `uns["dataset_description"]` | `string` | Long description of the dataset. |
+| `uns["dataset_organism"]` | `string` | (*Optional*) The organism of the sample in the dataset. |
+
+</div>
+
+## File format: Censored (split 2)
+
+An unintegrated dataset with certain columns (cells metadata), such as
+the donor information, hidden. These columns are intentionally hidden to
+prevent bias.
+
+Example file:
+`resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/censored_split2.h5ad`
 
 Description:
 
@@ -297,7 +353,7 @@ Arguments:
 
 </div>
 
-## File format: Integrated
+## File format: Integrated (split 1)
 
 Integrated dataset which batch effect was corrected by an algorithm
 
@@ -327,7 +383,7 @@ Data structure:
 
 </div>
 
-## File format: Integrated
+## File format: Integrated (split 2)
 
 Integrated dataset which batch effect was corrected by an algorithm
 
