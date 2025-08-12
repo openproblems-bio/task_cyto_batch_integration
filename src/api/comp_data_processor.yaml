@@ -11,11 +11,11 @@ arguments:
     __merge__: file_common_dataset.yaml
     direction: input
     required: true
-  - name: "--output_censored_left"
+  - name: "--output_censored_split1"
     __merge__: file_censored.yaml
     direction: output
     required: true
-  - name: "--output_censored_right"
+  - name: "--output_censored_split2"
     __merge__: file_censored.yaml
     direction: output
     required: true

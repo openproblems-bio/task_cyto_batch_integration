@@ -51,7 +51,8 @@ flowchart TB
   comp_method[/"<a href='https://github.com/openproblems-bio/task_cyto_batch_integration#component-type-method'>Method</a>"/]
   comp_control_method[/"<a href='https://github.com/openproblems-bio/task_cyto_batch_integration#component-type-control-method'>Control Method</a>"/]
   comp_metric[/"<a href='https://github.com/openproblems-bio/task_cyto_batch_integration#component-type-metric'>Metric</a>"/]
-  file_integrated("<a href='https://github.com/openproblems-bio/task_cyto_batch_integration#file-format-integrated'>Integrated</a>")
+  file_integrated_split1("<a href='https://github.com/openproblems-bio/task_cyto_batch_integration#file-format-integrated'>Integrated</a>")
+  file_integrated_split2("<a href='https://github.com/openproblems-bio/task_cyto_batch_integration#file-format-integrated'>Integrated</a>")
   file_score("<a href='https://github.com/openproblems-bio/task_cyto_batch_integration#file-format-score'>Score</a>")
   file_common_dataset---comp_data_processor
   comp_data_processor-->file_censored
@@ -60,12 +61,12 @@ flowchart TB
   file_censored---comp_method
   file_unintegrated---comp_control_method
   file_unintegrated---comp_metric
-  comp_method-->file_integrated
-  comp_control_method-->file_integrated
-  comp_control_method-->file_integrated
+  comp_method-->file_integrated_split1
+  comp_control_method-->file_integrated_split1
+  comp_control_method-->file_integrated_split2
   comp_metric-->file_score
-  file_integrated---comp_metric
-  file_integrated---comp_metric
+  file_integrated_split1---comp_metric
+  file_integrated_split2---comp_metric
 ```
 
 ## File format: Common Dataset
@@ -131,8 +132,8 @@ Arguments:
 | Name | Type | Description |
 |:---|:---|:---|
 | `--input` | `file` | A subset of the common dataset. |
-| `--output_censored_left` | `file` | (*Output*) An unintegrated dataset with certain columns (cells metadata), such as the donor information, hidden. These columns are intentionally hidden to prevent bias. |
-| `--output_censored_right` | `file` | (*Output*) An unintegrated dataset with certain columns (cells metadata), such as the donor information, hidden. These columns are intentionally hidden to prevent bias. |
+| `--output_censored_split1` | `file` | (*Output*) An unintegrated dataset with certain columns (cells metadata), such as the donor information, hidden. These columns are intentionally hidden to prevent bias. |
+| `--output_censored_split2` | `file` | (*Output*) An unintegrated dataset with certain columns (cells metadata), such as the donor information, hidden. These columns are intentionally hidden to prevent bias. |
 | `--output_unintegrated` | `file` | (*Output*) The complete unintegrated dataset. |
 
 </div>
@@ -274,8 +275,8 @@ Arguments:
 | Name | Type | Description |
 |:---|:---|:---|
 | `--input_unintegrated` | `file` | The complete unintegrated dataset. |
-| `--output_integrated_left` | `file` | (*Output*) Integrated dataset which batch effect was corrected by an algorithm. |
-| `--output_integrated_right` | `file` | (*Output*) Integrated dataset which batch effect was corrected by an algorithm. |
+| `--output_integrated_split1` | `file` | (*Output*) Integrated dataset which batch effect was corrected by an algorithm. |
+| `--output_integrated_split2` | `file` | (*Output*) Integrated dataset which batch effect was corrected by an algorithm. |
 
 </div>
 
@@ -290,8 +291,8 @@ Arguments:
 | Name | Type | Description |
 |:---|:---|:---|
 | `--input_unintegrated` | `file` | The complete unintegrated dataset. |
-| `--input_integrated_left` | `file` | Integrated dataset which batch effect was corrected by an algorithm. |
-| `--input_integrated_right` | `file` | Integrated dataset which batch effect was corrected by an algorithm. |
+| `--input_integrated_split1` | `file` | Integrated dataset which batch effect was corrected by an algorithm. |
+| `--input_integrated_split2` | `file` | Integrated dataset which batch effect was corrected by an algorithm. |
 | `--output` | `file` | (*Output*) File indicating the score of a metric. |
 
 </div>
@@ -301,7 +302,37 @@ Arguments:
 Integrated dataset which batch effect was corrected by an algorithm
 
 Example file:
-`resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/integrated.h5ad`
+`resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/integrated_split1.h5ad`
+
+Format:
+
+<div class="small">
+
+    AnnData object
+     layers: 'integrated'
+     uns: 'dataset_id', 'method_id', 'parameters'
+
+</div>
+
+Data structure:
+
+<div class="small">
+
+| Slot | Type | Description |
+|:---|:---|:---|
+| `layers["integrated"]` | `double` | The integrated data as returned by a batch correction method. |
+| `uns["dataset_id"]` | `string` | A unique identifier for the dataset. |
+| `uns["method_id"]` | `string` | A unique identifier for the method. |
+| `uns["parameters"]` | `object` | (*Optional*) The parameters used for the integration. |
+
+</div>
+
+## File format: Integrated
+
+Integrated dataset which batch effect was corrected by an algorithm
+
+Example file:
+`resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/integrated_split2.h5ad`
 
 Format:
 

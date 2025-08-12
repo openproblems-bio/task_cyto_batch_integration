@@ -12,7 +12,7 @@ arguments:
     required: true
     direction: input
   - name: --output
-    __merge__: file_integrated.yaml
+    __merge__: file_integrated_split1.yaml
     required: true
     direction: output
 test_resources:
