@@ -2,7 +2,11 @@
 
 ## BREAKING CHANGES
 
-<!-- * Restructured `src` directory (PR #3). -->
+* Updated the file schemas (PR #94):
+  - `src/api`: The common dataset is now split into two censored datasets: `censored_split1` and `censored_split2`. The method component should now be run twice, once for each split. The control methods return both splits at once. The metrics now receive both splits as input.
+  - `src/control_methods`: Control methods now need to return both `integrated_split1` and `integrated_split2`.
+  - `src/metrics`: Metrics now receive both `integrated_split1` and `integrated_split2` as input.
+  - `src/workflows`: Update the workflows accordingly.
 
 ## NEW FUNCTIONALITY
 
