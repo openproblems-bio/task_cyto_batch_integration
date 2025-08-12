@@ -97,8 +97,7 @@ resources:
   # The script of your component (required)
   - type: r_script
     path: script.R
-  - type: r_script
-    path: /src/utils/helper_functions.R
+  - path: /src/utils/helper_functions.R
 
 engines:
   # Specifications for the Docker image for this component.
