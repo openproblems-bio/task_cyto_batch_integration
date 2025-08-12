@@ -26,8 +26,8 @@ from helper_functions import (
 )
 
 print("Reading input files", flush=True)
-integrated_s1 = ad.read_h5ad(par["input_integrated_left"])
-integrated_s2 = ad.read_h5ad(par["input_integrated_right"])
+integrated_s1 = ad.read_h5ad(par["input_integrated_split1"])
+integrated_s2 = ad.read_h5ad(par["input_integrated_split2"])
 unintegrated = ad.read_h5ad(par["input_unintegrated"])
 
 print("Formatting input files", flush=True)

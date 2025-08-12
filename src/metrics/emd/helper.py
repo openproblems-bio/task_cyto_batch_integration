@@ -9,20 +9,20 @@ KEY_MEAN_EMD_GLOBAL = "mean_emd_global"
 KEY_MAX_EMD_GLOBAL = "max_emd_global"
 KEY_MEAN_EMD_CT = "mean_emd_ct"
 KEY_MAX_EMD_CT = "max_emd_ct"
-KEY_EMD_VERT_MAT_LEFT = "emd_vert_mat_left"
-KEY_EMD_VERT_MAT_RIGHT = "emd_vert_mat_right"
+KEY_EMD_VERT_MAT_split1 = "emd_vert_mat_split1"
+KEY_EMD_VERT_MAT_split2 = "emd_vert_mat_split2"
 KEY_EMD_HORZ_PER_DONOR = "emd_horz_per_donor"
 
 
 def calculate_vertical_emd(
-    i_left_adata: ad.AnnData, i_right_adata: ad.AnnData, markers_to_assess: list
+    i_split1_adata: ad.AnnData, i_split2_adata: ad.AnnData, markers_to_assess: list
 ):
     """
     Compute vertical emd across every possible sample combination from the same biological group.
 
     Args:
-        i_left_adata (ad.AnnData): Left integrated adata.
-        i_right_adata (ad.AnnData): Right integrated adata.
+        i_split1_adata (ad.AnnData): Left integrated adata.
+        i_split2_adata (ad.AnnData): Right integrated adata.
         markers_to_assess (list): list of markers to compute EMD for.
 
     Returns:
@@ -42,15 +42,15 @@ def calculate_vertical_emd(
                     or global, depending on what the 2d matrix represents.
     """
 
-    emd_left_long, emd_left_wide = get_vert_emd_for_integrated_adata(
-        i_adata=i_left_adata, markers_to_assess=markers_to_assess
+    emd_split1_long, emd_split1_wide = get_vert_emd_for_integrated_adata(
+        i_adata=i_split1_adata, markers_to_assess=markers_to_assess
     )
 
-    emd_right_long, emd_right_wide = get_vert_emd_for_integrated_adata(
-        i_adata=i_right_adata, markers_to_assess=markers_to_assess
+    emd_split2_long, emd_split2_wide = get_vert_emd_for_integrated_adata(
+        i_adata=i_split2_adata, markers_to_assess=markers_to_assess
     )
 
-    emd_long = pd.concat([emd_left_long, emd_right_long])
+    emd_long = pd.concat([emd_split1_long, emd_split2_long])
 
     # mean global emd across all sample combinations, markers, and splits
     mean_emd_global = np.nanmean(
@@ -85,8 +85,8 @@ def calculate_vertical_emd(
         KEY_MAX_EMD_GLOBAL: max_emd_global,
         KEY_MEAN_EMD_CT: mean_emd_ct,
         KEY_MAX_EMD_CT: max_emd_ct,
-        KEY_EMD_VERT_MAT_LEFT: emd_left_wide,
-        KEY_EMD_VERT_MAT_RIGHT: emd_right_wide,
+        KEY_EMD_VERT_MAT_split1: emd_split1_wide,
+        KEY_EMD_VERT_MAT_split2: emd_split2_wide,
     }
 
 
@@ -95,7 +95,7 @@ def get_vert_emd_for_integrated_adata(i_adata: ad.AnnData, markers_to_assess: li
     Compute vertical emd across every possible sample combination from the same biological group.
 
     Args:
-        i_left_adata (ad.AnnData): An integrated adata.
+        i_split1_adata (ad.AnnData): An integrated adata.
         markers_to_assess (list): list of markers to compute EMD for.
 
     Returns:
@@ -210,8 +210,8 @@ def get_vert_emd_for_integrated_adata(i_adata: ad.AnnData, markers_to_assess: li
 
 
 def calculate_horizontal_emd(
-    i_left_adata: ad.AnnData,
-    i_right_adata: ad.AnnData,
+    i_split1_adata: ad.AnnData,
+    i_split2_adata: ad.AnnData,
     markers_to_assess: list,
     donor_list: list,
 ):
@@ -219,8 +219,8 @@ def calculate_horizontal_emd(
     Compute horizontal emd across every pair samples from a given donor.
 
     Args:
-        i_left_adata (ad.AnnData): Left integrated adata.
-        i_right_adata (ad.AnnData): Right integrated adata.
+        i_split1_adata (ad.AnnData): Left integrated adata.
+        i_split2_adata (ad.AnnData): Right integrated adata.
         markers_to_assess (list): list of markers to compute EMD for.
         donor_list (list): list of donors to compute EMD for.
 
@@ -244,13 +244,13 @@ def calculate_horizontal_emd(
 
     for donor in donor_list:
         # donor = donor_list[0]
-        i_left_donor = i_left_adata[i_left_adata.obs["donor"] == donor]
-        i_right_donor = i_right_adata[i_right_adata.obs["donor"] == donor]
+        i_split1_donor = i_split1_adata[i_split1_adata.obs["donor"] == donor]
+        i_split2_donor = i_split2_adata[i_split2_adata.obs["donor"] == donor]
 
         # safe check
         cell_type_not_in_both = np.setxor1d(
-            i_left_donor.obs["cell_type"].unique(),
-            i_right_donor.obs["cell_type"].unique(),
+            i_split1_donor.obs["cell_type"].unique(),
+            i_split2_donor.obs["cell_type"].unique(),
         )
         if len(cell_type_not_in_both) > 1:
             print(
@@ -262,17 +262,17 @@ def calculate_horizontal_emd(
 
         # assuming each cell type is present in both validation and integrated
         cell_types = np.intersect1d(
-            i_left_donor.obs["cell_type"].unique(),
-            i_right_donor.obs["cell_type"].unique(),
+            i_split1_donor.obs["cell_type"].unique(),
+            i_split2_donor.obs["cell_type"].unique(),
         )
 
         for cell_type in cell_types:
             # cell_type = cell_types[0]
-            i_left_ct = i_left_donor[i_left_donor.obs["cell_type"] == cell_type]
-            i_right_ct = i_right_donor[i_right_donor.obs["cell_type"] == cell_type]
+            i_split1_ct = i_split1_donor[i_split1_donor.obs["cell_type"] == cell_type]
+            i_split2_ct = i_split2_donor[i_split2_donor.obs["cell_type"] == cell_type]
 
             # Do not calculate if we have less than 50 cells as it does not make sense.
-            if i_left_ct.n_obs < 50 or i_right_ct.n_obs < 50:
+            if i_split1_ct.n_obs < 50 or i_split2_ct.n_obs < 50:
                 print(
                     f"There are less than 50 cells for either left or right integrated "
                     f"data for donor {donor} and cell type {cell_type}.\n"
@@ -281,8 +281,8 @@ def calculate_horizontal_emd(
                 continue
 
             emd_df = compute_emd(
-                left_sample=i_left_ct,
-                right_sample=i_right_ct,
+                left_sample=i_split1_ct,
+                right_sample=i_split2_ct,
                 markers_to_assess=markers_to_assess,
             )
             emd_df["cell_type"] = cell_type
@@ -292,8 +292,8 @@ def calculate_horizontal_emd(
 
         # calculate EMD when combining all cell types as well.
         emd_df = compute_emd(
-            left_sample=i_left_donor,
-            right_sample=i_right_donor,
+            left_sample=i_split1_donor,
+            right_sample=i_split2_donor,
             markers_to_assess=markers_to_assess,
         )
         emd_df["cell_type"] = "global"
@@ -357,11 +357,11 @@ def compute_emd(
     for marker in markers_to_assess:
         # marker = markers_to_assess[0]
 
-        mexp_left = np.array(left_sample[:, marker].layers["integrated"]).flatten()
-        mexp_right = np.array(right_sample[:, marker].layers["integrated"]).flatten()
+        mexp_split1 = np.array(left_sample[:, marker].layers["integrated"]).flatten()
+        mexp_split2 = np.array(right_sample[:, marker].layers["integrated"]).flatten()
 
-        left_values, left_weights = bin_array(mexp_left)
-        right_values, right_weights = bin_array(mexp_right)
+        left_values, left_weights = bin_array(mexp_split1)
+        right_values, right_weights = bin_array(mexp_split2)
 
         # left_values (and right_values) are the explicit support (set of all possible bin values)
         # of the probability distribution left_weights (and right_weights).
