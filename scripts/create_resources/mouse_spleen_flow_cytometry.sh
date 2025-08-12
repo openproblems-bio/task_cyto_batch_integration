@@ -40,6 +40,15 @@ adata.uns["parameter_som_xdim"] = int(adata.uns.pop("parameter_flowsom_xdim"))
 adata.uns["parameter_som_ydim"] = int(adata.uns.pop("parameter_flowsom_ydim"))
 adata.uns["parameter_num_clusters"] = int(adata.uns.pop("parameter_flowsom_nclus"))
 
+# TODO: update
+adata.uns["dataset_reference"] = "@article{leomazzi2025biorxiv," \
+  "  title={Benchmarking batch integration methods for mass cytometry data},"\
+  "  author={Leomazzi, Luca and Putri, Givanna and Cannoodt, Robrecht and Quintelier, Katrien and Van Gassen, Sofie},"\
+  "  journal={bioRxiv -- in preparation},"\
+  "  year={2025}"\
+  "}"
+adata.uns["dataset_url"] = "https://github.com/openproblems-bio/task_cyto_batch_integration"
+
 # make sure the output is compressed
 adata.write_h5ad("$OUTPUT_DIR/common_dataset.h5ad", compression='gzip')
 HERE

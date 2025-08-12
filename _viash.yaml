@@ -35,7 +35,16 @@ description: |
   were removed and how much biological signals were preserved. 
 
 # A list of references to relevant literature. Each reference should be a DOI or a bibtex entry
-references: {}
+references:
+  bibtex:
+    # TODO: update
+    - |
+      @article{leomazzi2025biorxiv,
+        title={Benchmarking batch integration methods for mass cytometry data},
+        author={Leomazzi, Luca and Putri, Givanna and Cannoodt, Robrecht and Quintelier, Katrien and Van Gassen, Sofie},
+        journal={bioRxiv -- in preparation},
+        year={2025}
+      }
   
 info:
   image: The name of the image file to use for the component on the website.

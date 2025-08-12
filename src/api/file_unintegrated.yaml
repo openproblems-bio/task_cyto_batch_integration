@@ -90,11 +90,11 @@ info:
       - type: string
         name: dataset_url
         description: Link to the original source of the dataset.
-        required: false
+        required: true
       - name: dataset_reference
         type: string
         description: Bibtex reference of the paper in which the dataset was published.
-        required: false
+        required: true
       - name: dataset_summary
         type: string
         description: Short description of the dataset.
@@ -106,7 +106,7 @@ info:
       - name: dataset_organism
         type: string
         description: The organism of the sample in the dataset.
-        required: false
+        required: true
       - name: parameter_som_xdim
         type: integer
         description: Parameter used to define the width of the self-organizing map (SOM) grid. Usually between 10 and 20.
