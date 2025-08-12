@@ -105,3 +105,42 @@ remove_unlabelled <- function(adata) {
         c("unlabelled", "unlabeled")
     adata[!is_unlabelled, ]
 }
+
+#' Subsets the anndata object in a stratified manner by cell type.
+#'
+#' @param adata AnnData object
+#' @param frac numeric, fraction of cells to keep for each cell type
+#' @param seed numeric, seed for reproducibility
+#' @param anndatar logical, whether the input is anndataR object or not
+#' @return AnnData object with only the markers to correct
+subset_by_celltype <- function(adata, frac = 0.5, seed = 1, anndatar = TRUE) {
+  set.seed(seed)
+  
+  obs <- adata$obs
+  obs$cell_id <- rownames(obs)
+  obs$.row <- seq_len(nrow(obs))   # original order
+  
+  keep_ids <- obs %>%
+    group_by(cell_type) %>%
+    slice_sample(prop = frac) %>%
+    ungroup() %>%
+    arrange(.row) %>%     # restore original order
+    pull(cell_id)
+  
+  if (anndatar == TRUE){
+    keep_idx <- match(keep_ids, adata$obs_names)
+    
+    adata_sub <- anndataR::AnnData(
+      X   = NULL,
+      obs = adata$obs[keep_idx, , drop = FALSE],
+      var = adata$var,
+      uns = adata$uns,
+      layers = list(
+        "integrated" = adata$layers$integrated[keep_idx, , drop = FALSE]
+      )
+    )
+  } else{
+    adata_sub <- adata[keep_ids, ]
+  }
+}
+
