@@ -104,7 +104,7 @@ Data structure:
 | `obs["donor"]` | `string` | Donor ID. |
 | `obs["group"]` | `string` | Biological group of the donor. |
 | `obs["is_control"]` | `integer` | Whether the sample the cell came from can be used as a control for batch effect correction. \* 0: cannot be used as a control. \* \>= 1: can be used as a control. \* For cells with \>= 1: cells with the same value come from the same donor. Different values indicate different donors. |
-| `obs["split"]` | `integer` | Which split the cell will be used in. \* 0: control samples \* 1: split 1 (left) \* 2: split 2 (right) . |
+| `obs["split"]` | `integer` | Which split the cell will be used in. \* 0: control samples \* 1: split 1 \* 2: split 2 . |
 | `var["numeric_id"]` | `integer` | Numeric ID associated with each marker. |
 | `var["channel"]` | `string` | The channel / detector of the instrument. |
 | `var["marker"]` | `string` | (*Optional*) The marker name associated with the channel. |
@@ -288,7 +288,7 @@ Data structure:
 | `obs["donor"]` | `string` | Donor ID. |
 | `obs["group"]` | `string` | Biological group of the donor. |
 | `obs["is_control"]` | `integer` | Whether the sample the cell came from can be used as a control for batch effect correction. \* 0: cannot be used as a control. \* \>= 1: can be used as a control. \* For cells with \>= 1: cells with the same value come from the same donor. Different values indicate different donors. |
-| `obs["split"]` | `integer` | Which split the cell will be used in. \* 0: control samples \* 1: split 1 (left) \* 2: split 2 (right) . |
+| `obs["split"]` | `integer` | Which split the cell will be used in. \* 0: control samples \* 1: split 1 \* 2: split 2 . |
 | `var["numeric_id"]` | `integer` | Numeric ID associated with each marker. |
 | `var["channel"]` | `string` | The channel / detector of the instrument. |
 | `var["marker"]` | `string` | (*Optional*) The marker name associated with the channel. |

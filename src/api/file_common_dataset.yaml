@@ -49,8 +49,8 @@ info:
           Which split the cell will be used in.
           
           * 0: control samples
-          * 1: split 1 (left)
-          * 2: split 2 (right)
+          * 1: split 1
+          * 2: split 2
         required: true
     var:
       - type: integer

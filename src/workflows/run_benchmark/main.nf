@@ -75,7 +75,7 @@ workflow run_wf {
    ***************************/
   method_outputs_ch = dataset_ch
 
-    // run methods on censored left
+    // run methods on censored split1
     | runEach(
       components: methods,
 
@@ -103,7 +103,7 @@ workflow run_wf {
       }
     )
 
-    // run methods on censored right
+    // run methods on censored split2
     | runEach(
       components: methods,
 
