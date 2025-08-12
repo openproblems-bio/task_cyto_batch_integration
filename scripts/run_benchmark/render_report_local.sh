@@ -26,6 +26,7 @@ nextflow run openproblems-bio/openproblems \
   -main-script target/nextflow/reporting/process_task_results/main.nf \
   -profile docker \
   -resume \
+  -latest \
   -c common/nextflow_helpers/labels_ci.config \
   --id "$TASK/run_$DATE" \
   --input_scores "$INPUT_DIR/score_uns.yaml" \
