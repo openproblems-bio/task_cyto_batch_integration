@@ -92,13 +92,13 @@ workflow run_wf {
       },
 
       // use 'fromState' to fetch the arguments the component requires from the overall state
-      fromState: [ input: "input_censored_left" ],
+      fromState: [ input: "input_censored_split1" ],
 
       // use 'toState' to publish that component's outputs to the overall state
       toState: { id, output, state, comp ->
         state + [
           method_id: comp.config.name,
-          integrated_left: output.output
+          integrated_split1: output.output
         ]
       }
     )
@@ -113,10 +113,10 @@ workflow run_wf {
       },
 
       // use 'fromState' to fetch the arguments the component requires from the overall state
-      fromState: [ input: "input_censored_right" ],
+      fromState: [ input: "input_censored_split2" ],
 
       // use 'toState' to publish that component's outputs to the overall state
-      toState: [ integrated_right: "output" ]
+      toState: [ integrated_split2: "output" ]
     )
 
   control_method_outputs_ch = dataset_ch
@@ -144,8 +144,8 @@ workflow run_wf {
       toState: { id, output, state, comp ->
         state + [
           method_id: comp.config.name,
-          integrated_left: output.output_integrated_left,
-          integrated_right: output.output_integrated_right
+          integrated_split1: output.output_integrated_split1,
+          integrated_split2: output.output_integrated_split2
         ]
       }
     )
@@ -163,8 +163,8 @@ workflow run_wf {
       // use 'fromState' to fetch the arguments the component requires from the overall state
       fromState: [
         input_unintegrated: "input_unintegrated",
-        input_integrated_left: "integrated_left", 
-        input_integrated_right: "integrated_right"
+        input_integrated_split1: "integrated_split1", 
+        input_integrated_split2: "integrated_split2"
       ],
       // use 'toState' to publish that component's outputs to the overall state
       toState: { id, output, state, comp ->

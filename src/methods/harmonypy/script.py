@@ -4,8 +4,8 @@ import numpy as np
 
 ## VIASH START
 par = {
-    "input": "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/censored_right.h5ad",
-    "output": "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/output_harmony_right.h5ad",
+    "input": "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/censored_split2.h5ad",
+    "output": "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/output_harmony_split2.h5ad",
 }
 meta = {"name": "harmonypy"}
 ## VIASH END

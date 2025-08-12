@@ -16,12 +16,12 @@ arguments:
     __merge__: file_unintegrated.yaml
     required: true
     direction: input
-  - name: --output_integrated_left
-    __merge__: file_integrated.yaml
+  - name: --output_integrated_split1
+    __merge__: file_integrated_split1.yaml
     required: true
     direction: output
-  - name: --output_integrated_right
-    __merge__: file_integrated.yaml
+  - name: --output_integrated_split2
+    __merge__: file_integrated_split2.yaml
     required: true
     direction: output
 test_resources:

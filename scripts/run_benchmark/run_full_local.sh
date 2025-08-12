@@ -18,7 +18,7 @@ publish_dir="resources/results/${RUN_ID}"
 # write the parameters to file
 cat > /tmp/params.yaml << HERE
 input_states: resources/datasets/**/state.yaml
-rename_keys: 'input_censored_left:output_censored_left;input_censored_right:output_censored_right;input_unintegrated:output_unintegrated'
+rename_keys: 'input_censored_split1:output_censored_split1;input_censored_split2:output_censored_split2;input_unintegrated:output_unintegrated'
 output_state: "state.yaml"
 publish_dir: "$publish_dir"
 HERE

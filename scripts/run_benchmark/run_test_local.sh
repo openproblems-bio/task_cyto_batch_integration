@@ -22,7 +22,7 @@ nextflow run . \
   -c common/nextflow_helpers/labels_ci.config \
   --id mouse_spleen_flow_cytometry_subset \
   --input_unintegrated resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/unintegrated.h5ad \
-  --input_censored_left resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/censored_left.h5ad \
-  --input_censored_right resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/censored_right.h5ad \
+  --input_censored_split1 resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/censored_split1.h5ad \
+  --input_censored_split2 resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/censored_split2.h5ad \
   --output_state state.yaml \
   --publish_dir "$publish_dir"

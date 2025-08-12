@@ -52,34 +52,34 @@ HERE
 viash run src/data_processors/process_dataset/config.vsh.yaml -- \
   --input $DATASET_DIR/common_dataset.h5ad \
   --output_unintegrated $DATASET_DIR/unintegrated.h5ad \
-  --output_censored_left $DATASET_DIR/censored_left.h5ad \
-  --output_censored_right $DATASET_DIR/censored_right.h5ad
+  --output_censored_split1 $DATASET_DIR/censored_split1.h5ad \
+  --output_censored_split2 $DATASET_DIR/censored_split2.h5ad
 
 # run one method
 viash run src/methods/harmonypy/config.vsh.yaml -- \
-  --input $DATASET_DIR/censored_left.h5ad \
-  --output $DATASET_DIR/integrated_left.h5ad
+  --input $DATASET_DIR/censored_split1.h5ad \
+  --output $DATASET_DIR/integrated_split1.h5ad
 
 # run one method
 viash run src/methods/harmonypy/config.vsh.yaml -- \
-  --input $DATASET_DIR/censored_right.h5ad \
-  --output $DATASET_DIR/integrated_right.h5ad
+  --input $DATASET_DIR/censored_split2.h5ad \
+  --output $DATASET_DIR/integrated_split2.h5ad
 
 # run one metric
 viash run src/metrics/emd/config.vsh.yaml -- \
     --input_unintegrated $DATASET_DIR/unintegrated.h5ad \
-    --input_integrated_left $DATASET_DIR/integrated_left.h5ad \
-    --input_integrated_right $DATASET_DIR/integrated_right.h5ad \
+    --input_integrated_split1 $DATASET_DIR/integrated_split1.h5ad \
+    --input_integrated_split2 $DATASET_DIR/integrated_split2.h5ad \
     --output $DATASET_DIR/score.h5ad
 
 # write manual state.yaml
 cat > $DATASET_DIR/state.yaml << HERE
 id: $DATASET_ID
 unintegrated: !file unintegrated.h5ad
-censored_left: !file censored_left.h5ad
-censored_right: !file censored_right.h5ad
-integrated_left: !file integrated_left.h5ad
-integrated_right: !file integrated_right.h5ad
+censored_split1: !file censored_split1.h5ad
+censored_split2: !file censored_split2.h5ad
+integrated_split1: !file integrated_split1.h5ad
+integrated_split2: !file integrated_split2.h5ad
 score: !file score.h5ad
 HERE
 
