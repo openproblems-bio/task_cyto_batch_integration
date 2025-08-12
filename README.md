@@ -50,6 +50,7 @@ flowchart TB
   file_censored_split2("<a href='https://github.com/openproblems-bio/task_cyto_batch_integration#file-format-censored--split-2-'>Censored (split 2)</a>")
   file_unintegrated("<a href='https://github.com/openproblems-bio/task_cyto_batch_integration#file-format-unintegrated'>Unintegrated</a>")
   comp_method[/"<a href='https://github.com/openproblems-bio/task_cyto_batch_integration#component-type-method'>Method</a>"/]
+  comp_method_split2[/"<a href='https://github.com/openproblems-bio/task_cyto_batch_integration#component-type-method'>Method</a>"/]
   comp_control_method[/"<a href='https://github.com/openproblems-bio/task_cyto_batch_integration#component-type-control-method'>Control Method</a>"/]
   comp_metric[/"<a href='https://github.com/openproblems-bio/task_cyto_batch_integration#component-type-metric'>Metric</a>"/]
   file_integrated_split1("<a href='https://github.com/openproblems-bio/task_cyto_batch_integration#file-format-integrated--split-1-'>Integrated (split 1)</a>")
@@ -60,9 +61,11 @@ flowchart TB
   comp_data_processor-->file_censored_split2
   comp_data_processor-->file_unintegrated
   file_censored_split1---comp_method
+  file_censored_split2---comp_method_split2
   file_unintegrated---comp_control_method
   file_unintegrated---comp_metric
   comp_method-->file_integrated_split1
+  comp_method_split2-->file_integrated_split2
   comp_control_method-->file_integrated_split1
   comp_control_method-->file_integrated_split2
   comp_metric-->file_score
@@ -302,6 +305,21 @@ Data structure:
 | `uns["parameter_som_xdim"]` | `integer` | Parameter used to define the width of the self-organizing map (SOM) grid. Usually between 10 and 20. |
 | `uns["parameter_som_ydim"]` | `integer` | Parameter used to define the height of the self-organizing map (SOM) grid. Usually between 10 and 20. |
 | `uns["parameter_num_clusters"]` | `integer` | Parameter used to define the number of clusters. Set this number to be slightly higher than the number of cell types expected in the dataset. |
+
+</div>
+
+## Component type: Method
+
+A method for integrating batch effects in cytometry data.
+
+Arguments:
+
+<div class="small">
+
+| Name | Type | Description |
+|:---|:---|:---|
+| `--input` | `file` | An unintegrated dataset with certain columns (cells metadata), such as the donor information, hidden. These columns are intentionally hidden to prevent bias. |
+| `--output` | `file` | (*Output*) Integrated dataset which batch effect was corrected by an algorithm. |
 
 </div>
 
