@@ -97,7 +97,6 @@ engines:
     setup:
       - type: r
         bioc: [batchelor]
-        packages: [anndata]
 
 runners:
   # This platform allows running the component natively

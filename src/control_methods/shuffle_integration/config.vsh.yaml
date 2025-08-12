@@ -3,6 +3,7 @@ name: shuffle_integration
 label: Shuffle integration
 summary: Integrations are randomly permuted
 description: Integrations are randomly permuted
+status: disabled
 resources:
   - type: python_script
     path: script.py

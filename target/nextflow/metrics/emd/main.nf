@@ -3039,170 +3039,10 @@ meta = [
       "arguments" : [
         {
           "type" : "file",
-          "name" : "--input_validation",
-          "label" : "Validation",
-          "summary" : "Hold-out dataset for validation.",
-          "description" : "Dataset containing cells from samples that were held out for evaluating batch integration output. \nThe cells that are in this dataset belong to samples which are not included in the unintegrated \nor unintegrated_censored datasets.\nFor example, if samples from donor A are present in batch 1 and 2, the sample from batch 1\nmay be used as input for the batch correction algorithm (and thus present in unintegrated\nand unintegrated_censored datasets). \nThe sample from batch 2, may not be included as an input for the batch correction algorithm,\nbut is needed to validate whether whether the algorithm managed to correct the batch effect\nin batch 2 towards batch 1.\nThis sample will then be included in this dataset (but not in unintegrated\nand unintegrated_censored datasets).\n",
-          "info" : {
-            "format" : {
-              "type" : "h5ad",
-              "layers" : [
-                {
-                  "type" : "double",
-                  "name" : "preprocessed",
-                  "description" : "preprocessed data, e.g. already compensated, transformed and debris/doublets removed",
-                  "required" : true
-                }
-              ],
-              "obs" : [
-                {
-                  "type" : "string",
-                  "name" : "cell_type",
-                  "description" : "Cell type information",
-                  "required" : true
-                },
-                {
-                  "type" : "string",
-                  "name" : "batch",
-                  "description" : "Batch information",
-                  "required" : true
-                },
-                {
-                  "type" : "string",
-                  "name" : "sample",
-                  "description" : "Sample ID",
-                  "required" : true
-                },
-                {
-                  "type" : "string",
-                  "name" : "donor",
-                  "description" : "Donor ID",
-                  "required" : true
-                },
-                {
-                  "type" : "string",
-                  "name" : "group",
-                  "description" : "Biological group of the donor",
-                  "required" : true
-                },
-                {
-                  "type" : "integer",
-                  "name" : "is_control",
-                  "description" : "Whether the sample the cell came from can be used as a control for batch \neffect correction.\n0: cannot be used as a control.\n>= 1: can be used as a control.\nFor cells with >= 1: cells with the same value come from the same donor.\nDifferent values indicate different donors.\n",
-                  "required" : true
-                }
-              ],
-              "var" : [
-                {
-                  "type" : "integer",
-                  "name" : "numeric_id",
-                  "description" : "Numeric ID associated with each marker",
-                  "required" : true
-                },
-                {
-                  "type" : "string",
-                  "name" : "channel",
-                  "description" : "The channel / detector of the instrument",
-                  "required" : true
-                },
-                {
-                  "type" : "string",
-                  "name" : "marker",
-                  "description" : "The marker name associated with the channel",
-                  "required" : false
-                },
-                {
-                  "type" : "string",
-                  "name" : "marker_type",
-                  "description" : "Whether the marker is a functional or lineage marker",
-                  "required" : true
-                },
-                {
-                  "type" : "boolean",
-                  "name" : "to_correct",
-                  "description" : "Whether the marker will be batch corrected",
-                  "required" : true
-                }
-              ],
-              "uns" : [
-                {
-                  "type" : "string",
-                  "name" : "dataset_id",
-                  "description" : "A unique identifier for the dataset",
-                  "required" : true
-                },
-                {
-                  "name" : "dataset_name",
-                  "type" : "string",
-                  "description" : "Nicely formatted name.",
-                  "required" : true
-                },
-                {
-                  "type" : "string",
-                  "name" : "dataset_url",
-                  "description" : "Link to the original source of the dataset.",
-                  "required" : false
-                },
-                {
-                  "name" : "dataset_reference",
-                  "type" : "string",
-                  "description" : "Bibtex reference of the paper in which the dataset was published.",
-                  "required" : false
-                },
-                {
-                  "name" : "dataset_summary",
-                  "type" : "string",
-                  "description" : "Short description of the dataset.",
-                  "required" : true
-                },
-                {
-                  "name" : "dataset_description",
-                  "type" : "string",
-                  "description" : "Long description of the dataset.",
-                  "required" : true
-                },
-                {
-                  "name" : "dataset_organism",
-                  "type" : "string",
-                  "description" : "The organism of the sample in the dataset.",
-                  "required" : false
-                },
-                {
-                  "name" : "parameter_som_xdim",
-                  "type" : "integer",
-                  "description" : "Parameter used to define the width of the self-organizing map (SOM) grid. Usually between 10 and 20.",
-                  "required" : true
-                },
-                {
-                  "name" : "parameter_som_ydim",
-                  "type" : "integer",
-                  "description" : "Parameter used to define the height of the self-organizing map (SOM) grid. Usually between 10 and 20.",
-                  "required" : true
-                },
-                {
-                  "name" : "parameter_num_clusters",
-                  "type" : "integer",
-                  "description" : "Parameter used to define the number of clusters. Set this number to be slightly higher than the number of cell types expected in the dataset.",
-                  "required" : true
-                }
-              ]
-            }
-          },
-          "example" : [
-            "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/validation.h5ad"
-          ],
-          "must_exist" : true,
-          "create_parent" : true,
-          "required" : true,
-          "direction" : "input",
-          "multiple" : false,
-          "multiple_sep" : ";"
-        },
-        {
-          "type" : "file",
           "name" : "--input_unintegrated",
           "label" : "Unintegrated",
-          "summary" : "The complete unintegrated dataset, including all cells' metadata (columns) from the \nunintegrated_censored dataset. \nThe cells in this dataset are the same to those in the unintegrated_censored dataset.\n",
+          "summary" : "The complete unintegrated dataset.\n",
+          "description" : "The complete unintegrated dataset.\nThe cells in this dataset are the same to those in the censored dataset.\n",
           "info" : {
             "format" : {
               "type" : "h5ad",
@@ -3248,7 +3088,13 @@ meta = [
                 {
                   "type" : "integer",
                   "name" : "is_control",
-                  "description" : "Whether the sample the cell came from can be used as a control for batch \neffect correction.\n0: cannot be used as a control.\n>= 1: can be used as a control.\nFor cells with >= 1: cells with the same value come from the same donor.\nDifferent values indicate different donors.\n",
+                  "description" : "Whether the sample the cell came from can be used as a control for batch \neffect correction.\n\n* 0: cannot be used as a control.\n* >= 1: can be used as a control.\n* For cells with >= 1: cells with the same value come from the same donor.\n\nDifferent values indicate different donors.\n",
+                  "required" : true
+                },
+                {
+                  "type" : "integer",
+                  "name" : "split",
+                  "description" : "Which split the cell will be used in.\n\n* 0: control samples\n* 1: split 1\n* 2: split 2\n",
                   "required" : true
                 }
               ],
@@ -3360,8 +3206,8 @@ meta = [
         },
         {
           "type" : "file",
-          "name" : "--input_integrated",
-          "label" : "Integrated",
+          "name" : "--input_integrated_split1",
+          "label" : "Integrated (split 1)",
           "summary" : "Integrated dataset which batch effect was corrected by an algorithm",
           "info" : {
             "format" : {
@@ -3397,7 +3243,55 @@ meta = [
             }
           },
           "example" : [
-            "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/integrated.h5ad"
+            "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/integrated_split1.h5ad"
+          ],
+          "must_exist" : true,
+          "create_parent" : true,
+          "required" : true,
+          "direction" : "input",
+          "multiple" : false,
+          "multiple_sep" : ";"
+        },
+        {
+          "type" : "file",
+          "name" : "--input_integrated_split2",
+          "label" : "Integrated (split 2)",
+          "summary" : "Integrated dataset which batch effect was corrected by an algorithm",
+          "info" : {
+            "format" : {
+              "type" : "h5ad",
+              "layers" : [
+                {
+                  "type" : "double",
+                  "name" : "integrated",
+                  "description" : "The integrated data as returned by a batch correction method",
+                  "required" : true
+                }
+              ],
+              "uns" : [
+                {
+                  "type" : "string",
+                  "name" : "dataset_id",
+                  "description" : "A unique identifier for the dataset",
+                  "required" : true
+                },
+                {
+                  "type" : "string",
+                  "name" : "method_id",
+                  "description" : "A unique identifier for the method",
+                  "required" : true
+                },
+                {
+                  "type" : "object",
+                  "name" : "parameters",
+                  "description" : "The parameters used for the integration",
+                  "required" : false
+                }
+              ]
+            }
+          },
+          "example" : [
+            "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/integrated_split2.h5ad"
           ],
           "must_exist" : true,
           "create_parent" : true,
@@ -3464,14 +3358,12 @@ meta = [
       "is_executable" : true
     },
     {
-      "type" : "python_script",
-      "path" : "helper.py",
-      "is_executable" : true
+      "type" : "file",
+      "path" : "helper.py"
     },
     {
-      "type" : "python_script",
-      "path" : "/src/utils/helper_functions.py",
-      "is_executable" : true
+      "type" : "file",
+      "path" : "/src/utils/helper_functions.py"
     }
   ],
   "test_resources" : [
@@ -3709,20 +3601,7 @@ meta = [
       "type" : "docker",
       "id" : "docker",
       "image" : "openproblems/base_python:1",
-      "namespace_separator" : "/",
-      "setup" : [
-        {
-          "type" : "python",
-          "user" : false,
-          "packages" : [
-            "anndata",
-            "numpy",
-            "pandas",
-            "scipy"
-          ],
-          "upgrade" : true
-        }
-      ]
+      "namespace_separator" : "/"
     }
   ],
   "build_info" : {
@@ -3731,7 +3610,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/metrics/emd",
     "viash_version" : "0.9.4",
-    "git_commit" : "f90b44189d30c691910d425021cf1683bc37e2c7",
+    "git_commit" : "dbaeb0f62f1044b011c1fc2c0932ed00479f99b5",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3847,9 +3726,9 @@ import anndata as ad
 ## VIASH START
 # The following code has been auto-generated by Viash.
 par = {
-  'input_validation': $( if [ ! -z ${VIASH_PAR_INPUT_VALIDATION+x} ]; then echo "r'${VIASH_PAR_INPUT_VALIDATION//\\'/\\'\\"\\'\\"r\\'}'"; else echo None; fi ),
   'input_unintegrated': $( if [ ! -z ${VIASH_PAR_INPUT_UNINTEGRATED+x} ]; then echo "r'${VIASH_PAR_INPUT_UNINTEGRATED//\\'/\\'\\"\\'\\"r\\'}'"; else echo None; fi ),
-  'input_integrated': $( if [ ! -z ${VIASH_PAR_INPUT_INTEGRATED+x} ]; then echo "r'${VIASH_PAR_INPUT_INTEGRATED//\\'/\\'\\"\\'\\"r\\'}'"; else echo None; fi ),
+  'input_integrated_split1': $( if [ ! -z ${VIASH_PAR_INPUT_INTEGRATED_SPLIT1+x} ]; then echo "r'${VIASH_PAR_INPUT_INTEGRATED_SPLIT1//\\'/\\'\\"\\'\\"r\\'}'"; else echo None; fi ),
+  'input_integrated_split2': $( if [ ! -z ${VIASH_PAR_INPUT_INTEGRATED_SPLIT2+x} ]; then echo "r'${VIASH_PAR_INPUT_INTEGRATED_SPLIT2//\\'/\\'\\"\\'\\"r\\'}'"; else echo None; fi ),
   'output': $( if [ ! -z ${VIASH_PAR_OUTPUT+x} ]; then echo "r'${VIASH_PAR_OUTPUT//\\'/\\'\\"\\'\\"r\\'}'"; else echo None; fi )
 }
 meta = {
@@ -3885,45 +3764,80 @@ import helper_functions as global_helper
 
 print("Reading input files", flush=True)
 
-input_integrated = ad.read_h5ad(par["input_integrated"])
+input_integrated_split1 = ad.read_h5ad(par["input_integrated_split1"])
+input_integrated_split2 = ad.read_h5ad(par["input_integrated_split2"])
 input_unintegrated = ad.read_h5ad(par["input_unintegrated"])
-input_validation = ad.read_h5ad(par["input_validation"])
 
 print("Formatting input files", flush=True)
 
-# Format data integrated data
-input_integrated = global_helper.get_obs_var_for_integrated(
-    i_adata=input_integrated, v_adata=input_validation, u_adata=input_unintegrated
+# add obs and var to integrated data
+input_integrated_split1, input_integrated_split2 = (
+    global_helper.get_obs_var_for_integrated(
+        s1_adata=input_integrated_split1,
+        s2_adata=input_integrated_split2,
+        u_adata=input_unintegrated,
+    )
 )
-input_integrated = global_helper.subset_markers_tocorrect(input_integrated)
-input_integrated = global_helper.subset_nocontrols(input_integrated)
-input_integrated = global_helper.remove_unlabelled(input_integrated)
+
+# more preprocessing
+input_integrated_split1 = global_helper.subset_markers_tocorrect(input_integrated_split1)
+input_integrated_split1 = global_helper.subset_nocontrols(input_integrated_split1)
+input_integrated_split1 = global_helper.remove_unlabelled(input_integrated_split1)
+
+input_integrated_split2 = global_helper.subset_markers_tocorrect(input_integrated_split2)
+input_integrated_split2 = global_helper.subset_nocontrols(input_integrated_split2)
+input_integrated_split2 = global_helper.remove_unlabelled(input_integrated_split2)
 
 
-# Format validation data
-input_validation = global_helper.subset_markers_tocorrect(input_validation)
-input_validation = global_helper.remove_unlabelled(input_validation)
-
-markers_to_assess = input_validation.var["to_correct"].index.to_numpy()
+markers_to_assess = input_unintegrated.var_names[
+    input_unintegrated.var["to_correct"]
+].to_numpy()
 
 # needed to assemble the output anndata later
-dataset_id = input_integrated.uns["dataset_id"]
-method_id = input_integrated.uns["method_id"]
+dataset_id = input_unintegrated.uns["dataset_id"]
+method_id = input_integrated_split1.uns["method_id"]
 
 # shouldn't need these anymore
 # del input_unintegrated
 
-# calculate horizontal EMD
-# get all donors in validation as these are the ones we need to validate
-donor_list = input_validation.obs["donor"].unique()
+# calculate horizontal EMD for each donor across integrated left and right
+donor_list = input_integrated_split1.obs["donor"].unique()
+
+# check that the data for each donor in integrated left and right are actually from two different batches!
+for donor in donor_list:
+    # donor = donor_list[0]
+    batch_split1 = input_integrated_split1.obs[input_integrated_split1.obs["donor"] == donor][
+        "batch"
+    ].unique()
+    batch_split2 = input_integrated_split2.obs[
+        input_integrated_split2.obs["donor"] == donor
+    ]["batch"].unique()
+
+    if len(batch_split1) > 1 or len(batch_split2) > 1:
+        raise ValueError(
+            f"Donor {donor} has samples in {len(batch_split1)} batches in integrated left"
+            f" and {len(batch_split2)} batches in integrated right.It should only have"
+            f"samples in exactly ONE batch in each of integrated left and integrated right."
+        )
+
+    if batch_split1[0] == batch_split2[0]:
+        raise ValueError(
+            f"Donor {donor} has samples in the same batch for both integrated left and right.\\\\n"
+            f"Integrated left batch id: {batch_split1[0]}.\\\\n"
+            f"Integrated right batch id: {batch_split2[0]}."
+        )
 
 emd_horz = emd_helper.calculate_horizontal_emd(
-    input_integrated, input_validation, markers_to_assess, donor_list
+    i_split1_adata=input_integrated_split1,
+    i_split2_adata=input_integrated_split2,
+    donor_list=donor_list,
+    markers_to_assess=markers_to_assess,
 )
 
 # calculate vertical EMD
 emd_vert = emd_helper.calculate_vertical_emd(
-    input_integrated=input_integrated,
+    i_split1_adata=input_integrated_split1,
+    i_split2_adata=input_integrated_split2,
     markers_to_assess=markers_to_assess,
 )
 
@@ -3955,7 +3869,8 @@ output = ad.AnnData(
         ],
         "emd_values": {
             "emd_values_horiz": emd_horz[emd_helper.KEY_EMD_HORZ_PER_DONOR],
-            "emd_values_vert": emd_vert[emd_helper.KEY_EMD_VERT_MAT],
+            "emd_values_vert_split1": emd_vert[emd_helper.KEY_EMD_VERT_MAT_split1],
+            "emd_values_vert_split2": emd_vert[emd_helper.KEY_EMD_VERT_MAT_split2],
         },
     }
 )

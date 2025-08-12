@@ -42,13 +42,13 @@ compute_clust_pct <- function(vector_clust, vector_celltype){
 
 #' @title Get a vector with cluster weights for the metric 'compute_fs_mapping_similarity'.
 #' @description The outuput is a vector with length == n. of clusters where each element represent the proportions of that cluster.
-#' The proportions take into account both the integrated cells and the validations cell together.
-#' @param vector_clust_int a factor containing the cluster annotations for each (integrated) cell
-#' @param vector_clust_val a factor containing the cluster annotations for each (validation) cell
+#' The proportions refer to both splits.
+#' @param vector_clust_s1 a factor containing the cluster annotations for each cell belonging to split 1.
+#' @param vector_clust_s2 a factor containing the cluster annotations for each cell belonging to split 2.
 #'
 #' @note clusters which are empty will have a weight == 0
-compute_clust_weights <- function(vector_clust_int, vector_clust_val){
-  vector_clust_tot <- c(vector_clust_int,vector_clust_val)
+compute_clust_weights <- function(vector_clust_s1, vector_clust_s2){
+  vector_clust_tot <- c(vector_clust_s1,vector_clust_s2)
   clust_total <- table(vector_clust_tot, exclude=NULL)
   clust_prop <- proportions(clust_total)
   return(clust_prop)
@@ -57,53 +57,53 @@ compute_clust_weights <- function(vector_clust_int, vector_clust_val){
 #' @title Compute flowsom mapping similarity score for a sample pair.
 #'
 #' @description
-#' The function computes a similarity score for 2 FlowSOM tree given in input (along with cell type annotations).
+#' The function computes a similarity score for 2 FlowSOM trees built on technical replicates (from 2 splits) given in input (along with cell type annotations).
 #' It returns a series of object including :
 #' - FlowSOM trees used
 #' - dissimilarity score: a score from 0 to 100 where 0 means perfect overlap between
-#' percentages of cell types within a cluster for a sample pair (integratied & validation data);
+#' percentages of cell types within a cluster for a sample pair (split 1 & split 2 data);
 #' and 100 means absence overlap.
 #' - similarity score: 100 - dissimilarity score. A score of 100 means that the 2 FlowSOM trees
 #' are perfectly overlapping in terms of cell type percentages
 #' - vector with differences in percentages of cellt types for each cluster
 #' - vector with weight for each cluster. The weight is the proportion of cell types in a cluster out of the total number cells
-#' (validation + integrated cells)
+#' (split 1 + split 2 cells)
 #'
-#' @param fs_tree_int FlowSOM tree object of integrated data via NewData()
-#' @param ct_ann_int vector containing the cluster annotations for each (integrated) cell
-#' @param fs_tree_val FlowSOM tree object created on validation data
-#' @param ct_ann_val vector containing the cluster annotations for each (validation) cell
+#' @param fs_tree_s1 FlowSOM tree object from one split
+#' @param ct_ann_s1 vector containing the cluster annotations for each integrated cell belonging to `fs_tree_s1`
+#' @param fs_tree_s2 FlowSOM tree object created on the other split
+#' @param ct_ann_s2 vector containing the cluster annotations for each integrated cell belonging to `fs_tree_s2`
 #'
 #' @note When computing the absolute difference matrix, clusters that have no differences in cell proportions
-#' or clusters which are empty in both validation and integrated data(== SOM node empty)
+#' or clusters which are empty in both data splits(== SOM node empty)
 #' will result in all zeroes rows. This has no effect on the final metric
 compute_fs_mapping_similarity <- function(
-  fs_tree_int,
-  ct_ann_int,
-  fs_tree_val,
-  ct_ann_val
+  fs_tree_s1,
+  ct_ann_s1,
+  fs_tree_s2,
+  ct_ann_s2
 ) {
 
   #Get cluster-level annotations for each sample
-  clust_levels <- levels(as.factor(c(GetClusters(fs_tree_val),GetClusters(fs_tree_int))))
-  clust_int <- factor(
-    paste0("clust ", GetClusters(fs_tree_int)), levels = paste0("clust ",clust_levels)
+  clust_levels <- levels(as.factor(c(GetClusters(fs_tree_s1),GetClusters(fs_tree_s2))))
+  clust_s1 <- factor(
+    paste0("clust ", GetClusters(fs_tree_s1)), levels = paste0("clust ",clust_levels)
   )
-  clust_val <- factor(
-    paste0("clust ", GetClusters(fs_tree_val)), levels = paste0("clust ",clust_levels)
+  clust_s2 <- factor(
+    paste0("clust ", GetClusters(fs_tree_s2)), levels = paste0("clust ",clust_levels)
   )
 
   #Get cluster-level proportions for the paired sample
-  clust_weights <- compute_clust_weights(clust_int,clust_val)
-  
+  clust_weights <- compute_clust_weights(clust_s1,clust_s2)
+
   #Get cluster x cell type proportions
-  table_clustxcell_int <- compute_clust_pct(clust_int, ct_ann_int)
-  table_clustxcell_val <- compute_clust_pct(clust_val, ct_ann_val)
-  
-  table_clustxcell_absdiff <- abs(table_clustxcell_val - table_clustxcell_int)
+  table_clustxcell_s1 <- compute_clust_pct(clust_s1, ct_ann_s1)
+  table_clustxcell_s2 <- compute_clust_pct(clust_s2, ct_ann_s2)
+
+  table_clustxcell_absdiff <- abs(table_clustxcell_s2 - table_clustxcell_s1)
   # # Debug:
-  # heatmap(table_clustxcell_int, Rowv = NA, Colv = NA)
-  # heatmap(table_clustxcell_val, Rowv = NA, Colv = NA)
+  # heatmap(table_clustxcell_s1, Rowv = NA, Colv = NA)
+  # heatmap(table_clustxcell_s2, Rowv = NA, Colv = NA)
   # heatmap(table_clustxcell_absdiff, Rowv = NA, Colv = NA)
 
   #Differences in cell type proportions of clusters
@@ -116,8 +116,8 @@ compute_fs_mapping_similarity <- function(
   list(
     similarity = FSOM_similarity,
     dissimilarity = FSOM_dissimilarity,
-    tree_integrated = fs_tree_int,
-    tree_validation = fs_tree_val,
+    tree_split1 = fs_tree_s1,
+    tree_split2 = fs_tree_s2,
     differences = clust_differences,
     weights = clust_weights
   )

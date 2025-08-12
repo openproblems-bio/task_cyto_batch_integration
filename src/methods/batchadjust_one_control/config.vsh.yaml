@@ -76,7 +76,7 @@ engines:
     setup:
       - type: r
         bioc: [flowCore]
-        packages: [docstring, anndata]
+        packages: [docstring]
 
 runners:
   # This platform allows running the component natively

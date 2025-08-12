@@ -3083,8 +3083,9 @@ meta = [
         {
           "type" : "file",
           "name" : "--input",
-          "label" : "Unintegrated Censored",
-          "summary" : "An unintegrated dataset with certain columns (cells metadata), such as the donor information, hidden.\nThese columns are intentionally hidden to prevent bias.\nThe batch correction algorithm should not have to rely on these information \nto properly integrate different batches.\nThis dataset is used as the input for the batch correction algorithm. \nThe cells therein are identical to those in the unintegrated dataset.\n",
+          "label" : "Censored (split 1)",
+          "summary" : "An unintegrated dataset with certain columns (cells metadata), such as the donor information, hidden.\nThese columns are intentionally hidden to prevent bias.\n",
+          "description" : "An unintegrated dataset with certain columns (cells metadata), such as the donor information, hidden.\nThese columns are intentionally hidden to prevent bias.\nThe batch correction algorithm should not have to rely on these information \nto properly integrate different batches.\nThis dataset is used as the input for the batch correction algorithm. \nThe cells therein are identical to those in the unintegrated dataset.\n",
           "info" : {
             "format" : {
               "type" : "h5ad",
@@ -3112,7 +3113,7 @@ meta = [
                 {
                   "type" : "integer",
                   "name" : "is_control",
-                  "description" : "Whether the sample the cell came from can be used as a control for batch \neffect correction.\n0: cannot be used as a control.\n>= 1: can be used as a control.\nFor cells with >= 1: cells with the same value come from the same donor.\nDifferent values indicate different donors.\n",
+                  "description" : "Whether the sample the cell came from can be used as a control for batch \neffect correction.\n\n* 0: cannot be used as a control.\n* >= 1: can be used as a control.\n* For cells with >= 1: cells with the same value come from the same donor.\n\nDifferent values indicate different donors.\n",
                   "required" : true
                 }
               ],
@@ -3195,7 +3196,7 @@ meta = [
             }
           },
           "example" : [
-            "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/unintegrated_censored.h5ad"
+            "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/censored_split1.h5ad"
           ],
           "must_exist" : true,
           "create_parent" : true,
@@ -3207,7 +3208,7 @@ meta = [
         {
           "type" : "file",
           "name" : "--output",
-          "label" : "Integrated",
+          "label" : "Integrated (split 1)",
           "summary" : "Integrated dataset which batch effect was corrected by an algorithm",
           "info" : {
             "format" : {
@@ -3243,7 +3244,7 @@ meta = [
             }
           },
           "example" : [
-            "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/integrated.h5ad"
+            "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/integrated_split1.h5ad"
           ],
           "must_exist" : true,
           "create_parent" : true,
@@ -3367,9 +3368,6 @@ meta = [
       "setup" : [
         {
           "type" : "r",
-          "packages" : [
-            "anndata"
-          ],
           "url" : [
             "https://cran.r-project.org/src/contrib/Archive/Seurat/Seurat_4.4.0.tar.gz",
             "https://cran.r-project.org/src/contrib/Archive/SeuratObject/SeuratObject_4.1.4.tar.gz"
@@ -3386,7 +3384,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/methods/rpca_to_goal",
     "viash_version" : "0.9.4",
-    "git_commit" : "f90b44189d30c691910d425021cf1683bc37e2c7",
+    "git_commit" : "dbaeb0f62f1044b011c1fc2c0932ed00479f99b5",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {

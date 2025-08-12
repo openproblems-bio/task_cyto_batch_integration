@@ -97,6 +97,7 @@ resources:
   # The script of your component (required)
   - type: r_script
     path: script.R
+  - path: /src/utils/helper_functions.R
 
 engines:
   # Specifications for the Docker image for this component.
@@ -106,7 +107,7 @@ engines:
       - type: r
         packages: [robustbase, rhdf5]
         bioc: [CellMixS, SingleCellExperiment, Biocparallel]
-        github: [scverse/anndataR]
+        github: [scverse/anndataR@0.99.0]
 
 runners:
   # This platform allows running the component natively

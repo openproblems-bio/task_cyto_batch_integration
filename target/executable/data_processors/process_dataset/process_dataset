@@ -446,9 +446,9 @@ function ViashDockerfile {
 FROM openproblems/base_python:1
 ENTRYPOINT []
 LABEL org.opencontainers.image.description="Companion container for running component data_processors process_dataset"
-LABEL org.opencontainers.image.created="2025-08-07T07:52:54Z"
+LABEL org.opencontainers.image.created="2025-08-12T07:50:53Z"
 LABEL org.opencontainers.image.source="https://github.com/openproblems-bio/task_cyto_batch_integration"
-LABEL org.opencontainers.image.revision="f90b44189d30c691910d425021cf1683bc37e2c7"
+LABEL org.opencontainers.image.revision="dbaeb0f62f1044b011c1fc2c0932ed00479f99b5"
 LABEL org.opencontainers.image.version="build_main"
 
 VIASHDOCKER
@@ -574,38 +574,38 @@ function ViashHelp {
   echo "        example:"
   echo "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/common_dataset.h5ad"
   echo ""
-  echo "    --output_unintegrated_censored"
+  echo "    --output_censored_split1"
   echo "        type: file, required parameter, output, file must exist"
   echo "        example:"
-  echo "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/unintegrated_censored.h5ad"
+  echo "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/censored_split1.h5ad"
+  echo "        An unintegrated dataset with certain columns (cells metadata), such as"
+  echo "        the donor information, hidden."
+  echo "        These columns are intentionally hidden to prevent bias."
+  echo "        The batch correction algorithm should not have to rely on these"
+  echo "        information"
+  echo "        to properly integrate different batches."
+  echo "        This dataset is used as the input for the batch correction algorithm."
+  echo "        The cells therein are identical to those in the unintegrated dataset."
+  echo ""
+  echo "    --output_censored_split2"
+  echo "        type: file, required parameter, output, file must exist"
+  echo "        example:"
+  echo "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/censored_split2.h5ad"
+  echo "        An unintegrated dataset with certain columns (cells metadata), such as"
+  echo "        the donor information, hidden."
+  echo "        These columns are intentionally hidden to prevent bias."
+  echo "        The batch correction algorithm should not have to rely on these"
+  echo "        information"
+  echo "        to properly integrate different batches."
+  echo "        This dataset is used as the input for the batch correction algorithm."
+  echo "        The cells therein are identical to those in the unintegrated dataset."
   echo ""
   echo "    --output_unintegrated"
   echo "        type: file, required parameter, output, file must exist"
   echo "        example:"
   echo "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/unintegrated.h5ad"
-  echo ""
-  echo "    --output_validation"
-  echo "        type: file, required parameter, output, file must exist"
-  echo "        example:"
-  echo "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/validation.h5ad"
-  echo "        Dataset containing cells from samples that were held out for evaluating"
-  echo "        batch integration output."
-  echo "        The cells that are in this dataset belong to samples which are not"
-  echo "        included in the unintegrated"
-  echo "        or unintegrated_censored datasets."
-  echo "        For example, if samples from donor A are present in batch 1 and 2, the"
-  echo "        sample from batch 1"
-  echo "        may be used as input for the batch correction algorithm (and thus"
-  echo "        present in unintegrated"
-  echo "        and unintegrated_censored datasets)."
-  echo "        The sample from batch 2, may not be included as an input for the batch"
-  echo "        correction algorithm,"
-  echo "        but is needed to validate whether whether the algorithm managed to"
-  echo "        correct the batch effect"
-  echo "        in batch 2 towards batch 1."
-  echo "        This sample will then be included in this dataset (but not in"
-  echo "        unintegrated"
-  echo "        and unintegrated_censored datasets)."
+  echo "        The complete unintegrated dataset."
+  echo "        The cells in this dataset are the same to those in the censored dataset."
   echo ""
   echo "Viash built in Computational Requirements:"
   echo "    ---cpus=INT"
@@ -668,15 +668,26 @@ while [[ $# -gt 0 ]]; do
             VIASH_PAR_INPUT=$(ViashRemoveFlags "$1")
             shift 1
             ;;
-        --output_unintegrated_censored)
-            [ -n "$VIASH_PAR_OUTPUT_UNINTEGRATED_CENSORED" ] && ViashError Bad arguments for option \'--output_unintegrated_censored\': \'$VIASH_PAR_OUTPUT_UNINTEGRATED_CENSORED\' \& \'$2\' - you should provide exactly one argument for this option. && exit 1
-            VIASH_PAR_OUTPUT_UNINTEGRATED_CENSORED="$2"
-            [ $# -lt 2 ] && ViashError Not enough arguments passed to --output_unintegrated_censored. Use "--help" to get more information on the parameters. && exit 1
+        --output_censored_split1)
+            [ -n "$VIASH_PAR_OUTPUT_CENSORED_SPLIT1" ] && ViashError Bad arguments for option \'--output_censored_split1\': \'$VIASH_PAR_OUTPUT_CENSORED_SPLIT1\' \& \'$2\' - you should provide exactly one argument for this option. && exit 1
+            VIASH_PAR_OUTPUT_CENSORED_SPLIT1="$2"
+            [ $# -lt 2 ] && ViashError Not enough arguments passed to --output_censored_split1. Use "--help" to get more information on the parameters. && exit 1
             shift 2
             ;;
-        --output_unintegrated_censored=*)
-            [ -n "$VIASH_PAR_OUTPUT_UNINTEGRATED_CENSORED" ] && ViashError Bad arguments for option \'--output_unintegrated_censored=*\': \'$VIASH_PAR_OUTPUT_UNINTEGRATED_CENSORED\' \& \'$2\' - you should provide exactly one argument for this option. && exit 1
-            VIASH_PAR_OUTPUT_UNINTEGRATED_CENSORED=$(ViashRemoveFlags "$1")
+        --output_censored_split1=*)
+            [ -n "$VIASH_PAR_OUTPUT_CENSORED_SPLIT1" ] && ViashError Bad arguments for option \'--output_censored_split1=*\': \'$VIASH_PAR_OUTPUT_CENSORED_SPLIT1\' \& \'$2\' - you should provide exactly one argument for this option. && exit 1
+            VIASH_PAR_OUTPUT_CENSORED_SPLIT1=$(ViashRemoveFlags "$1")
+            shift 1
+            ;;
+        --output_censored_split2)
+            [ -n "$VIASH_PAR_OUTPUT_CENSORED_SPLIT2" ] && ViashError Bad arguments for option \'--output_censored_split2\': \'$VIASH_PAR_OUTPUT_CENSORED_SPLIT2\' \& \'$2\' - you should provide exactly one argument for this option. && exit 1
+            VIASH_PAR_OUTPUT_CENSORED_SPLIT2="$2"
+            [ $# -lt 2 ] && ViashError Not enough arguments passed to --output_censored_split2. Use "--help" to get more information on the parameters. && exit 1
+            shift 2
+            ;;
+        --output_censored_split2=*)
+            [ -n "$VIASH_PAR_OUTPUT_CENSORED_SPLIT2" ] && ViashError Bad arguments for option \'--output_censored_split2=*\': \'$VIASH_PAR_OUTPUT_CENSORED_SPLIT2\' \& \'$2\' - you should provide exactly one argument for this option. && exit 1
+            VIASH_PAR_OUTPUT_CENSORED_SPLIT2=$(ViashRemoveFlags "$1")
             shift 1
             ;;
         --output_unintegrated)
@@ -688,17 +699,6 @@ while [[ $# -gt 0 ]]; do
         --output_unintegrated=*)
             [ -n "$VIASH_PAR_OUTPUT_UNINTEGRATED" ] && ViashError Bad arguments for option \'--output_unintegrated=*\': \'$VIASH_PAR_OUTPUT_UNINTEGRATED\' \& \'$2\' - you should provide exactly one argument for this option. && exit 1
             VIASH_PAR_OUTPUT_UNINTEGRATED=$(ViashRemoveFlags "$1")
-            shift 1
-            ;;
-        --output_validation)
-            [ -n "$VIASH_PAR_OUTPUT_VALIDATION" ] && ViashError Bad arguments for option \'--output_validation\': \'$VIASH_PAR_OUTPUT_VALIDATION\' \& \'$2\' - you should provide exactly one argument for this option. && exit 1
-            VIASH_PAR_OUTPUT_VALIDATION="$2"
-            [ $# -lt 2 ] && ViashError Not enough arguments passed to --output_validation. Use "--help" to get more information on the parameters. && exit 1
-            shift 2
-            ;;
-        --output_validation=*)
-            [ -n "$VIASH_PAR_OUTPUT_VALIDATION" ] && ViashError Bad arguments for option \'--output_validation=*\': \'$VIASH_PAR_OUTPUT_VALIDATION\' \& \'$2\' - you should provide exactly one argument for this option. && exit 1
-            VIASH_PAR_OUTPUT_VALIDATION=$(ViashRemoveFlags "$1")
             shift 1
             ;;
         ---engine)
@@ -875,16 +875,16 @@ if [ -z ${VIASH_PAR_INPUT+x} ]; then
   ViashError '--input' is a required argument. Use "--help" to get more information on the parameters.
   exit 1
 fi
-if [ -z ${VIASH_PAR_OUTPUT_UNINTEGRATED_CENSORED+x} ]; then
-  ViashError '--output_unintegrated_censored' is a required argument. Use "--help" to get more information on the parameters.
+if [ -z ${VIASH_PAR_OUTPUT_CENSORED_SPLIT1+x} ]; then
+  ViashError '--output_censored_split1' is a required argument. Use "--help" to get more information on the parameters.
+  exit 1
+fi
+if [ -z ${VIASH_PAR_OUTPUT_CENSORED_SPLIT2+x} ]; then
+  ViashError '--output_censored_split2' is a required argument. Use "--help" to get more information on the parameters.
   exit 1
 fi
 if [ -z ${VIASH_PAR_OUTPUT_UNINTEGRATED+x} ]; then
   ViashError '--output_unintegrated' is a required argument. Use "--help" to get more information on the parameters.
-  exit 1
-fi
-if [ -z ${VIASH_PAR_OUTPUT_VALIDATION+x} ]; then
-  ViashError '--output_validation' is a required argument. Use "--help" to get more information on the parameters.
   exit 1
 fi
 if [ -z ${VIASH_META_NAME+x} ]; then
@@ -993,14 +993,14 @@ if [[ -n "$VIASH_META_MEMORY_PIB" ]]; then
 fi
 
 # create parent directories of output files, if so desired
-if [ ! -z "$VIASH_PAR_OUTPUT_UNINTEGRATED_CENSORED" ] && [ ! -d "$(dirname "$VIASH_PAR_OUTPUT_UNINTEGRATED_CENSORED")" ]; then
-  mkdir -p "$(dirname "$VIASH_PAR_OUTPUT_UNINTEGRATED_CENSORED")"
+if [ ! -z "$VIASH_PAR_OUTPUT_CENSORED_SPLIT1" ] && [ ! -d "$(dirname "$VIASH_PAR_OUTPUT_CENSORED_SPLIT1")" ]; then
+  mkdir -p "$(dirname "$VIASH_PAR_OUTPUT_CENSORED_SPLIT1")"
+fi
+if [ ! -z "$VIASH_PAR_OUTPUT_CENSORED_SPLIT2" ] && [ ! -d "$(dirname "$VIASH_PAR_OUTPUT_CENSORED_SPLIT2")" ]; then
+  mkdir -p "$(dirname "$VIASH_PAR_OUTPUT_CENSORED_SPLIT2")"
 fi
 if [ ! -z "$VIASH_PAR_OUTPUT_UNINTEGRATED" ] && [ ! -d "$(dirname "$VIASH_PAR_OUTPUT_UNINTEGRATED")" ]; then
   mkdir -p "$(dirname "$VIASH_PAR_OUTPUT_UNINTEGRATED")"
-fi
-if [ ! -z "$VIASH_PAR_OUTPUT_VALIDATION" ] && [ ! -d "$(dirname "$VIASH_PAR_OUTPUT_VALIDATION")" ]; then
-  mkdir -p "$(dirname "$VIASH_PAR_OUTPUT_VALIDATION")"
 fi
 
 if [[ "$VIASH_ENGINE_TYPE" == "docker" ]]; then
@@ -1010,20 +1010,20 @@ if [ ! -z "$VIASH_PAR_INPUT" ]; then
   VIASH_DIRECTORY_MOUNTS+=( "$(ViashDockerAutodetectMountArg "$VIASH_PAR_INPUT")" )
   VIASH_PAR_INPUT=$(ViashDockerAutodetectMount "$VIASH_PAR_INPUT")
 fi
-if [ ! -z "$VIASH_PAR_OUTPUT_UNINTEGRATED_CENSORED" ]; then
-  VIASH_DIRECTORY_MOUNTS+=( "$(ViashDockerAutodetectMountArg "$VIASH_PAR_OUTPUT_UNINTEGRATED_CENSORED")" )
-  VIASH_PAR_OUTPUT_UNINTEGRATED_CENSORED=$(ViashDockerAutodetectMount "$VIASH_PAR_OUTPUT_UNINTEGRATED_CENSORED")
-  VIASH_CHOWN_VARS+=( "$VIASH_PAR_OUTPUT_UNINTEGRATED_CENSORED" )
+if [ ! -z "$VIASH_PAR_OUTPUT_CENSORED_SPLIT1" ]; then
+  VIASH_DIRECTORY_MOUNTS+=( "$(ViashDockerAutodetectMountArg "$VIASH_PAR_OUTPUT_CENSORED_SPLIT1")" )
+  VIASH_PAR_OUTPUT_CENSORED_SPLIT1=$(ViashDockerAutodetectMount "$VIASH_PAR_OUTPUT_CENSORED_SPLIT1")
+  VIASH_CHOWN_VARS+=( "$VIASH_PAR_OUTPUT_CENSORED_SPLIT1" )
+fi
+if [ ! -z "$VIASH_PAR_OUTPUT_CENSORED_SPLIT2" ]; then
+  VIASH_DIRECTORY_MOUNTS+=( "$(ViashDockerAutodetectMountArg "$VIASH_PAR_OUTPUT_CENSORED_SPLIT2")" )
+  VIASH_PAR_OUTPUT_CENSORED_SPLIT2=$(ViashDockerAutodetectMount "$VIASH_PAR_OUTPUT_CENSORED_SPLIT2")
+  VIASH_CHOWN_VARS+=( "$VIASH_PAR_OUTPUT_CENSORED_SPLIT2" )
 fi
 if [ ! -z "$VIASH_PAR_OUTPUT_UNINTEGRATED" ]; then
   VIASH_DIRECTORY_MOUNTS+=( "$(ViashDockerAutodetectMountArg "$VIASH_PAR_OUTPUT_UNINTEGRATED")" )
   VIASH_PAR_OUTPUT_UNINTEGRATED=$(ViashDockerAutodetectMount "$VIASH_PAR_OUTPUT_UNINTEGRATED")
   VIASH_CHOWN_VARS+=( "$VIASH_PAR_OUTPUT_UNINTEGRATED" )
-fi
-if [ ! -z "$VIASH_PAR_OUTPUT_VALIDATION" ]; then
-  VIASH_DIRECTORY_MOUNTS+=( "$(ViashDockerAutodetectMountArg "$VIASH_PAR_OUTPUT_VALIDATION")" )
-  VIASH_PAR_OUTPUT_VALIDATION=$(ViashDockerAutodetectMount "$VIASH_PAR_OUTPUT_VALIDATION")
-  VIASH_CHOWN_VARS+=( "$VIASH_PAR_OUTPUT_VALIDATION" )
 fi
 if [ ! -z "$VIASH_META_RESOURCES_DIR" ]; then
   VIASH_DIRECTORY_MOUNTS+=( "$(ViashDockerAutodetectMountArg "$VIASH_META_RESOURCES_DIR")" )
@@ -1100,9 +1100,9 @@ import openproblems as op
 # The following code has been auto-generated by Viash.
 par = {
   'input': $( if [ ! -z ${VIASH_PAR_INPUT+x} ]; then echo "r'${VIASH_PAR_INPUT//\'/\'\"\'\"r\'}'"; else echo None; fi ),
-  'output_unintegrated_censored': $( if [ ! -z ${VIASH_PAR_OUTPUT_UNINTEGRATED_CENSORED+x} ]; then echo "r'${VIASH_PAR_OUTPUT_UNINTEGRATED_CENSORED//\'/\'\"\'\"r\'}'"; else echo None; fi ),
-  'output_unintegrated': $( if [ ! -z ${VIASH_PAR_OUTPUT_UNINTEGRATED+x} ]; then echo "r'${VIASH_PAR_OUTPUT_UNINTEGRATED//\'/\'\"\'\"r\'}'"; else echo None; fi ),
-  'output_validation': $( if [ ! -z ${VIASH_PAR_OUTPUT_VALIDATION+x} ]; then echo "r'${VIASH_PAR_OUTPUT_VALIDATION//\'/\'\"\'\"r\'}'"; else echo None; fi )
+  'output_censored_split1': $( if [ ! -z ${VIASH_PAR_OUTPUT_CENSORED_SPLIT1+x} ]; then echo "r'${VIASH_PAR_OUTPUT_CENSORED_SPLIT1//\'/\'\"\'\"r\'}'"; else echo None; fi ),
+  'output_censored_split2': $( if [ ! -z ${VIASH_PAR_OUTPUT_CENSORED_SPLIT2+x} ]; then echo "r'${VIASH_PAR_OUTPUT_CENSORED_SPLIT2//\'/\'\"\'\"r\'}'"; else echo None; fi ),
+  'output_unintegrated': $( if [ ! -z ${VIASH_PAR_OUTPUT_UNINTEGRATED+x} ]; then echo "r'${VIASH_PAR_OUTPUT_UNINTEGRATED//\'/\'\"\'\"r\'}'"; else echo None; fi )
 }
 meta = {
   'name': $( if [ ! -z ${VIASH_META_NAME+x} ]; then echo "r'${VIASH_META_NAME//\'/\'\"\'\"r\'}'"; else echo None; fi ),
@@ -1143,7 +1143,7 @@ print("input:", adata)
 
 print(">> Creating unintegrated data", flush=True)
 
-adata_unintegrated = adata[adata.obs.is_validation==False]
+adata_unintegrated = adata.copy()
 
 output_unintegrated = subset_h5ad_by_format(
     adata_unintegrated,
@@ -1152,29 +1152,38 @@ output_unintegrated = subset_h5ad_by_format(
 )
 print(f"output_unintegrated: {output_unintegrated}")
 
-print(">> Creating test data", flush=True)
-output_unintegrated_censored = subset_h5ad_by_format(
-    adata_unintegrated,
+print(">> Creating split 1 data", flush=True)
+
+output_censored_split1 = adata[(adata.obs.is_control>0) | (adata.obs.split==1)]
+
+print("Grouping comparison:", flush=True)
+print(output_censored_split1.obs.groupby(["is_control", "split"]).size().to_dict())
+
+output_censored_split1 = subset_h5ad_by_format(
+    output_censored_split1,
     config,
-    "output_unintegrated_censored"
+    "output_censored_split1"
 )
-print(f"output_unintegrated_censored: {output_unintegrated_censored}")
+print(f"output_censored_split1: {output_censored_split1}")
 
-print(">> Creating validation data", flush=True)
+print(">> Creating split 2 data", flush=True)
 
-adata_validation = adata[adata.obs.is_validation==True]
+output_censored_split2 = adata[(adata.obs.is_control>0) | (adata.obs.split==2)]
 
-output_validation = subset_h5ad_by_format(
-    adata_validation,
+print("Grouping comparison:", flush=True)
+print(output_censored_split2.obs.groupby(["is_control", "split"]).size().to_dict())
+
+output_censored_split2 = subset_h5ad_by_format(
+    output_censored_split2,
     config,
-    "output_validation"
+    "output_censored_split2"
 )
-print(f"output_validation: {output_validation}")
+print(f"output_censored_split2: {output_censored_split2}")
 
 print(">> Writing data", flush=True)
 output_unintegrated.write_h5ad(par["output_unintegrated"], compression="gzip")
-output_unintegrated_censored.write_h5ad(par["output_unintegrated_censored"], compression="gzip")
-output_validation.write_h5ad(par["output_validation"], compression="gzip")
+output_censored_split1.write_h5ad(par["output_censored_split1"], compression="gzip")
+output_censored_split2.write_h5ad(par["output_censored_split2"], compression="gzip")
 VIASHMAIN
 python -B "\$tempscript" &
 wait "\$!"
@@ -1188,14 +1197,14 @@ if [[ "$VIASH_ENGINE_TYPE" == "docker" ]]; then
   if [ ! -z "$VIASH_PAR_INPUT" ]; then
     VIASH_PAR_INPUT=$(ViashDockerStripAutomount "$VIASH_PAR_INPUT")
   fi
-  if [ ! -z "$VIASH_PAR_OUTPUT_UNINTEGRATED_CENSORED" ]; then
-    VIASH_PAR_OUTPUT_UNINTEGRATED_CENSORED=$(ViashDockerStripAutomount "$VIASH_PAR_OUTPUT_UNINTEGRATED_CENSORED")
+  if [ ! -z "$VIASH_PAR_OUTPUT_CENSORED_SPLIT1" ]; then
+    VIASH_PAR_OUTPUT_CENSORED_SPLIT1=$(ViashDockerStripAutomount "$VIASH_PAR_OUTPUT_CENSORED_SPLIT1")
+  fi
+  if [ ! -z "$VIASH_PAR_OUTPUT_CENSORED_SPLIT2" ]; then
+    VIASH_PAR_OUTPUT_CENSORED_SPLIT2=$(ViashDockerStripAutomount "$VIASH_PAR_OUTPUT_CENSORED_SPLIT2")
   fi
   if [ ! -z "$VIASH_PAR_OUTPUT_UNINTEGRATED" ]; then
     VIASH_PAR_OUTPUT_UNINTEGRATED=$(ViashDockerStripAutomount "$VIASH_PAR_OUTPUT_UNINTEGRATED")
-  fi
-  if [ ! -z "$VIASH_PAR_OUTPUT_VALIDATION" ]; then
-    VIASH_PAR_OUTPUT_VALIDATION=$(ViashDockerStripAutomount "$VIASH_PAR_OUTPUT_VALIDATION")
   fi
   if [ ! -z "$VIASH_META_RESOURCES_DIR" ]; then
     VIASH_META_RESOURCES_DIR=$(ViashDockerStripAutomount "$VIASH_META_RESOURCES_DIR")
@@ -1213,16 +1222,16 @@ fi
 
 
 # check whether required files exist
-if [ ! -z "$VIASH_PAR_OUTPUT_UNINTEGRATED_CENSORED" ] && [ ! -e "$VIASH_PAR_OUTPUT_UNINTEGRATED_CENSORED" ]; then
-  ViashError "Output file '$VIASH_PAR_OUTPUT_UNINTEGRATED_CENSORED' does not exist."
+if [ ! -z "$VIASH_PAR_OUTPUT_CENSORED_SPLIT1" ] && [ ! -e "$VIASH_PAR_OUTPUT_CENSORED_SPLIT1" ]; then
+  ViashError "Output file '$VIASH_PAR_OUTPUT_CENSORED_SPLIT1' does not exist."
+  exit 1
+fi
+if [ ! -z "$VIASH_PAR_OUTPUT_CENSORED_SPLIT2" ] && [ ! -e "$VIASH_PAR_OUTPUT_CENSORED_SPLIT2" ]; then
+  ViashError "Output file '$VIASH_PAR_OUTPUT_CENSORED_SPLIT2' does not exist."
   exit 1
 fi
 if [ ! -z "$VIASH_PAR_OUTPUT_UNINTEGRATED" ] && [ ! -e "$VIASH_PAR_OUTPUT_UNINTEGRATED" ]; then
   ViashError "Output file '$VIASH_PAR_OUTPUT_UNINTEGRATED' does not exist."
-  exit 1
-fi
-if [ ! -z "$VIASH_PAR_OUTPUT_VALIDATION" ] && [ ! -e "$VIASH_PAR_OUTPUT_VALIDATION" ]; then
-  ViashError "Output file '$VIASH_PAR_OUTPUT_VALIDATION' does not exist."
   exit 1
 fi
 

@@ -446,9 +446,9 @@ function ViashDockerfile {
 FROM openproblems/base_python:1
 ENTRYPOINT []
 LABEL org.opencontainers.image.description="Companion container for running component control_methods no_integration"
-LABEL org.opencontainers.image.created="2025-08-07T07:52:54Z"
+LABEL org.opencontainers.image.created="2025-08-12T07:50:53Z"
 LABEL org.opencontainers.image.source="https://github.com/openproblems-bio/task_cyto_batch_integration"
-LABEL org.opencontainers.image.revision="f90b44189d30c691910d425021cf1683bc37e2c7"
+LABEL org.opencontainers.image.revision="dbaeb0f62f1044b011c1fc2c0932ed00479f99b5"
 LABEL org.opencontainers.image.version="build_main"
 
 VIASHDOCKER
@@ -576,34 +576,18 @@ function ViashHelp {
   echo "        type: file, required parameter, file must exist"
   echo "        example:"
   echo "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/unintegrated.h5ad"
+  echo "        The complete unintegrated dataset."
+  echo "        The cells in this dataset are the same to those in the censored dataset."
   echo ""
-  echo "    --input_validation"
-  echo "        type: file, required parameter, file must exist"
-  echo "        example:"
-  echo "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/validation.h5ad"
-  echo "        Dataset containing cells from samples that were held out for evaluating"
-  echo "        batch integration output."
-  echo "        The cells that are in this dataset belong to samples which are not"
-  echo "        included in the unintegrated"
-  echo "        or unintegrated_censored datasets."
-  echo "        For example, if samples from donor A are present in batch 1 and 2, the"
-  echo "        sample from batch 1"
-  echo "        may be used as input for the batch correction algorithm (and thus"
-  echo "        present in unintegrated"
-  echo "        and unintegrated_censored datasets)."
-  echo "        The sample from batch 2, may not be included as an input for the batch"
-  echo "        correction algorithm,"
-  echo "        but is needed to validate whether whether the algorithm managed to"
-  echo "        correct the batch effect"
-  echo "        in batch 2 towards batch 1."
-  echo "        This sample will then be included in this dataset (but not in"
-  echo "        unintegrated"
-  echo "        and unintegrated_censored datasets)."
-  echo ""
-  echo "    --output"
+  echo "    --output_integrated_split1"
   echo "        type: file, required parameter, output, file must exist"
   echo "        example:"
-  echo "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/integrated.h5ad"
+  echo "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/integrated_split1.h5ad"
+  echo ""
+  echo "    --output_integrated_split2"
+  echo "        type: file, required parameter, output, file must exist"
+  echo "        example:"
+  echo "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/integrated_split2.h5ad"
   echo ""
   echo "Viash built in Computational Requirements:"
   echo "    ---cpus=INT"
@@ -666,26 +650,26 @@ while [[ $# -gt 0 ]]; do
             VIASH_PAR_INPUT_UNINTEGRATED=$(ViashRemoveFlags "$1")
             shift 1
             ;;
-        --input_validation)
-            [ -n "$VIASH_PAR_INPUT_VALIDATION" ] && ViashError Bad arguments for option \'--input_validation\': \'$VIASH_PAR_INPUT_VALIDATION\' \& \'$2\' - you should provide exactly one argument for this option. && exit 1
-            VIASH_PAR_INPUT_VALIDATION="$2"
-            [ $# -lt 2 ] && ViashError Not enough arguments passed to --input_validation. Use "--help" to get more information on the parameters. && exit 1
+        --output_integrated_split1)
+            [ -n "$VIASH_PAR_OUTPUT_INTEGRATED_SPLIT1" ] && ViashError Bad arguments for option \'--output_integrated_split1\': \'$VIASH_PAR_OUTPUT_INTEGRATED_SPLIT1\' \& \'$2\' - you should provide exactly one argument for this option. && exit 1
+            VIASH_PAR_OUTPUT_INTEGRATED_SPLIT1="$2"
+            [ $# -lt 2 ] && ViashError Not enough arguments passed to --output_integrated_split1. Use "--help" to get more information on the parameters. && exit 1
             shift 2
             ;;
-        --input_validation=*)
-            [ -n "$VIASH_PAR_INPUT_VALIDATION" ] && ViashError Bad arguments for option \'--input_validation=*\': \'$VIASH_PAR_INPUT_VALIDATION\' \& \'$2\' - you should provide exactly one argument for this option. && exit 1
-            VIASH_PAR_INPUT_VALIDATION=$(ViashRemoveFlags "$1")
+        --output_integrated_split1=*)
+            [ -n "$VIASH_PAR_OUTPUT_INTEGRATED_SPLIT1" ] && ViashError Bad arguments for option \'--output_integrated_split1=*\': \'$VIASH_PAR_OUTPUT_INTEGRATED_SPLIT1\' \& \'$2\' - you should provide exactly one argument for this option. && exit 1
+            VIASH_PAR_OUTPUT_INTEGRATED_SPLIT1=$(ViashRemoveFlags "$1")
             shift 1
             ;;
-        --output)
-            [ -n "$VIASH_PAR_OUTPUT" ] && ViashError Bad arguments for option \'--output\': \'$VIASH_PAR_OUTPUT\' \& \'$2\' - you should provide exactly one argument for this option. && exit 1
-            VIASH_PAR_OUTPUT="$2"
-            [ $# -lt 2 ] && ViashError Not enough arguments passed to --output. Use "--help" to get more information on the parameters. && exit 1
+        --output_integrated_split2)
+            [ -n "$VIASH_PAR_OUTPUT_INTEGRATED_SPLIT2" ] && ViashError Bad arguments for option \'--output_integrated_split2\': \'$VIASH_PAR_OUTPUT_INTEGRATED_SPLIT2\' \& \'$2\' - you should provide exactly one argument for this option. && exit 1
+            VIASH_PAR_OUTPUT_INTEGRATED_SPLIT2="$2"
+            [ $# -lt 2 ] && ViashError Not enough arguments passed to --output_integrated_split2. Use "--help" to get more information on the parameters. && exit 1
             shift 2
             ;;
-        --output=*)
-            [ -n "$VIASH_PAR_OUTPUT" ] && ViashError Bad arguments for option \'--output=*\': \'$VIASH_PAR_OUTPUT\' \& \'$2\' - you should provide exactly one argument for this option. && exit 1
-            VIASH_PAR_OUTPUT=$(ViashRemoveFlags "$1")
+        --output_integrated_split2=*)
+            [ -n "$VIASH_PAR_OUTPUT_INTEGRATED_SPLIT2" ] && ViashError Bad arguments for option \'--output_integrated_split2=*\': \'$VIASH_PAR_OUTPUT_INTEGRATED_SPLIT2\' \& \'$2\' - you should provide exactly one argument for this option. && exit 1
+            VIASH_PAR_OUTPUT_INTEGRATED_SPLIT2=$(ViashRemoveFlags "$1")
             shift 1
             ;;
         ---engine)
@@ -862,12 +846,12 @@ if [ -z ${VIASH_PAR_INPUT_UNINTEGRATED+x} ]; then
   ViashError '--input_unintegrated' is a required argument. Use "--help" to get more information on the parameters.
   exit 1
 fi
-if [ -z ${VIASH_PAR_INPUT_VALIDATION+x} ]; then
-  ViashError '--input_validation' is a required argument. Use "--help" to get more information on the parameters.
+if [ -z ${VIASH_PAR_OUTPUT_INTEGRATED_SPLIT1+x} ]; then
+  ViashError '--output_integrated_split1' is a required argument. Use "--help" to get more information on the parameters.
   exit 1
 fi
-if [ -z ${VIASH_PAR_OUTPUT+x} ]; then
-  ViashError '--output' is a required argument. Use "--help" to get more information on the parameters.
+if [ -z ${VIASH_PAR_OUTPUT_INTEGRATED_SPLIT2+x} ]; then
+  ViashError '--output_integrated_split2' is a required argument. Use "--help" to get more information on the parameters.
   exit 1
 fi
 if [ -z ${VIASH_META_NAME+x} ]; then
@@ -898,10 +882,6 @@ fi
 # check whether required files exist
 if [ ! -z "$VIASH_PAR_INPUT_UNINTEGRATED" ] && [ ! -e "$VIASH_PAR_INPUT_UNINTEGRATED" ]; then
   ViashError "Input file '$VIASH_PAR_INPUT_UNINTEGRATED' does not exist."
-  exit 1
-fi
-if [ ! -z "$VIASH_PAR_INPUT_VALIDATION" ] && [ ! -e "$VIASH_PAR_INPUT_VALIDATION" ]; then
-  ViashError "Input file '$VIASH_PAR_INPUT_VALIDATION' does not exist."
   exit 1
 fi
 
@@ -980,8 +960,11 @@ if [[ -n "$VIASH_META_MEMORY_PIB" ]]; then
 fi
 
 # create parent directories of output files, if so desired
-if [ ! -z "$VIASH_PAR_OUTPUT" ] && [ ! -d "$(dirname "$VIASH_PAR_OUTPUT")" ]; then
-  mkdir -p "$(dirname "$VIASH_PAR_OUTPUT")"
+if [ ! -z "$VIASH_PAR_OUTPUT_INTEGRATED_SPLIT1" ] && [ ! -d "$(dirname "$VIASH_PAR_OUTPUT_INTEGRATED_SPLIT1")" ]; then
+  mkdir -p "$(dirname "$VIASH_PAR_OUTPUT_INTEGRATED_SPLIT1")"
+fi
+if [ ! -z "$VIASH_PAR_OUTPUT_INTEGRATED_SPLIT2" ] && [ ! -d "$(dirname "$VIASH_PAR_OUTPUT_INTEGRATED_SPLIT2")" ]; then
+  mkdir -p "$(dirname "$VIASH_PAR_OUTPUT_INTEGRATED_SPLIT2")"
 fi
 
 if [[ "$VIASH_ENGINE_TYPE" == "docker" ]]; then
@@ -991,14 +974,15 @@ if [ ! -z "$VIASH_PAR_INPUT_UNINTEGRATED" ]; then
   VIASH_DIRECTORY_MOUNTS+=( "$(ViashDockerAutodetectMountArg "$VIASH_PAR_INPUT_UNINTEGRATED")" )
   VIASH_PAR_INPUT_UNINTEGRATED=$(ViashDockerAutodetectMount "$VIASH_PAR_INPUT_UNINTEGRATED")
 fi
-if [ ! -z "$VIASH_PAR_INPUT_VALIDATION" ]; then
-  VIASH_DIRECTORY_MOUNTS+=( "$(ViashDockerAutodetectMountArg "$VIASH_PAR_INPUT_VALIDATION")" )
-  VIASH_PAR_INPUT_VALIDATION=$(ViashDockerAutodetectMount "$VIASH_PAR_INPUT_VALIDATION")
+if [ ! -z "$VIASH_PAR_OUTPUT_INTEGRATED_SPLIT1" ]; then
+  VIASH_DIRECTORY_MOUNTS+=( "$(ViashDockerAutodetectMountArg "$VIASH_PAR_OUTPUT_INTEGRATED_SPLIT1")" )
+  VIASH_PAR_OUTPUT_INTEGRATED_SPLIT1=$(ViashDockerAutodetectMount "$VIASH_PAR_OUTPUT_INTEGRATED_SPLIT1")
+  VIASH_CHOWN_VARS+=( "$VIASH_PAR_OUTPUT_INTEGRATED_SPLIT1" )
 fi
-if [ ! -z "$VIASH_PAR_OUTPUT" ]; then
-  VIASH_DIRECTORY_MOUNTS+=( "$(ViashDockerAutodetectMountArg "$VIASH_PAR_OUTPUT")" )
-  VIASH_PAR_OUTPUT=$(ViashDockerAutodetectMount "$VIASH_PAR_OUTPUT")
-  VIASH_CHOWN_VARS+=( "$VIASH_PAR_OUTPUT" )
+if [ ! -z "$VIASH_PAR_OUTPUT_INTEGRATED_SPLIT2" ]; then
+  VIASH_DIRECTORY_MOUNTS+=( "$(ViashDockerAutodetectMountArg "$VIASH_PAR_OUTPUT_INTEGRATED_SPLIT2")" )
+  VIASH_PAR_OUTPUT_INTEGRATED_SPLIT2=$(ViashDockerAutodetectMount "$VIASH_PAR_OUTPUT_INTEGRATED_SPLIT2")
+  VIASH_CHOWN_VARS+=( "$VIASH_PAR_OUTPUT_INTEGRATED_SPLIT2" )
 fi
 if [ ! -z "$VIASH_META_RESOURCES_DIR" ]; then
   VIASH_DIRECTORY_MOUNTS+=( "$(ViashDockerAutodetectMountArg "$VIASH_META_RESOURCES_DIR")" )
@@ -1073,8 +1057,8 @@ import anndata as ad
 # The following code has been auto-generated by Viash.
 par = {
   'input_unintegrated': $( if [ ! -z ${VIASH_PAR_INPUT_UNINTEGRATED+x} ]; then echo "r'${VIASH_PAR_INPUT_UNINTEGRATED//\'/\'\"\'\"r\'}'"; else echo None; fi ),
-  'input_validation': $( if [ ! -z ${VIASH_PAR_INPUT_VALIDATION+x} ]; then echo "r'${VIASH_PAR_INPUT_VALIDATION//\'/\'\"\'\"r\'}'"; else echo None; fi ),
-  'output': $( if [ ! -z ${VIASH_PAR_OUTPUT+x} ]; then echo "r'${VIASH_PAR_OUTPUT//\'/\'\"\'\"r\'}'"; else echo None; fi )
+  'output_integrated_split1': $( if [ ! -z ${VIASH_PAR_OUTPUT_INTEGRATED_SPLIT1+x} ]; then echo "r'${VIASH_PAR_OUTPUT_INTEGRATED_SPLIT1//\'/\'\"\'\"r\'}'"; else echo None; fi ),
+  'output_integrated_split2': $( if [ ! -z ${VIASH_PAR_OUTPUT_INTEGRATED_SPLIT2+x} ]; then echo "r'${VIASH_PAR_OUTPUT_INTEGRATED_SPLIT2//\'/\'\"\'\"r\'}'"; else echo None; fi )
 }
 meta = {
   'name': $( if [ ! -z ${VIASH_META_NAME+x} ]; then echo "r'${VIASH_META_NAME//\'/\'\"\'\"r\'}'"; else echo None; fi ),
@@ -1105,14 +1089,31 @@ dep = {
 print("Reading input files", flush=True)
 adata = ad.read_h5ad(par["input_unintegrated"])
 
-print("Extracting unintegrated data", flush=True)
-integrated = adata.layers["preprocessed"]
+print("Extracting and splitting unintegrated data", flush=True)
+# split 1
+adata_split1 = adata[(adata.obs.is_control > 0) | (adata.obs.split == 1)]
+integrated_split1 = adata_split1.layers["preprocessed"]
+# split 2
+adata_split2 = adata[(adata.obs.is_control > 0) | (adata.obs.split == 2)]
+integrated_split2 = adata_split2.layers["preprocessed"]
 
-print("Write output AnnData to file", flush=True)
-output = ad.AnnData(
-    obs=adata.obs[[]],
-    var=adata.var[[]],
-    layers={"integrated": integrated},
+print("Write output AnnData to files", flush=True)
+# split 1
+output_split1 = ad.AnnData(
+    obs=adata_split1.obs[[]],
+    var=adata_split1.var[[]],
+    layers={"integrated": integrated_split1},
+    uns={
+        "dataset_id": adata.uns["dataset_id"],
+        "method_id": meta["name"],
+        "parameters": {},
+    },
+)
+# split 2
+output_split2 = ad.AnnData(
+    obs=adata_split2.obs[[]],
+    var=adata_split2.var[[]],
+    layers={"integrated": integrated_split2},
     uns={
         "dataset_id": adata.uns["dataset_id"],
         "method_id": meta["name"],
@@ -1120,7 +1121,8 @@ output = ad.AnnData(
     },
 )
 
-output.write_h5ad(par["output"], compression="gzip")
+output_split1.write_h5ad(par["output_integrated_split1"], compression="gzip")
+output_split2.write_h5ad(par["output_integrated_split2"], compression="gzip")
 VIASHMAIN
 python -B "\$tempscript" &
 wait "\$!"
@@ -1134,11 +1136,11 @@ if [[ "$VIASH_ENGINE_TYPE" == "docker" ]]; then
   if [ ! -z "$VIASH_PAR_INPUT_UNINTEGRATED" ]; then
     VIASH_PAR_INPUT_UNINTEGRATED=$(ViashDockerStripAutomount "$VIASH_PAR_INPUT_UNINTEGRATED")
   fi
-  if [ ! -z "$VIASH_PAR_INPUT_VALIDATION" ]; then
-    VIASH_PAR_INPUT_VALIDATION=$(ViashDockerStripAutomount "$VIASH_PAR_INPUT_VALIDATION")
+  if [ ! -z "$VIASH_PAR_OUTPUT_INTEGRATED_SPLIT1" ]; then
+    VIASH_PAR_OUTPUT_INTEGRATED_SPLIT1=$(ViashDockerStripAutomount "$VIASH_PAR_OUTPUT_INTEGRATED_SPLIT1")
   fi
-  if [ ! -z "$VIASH_PAR_OUTPUT" ]; then
-    VIASH_PAR_OUTPUT=$(ViashDockerStripAutomount "$VIASH_PAR_OUTPUT")
+  if [ ! -z "$VIASH_PAR_OUTPUT_INTEGRATED_SPLIT2" ]; then
+    VIASH_PAR_OUTPUT_INTEGRATED_SPLIT2=$(ViashDockerStripAutomount "$VIASH_PAR_OUTPUT_INTEGRATED_SPLIT2")
   fi
   if [ ! -z "$VIASH_META_RESOURCES_DIR" ]; then
     VIASH_META_RESOURCES_DIR=$(ViashDockerStripAutomount "$VIASH_META_RESOURCES_DIR")
@@ -1156,8 +1158,12 @@ fi
 
 
 # check whether required files exist
-if [ ! -z "$VIASH_PAR_OUTPUT" ] && [ ! -e "$VIASH_PAR_OUTPUT" ]; then
-  ViashError "Output file '$VIASH_PAR_OUTPUT' does not exist."
+if [ ! -z "$VIASH_PAR_OUTPUT_INTEGRATED_SPLIT1" ] && [ ! -e "$VIASH_PAR_OUTPUT_INTEGRATED_SPLIT1" ]; then
+  ViashError "Output file '$VIASH_PAR_OUTPUT_INTEGRATED_SPLIT1' does not exist."
+  exit 1
+fi
+if [ ! -z "$VIASH_PAR_OUTPUT_INTEGRATED_SPLIT2" ] && [ ! -e "$VIASH_PAR_OUTPUT_INTEGRATED_SPLIT2" ]; then
+  ViashError "Output file '$VIASH_PAR_OUTPUT_INTEGRATED_SPLIT2' does not exist."
   exit 1
 fi
 

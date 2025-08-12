@@ -3087,13 +3087,13 @@ meta = [
                 {
                   "type" : "integer",
                   "name" : "is_control",
-                  "description" : "Whether the sample the cell came from can be used as a control for batch \neffect correction.\n0: cannot be used as a control.\n>= 1: can be used as a control.\nFor cells with >= 1: cells with the same value come from the same donor.\nDifferent values indicate different donors.\n",
+                  "description" : "Whether the sample the cell came from can be used as a control for batch \neffect correction.\n\n* 0: cannot be used as a control.\n* >= 1: can be used as a control.\n* For cells with >= 1: cells with the same value come from the same donor.\n\nDifferent values indicate different donors.\n",
                   "required" : true
                 },
                 {
-                  "type" : "boolean",
-                  "name" : "is_validation",
-                  "description" : "Whether the cell will be used as validation data or not.\nIf FALSE, then the cell will only be included in unintegrated and unintegrated_censored.\nIf TRUE, then the cell will only be included in validation.\n",
+                  "type" : "integer",
+                  "name" : "split",
+                  "description" : "Which split the cell will be used in.\n\n* 0: control samples\n* 1: split 1\n* 2: split 2\n",
                   "required" : true
                 }
               ],
@@ -3171,6 +3171,12 @@ meta = [
                   "type" : "string",
                   "description" : "The organism of the sample in the dataset.",
                   "required" : false
+                },
+                {
+                  "name" : "goal_batch",
+                  "type" : "integer",
+                  "description" : "Parameter to set the reference batch to which the batch aligment is performed. Only useful for tools that perform the batch integration \\"towards a goal batch\\"",
+                  "required" : true
                 },
                 {
                   "name" : "parameter_som_xdim",
@@ -3210,133 +3216,10 @@ meta = [
       "arguments" : [
         {
           "type" : "file",
-          "name" : "--output_unintegrated_censored",
-          "label" : "Unintegrated Censored",
-          "summary" : "An unintegrated dataset with certain columns (cells metadata), such as the donor information, hidden.\nThese columns are intentionally hidden to prevent bias.\nThe batch correction algorithm should not have to rely on these information \nto properly integrate different batches.\nThis dataset is used as the input for the batch correction algorithm. \nThe cells therein are identical to those in the unintegrated dataset.\n",
-          "info" : {
-            "format" : {
-              "type" : "h5ad",
-              "layers" : [
-                {
-                  "type" : "double",
-                  "name" : "preprocessed",
-                  "description" : "preprocessed data, e.g. already compensated, transformed and debris/doublets removed",
-                  "required" : true
-                }
-              ],
-              "obs" : [
-                {
-                  "type" : "string",
-                  "name" : "batch",
-                  "description" : "Batch information",
-                  "required" : true
-                },
-                {
-                  "type" : "string",
-                  "name" : "sample",
-                  "description" : "Sample ID",
-                  "required" : true
-                },
-                {
-                  "type" : "integer",
-                  "name" : "is_control",
-                  "description" : "Whether the sample the cell came from can be used as a control for batch \neffect correction.\n0: cannot be used as a control.\n>= 1: can be used as a control.\nFor cells with >= 1: cells with the same value come from the same donor.\nDifferent values indicate different donors.\n",
-                  "required" : true
-                }
-              ],
-              "var" : [
-                {
-                  "type" : "integer",
-                  "name" : "numeric_id",
-                  "description" : "Numeric ID associated with each marker",
-                  "required" : true
-                },
-                {
-                  "type" : "string",
-                  "name" : "channel",
-                  "description" : "The channel / detector of the instrument",
-                  "required" : true
-                },
-                {
-                  "type" : "string",
-                  "name" : "marker",
-                  "description" : "The marker name associated with the channel",
-                  "required" : false
-                },
-                {
-                  "type" : "string",
-                  "name" : "marker_type",
-                  "description" : "Whether the marker is a functional or lineage marker",
-                  "required" : true
-                },
-                {
-                  "type" : "boolean",
-                  "name" : "to_correct",
-                  "description" : "Whether the marker will be batch corrected",
-                  "required" : true
-                }
-              ],
-              "uns" : [
-                {
-                  "type" : "string",
-                  "name" : "dataset_id",
-                  "description" : "A unique identifier for the dataset",
-                  "required" : true
-                },
-                {
-                  "name" : "dataset_name",
-                  "type" : "string",
-                  "description" : "Nicely formatted name.",
-                  "required" : true
-                },
-                {
-                  "type" : "string",
-                  "name" : "dataset_url",
-                  "description" : "Link to the original source of the dataset.",
-                  "required" : false
-                },
-                {
-                  "name" : "dataset_reference",
-                  "type" : "string",
-                  "description" : "Bibtex reference of the paper in which the dataset was published.",
-                  "required" : false
-                },
-                {
-                  "name" : "dataset_summary",
-                  "type" : "string",
-                  "description" : "Short description of the dataset.",
-                  "required" : true
-                },
-                {
-                  "name" : "dataset_description",
-                  "type" : "string",
-                  "description" : "Long description of the dataset.",
-                  "required" : true
-                },
-                {
-                  "name" : "dataset_organism",
-                  "type" : "string",
-                  "description" : "The organism of the sample in the dataset.",
-                  "required" : false
-                }
-              ]
-            }
-          },
-          "example" : [
-            "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/unintegrated_censored.h5ad"
-          ],
-          "must_exist" : true,
-          "create_parent" : true,
-          "required" : true,
-          "direction" : "output",
-          "multiple" : false,
-          "multiple_sep" : ";"
-        },
-        {
-          "type" : "file",
           "name" : "--output_unintegrated",
           "label" : "Unintegrated",
-          "summary" : "The complete unintegrated dataset, including all cells' metadata (columns) from the \nunintegrated_censored dataset. \nThe cells in this dataset are the same to those in the unintegrated_censored dataset.\n",
+          "summary" : "The complete unintegrated dataset.\n",
+          "description" : "The complete unintegrated dataset.\nThe cells in this dataset are the same to those in the censored dataset.\n",
           "info" : {
             "format" : {
               "type" : "h5ad",
@@ -3382,7 +3265,13 @@ meta = [
                 {
                   "type" : "integer",
                   "name" : "is_control",
-                  "description" : "Whether the sample the cell came from can be used as a control for batch \neffect correction.\n0: cannot be used as a control.\n>= 1: can be used as a control.\nFor cells with >= 1: cells with the same value come from the same donor.\nDifferent values indicate different donors.\n",
+                  "description" : "Whether the sample the cell came from can be used as a control for batch \neffect correction.\n\n* 0: cannot be used as a control.\n* >= 1: can be used as a control.\n* For cells with >= 1: cells with the same value come from the same donor.\n\nDifferent values indicate different donors.\n",
+                  "required" : true
+                },
+                {
+                  "type" : "integer",
+                  "name" : "split",
+                  "description" : "Which split the cell will be used in.\n\n* 0: control samples\n* 1: split 1\n* 2: split 2\n",
                   "required" : true
                 }
               ],
@@ -3494,10 +3383,10 @@ meta = [
         },
         {
           "type" : "file",
-          "name" : "--output_validation",
-          "label" : "Validation",
-          "summary" : "Hold-out dataset for validation.",
-          "description" : "Dataset containing cells from samples that were held out for evaluating batch integration output. \nThe cells that are in this dataset belong to samples which are not included in the unintegrated \nor unintegrated_censored datasets.\nFor example, if samples from donor A are present in batch 1 and 2, the sample from batch 1\nmay be used as input for the batch correction algorithm (and thus present in unintegrated\nand unintegrated_censored datasets). \nThe sample from batch 2, may not be included as an input for the batch correction algorithm,\nbut is needed to validate whether whether the algorithm managed to correct the batch effect\nin batch 2 towards batch 1.\nThis sample will then be included in this dataset (but not in unintegrated\nand unintegrated_censored datasets).\n",
+          "name" : "--output_censored_split1",
+          "label" : "Censored (split 1)",
+          "summary" : "An unintegrated dataset with certain columns (cells metadata), such as the donor information, hidden.\nThese columns are intentionally hidden to prevent bias.\n",
+          "description" : "An unintegrated dataset with certain columns (cells metadata), such as the donor information, hidden.\nThese columns are intentionally hidden to prevent bias.\nThe batch correction algorithm should not have to rely on these information \nto properly integrate different batches.\nThis dataset is used as the input for the batch correction algorithm. \nThe cells therein are identical to those in the unintegrated dataset.\n",
           "info" : {
             "format" : {
               "type" : "h5ad",
@@ -3512,12 +3401,6 @@ meta = [
               "obs" : [
                 {
                   "type" : "string",
-                  "name" : "cell_type",
-                  "description" : "Cell type information",
-                  "required" : true
-                },
-                {
-                  "type" : "string",
                   "name" : "batch",
                   "description" : "Batch information",
                   "required" : true
@@ -3529,21 +3412,9 @@ meta = [
                   "required" : true
                 },
                 {
-                  "type" : "string",
-                  "name" : "donor",
-                  "description" : "Donor ID",
-                  "required" : true
-                },
-                {
-                  "type" : "string",
-                  "name" : "group",
-                  "description" : "Biological group of the donor",
-                  "required" : true
-                },
-                {
                   "type" : "integer",
                   "name" : "is_control",
-                  "description" : "Whether the sample the cell came from can be used as a control for batch \neffect correction.\n0: cannot be used as a control.\n>= 1: can be used as a control.\nFor cells with >= 1: cells with the same value come from the same donor.\nDifferent values indicate different donors.\n",
+                  "description" : "Whether the sample the cell came from can be used as a control for batch \neffect correction.\n\n* 0: cannot be used as a control.\n* >= 1: can be used as a control.\n* For cells with >= 1: cells with the same value come from the same donor.\n\nDifferent values indicate different donors.\n",
                   "required" : true
                 }
               ],
@@ -3621,30 +3492,137 @@ meta = [
                   "type" : "string",
                   "description" : "The organism of the sample in the dataset.",
                   "required" : false
-                },
-                {
-                  "name" : "parameter_som_xdim",
-                  "type" : "integer",
-                  "description" : "Parameter used to define the width of the self-organizing map (SOM) grid. Usually between 10 and 20.",
-                  "required" : true
-                },
-                {
-                  "name" : "parameter_som_ydim",
-                  "type" : "integer",
-                  "description" : "Parameter used to define the height of the self-organizing map (SOM) grid. Usually between 10 and 20.",
-                  "required" : true
-                },
-                {
-                  "name" : "parameter_num_clusters",
-                  "type" : "integer",
-                  "description" : "Parameter used to define the number of clusters. Set this number to be slightly higher than the number of cell types expected in the dataset.",
-                  "required" : true
                 }
               ]
             }
           },
           "example" : [
-            "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/validation.h5ad"
+            "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/censored_split1.h5ad"
+          ],
+          "must_exist" : true,
+          "create_parent" : true,
+          "required" : true,
+          "direction" : "output",
+          "multiple" : false,
+          "multiple_sep" : ";"
+        },
+        {
+          "type" : "file",
+          "name" : "--output_censored_split2",
+          "label" : "Censored (split 2)",
+          "summary" : "An unintegrated dataset with certain columns (cells metadata), such as the donor information, hidden.\nThese columns are intentionally hidden to prevent bias.\n",
+          "description" : "An unintegrated dataset with certain columns (cells metadata), such as the donor information, hidden.\nThese columns are intentionally hidden to prevent bias.\nThe batch correction algorithm should not have to rely on these information \nto properly integrate different batches.\nThis dataset is used as the input for the batch correction algorithm. \nThe cells therein are identical to those in the unintegrated dataset.\n",
+          "info" : {
+            "format" : {
+              "type" : "h5ad",
+              "layers" : [
+                {
+                  "type" : "double",
+                  "name" : "preprocessed",
+                  "description" : "preprocessed data, e.g. already compensated, transformed and debris/doublets removed",
+                  "required" : true
+                }
+              ],
+              "obs" : [
+                {
+                  "type" : "string",
+                  "name" : "batch",
+                  "description" : "Batch information",
+                  "required" : true
+                },
+                {
+                  "type" : "string",
+                  "name" : "sample",
+                  "description" : "Sample ID",
+                  "required" : true
+                },
+                {
+                  "type" : "integer",
+                  "name" : "is_control",
+                  "description" : "Whether the sample the cell came from can be used as a control for batch \neffect correction.\n\n* 0: cannot be used as a control.\n* >= 1: can be used as a control.\n* For cells with >= 1: cells with the same value come from the same donor.\n\nDifferent values indicate different donors.\n",
+                  "required" : true
+                }
+              ],
+              "var" : [
+                {
+                  "type" : "integer",
+                  "name" : "numeric_id",
+                  "description" : "Numeric ID associated with each marker",
+                  "required" : true
+                },
+                {
+                  "type" : "string",
+                  "name" : "channel",
+                  "description" : "The channel / detector of the instrument",
+                  "required" : true
+                },
+                {
+                  "type" : "string",
+                  "name" : "marker",
+                  "description" : "The marker name associated with the channel",
+                  "required" : false
+                },
+                {
+                  "type" : "string",
+                  "name" : "marker_type",
+                  "description" : "Whether the marker is a functional or lineage marker",
+                  "required" : true
+                },
+                {
+                  "type" : "boolean",
+                  "name" : "to_correct",
+                  "description" : "Whether the marker will be batch corrected",
+                  "required" : true
+                }
+              ],
+              "uns" : [
+                {
+                  "type" : "string",
+                  "name" : "dataset_id",
+                  "description" : "A unique identifier for the dataset",
+                  "required" : true
+                },
+                {
+                  "name" : "dataset_name",
+                  "type" : "string",
+                  "description" : "Nicely formatted name.",
+                  "required" : true
+                },
+                {
+                  "type" : "string",
+                  "name" : "dataset_url",
+                  "description" : "Link to the original source of the dataset.",
+                  "required" : false
+                },
+                {
+                  "name" : "dataset_reference",
+                  "type" : "string",
+                  "description" : "Bibtex reference of the paper in which the dataset was published.",
+                  "required" : false
+                },
+                {
+                  "name" : "dataset_summary",
+                  "type" : "string",
+                  "description" : "Short description of the dataset.",
+                  "required" : true
+                },
+                {
+                  "name" : "dataset_description",
+                  "type" : "string",
+                  "description" : "Long description of the dataset.",
+                  "required" : true
+                },
+                {
+                  "name" : "dataset_organism",
+                  "type" : "string",
+                  "description" : "The organism of the sample in the dataset.",
+                  "required" : false
+                }
+              ]
+            }
+          },
+          "example" : [
+            "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/censored_split2.h5ad"
           ],
           "must_exist" : true,
           "create_parent" : true,
@@ -3745,7 +3723,7 @@ meta = [
     "engine" : "native",
     "output" : "target/nextflow/workflows/process_datasets",
     "viash_version" : "0.9.4",
-    "git_commit" : "f90b44189d30c691910d425021cf1683bc37e2c7",
+    "git_commit" : "dbaeb0f62f1044b011c1fc2c0932ed00479f99b5",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3895,17 +3873,17 @@ workflow run_wf {
     | process_dataset.run(
       fromState: [ input: "dataset" ],
       toState: [
-        output_unintegrated_censored: "output_unintegrated_censored",
         output_unintegrated: "output_unintegrated",
-        output_validation: "output_validation"
+        output_censored_split1: "output_censored_split1",
+        output_censored_split2: "output_censored_split2"
       ]
     )
 
     // only output the files for which an output file was specified
     | setState([
-      "output_unintegrated_censored",
       "output_unintegrated",
-      "output_validation"
+      "output_censored_split1",
+      "output_censored_split2"
     ])
 
   emit:

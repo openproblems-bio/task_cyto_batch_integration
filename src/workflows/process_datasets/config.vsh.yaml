@@ -10,16 +10,16 @@ argument_groups:
         required: true
   - name: Outputs
     arguments:
-      - name: "--output_unintegrated_censored"
-        __merge__: /src/api/file_unintegrated_censored.yaml
-        direction: output
-        required: true
       - name: "--output_unintegrated"
         __merge__: /src/api/file_unintegrated.yaml
         direction: output
         required: true
-      - name: "--output_validation"
-        __merge__: /src/api/file_validation.yaml
+      - name: "--output_censored_split1"
+        __merge__: /src/api/file_censored_split1.yaml
+        direction: output
+        required: true
+      - name: "--output_censored_split2"
+        __merge__: /src/api/file_censored_split2.yaml
         direction: output
         required: true
 

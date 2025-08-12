@@ -3039,170 +3039,10 @@ meta = [
       "arguments" : [
         {
           "type" : "file",
-          "name" : "--input_validation",
-          "label" : "Validation",
-          "summary" : "Hold-out dataset for validation.",
-          "description" : "Dataset containing cells from samples that were held out for evaluating batch integration output. \nThe cells that are in this dataset belong to samples which are not included in the unintegrated \nor unintegrated_censored datasets.\nFor example, if samples from donor A are present in batch 1 and 2, the sample from batch 1\nmay be used as input for the batch correction algorithm (and thus present in unintegrated\nand unintegrated_censored datasets). \nThe sample from batch 2, may not be included as an input for the batch correction algorithm,\nbut is needed to validate whether whether the algorithm managed to correct the batch effect\nin batch 2 towards batch 1.\nThis sample will then be included in this dataset (but not in unintegrated\nand unintegrated_censored datasets).\n",
-          "info" : {
-            "format" : {
-              "type" : "h5ad",
-              "layers" : [
-                {
-                  "type" : "double",
-                  "name" : "preprocessed",
-                  "description" : "preprocessed data, e.g. already compensated, transformed and debris/doublets removed",
-                  "required" : true
-                }
-              ],
-              "obs" : [
-                {
-                  "type" : "string",
-                  "name" : "cell_type",
-                  "description" : "Cell type information",
-                  "required" : true
-                },
-                {
-                  "type" : "string",
-                  "name" : "batch",
-                  "description" : "Batch information",
-                  "required" : true
-                },
-                {
-                  "type" : "string",
-                  "name" : "sample",
-                  "description" : "Sample ID",
-                  "required" : true
-                },
-                {
-                  "type" : "string",
-                  "name" : "donor",
-                  "description" : "Donor ID",
-                  "required" : true
-                },
-                {
-                  "type" : "string",
-                  "name" : "group",
-                  "description" : "Biological group of the donor",
-                  "required" : true
-                },
-                {
-                  "type" : "integer",
-                  "name" : "is_control",
-                  "description" : "Whether the sample the cell came from can be used as a control for batch \neffect correction.\n0: cannot be used as a control.\n>= 1: can be used as a control.\nFor cells with >= 1: cells with the same value come from the same donor.\nDifferent values indicate different donors.\n",
-                  "required" : true
-                }
-              ],
-              "var" : [
-                {
-                  "type" : "integer",
-                  "name" : "numeric_id",
-                  "description" : "Numeric ID associated with each marker",
-                  "required" : true
-                },
-                {
-                  "type" : "string",
-                  "name" : "channel",
-                  "description" : "The channel / detector of the instrument",
-                  "required" : true
-                },
-                {
-                  "type" : "string",
-                  "name" : "marker",
-                  "description" : "The marker name associated with the channel",
-                  "required" : false
-                },
-                {
-                  "type" : "string",
-                  "name" : "marker_type",
-                  "description" : "Whether the marker is a functional or lineage marker",
-                  "required" : true
-                },
-                {
-                  "type" : "boolean",
-                  "name" : "to_correct",
-                  "description" : "Whether the marker will be batch corrected",
-                  "required" : true
-                }
-              ],
-              "uns" : [
-                {
-                  "type" : "string",
-                  "name" : "dataset_id",
-                  "description" : "A unique identifier for the dataset",
-                  "required" : true
-                },
-                {
-                  "name" : "dataset_name",
-                  "type" : "string",
-                  "description" : "Nicely formatted name.",
-                  "required" : true
-                },
-                {
-                  "type" : "string",
-                  "name" : "dataset_url",
-                  "description" : "Link to the original source of the dataset.",
-                  "required" : false
-                },
-                {
-                  "name" : "dataset_reference",
-                  "type" : "string",
-                  "description" : "Bibtex reference of the paper in which the dataset was published.",
-                  "required" : false
-                },
-                {
-                  "name" : "dataset_summary",
-                  "type" : "string",
-                  "description" : "Short description of the dataset.",
-                  "required" : true
-                },
-                {
-                  "name" : "dataset_description",
-                  "type" : "string",
-                  "description" : "Long description of the dataset.",
-                  "required" : true
-                },
-                {
-                  "name" : "dataset_organism",
-                  "type" : "string",
-                  "description" : "The organism of the sample in the dataset.",
-                  "required" : false
-                },
-                {
-                  "name" : "parameter_som_xdim",
-                  "type" : "integer",
-                  "description" : "Parameter used to define the width of the self-organizing map (SOM) grid. Usually between 10 and 20.",
-                  "required" : true
-                },
-                {
-                  "name" : "parameter_som_ydim",
-                  "type" : "integer",
-                  "description" : "Parameter used to define the height of the self-organizing map (SOM) grid. Usually between 10 and 20.",
-                  "required" : true
-                },
-                {
-                  "name" : "parameter_num_clusters",
-                  "type" : "integer",
-                  "description" : "Parameter used to define the number of clusters. Set this number to be slightly higher than the number of cell types expected in the dataset.",
-                  "required" : true
-                }
-              ]
-            }
-          },
-          "example" : [
-            "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/validation.h5ad"
-          ],
-          "must_exist" : true,
-          "create_parent" : true,
-          "required" : true,
-          "direction" : "input",
-          "multiple" : false,
-          "multiple_sep" : ";"
-        },
-        {
-          "type" : "file",
           "name" : "--input_unintegrated",
           "label" : "Unintegrated",
-          "summary" : "The complete unintegrated dataset, including all cells' metadata (columns) from the \nunintegrated_censored dataset. \nThe cells in this dataset are the same to those in the unintegrated_censored dataset.\n",
+          "summary" : "The complete unintegrated dataset.\n",
+          "description" : "The complete unintegrated dataset.\nThe cells in this dataset are the same to those in the censored dataset.\n",
           "info" : {
             "format" : {
               "type" : "h5ad",
@@ -3248,7 +3088,13 @@ meta = [
                 {
                   "type" : "integer",
                   "name" : "is_control",
-                  "description" : "Whether the sample the cell came from can be used as a control for batch \neffect correction.\n0: cannot be used as a control.\n>= 1: can be used as a control.\nFor cells with >= 1: cells with the same value come from the same donor.\nDifferent values indicate different donors.\n",
+                  "description" : "Whether the sample the cell came from can be used as a control for batch \neffect correction.\n\n* 0: cannot be used as a control.\n* >= 1: can be used as a control.\n* For cells with >= 1: cells with the same value come from the same donor.\n\nDifferent values indicate different donors.\n",
+                  "required" : true
+                },
+                {
+                  "type" : "integer",
+                  "name" : "split",
+                  "description" : "Which split the cell will be used in.\n\n* 0: control samples\n* 1: split 1\n* 2: split 2\n",
                   "required" : true
                 }
               ],
@@ -3360,8 +3206,8 @@ meta = [
         },
         {
           "type" : "file",
-          "name" : "--input_integrated",
-          "label" : "Integrated",
+          "name" : "--input_integrated_split1",
+          "label" : "Integrated (split 1)",
           "summary" : "Integrated dataset which batch effect was corrected by an algorithm",
           "info" : {
             "format" : {
@@ -3397,7 +3243,55 @@ meta = [
             }
           },
           "example" : [
-            "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/integrated.h5ad"
+            "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/integrated_split1.h5ad"
+          ],
+          "must_exist" : true,
+          "create_parent" : true,
+          "required" : true,
+          "direction" : "input",
+          "multiple" : false,
+          "multiple_sep" : ";"
+        },
+        {
+          "type" : "file",
+          "name" : "--input_integrated_split2",
+          "label" : "Integrated (split 2)",
+          "summary" : "Integrated dataset which batch effect was corrected by an algorithm",
+          "info" : {
+            "format" : {
+              "type" : "h5ad",
+              "layers" : [
+                {
+                  "type" : "double",
+                  "name" : "integrated",
+                  "description" : "The integrated data as returned by a batch correction method",
+                  "required" : true
+                }
+              ],
+              "uns" : [
+                {
+                  "type" : "string",
+                  "name" : "dataset_id",
+                  "description" : "A unique identifier for the dataset",
+                  "required" : true
+                },
+                {
+                  "type" : "string",
+                  "name" : "method_id",
+                  "description" : "A unique identifier for the method",
+                  "required" : true
+                },
+                {
+                  "type" : "object",
+                  "name" : "parameters",
+                  "description" : "The parameters used for the integration",
+                  "required" : false
+                }
+              ]
+            }
+          },
+          "example" : [
+            "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/integrated_split2.h5ad"
           ],
           "must_exist" : true,
           "create_parent" : true,
@@ -3494,8 +3388,8 @@ meta = [
       {
         "name" : "average_batch_r2_global",
         "label" : "Average Batch R-squared Global",
-        "summary" : "The average batch R-squared quantifies, on average, how strongly the batch variable B explains the variance in the data.",
-        "description" : "First, a simple linear model `sklearn.linear_model.LinearRegression` is fitted for each paired sample and marker to determine the fraction of variance (R^2) explained by the batch covariate B. |\nThe average batch R_squared is then computed as the average of the $R^2$ values across all paired samples, markers. |\nAs a result, $\\\\overline{R^2_B}_{global}$ quantifies how much of the total variability in the data is driven by batch effects. Consequently, lower values are desirable. |\n\n$\\\\overline{R^2_B}_{global} = \\\\frac{1}{N*M}\\\\sum_{\\\\substack{(x_{\\\\mathrm{int}},\\\\,x_{\\\\mathrm{val}})\\\\\\\\ \\\\text{paired samples}}}^{N} \\\\sum_{i=1}^{M} \\\\,R^2\\\\!\\\\bigl(\\\\mathrm{marker}_i \\\\mid B\\\\bigr)$\n\nWhere:\n- $N$ is the number of paired samples, where x_{\\\\mathrm{int}} is the replicate that has been batch-corrected and x_{\\\\mathrm{val}} is replicate used for validation. Paired samples belong to different batches.\n- $M$ is the number of markers\n- $B$ is the batch covariate\n\nA higher value of $\\\\overline{R^2_B}_{global}$ indicates that the batch variable explains more of the variance in the data, which indicates a higher level of batch effects. |\n",
+        "summary" : "Quantifies how strongly the batch covariate explains the variance in the data among technical replicates after correction.",
+        "description" : "First, a simple linear model is fitted for each paired sample and marker to determine the fraction of variance ($R^{2}$) explained by the batch covariate $B$.\nThe average batch R-squared is then computed as the average of the $R^{2}$ values across all paired samples, markers.\nAs a result, $\\\\overline{R^2_B}_{global}$ quantifies how much of the total variability in the data is driven by batch effects. Consequently, lower values are desirable.\n\n$\\\\overline{R^2_B}_{global} = \\\\frac{1}{N*M}\\\\sum_{\\\\substack{(x_{\\\\mathrm{split1}},\\\\,x_{\\\\mathrm{split2}})\\\\\\\\ \\\\textit{paired samples}}}^{N} \\\\sum_{i=1}^{M} \\\\,R^2\\\\!\\\\bigl(\\\\mathrm{marker}_i \\\\mid B\\\\bigr)$ \n\nWhere:\n* $N$ is the number of paired samples, where $x_{\\\\mathrm{split1}}$ and $x_{\\\\mathrm{split2}}$ are the two technical replicates that have been batch-corrected. Technical replicates belong to different batches.\n* $M$ is the number of markers\n* $B$ is the batch covariate\n\nA higher value of $\\\\overline{R^2_B}_{global}$ indicates that the batch variable explains more of the variance in the data, which indicates a higher level of batch effects.\n",
         "references" : {
           "bibtex" : [
             "@book{draper1998applied,\ntitle={Applied regression analysis},\nauthor={Draper, Norman R and Smith, Harry},\npublisher={John Wiley \\\\& Sons}\n}\n"
@@ -3512,8 +3406,8 @@ meta = [
       {
         "name" : "average_batch_r2_ct",
         "label" : "Average Batch R-squared Cell Type",
-        "summary" : "The average batch R-squared Cell Type quantifies, on average, how strongly the batch variable B explains the variance in the data (by taking into account cell type effect).",
-        "description" : "First, a simple linear model `sklearn.linear_model.LinearRegression` is fitted for each paired sample, marker and cell type to determine the fraction of variance (R^2) explained by the batch covariate B. |\nThe average batch R_squared is then computed as the average of the $R^2$ values across all paired samples, markers and cell types. |\nAs a result, $\\\\overline{R^2_B}_{cell\\\\ type}$ quantifies how much of the total variability in the data is driven by batch effects. Consequently, lower values are desirable. |\n\n$\\\\overline{R^2_B}_{cell\\\\ type} = \\\\frac{1}{N*C*M}\\\\sum_{\\\\substack{(x_{\\\\mathrm{int}},\\\\,x_{\\\\mathrm{val}})\\\\\\\\ \\\\text{paired samples}}}^{N} \\\\sum_{j=1}^{C} \\\\sum_{i=1}^{M}\\\\,R^2\\\\!\\\\bigl(\\\\mathrm{marker}_i \\\\mid B\\\\bigr)$\n\nWhere:\n- $N$ is the number of paired samples, where x_{\\\\mathrm{int}} is the replicate that has been batch-corrected and x_{\\\\mathrm{val}} is replicate used for validation. Paired samples belong to different batches.\n- $C$ is the number of cell types\n- $M$ is the number of markers\n- $B$ is the batch covariate\n\nThe $\\\\overline{Rˆ2_B}_{global}$ is a variation of the latter metric, where the average is computed across paired samples and markers only, without taking into account the cell types. |\n\nA higher value of $\\\\overline{R^2_B}_{global}$ or $\\\\overline{R^2_B}_{cell\\\\ type}$ indicates that the batch variable explains more of the variance in the data, which indicates a higher level of batch effects. |\n\nA good performance on $\\\\overline{R^2_B}_{global}$ but not on $\\\\overline{R^2_B}_{cell\\\\ type}$ might indicate that the batch effect correction is discarding cell type specific batch effects. |\n",
+        "summary" : "Quantifies how strongly the batch covariate explains the variance in the data among technical replicates after correction (by taking into account cell type effect).",
+        "description" : "First, a simple linear model is fitted for each paired sample and marker to determine the fraction of variance ($R^{2}$) explained by the batch covariate $B$.\nThe average batch R-squared is then computed as the average of the $R^{2}$ values across all paired samples, markers, cell types.\nAs a result, $\\\\overline{R^2_B}_{cell\\\\ type}$ quantifies how much of the total variability in the data is driven by batch effects. Consequently, lower values are desirable.\n\n$\\\\overline{R^2_B}_{cell\\\\ type} = \\\\frac{1}{N*C*M}\\\\sum_{\\\\substack{(x_{\\\\mathrm{split1}},\\\\,x_{\\\\mathrm{split2}})\\\\\\\\ \\\\textit{paired samples}}}^{N} \\\\sum_{j=1}^{C} \\\\sum_{i=1}^{M}\\\\,R^2\\\\!\\\\bigl(\\\\mathrm{marker}_i \\\\mid B\\\\bigr)$\n\nWhere:\n\n* $N$ is the number of paired samples, where $x_{\\\\mathrm{split1}}$ and $x_{\\\\mathrm{split2}}$ are the two technical replicates that have been batch-corrected. Technical replicates belong to different batches.\n* $M$ is the number of markers\n* $C$ is the number of cell types\n* $B$ is the batch covariate\n\n\nA high value of $\\\\overline{R^2_B}_{global}$ or $\\\\overline{R^2_B}_{cell\\\\ type}$ indicates that the batch variable explains a large portion of the variance in the data, which indicates a higher level of batch effects.\nA good performance on $\\\\overline{R^2_B}_{global}$ but not on $\\\\overline{R^2_B}_{cell\\\\ type}$ might indicate that the batch effect correction is not addressing cell type specific batch effects.\n",
         "references" : {
           "bibtex" : [
             "@book{draper1998applied,\ntitle={Applied regression analysis},\nauthor={Draper, Norman R and Smith, Harry},\npublisher={John Wiley \\\\& Sons}\n}\n"
@@ -3608,7 +3502,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/metrics/average_batch_r2",
     "viash_version" : "0.9.4",
-    "git_commit" : "f90b44189d30c691910d425021cf1683bc37e2c7",
+    "git_commit" : "dbaeb0f62f1044b011c1fc2c0932ed00479f99b5",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3725,9 +3619,9 @@ import numpy as np
 ## VIASH START
 # The following code has been auto-generated by Viash.
 par = {
-  'input_validation': $( if [ ! -z ${VIASH_PAR_INPUT_VALIDATION+x} ]; then echo "r'${VIASH_PAR_INPUT_VALIDATION//\\'/\\'\\"\\'\\"r\\'}'"; else echo None; fi ),
   'input_unintegrated': $( if [ ! -z ${VIASH_PAR_INPUT_UNINTEGRATED+x} ]; then echo "r'${VIASH_PAR_INPUT_UNINTEGRATED//\\'/\\'\\"\\'\\"r\\'}'"; else echo None; fi ),
-  'input_integrated': $( if [ ! -z ${VIASH_PAR_INPUT_INTEGRATED+x} ]; then echo "r'${VIASH_PAR_INPUT_INTEGRATED//\\'/\\'\\"\\'\\"r\\'}'"; else echo None; fi ),
+  'input_integrated_split1': $( if [ ! -z ${VIASH_PAR_INPUT_INTEGRATED_SPLIT1+x} ]; then echo "r'${VIASH_PAR_INPUT_INTEGRATED_SPLIT1//\\'/\\'\\"\\'\\"r\\'}'"; else echo None; fi ),
+  'input_integrated_split2': $( if [ ! -z ${VIASH_PAR_INPUT_INTEGRATED_SPLIT2+x} ]; then echo "r'${VIASH_PAR_INPUT_INTEGRATED_SPLIT2//\\'/\\'\\"\\'\\"r\\'}'"; else echo None; fi ),
   'output': $( if [ ! -z ${VIASH_PAR_OUTPUT+x} ]; then echo "r'${VIASH_PAR_OUTPUT//\\'/\\'\\"\\'\\"r\\'}'"; else echo None; fi )
 }
 meta = {
@@ -3766,75 +3660,73 @@ from helper_functions import (
 )
 
 print("Reading input files", flush=True)
-input_validation = ad.read_h5ad(par["input_validation"])
-input_unintegrated = ad.read_h5ad(par["input_unintegrated"])
-input_integrated = ad.read_h5ad(par["input_integrated"])
+integrated_s1 = ad.read_h5ad(par["input_integrated_split1"])
+integrated_s2 = ad.read_h5ad(par["input_integrated_split2"])
+unintegrated = ad.read_h5ad(par["input_unintegrated"])
 
 print("Formatting input files", flush=True)
-# Format data integrated data
-input_integrated = get_obs_var_for_integrated(
-    input_integrated, input_validation, input_unintegrated
+integrated_s1, integrated_s2 = get_obs_var_for_integrated(
+    integrated_s1, integrated_s2, unintegrated
 )
-input_integrated = subset_markers_tocorrect(input_integrated)
-input_integrated = subset_nocontrols(input_integrated)
-# Format validation data
-input_validation = subset_markers_tocorrect(input_validation)
 
-#### TEMPORARY SOLUTION: change the get_obs_var_for_integrated to return a different batch in case of perfect integration
-## adding 3 to the batch number otherwise the batch number is the same for integrated and validation data
-if "perfect_integration" in input_integrated.uns["method_id"]:
-    input_integrated.obs["batch"] = input_integrated.obs["batch"] + 3
-######################################################################################################################
+integrated_s1 = subset_nocontrols(integrated_s1)
+integrated_s1 = subset_markers_tocorrect(integrated_s1)
 
+integrated_s2 = subset_nocontrols(integrated_s2)
+integrated_s2 = subset_markers_tocorrect(integrated_s2)
+
+print(integrated_s1.obs, integrated_s2.obs, flush=True) ### Debugging line, can be removed later
 print("Computing average_batch_r2 global", flush=True)
 
-donor_list = input_validation.obs["donor"].unique()
+donor_list = integrated_s1.obs['donor'].unique()
 
 r2_values = []
+r2_info = []
+
 for donor in donor_list:
-    integrated_view = input_integrated[input_integrated.obs["donor"] == donor]
-    validation_view = input_validation[input_validation.obs["donor"] == donor]
 
-    if (
-        integrated_view.shape[0] < 10 or validation_view.shape[0] < 10
-    ):  # Skip Rˆ2 calculation if there are less than 10 cells
-        print(
-            f"Warning: Rˆ2 not computed for donor {donor}. Too few cells were present: {integrated_view.shape[0]} for integrated and {validation_view.shape[0]} for validation"
-        )
-        continue
+    s1_view = integrated_s1[integrated_s1.obs['donor'] == donor] # split 1
+    s2_view = integrated_s2[integrated_s2.obs['donor'] == donor] # split 2
 
-    r2_list, _ = batch_r2(integrated_view, validation_view)
+    r2_list,marker_list = batch_r2(s1_view, s2_view)
+
+    marker_list =[donor+"_"+ x for x in marker_list]
+    r2_info = [*r2_info, *marker_list]
     r2_values = [*r2_values, *r2_list]
 
 average_batch_r2_global = np.mean(r2_values)
-
-
-print("Computing average_batch_r2 cell-type specific", flush=True)
+r2_collection = dict(zip(r2_info,r2_values)) #kept for debugging only
+print("average_batch_r2_global",average_batch_r2_global)
 
 r2_values = []
-for donor in donor_list:
-    integrated_view = input_integrated[input_integrated.obs["donor"] == donor]
-    integrated_view = remove_unlabelled(integrated_view)
-    validation_view = input_validation[input_validation.obs["donor"] == donor]
-    validation_view = remove_unlabelled(validation_view)
+r2_info = []
 
-    ct_list = validation_view.obs["cell_type"].unique()
+for donor in donor_list:
+
+    s1_view = integrated_s1[integrated_s1.obs['donor'] == donor] # split 1
+    s1_view = remove_unlabelled(s1_view)
+    s2_view = integrated_s2[integrated_s2.obs['donor'] == donor] # split 2
+    s2_view = remove_unlabelled(s2_view)
+
+    ct_list = s1_view.obs['cell_type'].unique()
 
     for ct in ct_list:
-        integrated_view_ct = integrated_view[integrated_view.obs["cell_type"] == ct]
-        validation_view_ct = validation_view[validation_view.obs["cell_type"] == ct]
-        if (
-            integrated_view_ct.shape[0] < 10 or validation_view_ct.shape[0] < 10
-        ):  # Skip Rˆ2 calculation if there are less than 10 cells
-            print(
-                f"Warning: Rˆ2 not computed for donor {donor} cell type {ct}. Too few cells were present: {integrated_view_ct.shape[0]} for integrated and {validation_view_ct.shape[0]} for validation"
-            )
+        s1_view_ct = s1_view[s1_view.obs['cell_type'] == ct]
+        s2_view_ct = s2_view[s2_view.obs['cell_type'] == ct]
+        if s1_view_ct.shape[0] < 20 or s2_view_ct.shape[0] < 20: #Skip Rˆ2 calculation if there are less than 10 cells
+            print(f"Warning: Rˆ2 not computed for donor {donor} cell type {ct}. Too few cells were present: {s1_view_ct.shape[0]} for split 1 and {s2_view_ct.shape[0]} for split 2")
             continue
 
-        r2_list, _ = batch_r2(integrated_view_ct, validation_view_ct)
+
+        r2_list,marker_list = batch_r2(s1_view, s2_view)
+
+        marker_list =[ct+"_"+donor+"_"+ x for x in marker_list]
+        r2_info = [*r2_info, *marker_list]
         r2_values = [*r2_values, *r2_list]
 
 average_batch_r2_ct = np.mean(r2_values)
+r2_collection_ct = dict(zip(r2_info,r2_values)) #kept for debugging only
+print("average_batch_r2_ct",average_batch_r2_ct)
 
 uns_metric_ids = ["average_batch_r2_global", "average_batch_r2_ct"]
 uns_metric_values = [average_batch_r2_global, average_batch_r2_ct]
@@ -3842,10 +3734,12 @@ uns_metric_values = [average_batch_r2_global, average_batch_r2_ct]
 print("Write output AnnData to file", flush=True)
 output = ad.AnnData(
     uns={
-        "dataset_id": input_integrated.uns["dataset_id"],
-        "method_id": input_integrated.uns["method_id"],
+        "dataset_id": integrated_s1.uns["dataset_id"],
+        "method_id": integrated_s1.uns["method_id"],
         "metric_ids": uns_metric_ids,
         "metric_values": uns_metric_values,
+        "r2_collection": r2_collection,
+        "r2_collection_ct": r2_collection_ct
     }
 )
 output.write_h5ad(par["output"], compression="gzip")

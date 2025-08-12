@@ -443,20 +443,20 @@ function ViashDockerfile {
 
   if [[ "$engine_id" == "docker" ]]; then
     cat << 'VIASHDOCKER'
-FROM python:3.11.4
+FROM python:3.11
 ENTRYPOINT []
 RUN apt-get update && \
   DEBIAN_FRONTEND=noninteractive apt-get install -y procps && \
   rm -rf /var/lib/apt/lists/*
 
 RUN pip install --upgrade pip && \
-  pip install --upgrade --no-cache-dir "jax ~= 0.6.2" "jaxlib ~= 0.6.2" "anndata~=0.10.0" "scanpy~=1.10.0" "scib-metrics~=0.5.6" "pyyaml" "requests" "jsonschema" && \
+  pip install --upgrade --no-cache-dir "jax~=0.6.2" "jaxlib~=0.6.2" "anndata~=0.11.0" "scanpy~=1.11.0" "scib-metrics~=0.5.6" "pyyaml" "requests" "jsonschema" && \
   pip install --upgrade --no-cache-dir "git+https://github.com/openproblems-bio/core#subdirectory=packages/python/openproblems"
 
 LABEL org.opencontainers.image.description="Companion container for running component metrics bras"
-LABEL org.opencontainers.image.created="2025-08-07T07:52:54Z"
+LABEL org.opencontainers.image.created="2025-08-12T07:50:53Z"
 LABEL org.opencontainers.image.source="https://github.com/openproblems-bio/task_cyto_batch_integration"
-LABEL org.opencontainers.image.revision="f90b44189d30c691910d425021cf1683bc37e2c7"
+LABEL org.opencontainers.image.revision="dbaeb0f62f1044b011c1fc2c0932ed00479f99b5"
 LABEL org.opencontainers.image.version="build_main"
 
 VIASHDOCKER
@@ -577,38 +577,22 @@ function ViashHelp {
   echo "bras build_main"
   echo ""
   echo "Arguments:"
-  echo "    --input_validation"
-  echo "        type: file, required parameter, file must exist"
-  echo "        example:"
-  echo "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/validation.h5ad"
-  echo "        Dataset containing cells from samples that were held out for evaluating"
-  echo "        batch integration output."
-  echo "        The cells that are in this dataset belong to samples which are not"
-  echo "        included in the unintegrated"
-  echo "        or unintegrated_censored datasets."
-  echo "        For example, if samples from donor A are present in batch 1 and 2, the"
-  echo "        sample from batch 1"
-  echo "        may be used as input for the batch correction algorithm (and thus"
-  echo "        present in unintegrated"
-  echo "        and unintegrated_censored datasets)."
-  echo "        The sample from batch 2, may not be included as an input for the batch"
-  echo "        correction algorithm,"
-  echo "        but is needed to validate whether whether the algorithm managed to"
-  echo "        correct the batch effect"
-  echo "        in batch 2 towards batch 1."
-  echo "        This sample will then be included in this dataset (but not in"
-  echo "        unintegrated"
-  echo "        and unintegrated_censored datasets)."
-  echo ""
   echo "    --input_unintegrated"
   echo "        type: file, required parameter, file must exist"
   echo "        example:"
   echo "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/unintegrated.h5ad"
+  echo "        The complete unintegrated dataset."
+  echo "        The cells in this dataset are the same to those in the censored dataset."
   echo ""
-  echo "    --input_integrated"
+  echo "    --input_integrated_split1"
   echo "        type: file, required parameter, file must exist"
   echo "        example:"
-  echo "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/integrated.h5ad"
+  echo "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/integrated_split1.h5ad"
+  echo ""
+  echo "    --input_integrated_split2"
+  echo "        type: file, required parameter, file must exist"
+  echo "        example:"
+  echo "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/integrated_split2.h5ad"
   echo ""
   echo "    --output"
   echo "        type: file, required parameter, output, file must exist"
@@ -665,17 +649,6 @@ while [[ $# -gt 0 ]]; do
             echo "bras build_main"
             exit
             ;;
-        --input_validation)
-            [ -n "$VIASH_PAR_INPUT_VALIDATION" ] && ViashError Bad arguments for option \'--input_validation\': \'$VIASH_PAR_INPUT_VALIDATION\' \& \'$2\' - you should provide exactly one argument for this option. && exit 1
-            VIASH_PAR_INPUT_VALIDATION="$2"
-            [ $# -lt 2 ] && ViashError Not enough arguments passed to --input_validation. Use "--help" to get more information on the parameters. && exit 1
-            shift 2
-            ;;
-        --input_validation=*)
-            [ -n "$VIASH_PAR_INPUT_VALIDATION" ] && ViashError Bad arguments for option \'--input_validation=*\': \'$VIASH_PAR_INPUT_VALIDATION\' \& \'$2\' - you should provide exactly one argument for this option. && exit 1
-            VIASH_PAR_INPUT_VALIDATION=$(ViashRemoveFlags "$1")
-            shift 1
-            ;;
         --input_unintegrated)
             [ -n "$VIASH_PAR_INPUT_UNINTEGRATED" ] && ViashError Bad arguments for option \'--input_unintegrated\': \'$VIASH_PAR_INPUT_UNINTEGRATED\' \& \'$2\' - you should provide exactly one argument for this option. && exit 1
             VIASH_PAR_INPUT_UNINTEGRATED="$2"
@@ -687,15 +660,26 @@ while [[ $# -gt 0 ]]; do
             VIASH_PAR_INPUT_UNINTEGRATED=$(ViashRemoveFlags "$1")
             shift 1
             ;;
-        --input_integrated)
-            [ -n "$VIASH_PAR_INPUT_INTEGRATED" ] && ViashError Bad arguments for option \'--input_integrated\': \'$VIASH_PAR_INPUT_INTEGRATED\' \& \'$2\' - you should provide exactly one argument for this option. && exit 1
-            VIASH_PAR_INPUT_INTEGRATED="$2"
-            [ $# -lt 2 ] && ViashError Not enough arguments passed to --input_integrated. Use "--help" to get more information on the parameters. && exit 1
+        --input_integrated_split1)
+            [ -n "$VIASH_PAR_INPUT_INTEGRATED_SPLIT1" ] && ViashError Bad arguments for option \'--input_integrated_split1\': \'$VIASH_PAR_INPUT_INTEGRATED_SPLIT1\' \& \'$2\' - you should provide exactly one argument for this option. && exit 1
+            VIASH_PAR_INPUT_INTEGRATED_SPLIT1="$2"
+            [ $# -lt 2 ] && ViashError Not enough arguments passed to --input_integrated_split1. Use "--help" to get more information on the parameters. && exit 1
             shift 2
             ;;
-        --input_integrated=*)
-            [ -n "$VIASH_PAR_INPUT_INTEGRATED" ] && ViashError Bad arguments for option \'--input_integrated=*\': \'$VIASH_PAR_INPUT_INTEGRATED\' \& \'$2\' - you should provide exactly one argument for this option. && exit 1
-            VIASH_PAR_INPUT_INTEGRATED=$(ViashRemoveFlags "$1")
+        --input_integrated_split1=*)
+            [ -n "$VIASH_PAR_INPUT_INTEGRATED_SPLIT1" ] && ViashError Bad arguments for option \'--input_integrated_split1=*\': \'$VIASH_PAR_INPUT_INTEGRATED_SPLIT1\' \& \'$2\' - you should provide exactly one argument for this option. && exit 1
+            VIASH_PAR_INPUT_INTEGRATED_SPLIT1=$(ViashRemoveFlags "$1")
+            shift 1
+            ;;
+        --input_integrated_split2)
+            [ -n "$VIASH_PAR_INPUT_INTEGRATED_SPLIT2" ] && ViashError Bad arguments for option \'--input_integrated_split2\': \'$VIASH_PAR_INPUT_INTEGRATED_SPLIT2\' \& \'$2\' - you should provide exactly one argument for this option. && exit 1
+            VIASH_PAR_INPUT_INTEGRATED_SPLIT2="$2"
+            [ $# -lt 2 ] && ViashError Not enough arguments passed to --input_integrated_split2. Use "--help" to get more information on the parameters. && exit 1
+            shift 2
+            ;;
+        --input_integrated_split2=*)
+            [ -n "$VIASH_PAR_INPUT_INTEGRATED_SPLIT2" ] && ViashError Bad arguments for option \'--input_integrated_split2=*\': \'$VIASH_PAR_INPUT_INTEGRATED_SPLIT2\' \& \'$2\' - you should provide exactly one argument for this option. && exit 1
+            VIASH_PAR_INPUT_INTEGRATED_SPLIT2=$(ViashRemoveFlags "$1")
             shift 1
             ;;
         --output)
@@ -879,16 +863,16 @@ fi
 
 
 # check whether required parameters exist
-if [ -z ${VIASH_PAR_INPUT_VALIDATION+x} ]; then
-  ViashError '--input_validation' is a required argument. Use "--help" to get more information on the parameters.
-  exit 1
-fi
 if [ -z ${VIASH_PAR_INPUT_UNINTEGRATED+x} ]; then
   ViashError '--input_unintegrated' is a required argument. Use "--help" to get more information on the parameters.
   exit 1
 fi
-if [ -z ${VIASH_PAR_INPUT_INTEGRATED+x} ]; then
-  ViashError '--input_integrated' is a required argument. Use "--help" to get more information on the parameters.
+if [ -z ${VIASH_PAR_INPUT_INTEGRATED_SPLIT1+x} ]; then
+  ViashError '--input_integrated_split1' is a required argument. Use "--help" to get more information on the parameters.
+  exit 1
+fi
+if [ -z ${VIASH_PAR_INPUT_INTEGRATED_SPLIT2+x} ]; then
+  ViashError '--input_integrated_split2' is a required argument. Use "--help" to get more information on the parameters.
   exit 1
 fi
 if [ -z ${VIASH_PAR_OUTPUT+x} ]; then
@@ -921,16 +905,16 @@ if [ -z ${VIASH_META_TEMP_DIR+x} ]; then
 fi
 
 # check whether required files exist
-if [ ! -z "$VIASH_PAR_INPUT_VALIDATION" ] && [ ! -e "$VIASH_PAR_INPUT_VALIDATION" ]; then
-  ViashError "Input file '$VIASH_PAR_INPUT_VALIDATION' does not exist."
-  exit 1
-fi
 if [ ! -z "$VIASH_PAR_INPUT_UNINTEGRATED" ] && [ ! -e "$VIASH_PAR_INPUT_UNINTEGRATED" ]; then
   ViashError "Input file '$VIASH_PAR_INPUT_UNINTEGRATED' does not exist."
   exit 1
 fi
-if [ ! -z "$VIASH_PAR_INPUT_INTEGRATED" ] && [ ! -e "$VIASH_PAR_INPUT_INTEGRATED" ]; then
-  ViashError "Input file '$VIASH_PAR_INPUT_INTEGRATED' does not exist."
+if [ ! -z "$VIASH_PAR_INPUT_INTEGRATED_SPLIT1" ] && [ ! -e "$VIASH_PAR_INPUT_INTEGRATED_SPLIT1" ]; then
+  ViashError "Input file '$VIASH_PAR_INPUT_INTEGRATED_SPLIT1' does not exist."
+  exit 1
+fi
+if [ ! -z "$VIASH_PAR_INPUT_INTEGRATED_SPLIT2" ] && [ ! -e "$VIASH_PAR_INPUT_INTEGRATED_SPLIT2" ]; then
+  ViashError "Input file '$VIASH_PAR_INPUT_INTEGRATED_SPLIT2' does not exist."
   exit 1
 fi
 
@@ -1016,17 +1000,17 @@ fi
 if [[ "$VIASH_ENGINE_TYPE" == "docker" ]]; then
   # detect volumes from file arguments
   VIASH_CHOWN_VARS=()
-if [ ! -z "$VIASH_PAR_INPUT_VALIDATION" ]; then
-  VIASH_DIRECTORY_MOUNTS+=( "$(ViashDockerAutodetectMountArg "$VIASH_PAR_INPUT_VALIDATION")" )
-  VIASH_PAR_INPUT_VALIDATION=$(ViashDockerAutodetectMount "$VIASH_PAR_INPUT_VALIDATION")
-fi
 if [ ! -z "$VIASH_PAR_INPUT_UNINTEGRATED" ]; then
   VIASH_DIRECTORY_MOUNTS+=( "$(ViashDockerAutodetectMountArg "$VIASH_PAR_INPUT_UNINTEGRATED")" )
   VIASH_PAR_INPUT_UNINTEGRATED=$(ViashDockerAutodetectMount "$VIASH_PAR_INPUT_UNINTEGRATED")
 fi
-if [ ! -z "$VIASH_PAR_INPUT_INTEGRATED" ]; then
-  VIASH_DIRECTORY_MOUNTS+=( "$(ViashDockerAutodetectMountArg "$VIASH_PAR_INPUT_INTEGRATED")" )
-  VIASH_PAR_INPUT_INTEGRATED=$(ViashDockerAutodetectMount "$VIASH_PAR_INPUT_INTEGRATED")
+if [ ! -z "$VIASH_PAR_INPUT_INTEGRATED_SPLIT1" ]; then
+  VIASH_DIRECTORY_MOUNTS+=( "$(ViashDockerAutodetectMountArg "$VIASH_PAR_INPUT_INTEGRATED_SPLIT1")" )
+  VIASH_PAR_INPUT_INTEGRATED_SPLIT1=$(ViashDockerAutodetectMount "$VIASH_PAR_INPUT_INTEGRATED_SPLIT1")
+fi
+if [ ! -z "$VIASH_PAR_INPUT_INTEGRATED_SPLIT2" ]; then
+  VIASH_DIRECTORY_MOUNTS+=( "$(ViashDockerAutodetectMountArg "$VIASH_PAR_INPUT_INTEGRATED_SPLIT2")" )
+  VIASH_PAR_INPUT_INTEGRATED_SPLIT2=$(ViashDockerAutodetectMount "$VIASH_PAR_INPUT_INTEGRATED_SPLIT2")
 fi
 if [ ! -z "$VIASH_PAR_OUTPUT" ]; then
   VIASH_DIRECTORY_MOUNTS+=( "$(ViashDockerAutodetectMountArg "$VIASH_PAR_OUTPUT")" )
@@ -1101,15 +1085,16 @@ trap clean_up EXIT
 trap interrupt INT SIGINT
 cat > "\$tempscript" << 'VIASHMAIN'
 import anndata as ad
+import numpy as np
 import sys
 from scib_metrics import bras
 
 ## VIASH START
 # The following code has been auto-generated by Viash.
 par = {
-  'input_validation': $( if [ ! -z ${VIASH_PAR_INPUT_VALIDATION+x} ]; then echo "r'${VIASH_PAR_INPUT_VALIDATION//\'/\'\"\'\"r\'}'"; else echo None; fi ),
   'input_unintegrated': $( if [ ! -z ${VIASH_PAR_INPUT_UNINTEGRATED+x} ]; then echo "r'${VIASH_PAR_INPUT_UNINTEGRATED//\'/\'\"\'\"r\'}'"; else echo None; fi ),
-  'input_integrated': $( if [ ! -z ${VIASH_PAR_INPUT_INTEGRATED+x} ]; then echo "r'${VIASH_PAR_INPUT_INTEGRATED//\'/\'\"\'\"r\'}'"; else echo None; fi ),
+  'input_integrated_split1': $( if [ ! -z ${VIASH_PAR_INPUT_INTEGRATED_SPLIT1+x} ]; then echo "r'${VIASH_PAR_INPUT_INTEGRATED_SPLIT1//\'/\'\"\'\"r\'}'"; else echo None; fi ),
+  'input_integrated_split2': $( if [ ! -z ${VIASH_PAR_INPUT_INTEGRATED_SPLIT2+x} ]; then echo "r'${VIASH_PAR_INPUT_INTEGRATED_SPLIT2//\'/\'\"\'\"r\'}'"; else echo None; fi ),
   'output': $( if [ ! -z ${VIASH_PAR_OUTPUT+x} ]; then echo "r'${VIASH_PAR_OUTPUT//\'/\'\"\'\"r\'}'"; else echo None; fi )
 }
 meta = {
@@ -1146,37 +1131,58 @@ from helper_functions import (
     subset_nocontrols,
 )
 
-print('Reading input files', flush=True)
-input_validation = ad.read_h5ad(par['input_validation'])
-input_unintegrated = ad.read_h5ad(par['input_unintegrated'])
-input_integrated = ad.read_h5ad(par['input_integrated'])
+print("Reading input files", flush=True)
+integrated_s1 = ad.read_h5ad(par["input_integrated_split1"])
+integrated_s2 = ad.read_h5ad(par["input_integrated_split2"])
+unintegrated = ad.read_h5ad(par["input_unintegrated"])
 
-print('Formatting input files', flush=True)
-#Format data integrated data
-input_integrated = get_obs_var_for_integrated(input_integrated,input_validation,input_unintegrated)
-input_integrated = subset_markers_tocorrect(input_integrated)
-input_integrated = subset_nocontrols(input_integrated)
-input_integrated = remove_unlabelled(input_integrated)
+print("Formatting input files", flush=True)
+integrated_s1, integrated_s2 = get_obs_var_for_integrated(
+    integrated_s1, integrated_s2, unintegrated
+)
+
+integrated_s1 = subset_nocontrols(integrated_s1)
+integrated_s1 = subset_markers_tocorrect(integrated_s1)
+integrated_s1 = subset_nocontrols(integrated_s1)
+integrated_s1 = remove_unlabelled(integrated_s1)
+
+integrated_s2 = subset_nocontrols(integrated_s2)
+integrated_s2 = subset_markers_tocorrect(integrated_s2)
+integrated_s2 = subset_nocontrols(integrated_s2)
+integrated_s2 = remove_unlabelled(integrated_s2)
 
 print('Compute metrics', flush=True)
-batch_labels = input_integrated.obs['batch'].values
-cell_labels = input_integrated.obs['cell_type'].values
+batch_labels_s1 = integrated_s1.obs['batch'].values
+ct_labels_s1 = integrated_s1.obs['cell_type'].values
 
-bras_score = bras(input_integrated.layers['integrated'], 
-                  labels = cell_labels,
-                  batch = batch_labels,
-                  metric='cosine')
-                  
+bras_s1 = bras(
+    integrated_s1.layers["integrated"],
+    labels = batch_labels_s1,
+    batch = ct_labels_s1,
+    metric='cosine'
+)
 
-print(bras_score)
+batch_labels_s2 = integrated_s2.obs['batch'].values
+ct_labels_s2 = integrated_s2.obs['cell_type'].values
+
+bras_s2 = bras(
+    integrated_s2.layers["integrated"],
+    labels = batch_labels_s2,
+    batch = ct_labels_s2,
+    metric='cosine'
+)
+
+bras_score = np.mean([bras_s1, bras_s2])
 
 print("Write output AnnData to file", flush=True)
 output = ad.AnnData(
     uns={
-    'dataset_id': input_integrated.uns['dataset_id'],
-    'method_id': input_integrated.uns['method_id'],
+    'dataset_id': integrated_s1.uns['dataset_id'],
+    'method_id': integrated_s1.uns['method_id'],
     'metric_ids': ['bras'],
-    'metric_values': [bras_score]
+    'metric_values': [bras_score],
+    'bras_s1': bras_s1,
+    'bras_s2': bras_s2
   }
 )
 output.write_h5ad(par['output'], compression='gzip')
@@ -1190,14 +1196,14 @@ VIASHEOF
 if [[ "$VIASH_ENGINE_TYPE" == "docker" ]]; then
   # strip viash automount from file paths
   
-  if [ ! -z "$VIASH_PAR_INPUT_VALIDATION" ]; then
-    VIASH_PAR_INPUT_VALIDATION=$(ViashDockerStripAutomount "$VIASH_PAR_INPUT_VALIDATION")
-  fi
   if [ ! -z "$VIASH_PAR_INPUT_UNINTEGRATED" ]; then
     VIASH_PAR_INPUT_UNINTEGRATED=$(ViashDockerStripAutomount "$VIASH_PAR_INPUT_UNINTEGRATED")
   fi
-  if [ ! -z "$VIASH_PAR_INPUT_INTEGRATED" ]; then
-    VIASH_PAR_INPUT_INTEGRATED=$(ViashDockerStripAutomount "$VIASH_PAR_INPUT_INTEGRATED")
+  if [ ! -z "$VIASH_PAR_INPUT_INTEGRATED_SPLIT1" ]; then
+    VIASH_PAR_INPUT_INTEGRATED_SPLIT1=$(ViashDockerStripAutomount "$VIASH_PAR_INPUT_INTEGRATED_SPLIT1")
+  fi
+  if [ ! -z "$VIASH_PAR_INPUT_INTEGRATED_SPLIT2" ]; then
+    VIASH_PAR_INPUT_INTEGRATED_SPLIT2=$(ViashDockerStripAutomount "$VIASH_PAR_INPUT_INTEGRATED_SPLIT2")
   fi
   if [ ! -z "$VIASH_PAR_OUTPUT" ]; then
     VIASH_PAR_OUTPUT=$(ViashDockerStripAutomount "$VIASH_PAR_OUTPUT")

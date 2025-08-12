@@ -11,16 +11,16 @@ arguments:
     __merge__: file_common_dataset.yaml
     direction: input
     required: true
-  - name: "--output_unintegrated_censored"
-    __merge__: file_unintegrated_censored.yaml
+  - name: "--output_censored_split1"
+    __merge__: file_censored_split1.yaml
+    direction: output
+    required: true
+  - name: "--output_censored_split2"
+    __merge__: file_censored_split2.yaml
     direction: output
     required: true
   - name: "--output_unintegrated"
     __merge__: file_unintegrated.yaml
-    direction: output
-    required: true
-  - name: "--output_validation"
-    __merge__: file_validation.yaml
     direction: output
     required: true
 test_resources:

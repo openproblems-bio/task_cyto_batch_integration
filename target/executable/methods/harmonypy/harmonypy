@@ -446,12 +446,12 @@ function ViashDockerfile {
 FROM openproblems/base_python:1
 ENTRYPOINT []
 RUN pip install --upgrade pip && \
-  pip install --upgrade --no-cache-dir "anndata" "harmonypy"
+  pip install --upgrade --no-cache-dir "harmonypy"
 
 LABEL org.opencontainers.image.description="Companion container for running component methods harmonypy"
-LABEL org.opencontainers.image.created="2025-08-07T07:52:53Z"
+LABEL org.opencontainers.image.created="2025-08-12T07:50:52Z"
 LABEL org.opencontainers.image.source="https://github.com/slowkow/harmonypy"
-LABEL org.opencontainers.image.revision="f90b44189d30c691910d425021cf1683bc37e2c7"
+LABEL org.opencontainers.image.revision="dbaeb0f62f1044b011c1fc2c0932ed00479f99b5"
 LABEL org.opencontainers.image.version="build_main"
 
 VIASHDOCKER
@@ -580,12 +580,20 @@ function ViashHelp {
   echo "    --input"
   echo "        type: file, required parameter, file must exist"
   echo "        example:"
-  echo "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/unintegrated_censored.h5ad"
+  echo "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/censored_split1.h5ad"
+  echo "        An unintegrated dataset with certain columns (cells metadata), such as"
+  echo "        the donor information, hidden."
+  echo "        These columns are intentionally hidden to prevent bias."
+  echo "        The batch correction algorithm should not have to rely on these"
+  echo "        information"
+  echo "        to properly integrate different batches."
+  echo "        This dataset is used as the input for the batch correction algorithm."
+  echo "        The cells therein are identical to those in the unintegrated dataset."
   echo ""
   echo "    --output"
   echo "        type: file, required parameter, output, file must exist"
   echo "        example:"
-  echo "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/integrated.h5ad"
+  echo "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/integrated_split1.h5ad"
   echo ""
   echo "Viash built in Computational Requirements:"
   echo "    ---cpus=INT"
@@ -1082,7 +1090,7 @@ out = harmonypy.run_harmony(
 )
 
 # have to add in the uncorrected markers as well
-uncorrected_data = adata[:, markers_not_correct].layers['preprocessed']
+uncorrected_data = adata[:, markers_not_correct].layers["preprocessed"]
 out_matrix = np.concatenate([out.Z_corr.transpose(), uncorrected_data], axis=1)
 out_var_idx = np.concatenate([markers_to_correct, markers_not_correct])
 

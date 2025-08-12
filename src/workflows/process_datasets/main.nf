@@ -41,17 +41,17 @@ workflow run_wf {
     | process_dataset.run(
       fromState: [ input: "dataset" ],
       toState: [
-        output_unintegrated_censored: "output_unintegrated_censored",
         output_unintegrated: "output_unintegrated",
-        output_validation: "output_validation"
+        output_censored_split1: "output_censored_split1",
+        output_censored_split2: "output_censored_split2"
       ]
     )
 
     // only output the files for which an output file was specified
     | setState([
-      "output_unintegrated_censored",
       "output_unintegrated",
-      "output_validation"
+      "output_censored_split1",
+      "output_censored_split2"
     ])
 
   emit:

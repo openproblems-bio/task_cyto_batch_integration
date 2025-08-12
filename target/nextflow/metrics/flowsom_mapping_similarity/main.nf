@@ -3039,170 +3039,10 @@ meta = [
       "arguments" : [
         {
           "type" : "file",
-          "name" : "--input_validation",
-          "label" : "Validation",
-          "summary" : "Hold-out dataset for validation.",
-          "description" : "Dataset containing cells from samples that were held out for evaluating batch integration output. \nThe cells that are in this dataset belong to samples which are not included in the unintegrated \nor unintegrated_censored datasets.\nFor example, if samples from donor A are present in batch 1 and 2, the sample from batch 1\nmay be used as input for the batch correction algorithm (and thus present in unintegrated\nand unintegrated_censored datasets). \nThe sample from batch 2, may not be included as an input for the batch correction algorithm,\nbut is needed to validate whether whether the algorithm managed to correct the batch effect\nin batch 2 towards batch 1.\nThis sample will then be included in this dataset (but not in unintegrated\nand unintegrated_censored datasets).\n",
-          "info" : {
-            "format" : {
-              "type" : "h5ad",
-              "layers" : [
-                {
-                  "type" : "double",
-                  "name" : "preprocessed",
-                  "description" : "preprocessed data, e.g. already compensated, transformed and debris/doublets removed",
-                  "required" : true
-                }
-              ],
-              "obs" : [
-                {
-                  "type" : "string",
-                  "name" : "cell_type",
-                  "description" : "Cell type information",
-                  "required" : true
-                },
-                {
-                  "type" : "string",
-                  "name" : "batch",
-                  "description" : "Batch information",
-                  "required" : true
-                },
-                {
-                  "type" : "string",
-                  "name" : "sample",
-                  "description" : "Sample ID",
-                  "required" : true
-                },
-                {
-                  "type" : "string",
-                  "name" : "donor",
-                  "description" : "Donor ID",
-                  "required" : true
-                },
-                {
-                  "type" : "string",
-                  "name" : "group",
-                  "description" : "Biological group of the donor",
-                  "required" : true
-                },
-                {
-                  "type" : "integer",
-                  "name" : "is_control",
-                  "description" : "Whether the sample the cell came from can be used as a control for batch \neffect correction.\n0: cannot be used as a control.\n>= 1: can be used as a control.\nFor cells with >= 1: cells with the same value come from the same donor.\nDifferent values indicate different donors.\n",
-                  "required" : true
-                }
-              ],
-              "var" : [
-                {
-                  "type" : "integer",
-                  "name" : "numeric_id",
-                  "description" : "Numeric ID associated with each marker",
-                  "required" : true
-                },
-                {
-                  "type" : "string",
-                  "name" : "channel",
-                  "description" : "The channel / detector of the instrument",
-                  "required" : true
-                },
-                {
-                  "type" : "string",
-                  "name" : "marker",
-                  "description" : "The marker name associated with the channel",
-                  "required" : false
-                },
-                {
-                  "type" : "string",
-                  "name" : "marker_type",
-                  "description" : "Whether the marker is a functional or lineage marker",
-                  "required" : true
-                },
-                {
-                  "type" : "boolean",
-                  "name" : "to_correct",
-                  "description" : "Whether the marker will be batch corrected",
-                  "required" : true
-                }
-              ],
-              "uns" : [
-                {
-                  "type" : "string",
-                  "name" : "dataset_id",
-                  "description" : "A unique identifier for the dataset",
-                  "required" : true
-                },
-                {
-                  "name" : "dataset_name",
-                  "type" : "string",
-                  "description" : "Nicely formatted name.",
-                  "required" : true
-                },
-                {
-                  "type" : "string",
-                  "name" : "dataset_url",
-                  "description" : "Link to the original source of the dataset.",
-                  "required" : false
-                },
-                {
-                  "name" : "dataset_reference",
-                  "type" : "string",
-                  "description" : "Bibtex reference of the paper in which the dataset was published.",
-                  "required" : false
-                },
-                {
-                  "name" : "dataset_summary",
-                  "type" : "string",
-                  "description" : "Short description of the dataset.",
-                  "required" : true
-                },
-                {
-                  "name" : "dataset_description",
-                  "type" : "string",
-                  "description" : "Long description of the dataset.",
-                  "required" : true
-                },
-                {
-                  "name" : "dataset_organism",
-                  "type" : "string",
-                  "description" : "The organism of the sample in the dataset.",
-                  "required" : false
-                },
-                {
-                  "name" : "parameter_som_xdim",
-                  "type" : "integer",
-                  "description" : "Parameter used to define the width of the self-organizing map (SOM) grid. Usually between 10 and 20.",
-                  "required" : true
-                },
-                {
-                  "name" : "parameter_som_ydim",
-                  "type" : "integer",
-                  "description" : "Parameter used to define the height of the self-organizing map (SOM) grid. Usually between 10 and 20.",
-                  "required" : true
-                },
-                {
-                  "name" : "parameter_num_clusters",
-                  "type" : "integer",
-                  "description" : "Parameter used to define the number of clusters. Set this number to be slightly higher than the number of cell types expected in the dataset.",
-                  "required" : true
-                }
-              ]
-            }
-          },
-          "example" : [
-            "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/validation.h5ad"
-          ],
-          "must_exist" : true,
-          "create_parent" : true,
-          "required" : true,
-          "direction" : "input",
-          "multiple" : false,
-          "multiple_sep" : ";"
-        },
-        {
-          "type" : "file",
           "name" : "--input_unintegrated",
           "label" : "Unintegrated",
-          "summary" : "The complete unintegrated dataset, including all cells' metadata (columns) from the \nunintegrated_censored dataset. \nThe cells in this dataset are the same to those in the unintegrated_censored dataset.\n",
+          "summary" : "The complete unintegrated dataset.\n",
+          "description" : "The complete unintegrated dataset.\nThe cells in this dataset are the same to those in the censored dataset.\n",
           "info" : {
             "format" : {
               "type" : "h5ad",
@@ -3248,7 +3088,13 @@ meta = [
                 {
                   "type" : "integer",
                   "name" : "is_control",
-                  "description" : "Whether the sample the cell came from can be used as a control for batch \neffect correction.\n0: cannot be used as a control.\n>= 1: can be used as a control.\nFor cells with >= 1: cells with the same value come from the same donor.\nDifferent values indicate different donors.\n",
+                  "description" : "Whether the sample the cell came from can be used as a control for batch \neffect correction.\n\n* 0: cannot be used as a control.\n* >= 1: can be used as a control.\n* For cells with >= 1: cells with the same value come from the same donor.\n\nDifferent values indicate different donors.\n",
+                  "required" : true
+                },
+                {
+                  "type" : "integer",
+                  "name" : "split",
+                  "description" : "Which split the cell will be used in.\n\n* 0: control samples\n* 1: split 1\n* 2: split 2\n",
                   "required" : true
                 }
               ],
@@ -3360,8 +3206,8 @@ meta = [
         },
         {
           "type" : "file",
-          "name" : "--input_integrated",
-          "label" : "Integrated",
+          "name" : "--input_integrated_split1",
+          "label" : "Integrated (split 1)",
           "summary" : "Integrated dataset which batch effect was corrected by an algorithm",
           "info" : {
             "format" : {
@@ -3397,7 +3243,55 @@ meta = [
             }
           },
           "example" : [
-            "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/integrated.h5ad"
+            "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/integrated_split1.h5ad"
+          ],
+          "must_exist" : true,
+          "create_parent" : true,
+          "required" : true,
+          "direction" : "input",
+          "multiple" : false,
+          "multiple_sep" : ";"
+        },
+        {
+          "type" : "file",
+          "name" : "--input_integrated_split2",
+          "label" : "Integrated (split 2)",
+          "summary" : "Integrated dataset which batch effect was corrected by an algorithm",
+          "info" : {
+            "format" : {
+              "type" : "h5ad",
+              "layers" : [
+                {
+                  "type" : "double",
+                  "name" : "integrated",
+                  "description" : "The integrated data as returned by a batch correction method",
+                  "required" : true
+                }
+              ],
+              "uns" : [
+                {
+                  "type" : "string",
+                  "name" : "dataset_id",
+                  "description" : "A unique identifier for the dataset",
+                  "required" : true
+                },
+                {
+                  "type" : "string",
+                  "name" : "method_id",
+                  "description" : "A unique identifier for the method",
+                  "required" : true
+                },
+                {
+                  "type" : "object",
+                  "name" : "parameters",
+                  "description" : "The parameters used for the integration",
+                  "required" : false
+                }
+              ]
+            }
+          },
+          "example" : [
+            "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/integrated_split2.h5ad"
           ],
           "must_exist" : true,
           "create_parent" : true,
@@ -3496,7 +3390,7 @@ meta = [
         "name" : "flowsom_mean_mapping_similarity",
         "label" : "FlowSOM Mean Mapping Similarity",
         "summary" : "Assess the similarity between FlowSOM trees of integrated and validation samples.",
-        "description" : "The metric is based on the FlowSOM algorithm, a popular method which uses self-organizing maps for the viasualization/interpretation/clustering of cytometry data. \nThe FlowSOM algorithm creates a tree structure that represents the relationships between different cell populations in the data.\n\nFor each paired sample (where 'int' is the batch-integrated sample and 'val' is the validation sample)\n1. A FlowSOM tree is created using validation data.\n2. Data from the integrated sample is mapped onto the FlowSOM tree created in step 1.\n3. A similarity measure is computed by comparing cell type proportions of 'val' and 'int' in each flowsom cluster.\n\nIdeally, the proportions of cell types in the flowsom clusters of the integrated sample should be very similar to those in the validation sample,\nas we assume that only technical variability is present between these two samples.\n\nThe FlowSOM mapping similarity measure can be expressed as follows:\n$\\\\text{FlowSOM mapping similarity} = 100 - \\\\text{FlowSOM mapping dissimilarity}$\n\nThe $\\\\text{FlowSOM mapping dissimilarity}$ is:\n\n$\\\\text{FlowSOM mapping dissimilarity} = \\\\sum_{k=1}^{K}w_{k}\\\\sum_{c=1}^{C}\\\\abs{P^{val}_{k,c} - P^{int}_{k,c}}$\n\nWhere:\n- $K$ is the number of flowsom clusters\n- $C$ is the number of cell types\n- $w_{k}$ is the weight of flowsom cluster $k$. It refers to the number of cells in flowsom cluster $k$, divided by the total number of cells in the flowsom tree. Note: the flowsom tree contains all the cells of a sample pair (both integrated and validation). \n- $P^{val}_{k,c}$ is the percentage of cell type $c$ in flowsom cluster $k$ of the validation sample\n- $P^{int}_{k,c}$ is the percentage of cell type $c$ in flowsom cluster $k$ of the integrated sample\n\nThe average FlowSOM mapping similarity among all paired samples is computed and reported as the final metric value.\nUnlabelled cells are excluded from the analysis. It is an horizontal metric.\n",
+        "description" : "The metric is based on the FlowSOM algorithm, a popular method which uses self-organizing maps for the viasualization/interpretation/clustering of cytometry data. \nThe FlowSOM algorithm creates a tree structure that represents the relationships between different cell populations in the data.\n\nFor each paired sample of technical replicates (where 'split1' are integrated technical replicates from split 1 and 'split2' are integrated technical replicates from split 2)\n1. A FlowSOM tree is created using cells in the sample from split 1.\n2. Cells from the sample in split 2 are mapped onto the FlowSOM tree created in step 1.\n3. A similarity measure is computed by comparing cell type proportions of 'split2' and 'split1' in each flowsom cluster.\n\nIdeally, the proportions of cell types in the flowsom clusters of the paired samples should be similar, as they are technical replicates.\n\nThe FlowSOM mapping similarity measure can be expressed as follows:\n$\\\\text{FlowSOM mapping similarity} = 100 - \\\\text{FlowSOM mapping dissimilarity}$\n\nThe $\\\\text{FlowSOM mapping dissimilarity}$ is:\n\n$\\\\text{FlowSOM mapping dissimilarity} = \\\\sum_{k=1}^{K}w_{k}\\\\sum_{c=1}^{C}\\\\abs{P^{split1}_{k,c} - P^{split2}_{k,c}}$\n\nWhere:\n- $K$ is the number of flowsom clusters\n- $C$ is the number of cell types\n- $w_{k}$ is the weight of flowsom cluster $k$. It refers to the number of cells in flowsom cluster $k$, divided by the total number of cells in the flowsom tree. Note: the flowsom tree contains all the cells of a sample pair (both integrated and validation). \n- $P^{split1}_{k,c}$ is the percentage of cell type $c$ in flowsom cluster $k$ of the split 1 sample\n- $P^{split2}_{k,c}$ is the percentage of cell type $c$ in flowsom cluster $k$ of the split 2 sample\n\nThe average FlowSOM mapping similarity among all paired samples is computed and reported as the final metric value.\nUnlabelled cells are excluded from the analysis.\n",
         "references" : {
           "doi" : [
             "10.18129/B9.bioc.FlowSOM",
@@ -3593,17 +3487,6 @@ meta = [
           ],
           "bioc_force_install" : false,
           "warnings_as_errors" : true
-        },
-        {
-          "type" : "python",
-          "user" : false,
-          "packages" : [
-            "anndata",
-            "numpy",
-            "pandas",
-            "scipy"
-          ],
-          "upgrade" : true
         }
       ]
     }
@@ -3614,7 +3497,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/metrics/flowsom_mapping_similarity",
     "viash_version" : "0.9.4",
-    "git_commit" : "f90b44189d30c691910d425021cf1683bc37e2c7",
+    "git_commit" : "dbaeb0f62f1044b011c1fc2c0932ed00479f99b5",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3732,9 +3615,9 @@ library(FlowSOM, quietly = TRUE)
 .viash_orig_warn <- options(warn = 2)
 
 par <- list(
-  "input_validation" = $( if [ ! -z ${VIASH_PAR_INPUT_VALIDATION+x} ]; then echo -n "'"; echo -n "$VIASH_PAR_INPUT_VALIDATION" | sed "s#['\\\\]#\\\\\\\\&#g"; echo "'"; else echo NULL; fi ),
   "input_unintegrated" = $( if [ ! -z ${VIASH_PAR_INPUT_UNINTEGRATED+x} ]; then echo -n "'"; echo -n "$VIASH_PAR_INPUT_UNINTEGRATED" | sed "s#['\\\\]#\\\\\\\\&#g"; echo "'"; else echo NULL; fi ),
-  "input_integrated" = $( if [ ! -z ${VIASH_PAR_INPUT_INTEGRATED+x} ]; then echo -n "'"; echo -n "$VIASH_PAR_INPUT_INTEGRATED" | sed "s#['\\\\]#\\\\\\\\&#g"; echo "'"; else echo NULL; fi ),
+  "input_integrated_split1" = $( if [ ! -z ${VIASH_PAR_INPUT_INTEGRATED_SPLIT1+x} ]; then echo -n "'"; echo -n "$VIASH_PAR_INPUT_INTEGRATED_SPLIT1" | sed "s#['\\\\]#\\\\\\\\&#g"; echo "'"; else echo NULL; fi ),
+  "input_integrated_split2" = $( if [ ! -z ${VIASH_PAR_INPUT_INTEGRATED_SPLIT2+x} ]; then echo -n "'"; echo -n "$VIASH_PAR_INPUT_INTEGRATED_SPLIT2" | sed "s#['\\\\]#\\\\\\\\&#g"; echo "'"; else echo NULL; fi ),
   "output" = $( if [ ! -z ${VIASH_PAR_OUTPUT+x} ]; then echo -n "'"; echo -n "$VIASH_PAR_OUTPUT" | sed "s#['\\\\]#\\\\\\\\&#g"; echo "'"; else echo NULL; fi )
 )
 meta <- list(
@@ -3770,75 +3653,74 @@ rm(.viash_orig_warn)
 
 source(paste0(meta\\$resources_dir, "/helper.R"))
 source(paste0(meta\\$resources_dir, "/helper_functions.R"))
+library(anndata)
 
-print("Preprocess input files with python")
-input_unintegrated <- anndata::read_h5ad(par[["input_unintegrated"]])
+unintegrated <- anndata::read_h5ad(par[["input_unintegrated"]])
+integrated_s1 <- anndata::read_h5ad(par[["input_integrated_split1"]]) 
 
-# read validation data
-input_validation <- anndata::read_h5ad(par[["input_validation"]])
-
-# read and filter integrated data
-input_integrated <- anndata::read_h5ad(par[["input_integrated"]]) |>
-  get_obs_var_for_integrated(
-    input_validation,
-    input_unintegrated
-  ) |>
+print(unintegrated)
+print(integrated_s1)
+# read and filter split 1 data
+integrated_s1 <- anndata::read_h5ad(par[["input_integrated_split1"]]) |>
+  get_obs_var_for_integrated(unintegrated) |>
   subset_nocontrols() |>
   remove_unlabelled()
 
-# filter validation data
-input_validation <- input_validation |>
+# read and filter split 2 data
+integrated_s2 <- anndata::read_h5ad(par[["input_integrated_split2"]]) |>
+  get_obs_var_for_integrated(unintegrated) |>
+  subset_nocontrols() |>
   remove_unlabelled()
 
 print("Setting parameters\\\\n")
-donor_list <- unique(input_integrated\\$obs\\$donor)
-lineage_markers <- input_validation\\$var_names[
-  input_validation\\$var\\$marker_type == "lineage"
+donor_list <- unique(integrated_s1\\$obs\\$donor)
+lineage_markers <- integrated_s1\\$var_names[
+  integrated_s1\\$var\\$marker_type == "lineage"
 ]
-n_clusters <- input_validation\\$uns\\$parameter_num_clusters
-grid_xdim <- input_validation\\$uns\\$parameter_som_xdim
-grid_ydim <- input_validation\\$uns\\$parameter_som_ydim
+n_clusters <- unintegrated\\$uns\\$parameter_num_clusters
+grid_xdim <- unintegrated\\$uns\\$parameter_som_xdim
+grid_ydim <- unintegrated\\$uns\\$parameter_som_ydim
 
 print("Computing mapping similarity\\\\n")
 fs_mapping_similarity_allres <- list()
 fs_mapping_similarity_all <- c()
 
 for (donor in donor_list) {
-  print(paste0("extracting information for donor: ", donor, " (integrated)"))
-  integrated_data <- get_ff_annotations(
-    input_integrated,
+  print(paste0("extracting information for donor: ", donor, " (split 1)"))
+  split1_data <- get_ff_annotations(
+    integrated_s1,
     donor_name = donor,
     layer_name = "integrated"
   )
-  print(paste0("extracting information for donor: ", donor, " (validation)"))
-  validation_data <- get_ff_annotations(
-    input_validation,
+  print(paste0("extracting information for donor: ", donor, " (split 2)"))
+  split2_data <- get_ff_annotations(
+    integrated_s2,
     donor_name = donor,
-    layer_name = "preprocessed"
+    layer_name = "integrated"
   )
-
-  print("Building FlowSOM tree with validation cells")
-  fs_tree_validation <- FlowSOM(
-    validation_data\\$flowframe,
+  
+  print("Building FlowSOM tree with split 1 cells")
+  fs_tree_s1 <- FlowSOM(
+    split1_data\\$flowframe,
     colsToUse = lineage_markers,
     nClus = n_clusters,
     xdim = grid_xdim,
     ydim = grid_ydim,
     seed = 42
   )
-
-  print("Mapping new cells in the tree")
-  fs_tree_integrated <- NewData(
-    fs_tree_validation,
-    integrated_data\\$flowframe
+  
+  print("Mapping split 2 cells in the tree")
+  fs_tree_s2 <- NewData(
+    fs_tree_s1,
+    split2_data\\$flowframe
   )
-
+  
   print("Computing mapping similarity")
   FSOM_mapping <- compute_fs_mapping_similarity(
-    fs_tree_integrated,
-    integrated_data\\$ct_annotations,
-    fs_tree_validation,
-    validation_data\\$ct_annotations
+    fs_tree_s1,
+    split1_data\\$ct_annotations,
+    fs_tree_s2,
+    split2_data\\$ct_annotations
   )
   # add full results for a donor to a list
   fs_mapping_similarity_allres[[donor]] <- FSOM_mapping
@@ -3856,8 +3738,8 @@ print("Write output AnnData to file\\\\n")
 output <- anndata::AnnData(
   shape = c(0L, 0L),
   uns = list(
-    dataset_id = input_integrated\\$uns\\$dataset_id,
-    method_id = input_integrated\\$uns\\$method_id,
+    dataset_id = integrated_s1\\$uns\\$dataset_id,
+    method_id = integrated_s1\\$uns\\$method_id,
     metric_ids = "flowsom_mean_mapping_similarity",
     metric_values = fs_mapping_similarity_avg,
     fsom_parameters = list(
@@ -3868,8 +3750,6 @@ output <- anndata::AnnData(
   )
 )
 
-cat("Output AnnData object:\\\\n")
-print(output)
 output\\$write_h5ad(par[["output"]], compression = "gzip")
 VIASHMAIN
 Rscript "$tempscript"

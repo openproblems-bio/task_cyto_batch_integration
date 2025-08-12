@@ -19,6 +19,19 @@ python << HERE
 import anndata as ad
 
 adata = ad.read_h5ad("$RAW_DIR/Leomazzi_dataset.h5ad")
+
+# determine split from is_validation and is_control
+# if is_control >= 1 → 0
+# else if not is_validation → 1
+# else → 2
+adata.obs["split"] = 1
+adata.obs.loc[adata.obs["is_validation"], "split"] = 2
+adata.obs.loc[adata.obs["is_control"] >= 1, "split"] = 0
+
+# add goal_batch
+adata.uns["goal_batch"] = 1
+
+# override dataset_id and dataset_name
 adata.uns["dataset_id"] = "$DATASET_ID"
 adata.uns["dataset_name"] = "Mouse Spleen Flow Cytometry"
 
