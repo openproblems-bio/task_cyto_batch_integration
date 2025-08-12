@@ -108,7 +108,7 @@ engines:
       - type: r
         packages: [robustbase, rhdf5]
         bioc: [CellMixS, SingleCellExperiment, Biocparallel]
-        github: [scverse/anndataR]
+        github: [scverse/anndataR@0.99.0]
 
 runners:
   # This platform allows running the component natively

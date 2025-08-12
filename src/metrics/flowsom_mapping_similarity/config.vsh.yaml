@@ -74,8 +74,6 @@ engines:
     setup:
       - type: r
         bioc: [FlowSOM, flowCore]
-      - type: python
-        packages: [anndata, numpy, pandas, scipy]
 runners:
   # This platform allows running the component natively
   - type: executable
