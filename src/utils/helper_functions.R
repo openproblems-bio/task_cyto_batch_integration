@@ -106,7 +106,8 @@ remove_unlabelled <- function(adata) {
     adata[!is_unlabelled, ]
 }
 
-#' Subsets the anndata object in a stratified manner by cell type.
+#' Subsets the anndata object in a stratified manner
+#' with 'cell type' and 'sample' as strata.
 #'
 #' @param adata AnnData object
 #' @param frac numeric, fraction of cells to keep for each cell type
@@ -121,7 +122,7 @@ subset_by_celltype <- function(adata, frac = 0.5, seed = 1, anndatar = TRUE) {
   obs$.row <- seq_len(nrow(obs))   # original order
   
   keep_ids <- obs %>%
-    group_by(cell_type) %>%
+    group_by(cell_type, sample) %>%
     slice_sample(prop = frac) %>%
     ungroup() %>%
     arrange(.row) %>%     # restore original order
