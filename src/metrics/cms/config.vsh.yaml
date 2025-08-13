@@ -43,6 +43,8 @@ info:
         It has been empirically observed that a uniform (thus, symmetrical) distribution of cms scores across cells in a dataset is indicative of good mixing
         (e.g. via random shuffling of batch labels in a dataset). Therefore, a medcouple around 0 or lower is considered a good mixing score.
 
+        In this implementation we subset to 60% of the total cells in each split of the technical replicates. The subset is stratified by cell type and sample.
+        The mean medcouple between the two splits of technical replicates is used as the final score.
       references:
         doi: 
           - 10.26508/lsa.202001004

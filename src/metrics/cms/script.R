@@ -23,7 +23,6 @@ meta <- list(
     cpus = NULL
 )
 ## VIASH END
-t0 <- Sys.time()
 
 cores_to_use <- meta$cpus
 if (is.null(cores_to_use)) {
@@ -58,58 +57,55 @@ cat(paste("Compute Cell Mixing Score using", cores_to_use, "cores for split 1\n"
 
 cms_distr_split1 <- list()
 medcouples_split1 <- list()
-for (i in 1:5) {
-    cat(paste("Iteration", i, "of 5\n"))
-    integrated_subset <- subset_by_celltype(
-        integrated_split1,
-        frac = 0.3,
-        seed = i
-    )
-    #Transform to SingleCellExperiment and subset markers
-    cat("Transforming to SingleCellExperiment and subsetting markers\n")
-    integrated_subset_sce <- integrated_subset$as_SingleCellExperiment()
-    integrated_subset_sce <- integrated_subset_sce[markers_to_correct, ]
-    cat("Computing Cell Mixing Scores\n")
-    integrated_subset_sce <- CellMixS::cms(
-        integrated_subset_sce,
-        group = "batch",
-        assay_name = "integrated",
-        k = par[["n_neighbors"]],
-        n_dim = par[["n_dim"]],
-        BPPARAM = bpparam
-    )
-    distr <- SingleCellExperiment::colData(integrated_subset_sce)[, "cms"]
-    cms_distr_split1[[paste0("split1_iter_", i)]] <- distr
-    medcouples_split1[[paste0("split1_iter_", i)]] <- robustbase::mc(distr)
-}
+
+integrated_subset <- subset_by_celltype(
+    integrated_split1,
+    frac = 0.6,
+    seed = 1
+)
+
+cat("Transforming to SingleCellExperiment and subsetting markers\n")
+integrated_subset_sce <- integrated_subset$as_SingleCellExperiment()
+integrated_subset_sce <- integrated_subset_sce[markers_to_correct, ]
+cat("Computing Cell Mixing Scores\n")
+integrated_subset_sce <- CellMixS::cms(
+    integrated_subset_sce,
+    group = "batch",
+    assay_name = "integrated",
+    k = par[["n_neighbors"]],
+    n_dim = par[["n_dim"]],
+    BPPARAM = bpparam
+)
+distr <- SingleCellExperiment::colData(integrated_subset_sce)[, "cms"]
+cms_distr_split1[["split1"]] <- distr
+medcouples_split1[["split1"]] <- robustbase::mc(distr)
 
 cat(paste("Compute Cell Mixing Score using", cores_to_use, "cores for split 2\n"), flush = TRUE)
 
 cms_distr_split2 <- list()
 medcouples_split2 <- list()
-for (i in 1:5) {
-    cat(paste("Iteration", i, "of 5\n"))
-    integrated_subset <- subset_by_celltype(
-        integrated_split2,
-        frac = 0.2,
-        seed = i
-    )
-    cat("Transforming to SingleCellExperiment and subsetting markers\n")
-    integrated_subset_sce <- integrated_subset$as_SingleCellExperiment()
-    integrated_subset_sce <- integrated_subset_sce[markers_to_correct, ]
-    cat("Computing Cell Mixing Scores\n")
-    integrated_subset_sce <- CellMixS::cms(
-        integrated_subset_sce,
-        group = "batch",
-        assay_name = "integrated",
-        k = par[["n_neighbors"]],
-        n_dim = par[["n_dim"]],
-        BPPARAM = bpparam
-    )
-    distr <- SingleCellExperiment::colData(integrated_subset_sce)[, "cms"]
-    cms_distr_split2[[paste0("split2_iter_", i)]] <- distr
-    medcouples_split2[[paste0("split2_iter_", i)]] <- robustbase::mc(distr)
-}
+
+integrated_subset <- subset_by_celltype(
+    integrated_split2,
+    frac = 0.6,
+    seed = 1
+)
+cat("Transforming to SingleCellExperiment and subsetting markers\n")
+integrated_subset_sce <- integrated_subset$as_SingleCellExperiment()
+integrated_subset_sce <- integrated_subset_sce[markers_to_correct, ]
+cat("Computing Cell Mixing Scores\n")
+integrated_subset_sce <- CellMixS::cms(
+    integrated_subset_sce,
+    group = "batch",
+    assay_name = "integrated",
+    k = par[["n_neighbors"]],
+    n_dim = par[["n_dim"]],
+    BPPARAM = bpparam
+)
+distr <- SingleCellExperiment::colData(integrated_subset_sce)[, "cms"]
+cms_distr_split2[["split2"]] <- distr
+medcouples_split2[["split2"]] <- robustbase::mc(distr)
+
 
 cat("Aggregate scores\n", flush = TRUE)
 #concat named lists
@@ -117,13 +113,6 @@ cms_distr_list <- c(cms_distr_split1, cms_distr_split2)
 medcouples_list <- c(medcouples_split1, medcouples_split2)
 # Compute mean medcouple
 mean_medcouple_cms <- mean(unlist(medcouples_list))
-
-print("cms_list")
-print(cms_distr_list)
-print("medcouples_list")
-print(medcouples_list)
-print("mean_medcouple_cms")
-print(mean_medcouple_cms)
 
 cat("Write output AnnData to file\n", flush = TRUE)
 output <- anndataR::AnnData(
@@ -143,5 +132,3 @@ output <- anndataR::AnnData(
 )
 
 output$write_h5ad(par[["output"]], compression = "gzip", mode = "w")
-
-cat(sprintf("Elapsed: %.3f s\n", as.numeric(difftime(Sys.time(), t0, units = "secs"))))
