@@ -135,9 +135,15 @@ workflow run_wf {
 
       // run only control methods & filter by method_ids
       filter: { id, state, comp ->
-        def id_filter = !state.method_ids || state.method_ids.contains(comp.config.name)
+        def method_check = checkItemAllowed(
+          comp.config.name,
+          state.methods_include,
+          state.methods_exclude,
+          "methods_include",
+          "methods_exclude"
+        )
         def method_filter = comp.config.info.type == "control_method"
-        id_filter && method_filter
+        method_check && method_filter
       },
 
       // define a new 'id' by appending the method name to the dataset id
@@ -167,6 +173,18 @@ workflow run_wf {
       components: metrics,
       id: { id, state, comp ->
         id + "." + comp.config.name
+      },
+      filter: { id, state, comp ->
+        // filter by metric_ids
+        def metric_check = checkItemAllowed(
+          comp.config.name,
+          state.metrics_include,
+          state.metrics_exclude,
+          "metrics_include",
+          "metrics_exclude"
+        )
+        // filter by method_id
+        metric_check
       },
       // use 'fromState' to fetch the arguments the component requires from the overall state
       fromState: [

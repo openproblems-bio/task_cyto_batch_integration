@@ -58,6 +58,18 @@ argument_groups:
         multiple: true
         description: |
           A list of method ids to exclude. If specified, all methods except the ones listed will be run.
+  - name: Metrics
+    arguments:
+      - name: "--metrics_include"
+        type: string
+        multiple: true
+        description: |
+          A list of metric ids to include. If specified, only these metrics will be run.
+      - name: "--metrics_exclude"
+        type: string
+        multiple: true
+        description: |
+          A list of metric ids to exclude. If specified, all metrics except the ones listed will be run.
 
 resources:
   - type: nextflow_script

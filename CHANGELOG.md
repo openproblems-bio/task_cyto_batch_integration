@@ -124,7 +124,7 @@
 
 * Disabled parallelization of `metrics/cms` + cms distributions are now kept in the output AnnData object (PR #83).
 
-* Add arguments for including/excluding methods in the benchmarking workflow (PR #100).
+* Add arguments for including/excluding methods and metrics in the benchmarking workflow (PR #100).
 
 
 ## BUG FIXES
