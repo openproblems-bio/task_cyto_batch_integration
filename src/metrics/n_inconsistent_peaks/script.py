@@ -58,13 +58,13 @@ for donor in donor_list:
     for marker in s1_view.var.index:
         mexp_s1 = np.array(s1_view[:,marker].layers["integrated"])
         mexp_s2 = np.array(s2_view[:,marker].layers["integrated"])
-        density_integrated = get_kde_density(mexp_s1)
-        peaks_integrated = call_peaks(density_integrated)
-        density_validation = get_kde_density(mexp_s2)
-        peaks_validation = call_peaks(density_validation)
+        density_s1 = get_kde_density(mexp_s1)
+        peaks_s1 = call_peaks(density_s1)
+        density_s2 = get_kde_density(mexp_s2)
+        peaks_s2 = call_peaks(density_s2)
 
-        if peaks_integrated != peaks_validation:
-            n_inconsistent_peaks += abs(peaks_integrated - peaks_validation)
+        if peaks_s1 != peaks_s2:
+            n_inconsistent_peaks += abs(peaks_s1 - peaks_s2)
 
 print('Compute metric (per cell type)', flush=True)
 n_inconsistent_peaks_ct = 0
@@ -79,19 +79,19 @@ for donor in donor_list:
         s2_view_ct = s2_view[s2_view.obs['cell_type'] == celltype]
 
         if s1_view_ct.shape[0] < 100 or s2_view_ct.shape[0] < 100:
-          print(donor,celltype,"skipped cause less than 100 cells are present in either integrated or validation dataset")
+          print(donor,celltype,"skipped cause less than 100 cells are present in either split 1 or split 2 dataset")
           continue
 
         for marker in s1_view_ct.var.index:
             mexp_s1 = np.array(s1_view_ct[:, marker].layers["integrated"])
             mexp_s2 = np.array(s2_view_ct[:, marker].layers["integrated"])
-            density_integrated = get_kde_density(mexp_s1)
-            peaks_integrated = call_peaks(density_integrated)
-            density_validation = get_kde_density(mexp_s2)
-            peaks_validation = call_peaks(density_validation)
+            density_s1 = get_kde_density(mexp_s1)
+            peaks_s1 = call_peaks(density_s1)
+            density_s2 = get_kde_density(mexp_s2)
+            peaks_s2 = call_peaks(density_s2)
 
-            if peaks_integrated != peaks_validation:
-                n_inconsistent_peaks_ct += abs(peaks_integrated - peaks_validation)
+            if peaks_s1 != peaks_s2:
+                n_inconsistent_peaks_ct += abs(peaks_s1 - peaks_s2)
 
 
 
