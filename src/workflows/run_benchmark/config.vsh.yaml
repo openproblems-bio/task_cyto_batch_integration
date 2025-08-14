@@ -48,10 +48,16 @@ argument_groups:
         default: task_info.yaml
   - name: Methods
     arguments:
-      - name: "--method_ids"
+      - name: "--methods_include"
         type: string
         multiple: true
-        description: A list of method ids to run. If not specified, all methods will be run.
+        description: |
+          A list of method ids to include. If specified, only these methods will be run.
+      - name: "--methods_exclude"
+        type: string
+        multiple: true
+        description: |
+          A list of method ids to exclude. If specified, all methods except the ones listed will be run.
 
 resources:
   - type: nextflow_script
@@ -59,6 +65,7 @@ resources:
     entrypoint: run_wf
   - type: file
     path: /_viash.yaml
+  - path: /common/nextflow_helpers/helper.nf
 
 dependencies:
   - name: utils/extract_uns_metadata

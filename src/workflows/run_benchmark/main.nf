@@ -1,3 +1,5 @@
+include { checkItemAllowed } from "${meta.resources_dir}/helper.nf"
+
 workflow auto {
   findStates(params, meta.config)
     | meta.workflow.run(
@@ -81,9 +83,15 @@ workflow run_wf {
 
       // run only non-control methods & filter by method_ids
       filter: { id, state, comp ->
-        def id_filter = !state.method_ids || state.method_ids.contains(comp.config.name)
+        def method_check = checkItemAllowed(
+          comp.config.name,
+          state.methods_include,
+          state.methods_exclude,
+          "methods_include",
+          "methods_exclude"
+        )
         def method_filter = comp.config.info.type == "method"
-        id_filter && method_filter
+        method_check && method_filter
       },
 
       // define a new 'id' by appending the method name to the dataset id
