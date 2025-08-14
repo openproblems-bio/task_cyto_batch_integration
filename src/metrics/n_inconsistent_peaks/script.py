@@ -56,11 +56,11 @@ for donor in donor_list:
     s2_view = integrated_s2[integrated_s2.obs['donor'] == donor]
 
     for marker in s1_view.var.index:
-        mexp_integrated = np.array(s1_view[:,marker].layers["integrated"])
-        mexp_validation = np.array(s2_view[:,marker].layers["integrated"])
-        density_integrated = get_kde_density(mexp_integrated)
+        mexp_s1 = np.array(s1_view[:,marker].layers["integrated"])
+        mexp_s2 = np.array(s2_view[:,marker].layers["integrated"])
+        density_integrated = get_kde_density(mexp_s1)
         peaks_integrated = call_peaks(density_integrated)
-        density_validation = get_kde_density(mexp_validation)
+        density_validation = get_kde_density(mexp_s2)
         peaks_validation = call_peaks(density_validation)
 
         if peaks_integrated != peaks_validation:
@@ -83,11 +83,11 @@ for donor in donor_list:
           continue
 
         for marker in s1_view_ct.var.index:
-            mexp_integrated = np.array(s1_view_ct[:, marker].layers["integrated"])
-            mexp_validation = np.array(s2_view_ct[:, marker].layers["integrated"])
-            density_integrated = get_kde_density(mexp_integrated)
+            mexp_s1 = np.array(s1_view_ct[:, marker].layers["integrated"])
+            mexp_s2 = np.array(s2_view_ct[:, marker].layers["integrated"])
+            density_integrated = get_kde_density(mexp_s1)
             peaks_integrated = call_peaks(density_integrated)
-            density_validation = get_kde_density(mexp_validation)
+            density_validation = get_kde_density(mexp_s2)
             peaks_validation = call_peaks(density_validation)
 
             if peaks_integrated != peaks_validation:
