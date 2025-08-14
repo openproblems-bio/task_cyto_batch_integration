@@ -56,11 +56,17 @@ for donor in donor_list:
     s2_view = integrated_s2[integrated_s2.obs['donor'] == donor]
 
     for marker in s1_view.var.index:
-        mexp_s1 = np.array(s1_view[:,marker].layers["integrated"])
-        mexp_s2 = np.array(s2_view[:,marker].layers["integrated"])
-        density_s1 = get_kde_density(mexp_s1)
+        marker_expression_s1_unscaled = np.array(s1_view[:,marker].layers["integrated"])
+        marker_expression_s2_unscaled = np.array(s2_view[:,marker].layers["integrated"])
+
+        pooled = np.concatenate([marker_expression_s1_unscaled, marker_expression_s2_unscaled])
+        mu, sd = pooled.mean(), pooled.std()
+        marker_expression_s1 = (marker_expression_s1_unscaled - mu) / (sd)
+        marker_expression_s2 = (marker_expression_s2_unscaled - mu) / (sd)
+
+        density_s1 = get_kde_density(marker_expression_s1)
         peaks_s1 = call_peaks(density_s1)
-        density_s2 = get_kde_density(mexp_s2)
+        density_s2 = get_kde_density(marker_expression_s2)
         peaks_s2 = call_peaks(density_s2)
 
         if peaks_s1 != peaks_s2:
@@ -83,11 +89,17 @@ for donor in donor_list:
           continue
 
         for marker in s1_view_ct.var.index:
-            mexp_s1 = np.array(s1_view_ct[:, marker].layers["integrated"])
-            mexp_s2 = np.array(s2_view_ct[:, marker].layers["integrated"])
-            density_s1 = get_kde_density(mexp_s1)
+            marker_expression_s1_unscaled = np.array(s1_view_ct[:, marker].layers["integrated"])
+            marker_expression_s2_unscaled = np.array(s2_view_ct[:, marker].layers["integrated"])
+
+            pooled = np.concatenate([marker_expression_s1_unscaled, marker_expression_s2_unscaled])
+            mu, sd = pooled.mean(), pooled.std()
+            marker_expression_s1 = (marker_expression_s1_unscaled - mu) / (sd)
+            marker_expression_s2 = (marker_expression_s2_unscaled - mu) / (sd)
+
+            density_s1 = get_kde_density(marker_expression_s1)
             peaks_s1 = call_peaks(density_s1)
-            density_s2 = get_kde_density(mexp_s2)
+            density_s2 = get_kde_density(marker_expression_s2)
             peaks_s2 = call_peaks(density_s2)
 
             if peaks_s1 != peaks_s2:
