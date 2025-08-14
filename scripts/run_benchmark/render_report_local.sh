@@ -21,6 +21,7 @@ TASK_STRIP_PREFIX=$(echo $TASK | sed 's/task_//')
 echo "Processing $DATE -> $OUTPUT_DIR"
 
 # start the run
+# TODO: switch to `-r build/main` once PR openproblems-bio/openproblems#919 is merged
 nextflow run openproblems-bio/openproblems \
   -r build/feature/no-ref/update-process-results \
   -main-script target/nextflow/reporting/process_task_results/main.nf \
