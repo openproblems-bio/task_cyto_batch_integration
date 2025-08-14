@@ -122,7 +122,10 @@
 
 * Schema defined in `src\api` has been modified to include dataset specific parameters (PR #71).
 
-*  Disabled parallelization of `metrics/cms` + cms distributions are now kept in the output AnnData object(PR #83).
+* Disabled parallelization of `metrics/cms` + cms distributions are now kept in the output AnnData object (PR #83).
+
+* Add arguments for including/excluding methods in the benchmarking workflow (PR #100).
+
 
 ## BUG FIXES
 
