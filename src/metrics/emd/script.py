@@ -9,9 +9,9 @@ par = {
     "input_integrated_split1": "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/integrated_split1.h5ad",
     "input_integrated_split2": "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/integrated_split2.h5ad",
     "input_unintegrated": "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/unintegrated.h5ad",
-    # "input_integrated_split1": "resources_test/task_cyto_batch_integration/cytonorm_data_full/cycombine_mid_out.h5ad",
-    # "input_integrated_split2": "resources_test/task_cyto_batch_integration/cytonorm_data_full/cycombine_mid_out.h5ad",
-    # "input_unintegrated": "resources_test/task_cyto_batch_integration/cytonorm_data_full/unintegrated.h5ad",
+    # "input_integrated_split1": "resources_test/task_cyto_batch_integration/human_blood_mass_cytometry_subset/integrated_split1.h5ad",
+    # "input_integrated_split2": "resources_test/task_cyto_batch_integration/human_blood_mass_cytometry_subset/integrated_split2.h5ad",
+    # "input_unintegrated": "resources_test/task_cyto_batch_integration/human_blood_mass_cytometry_subset/unintegrated.h5ad",
     "output": "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/emd_out.h5ad",
 }
 meta = {"name": "emd", "resources_dir": "src/utils/"}
@@ -19,10 +19,10 @@ meta = {"name": "emd", "resources_dir": "src/utils/"}
 
 sys.path.append(meta["resources_dir"])
 
+# import src.metrics.emd.helper as emd_helper
+# import src.utils.helper_functions as global_helper
 import helper as emd_helper
 import helper_functions as global_helper
-
-# import src.metrics.emd.helper as emd_helper
 
 print("Reading input files", flush=True)
 
@@ -63,36 +63,16 @@ markers_to_assess = input_unintegrated.var_names[
 dataset_id = input_unintegrated.uns["dataset_id"]
 method_id = input_integrated_split1.uns["method_id"]
 
-# shouldn't need these anymore
-# del input_unintegrated
+
+# check that the data for each donor in integrated left and right are actually
+# from two different batches!
+emd_helper.check_donor_batches(
+    input_integrated_split1=input_integrated_split1,
+    input_integrated_split2=input_integrated_split2,
+)
 
 # calculate horizontal EMD for each donor across integrated left and right
 donor_list = input_integrated_split1.obs["donor"].unique()
-
-# check that the data for each donor in integrated left and right are actually from two different batches!
-for donor in donor_list:
-    # donor = donor_list[0]
-    batch_split1 = input_integrated_split1.obs[
-        input_integrated_split1.obs["donor"] == donor
-    ]["batch"].unique()
-    batch_split2 = input_integrated_split2.obs[
-        input_integrated_split2.obs["donor"] == donor
-    ]["batch"].unique()
-
-    if len(batch_split1) > 1 or len(batch_split2) > 1:
-        raise ValueError(
-            f"Donor {donor} has samples in {len(batch_split1)} batches in integrated left"
-            f" and {len(batch_split2)} batches in integrated right.It should only have"
-            f"samples in exactly ONE batch in each of integrated left and integrated right."
-        )
-
-    if batch_split1[0] == batch_split2[0]:
-        raise ValueError(
-            f"Donor {donor} has samples in the same batch for both integrated left and right.\n"
-            f"Integrated left batch id: {batch_split1[0]}.\n"
-            f"Integrated right batch id: {batch_split2[0]}."
-        )
-
 emd_horz = emd_helper.calculate_horizontal_emd(
     i_split1_adata=input_integrated_split1,
     i_split2_adata=input_integrated_split2,

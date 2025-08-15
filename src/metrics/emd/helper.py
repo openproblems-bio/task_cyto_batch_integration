@@ -267,8 +267,8 @@ def calculate_horizontal_emd(
         )
         if len(cell_type_not_in_both) > 1:
             print(
-                f"In donor {donor}: some cell types are in left integrated output"
-                f" but not in right integrated output.\n"
+                f"In donor {donor}: some cell types are in split 1"
+                f" but not in split 2.\n"
                 f"Cell types missing: {''.join(cell_type_not_in_both)}]n"
                 f"Computing cell type EMD using just cell types common in both."
             )
@@ -287,9 +287,11 @@ def calculate_horizontal_emd(
             # Do not calculate if we have less than 50 cells as it does not make sense.
             if i_split1_ct.n_obs < 50 or i_split2_ct.n_obs < 50:
                 print(
-                    f"There are less than 50 cells for either left or right integrated "
-                    f"data for donor {donor} and cell type {cell_type}.\n"
-                    f"Skipping calculating EMD for this donor and cell type."
+                    f"There are less than 50 cells in either split 1 or split 2"
+                    f" for donor {donor} and cell type {cell_type}.\n"
+                    f"Split 1 {cell_type}: {i_split1_ct.n_obs} cells.\n"
+                    f"Split 2 {cell_type}: {i_split2_ct.n_obs} cells.\n"
+                    f"Skipping calculating horizontal EMD for this donor and cell type."
                 )
                 continue
 
@@ -424,3 +426,34 @@ def bin_array(values):
 
     # the 1st return value is the bin indices
     return bin_indices, bin_probabilities
+
+
+def check_donor_batches(input_integrated_split1, input_integrated_split2):
+    """
+    Ensure each donor is present in exactly one batch per split,
+    and that the batch IDs differ between splits.
+    """
+
+    donor_list = input_integrated_split1.obs["donor"].unique()
+
+    for donor in donor_list:
+        batch_split1 = input_integrated_split1.obs[
+            input_integrated_split1.obs["donor"] == donor
+        ]["batch"].unique()
+        batch_split2 = input_integrated_split2.obs[
+            input_integrated_split2.obs["donor"] == donor
+        ]["batch"].unique()
+
+        if len(batch_split1) > 1 or len(batch_split2) > 1:
+            raise ValueError(
+                f"Donor {donor} has samples in {len(batch_split1)} batches in integrated left"
+                f" and {len(batch_split2)} batches in integrated right. It should only have"
+                f" samples in exactly ONE batch in each of integrated left and integrated right."
+            )
+
+        if batch_split1[0] == batch_split2[0]:
+            raise ValueError(
+                f"Donor {donor} has samples in the same batch for both integrated left and right.\n"
+                f"Integrated left batch id: {batch_split1[0]}.\n"
+                f"Integrated right batch id: {batch_split2[0]}."
+            )
