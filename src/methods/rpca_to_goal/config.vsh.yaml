@@ -1,22 +1,8 @@
-# The API specifies which type of component this is.
-# It contains specifications for:
-#   - The input/output files
-#   - Common parameters
-#   - A unit test
 __merge__: ../../api/comp_method.yaml
-
-# A unique identifier for your component (required).
-# Can contain only lowercase letters or underscores.
 name: rpca_to_goal
-# A relatively short label, used when rendering visualisations (required)
+status: disabled
 label: Seurat RPCA (to-goal)
-
-# A one sentence summary of how this method works (required). Used when 
-# rendering summary tables.
 summary: "Batch integrate data to a goal batch using mutual nearest neighbors identified via Seurat reciprocal PCA."
-
-# A multi-line description of how this component works (required). Used
-# when rendering reference documentation.
 description: |
   Seurat RPCA performs batch integration by projecting each query dataset into the PCA space 
   of a goal batch, and identifying anchors using reciprocal PCA (RPCA). 
@@ -48,9 +34,7 @@ references:
       }
 
 links:
-  # URL to the documentation for this method (required).
   documentation: https://satijalab.org/seurat/articles/integration_rpca.html
-  # URL to the code repository for this method (required).
   repository: https://github.com/satijalab/seurat
 
 argument_groups:
