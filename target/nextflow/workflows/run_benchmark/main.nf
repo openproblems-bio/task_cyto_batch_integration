@@ -3532,8 +3532,40 @@ meta = [
       "arguments" : [
         {
           "type" : "string",
-          "name" : "--method_ids",
-          "description" : "A list of method ids to run. If not specified, all methods will be run.",
+          "name" : "--methods_include",
+          "description" : "A list of method ids to include. If specified, only these methods will be run.\n",
+          "required" : false,
+          "direction" : "input",
+          "multiple" : true,
+          "multiple_sep" : ";"
+        },
+        {
+          "type" : "string",
+          "name" : "--methods_exclude",
+          "description" : "A list of method ids to exclude. If specified, all methods except the ones listed will be run.\n",
+          "required" : false,
+          "direction" : "input",
+          "multiple" : true,
+          "multiple_sep" : ";"
+        }
+      ]
+    },
+    {
+      "name" : "Metrics",
+      "arguments" : [
+        {
+          "type" : "string",
+          "name" : "--metrics_include",
+          "description" : "A list of metric ids to include. If specified, only these metrics will be run.\n",
+          "required" : false,
+          "direction" : "input",
+          "multiple" : true,
+          "multiple_sep" : ";"
+        },
+        {
+          "type" : "string",
+          "name" : "--metrics_exclude",
+          "description" : "A list of metric ids to exclude. If specified, all metrics except the ones listed will be run.\n",
           "required" : false,
           "direction" : "input",
           "multiple" : true,
@@ -3552,6 +3584,10 @@ meta = [
     {
       "type" : "file",
       "path" : "/_viash.yaml"
+    },
+    {
+      "type" : "file",
+      "path" : "/common/nextflow_helpers/helper.nf"
     }
   ],
   "status" : "enabled",
@@ -3793,7 +3829,7 @@ meta = [
     "engine" : "native",
     "output" : "target/nextflow/workflows/run_benchmark",
     "viash_version" : "0.9.4",
-    "git_commit" : "dbaeb0f62f1044b011c1fc2c0932ed00479f99b5",
+    "git_commit" : "a1a1e7651f076eb02328c7bc48fda3b801d993d8",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3927,6 +3963,8 @@ include { bras } from "${meta.resources_dir}/../../../nextflow/metrics/bras/main
 
 // inner workflow
 // user-provided Nextflow code
+include { checkItemAllowed } from "${meta.resources_dir}/helper.nf"
+
 workflow auto {
   findStates(params, meta.config)
     | meta.workflow.run(
@@ -4010,9 +4048,15 @@ workflow run_wf {
 
       // run only non-control methods & filter by method_ids
       filter: { id, state, comp ->
-        def id_filter = !state.method_ids || state.method_ids.contains(comp.config.name)
+        def method_check = checkItemAllowed(
+          comp.config.name,
+          state.methods_include,
+          state.methods_exclude,
+          "methods_include",
+          "methods_exclude"
+        )
         def method_filter = comp.config.info.type == "method"
-        id_filter && method_filter
+        method_check && method_filter
       },
 
       // define a new 'id' by appending the method name to the dataset id
@@ -4056,9 +4100,15 @@ workflow run_wf {
 
       // run only control methods & filter by method_ids
       filter: { id, state, comp ->
-        def id_filter = !state.method_ids || state.method_ids.contains(comp.config.name)
+        def method_check = checkItemAllowed(
+          comp.config.name,
+          state.methods_include,
+          state.methods_exclude,
+          "methods_include",
+          "methods_exclude"
+        )
         def method_filter = comp.config.info.type == "control_method"
-        id_filter && method_filter
+        method_check && method_filter
       },
 
       // define a new 'id' by appending the method name to the dataset id
@@ -4088,6 +4138,18 @@ workflow run_wf {
       components: metrics,
       id: { id, state, comp ->
         id + "." + comp.config.name
+      },
+      filter: { id, state, comp ->
+        // filter by metric_ids
+        def metric_check = checkItemAllowed(
+          comp.config.name,
+          state.metrics_include,
+          state.metrics_exclude,
+          "metrics_include",
+          "metrics_exclude"
+        )
+        // filter by method_id
+        metric_check
       },
       // use 'fromState' to fetch the arguments the component requires from the overall state
       fromState: [
