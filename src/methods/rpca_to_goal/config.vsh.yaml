@@ -1,6 +1,6 @@
 __merge__: ../../api/comp_method.yaml
 name: rpca_to_goal
-status: disabled
+# status: disabled
 label: Seurat RPCA (to-goal)
 summary: "Batch integrate data to a goal batch using mutual nearest neighbors identified via Seurat reciprocal PCA."
 description: |

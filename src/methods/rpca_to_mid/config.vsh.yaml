@@ -1,6 +1,6 @@
 __merge__: ../../api/comp_method.yaml
 name: rpca_to_mid
-status: disabled
+# status: disabled
 label: Seurat RPCA (to-middle)
 summary: "Batch integrate data to a midpoint using mutual nearest neighbors identified via Seurat reciprocal PCA."
 description: |
