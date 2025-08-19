@@ -13,6 +13,9 @@ meta <- list(
 )
 ## VIASH END
 
+options(future.globals.maxSize = 5 * 1024^3)  # 5 GiB
+
+
 cat("Reading input files\n")
 input_adata <- anndata::read_h5ad(par[["input"]])
 
