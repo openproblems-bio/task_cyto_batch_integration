@@ -1,0 +1,44 @@
+# The API specifies which type of component this is.
+# It contains specifications for:
+#   - The input/output files
+#   - Common parameters
+#   - A unit test
+__merge__: ../../api/comp_method.yaml
+
+# A unique identifier for your component (required).
+# Can contain only lowercase letters or underscores.
+name: combat
+# A relatively short label, used when rendering visualisations (required)
+label: Combat
+# A one sentence summary of how this method works (required). Used when 
+# rendering summary tables.
+summary: "ComBat batch correction for single-cell data, implemented in the scanpy package"
+# A multi-line description of how this component works (required). Used
+# when rendering reference documentation.
+description: |
+  Corrects for batch effects by fitting linear models, gains statistical power via an EB framework where information is borrowed across genes. 
+  This uses the implementation combat.py
+references:
+  doi: 10.1093/biostatistics/kxj037
+links:
+  repository: https://github.com/brentp/combat.py
+  documentation: https://scanpy.readthedocs.io/en/latest/api/generated/scanpy.pp.combat.html
+
+resources:
+  # The script of your component (required)
+  - type: python_script
+    path: script.py
+  # Additional resources your script needs (optional)
+  # - type: file
+  #   path: weights.pt
+
+engines:
+  - type: docker
+    image: openproblems/base_python:1
+
+
+runners:
+  - type: executable
+  - type: nextflow
+    directives:
+      label: [midtime,midmem,midcpu]

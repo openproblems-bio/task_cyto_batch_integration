@@ -1,0 +1,135 @@
+
+__merge__: ../../api/comp_metric.yaml
+
+name: average_batch_r2
+
+# Metadata for your component
+info:
+  metrics:
+      # A unique identifier for your metric (required).
+      # Can contain only lowercase letters or underscores.
+    - name: average_batch_r2_global
+      # A relatively short label, used when rendering visualisarions (required)
+      label: Average Batch R-squared Global
+      # A one sentence summary of how this metric works (required). Used when 
+      # rendering summary tables.
+      summary: "Quantifies how strongly the batch covariate explains the variance in the data among technical replicates after correction."
+      # A multi-line description of how this component works (required). Used
+      # when rendering reference documentation.
+      description: |
+        First, a simple linear model is fitted for each paired sample and marker to determine the fraction of variance ($R^{2}$) explained by the batch covariate $B$.
+        The average batch R-squared is then computed as the average of the $R^{2}$ values across all paired samples, markers.
+        As a result, $\overline{R^2_B}_{global}$ quantifies how much of the total variability in the data is driven by batch effects. Consequently, lower values are desirable.
+
+        $\overline{R^2_B}_{global} = \frac{1}{N*M}\sum_{\substack{(x_{\mathrm{split1}},\,x_{\mathrm{split2}})\\ \textit{paired samples}}}^{N} \sum_{i=1}^{M} \,R^2\!\bigl(\mathrm{marker}_i \mid B\bigr)$ 
+
+        Where:
+        * $N$ is the number of paired samples, where $x_{\mathrm{split1}}$ and $x_{\mathrm{split2}}$ are the two technical replicates that have been batch-corrected. Technical replicates belong to different batches.
+        * $M$ is the number of markers
+        * $B$ is the batch covariate
+
+        A higher value of $\overline{R^2_B}_{global}$ indicates that the batch variable explains more of the variance in the data, which indicates a higher level of batch effects.
+
+
+      references:
+        bibtex:
+          - |
+            @book{draper1998applied,
+            title={Applied regression analysis},
+            author={Draper, Norman R and Smith, Harry},
+            publisher={John Wiley \& Sons}
+            }
+      links:
+        # URL to the documentation for this metric (required).
+        documentation: https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LinearRegression.html
+        # URL to the code repository for this metric (required).
+        repository: https://github.com/scikit-learn/scikit-learn
+      # The minimum possible value for this metric (required)
+      min: -0.001
+      # The maximum possible value for this metric (required)
+      max: 1
+      # Whether a higher value represents a 'better' solution (required)
+      maximize: false
+
+
+    - name: average_batch_r2_ct
+      # A relatively short label, used when rendering visualisarions (required)
+      label: Average Batch R-squared Cell Type
+      # A one sentence summary of how this metric works (required). Used when 
+      # rendering summary tables.
+      summary: "Quantifies how strongly the batch covariate explains the variance in the data among technical replicates after correction (by taking into account cell type effect)."
+      # A multi-line description of how this component works (required). Used
+      # when rendering reference documentation.
+      description: |
+        First, a simple linear model is fitted for each paired sample and marker to determine the fraction of variance ($R^{2}$) explained by the batch covariate $B$.
+        The average batch R-squared is then computed as the average of the $R^{2}$ values across all paired samples, markers, cell types.
+        As a result, $\overline{R^2_B}_{cell\ type}$ quantifies how much of the total variability in the data is driven by batch effects. Consequently, lower values are desirable.
+
+        $\overline{R^2_B}_{cell\ type} = \frac{1}{N*C*M}\sum_{\substack{(x_{\mathrm{split1}},\,x_{\mathrm{split2}})\\ \textit{paired samples}}}^{N} \sum_{j=1}^{C} \sum_{i=1}^{M}\,R^2\!\bigl(\mathrm{marker}_i \mid B\bigr)$
+
+        Where:
+
+        * $N$ is the number of paired samples, where $x_{\mathrm{split1}}$ and $x_{\mathrm{split2}}$ are the two technical replicates that have been batch-corrected. Technical replicates belong to different batches.
+        * $M$ is the number of markers
+        * $C$ is the number of cell types
+        * $B$ is the batch covariate
+
+
+        A high value of $\overline{R^2_B}_{global}$ or $\overline{R^2_B}_{cell\ type}$ indicates that the batch variable explains a large portion of the variance in the data, which indicates a higher level of batch effects.
+        A good performance on $\overline{R^2_B}_{global}$ but not on $\overline{R^2_B}_{cell\ type}$ might indicate that the batch effect correction is not addressing cell type specific batch effects.
+
+      references:
+        bibtex:
+          - |
+            @book{draper1998applied,
+            title={Applied regression analysis},
+            author={Draper, Norman R and Smith, Harry},
+            publisher={John Wiley \& Sons}
+            }
+      links:
+        # URL to the documentation for this metric (required).
+        documentation: https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LinearRegression.html
+        # URL to the code repository for this metric (required).
+        repository: https://github.com/scikit-learn/scikit-learn
+      # The minimum possible value for this metric (required)
+      min: -0.001
+      # The maximum possible value for this metric (required)
+      max: 1
+      # Whether a higher value represents a 'better' solution (required)
+      maximize: false
+
+
+# Component-specific parameters (optional)
+# arguments:
+#   - name: "--n_neighbors"
+#     type: "integer"
+#     default: 5
+#     description: Number of neighbors to use.
+
+# Resources required to run the component
+resources:
+  # The script of your component (required)
+  - type: python_script
+    path: script.py
+  - path: helper.py
+  - path: /src/utils/helper_functions.py
+
+
+engines:
+  # Specifications for the Docker image for this component.
+  - type: docker
+    image: openproblems/base_python:1
+    # Add custom dependencies here (optional). For more information, see
+    # https://viash.io/reference/config/engines/docker/#setup .
+    # setup:
+    #   - type: python
+    #     packages: numpy<2
+
+
+runners:
+  # This platform allows running the component natively
+  - type: executable
+  # Allows turning the component into a Nextflow module / pipeline.
+  - type: nextflow
+    directives:
+      label: [midtime,midmem,midcpu]

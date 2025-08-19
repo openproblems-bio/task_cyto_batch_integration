@@ -1,0 +1,14 @@
+/resources
+/resources_test
+/work
+/.nextflow*
+
+.DS_Store
+/output
+trace-*
+.ipynb_checkpoints
+/temp
+/.vscode
+*_iterative_test.*
+/resources_raw
+/*.tar

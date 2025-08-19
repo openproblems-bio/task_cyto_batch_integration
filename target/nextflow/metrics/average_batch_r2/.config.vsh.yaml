@@ -1,0 +1,455 @@
+name: "average_batch_r2"
+namespace: "metrics"
+version: "build_fix_failed_stuff"
+argument_groups:
+- name: "Arguments"
+  arguments:
+  - type: "file"
+    name: "--input_unintegrated"
+    label: "Unintegrated"
+    summary: "The complete unintegrated dataset.\n"
+    description: "The complete unintegrated dataset.\nThe cells in this dataset are\
+      \ the same to those in the censored dataset.\n"
+    info:
+      format:
+        type: "h5ad"
+        layers:
+        - type: "double"
+          name: "preprocessed"
+          description: "preprocessed data, e.g. already compensated, transformed and\
+            \ debris/doublets removed"
+          required: true
+        obs:
+        - type: "string"
+          name: "cell_type"
+          description: "Cell type information"
+          required: true
+        - type: "string"
+          name: "batch"
+          description: "Batch information"
+          required: true
+        - type: "string"
+          name: "sample"
+          description: "Sample ID"
+          required: true
+        - type: "string"
+          name: "donor"
+          description: "Donor ID"
+          required: true
+        - type: "string"
+          name: "group"
+          description: "Biological group of the donor"
+          required: true
+        - type: "integer"
+          name: "is_control"
+          description: "Whether the sample the cell came from can be used as a control\
+            \ for batch \neffect correction.\n\n* 0: cannot be used as a control.\n\
+            * >= 1: can be used as a control.\n* For cells with >= 1: cells with the\
+            \ same value come from the same donor.\n\nDifferent values indicate different\
+            \ donors.\n"
+          required: true
+        - type: "integer"
+          name: "split"
+          description: "Which split the cell will be used in.\n\n* 0: control samples\n\
+            * 1: split 1\n* 2: split 2\n"
+          required: true
+        var:
+        - type: "integer"
+          name: "numeric_id"
+          description: "Numeric ID associated with each marker"
+          required: true
+        - type: "string"
+          name: "channel"
+          description: "The channel / detector of the instrument"
+          required: true
+        - type: "string"
+          name: "marker"
+          description: "The marker name associated with the channel"
+          required: false
+        - type: "string"
+          name: "marker_type"
+          description: "Whether the marker is a functional or lineage marker"
+          required: true
+        - type: "boolean"
+          name: "to_correct"
+          description: "Whether the marker will be batch corrected"
+          required: true
+        uns:
+        - type: "string"
+          name: "dataset_id"
+          description: "A unique identifier for the dataset"
+          required: true
+        - name: "dataset_name"
+          type: "string"
+          description: "Nicely formatted name."
+          required: true
+        - type: "string"
+          name: "dataset_url"
+          description: "Link to the original source of the dataset."
+          required: false
+        - name: "dataset_reference"
+          type: "string"
+          description: "Bibtex reference of the paper in which the dataset was published."
+          required: false
+        - name: "dataset_summary"
+          type: "string"
+          description: "Short description of the dataset."
+          required: true
+        - name: "dataset_description"
+          type: "string"
+          description: "Long description of the dataset."
+          required: true
+        - name: "dataset_organism"
+          type: "string"
+          description: "The organism of the sample in the dataset."
+          required: false
+        - name: "parameter_som_xdim"
+          type: "integer"
+          description: "Parameter used to define the width of the self-organizing\
+            \ map (SOM) grid. Usually between 10 and 20."
+          required: true
+        - name: "parameter_som_ydim"
+          type: "integer"
+          description: "Parameter used to define the height of the self-organizing\
+            \ map (SOM) grid. Usually between 10 and 20."
+          required: true
+        - name: "parameter_num_clusters"
+          type: "integer"
+          description: "Parameter used to define the number of clusters. Set this\
+            \ number to be slightly higher than the number of cell types expected\
+            \ in the dataset."
+          required: true
+    example:
+    - "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/unintegrated.h5ad"
+    must_exist: true
+    create_parent: true
+    required: true
+    direction: "input"
+    multiple: false
+    multiple_sep: ";"
+  - type: "file"
+    name: "--input_integrated_split1"
+    label: "Integrated (split 1)"
+    summary: "Integrated dataset which batch effect was corrected by an algorithm"
+    info:
+      format:
+        type: "h5ad"
+        layers:
+        - type: "double"
+          name: "integrated"
+          description: "The integrated data as returned by a batch correction method"
+          required: true
+        uns:
+        - type: "string"
+          name: "dataset_id"
+          description: "A unique identifier for the dataset"
+          required: true
+        - type: "string"
+          name: "method_id"
+          description: "A unique identifier for the method"
+          required: true
+        - type: "object"
+          name: "parameters"
+          description: "The parameters used for the integration"
+          required: false
+    example:
+    - "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/integrated_split1.h5ad"
+    must_exist: true
+    create_parent: true
+    required: true
+    direction: "input"
+    multiple: false
+    multiple_sep: ";"
+  - type: "file"
+    name: "--input_integrated_split2"
+    label: "Integrated (split 2)"
+    summary: "Integrated dataset which batch effect was corrected by an algorithm"
+    info:
+      format:
+        type: "h5ad"
+        layers:
+        - type: "double"
+          name: "integrated"
+          description: "The integrated data as returned by a batch correction method"
+          required: true
+        uns:
+        - type: "string"
+          name: "dataset_id"
+          description: "A unique identifier for the dataset"
+          required: true
+        - type: "string"
+          name: "method_id"
+          description: "A unique identifier for the method"
+          required: true
+        - type: "object"
+          name: "parameters"
+          description: "The parameters used for the integration"
+          required: false
+    example:
+    - "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/integrated_split2.h5ad"
+    must_exist: true
+    create_parent: true
+    required: true
+    direction: "input"
+    multiple: false
+    multiple_sep: ";"
+  - type: "file"
+    name: "--output"
+    label: "Score"
+    summary: "File indicating the score of a metric."
+    info:
+      format:
+        type: "h5ad"
+        uns:
+        - type: "string"
+          name: "dataset_id"
+          description: "A unique identifier for the dataset"
+          required: true
+        - type: "string"
+          name: "method_id"
+          description: "A unique identifier for the batch correction method"
+          required: true
+        - type: "string"
+          name: "metric_ids"
+          description: "One or more unique metric identifiers"
+          multiple: true
+          required: true
+        - type: "double"
+          name: "metric_values"
+          description: "The metric values obtained. Must be of same length as 'metric_ids'."
+          multiple: true
+          required: true
+    example:
+    - "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/score.h5ad"
+    must_exist: true
+    create_parent: true
+    required: true
+    direction: "output"
+    multiple: false
+    multiple_sep: ";"
+resources:
+- type: "python_script"
+  path: "script.py"
+  is_executable: true
+- type: "file"
+  path: "helper.py"
+- type: "file"
+  path: "helper_functions.py"
+test_resources:
+- type: "python_script"
+  path: "run_and_check_output.py"
+  is_executable: true
+- type: "python_script"
+  path: "check_config.py"
+  is_executable: true
+- type: "file"
+  path: "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset"
+  dest: "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset"
+info:
+  metrics:
+  - name: "average_batch_r2_global"
+    label: "Average Batch R-squared Global"
+    summary: "Quantifies how strongly the batch covariate explains the variance in\
+      \ the data among technical replicates after correction."
+    description: "First, a simple linear model is fitted for each paired sample and\
+      \ marker to determine the fraction of variance ($R^{2}$) explained by the batch\
+      \ covariate $B$.\nThe average batch R-squared is then computed as the average\
+      \ of the $R^{2}$ values across all paired samples, markers.\nAs a result, $\\\
+      overline{R^2_B}_{global}$ quantifies how much of the total variability in the\
+      \ data is driven by batch effects. Consequently, lower values are desirable.\n\
+      \n$\\overline{R^2_B}_{global} = \\frac{1}{N*M}\\sum_{\\substack{(x_{\\mathrm{split1}},\\\
+      ,x_{\\mathrm{split2}})\\\\ \\textit{paired samples}}}^{N} \\sum_{i=1}^{M} \\\
+      ,R^2\\!\\bigl(\\mathrm{marker}_i \\mid B\\bigr)$ \n\nWhere:\n* $N$ is the number\
+      \ of paired samples, where $x_{\\mathrm{split1}}$ and $x_{\\mathrm{split2}}$\
+      \ are the two technical replicates that have been batch-corrected. Technical\
+      \ replicates belong to different batches.\n* $M$ is the number of markers\n\
+      * $B$ is the batch covariate\n\nA higher value of $\\overline{R^2_B}_{global}$\
+      \ indicates that the batch variable explains more of the variance in the data,\
+      \ which indicates a higher level of batch effects.\n"
+    references:
+      bibtex:
+      - "@book{draper1998applied,\ntitle={Applied regression analysis},\nauthor={Draper,\
+        \ Norman R and Smith, Harry},\npublisher={John Wiley \\& Sons}\n}\n"
+    links:
+      documentation: "https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LinearRegression.html"
+      repository: "https://github.com/scikit-learn/scikit-learn"
+    min: -0.001
+    max: 1
+    maximize: false
+  - name: "average_batch_r2_ct"
+    label: "Average Batch R-squared Cell Type"
+    summary: "Quantifies how strongly the batch covariate explains the variance in\
+      \ the data among technical replicates after correction (by taking into account\
+      \ cell type effect)."
+    description: "First, a simple linear model is fitted for each paired sample and\
+      \ marker to determine the fraction of variance ($R^{2}$) explained by the batch\
+      \ covariate $B$.\nThe average batch R-squared is then computed as the average\
+      \ of the $R^{2}$ values across all paired samples, markers, cell types.\nAs\
+      \ a result, $\\overline{R^2_B}_{cell\\ type}$ quantifies how much of the total\
+      \ variability in the data is driven by batch effects. Consequently, lower values\
+      \ are desirable.\n\n$\\overline{R^2_B}_{cell\\ type} = \\frac{1}{N*C*M}\\sum_{\\\
+      substack{(x_{\\mathrm{split1}},\\,x_{\\mathrm{split2}})\\\\ \\textit{paired\
+      \ samples}}}^{N} \\sum_{j=1}^{C} \\sum_{i=1}^{M}\\,R^2\\!\\bigl(\\mathrm{marker}_i\
+      \ \\mid B\\bigr)$\n\nWhere:\n\n* $N$ is the number of paired samples, where\
+      \ $x_{\\mathrm{split1}}$ and $x_{\\mathrm{split2}}$ are the two technical replicates\
+      \ that have been batch-corrected. Technical replicates belong to different batches.\n\
+      * $M$ is the number of markers\n* $C$ is the number of cell types\n* $B$ is\
+      \ the batch covariate\n\n\nA high value of $\\overline{R^2_B}_{global}$ or $\\\
+      overline{R^2_B}_{cell\\ type}$ indicates that the batch variable explains a\
+      \ large portion of the variance in the data, which indicates a higher level\
+      \ of batch effects.\nA good performance on $\\overline{R^2_B}_{global}$ but\
+      \ not on $\\overline{R^2_B}_{cell\\ type}$ might indicate that the batch effect\
+      \ correction is not addressing cell type specific batch effects.\n"
+    references:
+      bibtex:
+      - "@book{draper1998applied,\ntitle={Applied regression analysis},\nauthor={Draper,\
+        \ Norman R and Smith, Harry},\npublisher={John Wiley \\& Sons}\n}\n"
+    links:
+      documentation: "https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LinearRegression.html"
+      repository: "https://github.com/scikit-learn/scikit-learn"
+    min: -0.001
+    max: 1
+    maximize: false
+  type: "metric"
+  type_info:
+    label: "Metric"
+    summary: "A task template metric."
+    description: "A metric for evaluating method predictions.\n"
+status: "enabled"
+scope:
+  image: "public"
+  target: "public"
+repositories:
+- type: "github"
+  name: "op"
+  repo: "openproblems-bio/openproblems"
+  tag: "build/main"
+license: "MIT"
+links:
+  repository: "https://github.com/openproblems-bio/task_cyto_batch_integration"
+  docker_registry: "ghcr.io"
+runners:
+- type: "executable"
+  id: "executable"
+  docker_setup_strategy: "ifneedbepullelsecachedbuild"
+- type: "nextflow"
+  id: "nextflow"
+  directives:
+    label:
+    - "midtime"
+    - "midmem"
+    - "midcpu"
+    tag: "$id"
+  auto:
+    simplifyInput: true
+    simplifyOutput: false
+    transcript: false
+    publish: false
+  config:
+    labels:
+      lowmem: "memory = 20.Gb"
+      midmem: "memory = 50.Gb"
+      highmem: "memory = 100.Gb"
+      lowcpu: "cpus = 5"
+      midcpu: "cpus = 15"
+      highcpu: "cpus = 30"
+      lowtime: "time = 1.h"
+      midtime: "time = 4.h"
+      hightime: "time = 8.h"
+      veryhightime: "time = 24.h"
+  debug: false
+  container: "docker"
+engines:
+- type: "docker"
+  id: "docker"
+  image: "openproblems/base_python:1"
+  namespace_separator: "/"
+  entrypoint: []
+  cmd: null
+build_info:
+  config: "src/metrics/average_batch_r2/config.vsh.yaml"
+  runner: "nextflow"
+  engine: "docker"
+  output: "target/nextflow/metrics/average_batch_r2"
+  executable: "target/nextflow/metrics/average_batch_r2/main.nf"
+  viash_version: "0.9.4"
+  git_commit: "69c61c3e8661e6ab8880ce313018b42311b52f27"
+  git_remote: "https://github.com/openproblems-bio/task_cyto_batch_integration"
+package_config:
+  name: "task_cyto_batch_integration"
+  version: "build_fix_failed_stuff"
+  label: "Cyto Batch Integration"
+  summary: "Benchmarking of batch integration algorithms for cytometry data."
+  description: "Cytometry is a non-sequencing single cell profiling technique commonly\
+    \ used in clinical studies. \nIt is very sensitive to batch effects, which can\
+    \ lead to biases in the interpretation of the result. \nBatch integration algorithms\
+    \ are often used to mitigate this effect.\n\nIn this project, we are building\
+    \ a pipeline for reproducible and continuous benchmarking \nof batch integration\
+    \ algorithms for cytometry data.\nAs input, methods require cleaned and normalised\
+    \ (using arc-sinh or logicle transformation)\ndata with multiple batches, cell\
+    \ type labels, and biological subjects, with paired samples\nfrom a subject profiled\
+    \ across multiple batches.\nThe batch integrated output must be an integrated\
+    \ marker by cell matrix stored in \nAnndata format.\nAll markers in the input\
+    \ data must be returned, regardless of whether they were integrated or not.\n\
+    This output is then evaluated using metrics that assess how well the batch effects\n\
+    were removed and how much biological signals were preserved. \n"
+  info:
+    image: "The name of the image file to use for the component on the website."
+    test_resources:
+    - type: "s3"
+      path: "s3://openproblems-data/resources_test/task_cyto_batch_integration/"
+      dest: "resources_test/task_cyto_batch_integration"
+  repositories:
+  - type: "github"
+    name: "op"
+    repo: "openproblems-bio/openproblems"
+    tag: "build/main"
+  viash_version: "0.9.4"
+  source: "src"
+  target: "target"
+  config_mods:
+  - ".runners[.type == \"nextflow\"].config.labels := { lowmem : \"memory = 20.Gb\"\
+    , midmem : \"memory = 50.Gb\", highmem : \"memory = 100.Gb\", lowcpu : \"cpus\
+    \ = 5\", midcpu : \"cpus = 15\", highcpu : \"cpus = 30\", lowtime : \"time = 1.h\"\
+    , midtime : \"time = 4.h\", hightime : \"time = 8.h\", veryhightime : \"time =\
+    \ 24.h\" }\n"
+  authors:
+  - name: "Luca Leomazzi"
+    roles:
+    - "author"
+    - "maintainer"
+    info:
+      github: "LuLeom"
+  - name: "Givanna Putri"
+    roles:
+    - "author"
+    - "maintainer"
+    info:
+      github: "ghar1821"
+      orcid: "0000-0002-7399-8014"
+  - name: "Robrecht Cannoodt"
+    roles:
+    - "author"
+    info:
+      github: "rcannood"
+      orcid: "0000-0003-3641-729X"
+  - name: "Katrien Quintelier"
+    roles:
+    - "contributor"
+    info:
+      github: "KatrienQ"
+  - name: "Sofie Van Gassen"
+    roles:
+    - "contributor"
+    info:
+      github: "SofieVG"
+  keywords:
+  - "single-cell"
+  - "openproblems"
+  - "benchmark"
+  license: "MIT"
+  organization: "openproblems-bio"
+  links:
+    repository: "https://github.com/openproblems-bio/task_cyto_batch_integration"
+    docker_registry: "ghcr.io"
+    issue_tracker: "https://github.com/openproblems-bio/task_cyto_batch_integration/issues"
