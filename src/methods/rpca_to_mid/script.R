@@ -13,7 +13,7 @@ meta <- list(
 )
 ## VIASH END
 
-options(future.globals.maxSize = 5 * 1024^3)  # 5 GiB
+options(future.globals.maxSize = 8 * 1024^3)  # 8 GiB
 
 
 cat("Reading input files\n")
