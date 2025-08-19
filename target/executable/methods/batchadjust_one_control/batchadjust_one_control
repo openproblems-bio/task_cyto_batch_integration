@@ -451,9 +451,9 @@ RUN Rscript -e 'options(warn = 2); if (!requireNamespace("remotes", quietly = TR
   Rscript -e 'options(warn = 2); remotes::install_cran(c("docstring"), repos = "https://cran.rstudio.com")'
 
 LABEL org.opencontainers.image.description="Companion container for running component methods batchadjust_one_control"
-LABEL org.opencontainers.image.created="2025-08-19T00:01:01Z"
+LABEL org.opencontainers.image.created="2025-08-19T13:51:44Z"
 LABEL org.opencontainers.image.source="https://github.com/CUHIMSR/CytofBatchAdjust"
-LABEL org.opencontainers.image.revision="69c61c3e8661e6ab8880ce313018b42311b52f27"
+LABEL org.opencontainers.image.revision="a46b43dc1b2e77a8a0e1c24c95e0c2c777de62e0"
 LABEL org.opencontainers.image.version="build_fix_failed_stuff"
 
 VIASHDOCKER
@@ -1133,7 +1133,47 @@ source(paste0(meta\$resources_dir, "/BatchAdjust.R"))
 cat("Reading input files\\n")
 input <- anndata::read_h5ad(par[["input"]])
 #use Original_ID column to restore cell order after I/O operations
-input\$layers["preprocessed"][, "Original_ID"] <- seq(1, dim(input)[1])
+# input\$layers["preprocessed"][, "Original_ID"] <- seq(1, dim(input)[1])
+
+if (!"Original_ID" %in% input\$var_names) {
+    cat("Adding Original_ID to var and recreating input anndata\\n")
+    old_var <- input\$var
+    old_var[] <- lapply(old_var, function(x) if (is.factor(x)) as.character(x) else x)
+    old_var <- rbind(
+        old_var,
+        data.frame(
+            numeric_id=length(input\$var_names) + 1,
+            channel="Original_ID",
+            marker="",
+            marker_type="other",
+            to_correct=FALSE,
+            row.names = "Original_ID"
+    ))
+    old_var[] <- lapply(old_var, function(x) if (is.character(x)) as.factor(x) else x)
+    new_mat <- Matrix::as.matrix(input\$layers[["preprocessed"]])
+    new_mat <- cbind(new_mat, Original_ID = seq_len(nrow(new_mat)))
+
+    # create new anndata
+    input <- anndata::AnnData(
+      X = new_mat,
+      obs = input\$obs,
+      var = old_var,
+      layers = list(preprocessed = new_mat),
+      uns = list(
+        dataset_description = input\$uns\$dataset_description,
+        dataset_id = input\$uns\$dataset_id,
+        dataset_name = input\$uns\$dataset_name,
+        dataset_organism = input\$uns\$dataset_organism,
+        dataset_reference = input\$uns\$dataset_reference,
+        dataset_summary = input\$uns\$dataset_summary,
+        dataset_url = input\$uns\$dataset_url
+      )
+    )
+} else {
+  cat("Adding new Original_ID var\\n")
+  input\$layers["preprocessed"][, "Original_ID"] <- seq(1, dim(input)[1])
+
+}
 
 cat("Split cells\\n")
 input_controls <- input[input\$obs\$is_control == 1, ]
@@ -1149,8 +1189,8 @@ print(input_no_controls)
 #avoid NA due to invalid factor level
 input_controls\$obs\$sample <- as.character(input_controls\$obs\$sample)
 # Set sample names for batch-specific control files
-input_controls\$obs\$sample[input_controls\$obs\$batch == 1] <- "0Batch1_anchor"
-input_controls\$obs\$sample[input_controls\$obs\$batch == 2] <- "0Batch2_anchor"
+input_controls\$obs\$sample[input_controls\$obs\$batch == 1] <- "Batch1_anchor"
+input_controls\$obs\$sample[input_controls\$obs\$batch == 2] <- "Batch2_anchor"
 
 cat("Writing FCS files\\n")
 anndata_to_fcs(input_controls, out_dir = meta[["temp_dir"]])
@@ -1172,7 +1212,7 @@ BatchAdjust(
   outdir = output_dir,
   channelsFile = paste0(meta[["temp_dir"]], "/to_correct_list.txt"),
   anchorKeyword = "anchor",
-  batchKeyword = "atch", #skip 'b' to make it robust to upper/lowercase
+  batchKeyword = "Batch", #skip 'b' to make it robust to upper/lowercase
   method = perc,
   transformation = FALSE,
   addExt = NULL,

@@ -449,9 +449,9 @@ RUN Rscript -e 'options(warn = 2); if (!requireNamespace("remotes", quietly = TR
   Rscript -e 'options(warn = 2); remotes::install_url(c("https://cran.r-project.org/src/contrib/Archive/Seurat/Seurat_4.4.0.tar.gz", "https://cran.r-project.org/src/contrib/Archive/SeuratObject/SeuratObject_4.1.4.tar.gz"), repos = "https://cran.rstudio.com")'
 
 LABEL org.opencontainers.image.description="Companion container for running component methods rpca_to_mid"
-LABEL org.opencontainers.image.created="2025-08-19T00:01:02Z"
+LABEL org.opencontainers.image.created="2025-08-19T13:51:45Z"
 LABEL org.opencontainers.image.source="https://github.com/satijalab/seurat"
-LABEL org.opencontainers.image.revision="69c61c3e8661e6ab8880ce313018b42311b52f27"
+LABEL org.opencontainers.image.revision="a46b43dc1b2e77a8a0e1c24c95e0c2c777de62e0"
 LABEL org.opencontainers.image.version="build_fix_failed_stuff"
 
 VIASHDOCKER
@@ -1146,6 +1146,9 @@ options(.viash_orig_warn)
 rm(.viash_orig_warn)
 
 ## VIASH END
+
+options(future.globals.maxSize = 5 * 1024^3)  # 5 GiB
+
 
 cat("Reading input files\\n")
 input_adata <- anndata::read_h5ad(par[["input"]])
