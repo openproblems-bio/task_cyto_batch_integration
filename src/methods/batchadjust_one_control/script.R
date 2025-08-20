@@ -38,6 +38,8 @@ input <- anndata::read_h5ad(par[["input"]])
 #use Original_ID column to restore cell order after I/O operations
 # input$layers["preprocessed"][, "Original_ID"] <- seq(1, dim(input)[1])
 
+original_id_in_var <- "Original_ID" %in% input$var_names
+
 input <- add_original_id(input)
 
 cat("Split cells\n")
@@ -103,6 +105,11 @@ corrected_matrix <- corrected_matrix[order(corrected_matrix$Original_ID), ]
 order_check <- corrected_matrix$Original_ID == input$layers[['preprocessed']][, 'Original_ID']
 if (FALSE %in% order_check) {
   stop("Failed in restoring indexing")
+}
+
+# Remove Original_ID if it was not there in the beginning
+if (!original_id_in_var) {
+    corrected_matrix$Original_ID <- NULL
 }
 
 cat("Write output AnnData to file\n")

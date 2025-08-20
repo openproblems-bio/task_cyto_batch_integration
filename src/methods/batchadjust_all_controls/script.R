@@ -3,13 +3,15 @@ library(flowCore)
 ## VIASH START
 par <- list(
   input = "resources_test/debug/batchadjust/_viash_par/input_1/censored_split1.h5ad",
-  output = "output.h5ad",
+  output = "resources_test/debug/batchadjust/output.h5ad",
   percentile = as.integer('80')
 )
 meta <- list(
   name = "batchadjust_all_controls",
-  temp_dir = "/tmp"
+  temp_dir = "/tmp",
+  resources_dir = "src/methods/batchadjust_all_controls"
 )
+source("src/utils/anndata_to_fcs.R")
 ## VIASH END
 
 source(paste0(meta$resources_dir, "/utils.R"))
@@ -36,6 +38,8 @@ cat("Reading input files\n")
 input <- anndata::read_h5ad(par[["input"]])
 #use Original_ID column to restore cell order after I/O operations
 # input$layers["preprocessed"][, "Original_ID"] <- seq(1, dim(input)[1])
+
+original_id_in_var <- "Original_ID" %in% input$var_names
 
 input <- add_original_id(input)
 
@@ -103,6 +107,11 @@ corrected_matrix <- corrected_matrix[order(corrected_matrix$Original_ID), ]
 order_check <- corrected_matrix$Original_ID == input$layers[['preprocessed']][, 'Original_ID']
 if (FALSE %in% order_check) {
   stop("Failed in restoring indexing")
+}
+
+# Remove Original_ID if it was not there in the beginning
+if (!original_id_in_var) {
+    corrected_matrix$Original_ID <- NULL
 }
 
 cat("Write output AnnData to file\n")
