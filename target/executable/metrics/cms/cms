@@ -454,9 +454,9 @@ RUN Rscript -e 'options(warn = 2); if (!requireNamespace("remotes", quietly = TR
   Rscript -e 'options(warn = 2); remotes::install_github(c("scverse/anndataR@0.99.0"), repos = "https://cran.rstudio.com")'
 
 LABEL org.opencontainers.image.description="Companion container for running component metrics cms"
-LABEL org.opencontainers.image.created="2025-08-20T00:37:24Z"
+LABEL org.opencontainers.image.created="2025-08-20T02:36:23Z"
 LABEL org.opencontainers.image.source="https://github.com/openproblems-bio/task_cyto_batch_integration"
-LABEL org.opencontainers.image.revision="6d5550f51203ee20a1a97245893df1f936219d85"
+LABEL org.opencontainers.image.revision="8af2119ff0c6ca4ab59dcdad0867dba058099517"
 LABEL org.opencontainers.image.version="build_fix_failed_stuff"
 
 VIASHDOCKER
