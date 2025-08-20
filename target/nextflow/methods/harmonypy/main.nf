@@ -3337,7 +3337,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/methods/harmonypy",
     "viash_version" : "0.9.4",
-    "git_commit" : "b2de53e01e84fe0e396ffcd62a3179c336a7c15d",
+    "git_commit" : "5ea510a6d31b1c5277ebf876bdd713a70eaabb87",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
