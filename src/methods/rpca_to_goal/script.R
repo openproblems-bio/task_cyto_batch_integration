@@ -13,7 +13,7 @@ meta <- list(
 )
 ## VIASH END
 
-options(future.globals.maxSize = 8 * 1024^3)  # 8 GiB
+options(future.globals.maxSize = 25 * 1024^3)  # 25 GiB
 
 cat("Reading input files\n")
 input_adata <- anndata::read_h5ad(par[["input"]])
@@ -61,7 +61,7 @@ seurat_objs <- lapply(batches, function(batch) {
         object = seurat_obj,
         features = markers_to_correct,
         assay = "cyto",
-        verbose = FALSE
+        verbose = TRUE
     )
 
     # run pca. mandatory
@@ -74,7 +74,7 @@ seurat_objs <- lapply(batches, function(batch) {
         assay = "cyto",
         npcs = par[["npcs"]],
         approx = FALSE,
-        verbose = FALSE
+        verbose = TRUE
     )
 
     return(seurat_obj)
@@ -96,7 +96,7 @@ anchors <- Seurat::FindIntegrationAnchors(
     dims = seq(npcs_computed),
     k.anchor = par[["n_neighbours"]],
     reduction = "rpca",
-    verbose = FALSE,
+    verbose = TRUE,
     reference = which(names(seurat_objs) == "1")
 )
 
@@ -110,7 +110,7 @@ batch_corrected_seurat_obj <- Seurat::IntegrateData(
     features = markers_to_correct,
     features.to.integrate = markers_to_correct,
     dims = seq(npcs_computed),
-    verbose = FALSE
+    verbose = TRUE
 )
 # just to be sure!
 Seurat::DefaultAssay(batch_corrected_seurat_obj) <- "integrated"

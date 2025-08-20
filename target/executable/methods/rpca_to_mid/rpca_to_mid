@@ -449,9 +449,9 @@ RUN Rscript -e 'options(warn = 2); if (!requireNamespace("remotes", quietly = TR
   Rscript -e 'options(warn = 2); remotes::install_url(c("https://cran.r-project.org/src/contrib/Archive/Seurat/Seurat_4.4.0.tar.gz", "https://cran.r-project.org/src/contrib/Archive/SeuratObject/SeuratObject_4.1.4.tar.gz"), repos = "https://cran.rstudio.com")'
 
 LABEL org.opencontainers.image.description="Companion container for running component methods rpca_to_mid"
-LABEL org.opencontainers.image.created="2025-08-20T02:36:22Z"
+LABEL org.opencontainers.image.created="2025-08-20T03:52:03Z"
 LABEL org.opencontainers.image.source="https://github.com/satijalab/seurat"
-LABEL org.opencontainers.image.revision="8af2119ff0c6ca4ab59dcdad0867dba058099517"
+LABEL org.opencontainers.image.revision="b2de53e01e84fe0e396ffcd62a3179c336a7c15d"
 LABEL org.opencontainers.image.version="build_fix_failed_stuff"
 
 VIASHDOCKER
@@ -1147,7 +1147,7 @@ rm(.viash_orig_warn)
 
 ## VIASH END
 
-options(future.globals.maxSize = 8 * 1024^3)  # 8 GiB
+options(future.globals.maxSize = 25 * 1024^3)  # 25 GiB
 
 
 cat("Reading input files\\n")
@@ -1196,7 +1196,7 @@ seurat_objs <- lapply(batches, function(batch) {
         object = seurat_obj,
         features = markers_to_correct,
         assay = "cyto",
-        verbose = FALSE
+        verbose = TRUE
     )
 
     # run pca. mandatory
@@ -1209,7 +1209,7 @@ seurat_objs <- lapply(batches, function(batch) {
         assay = "cyto",
         npcs = par[["npcs"]],
         approx = FALSE,
-        verbose = FALSE
+        verbose = TRUE
     )
 
     return(seurat_obj)
@@ -1233,7 +1233,7 @@ anchors <- Seurat::FindIntegrationAnchors(
     dims = seq(npcs_computed),
     k.anchor = par[["n_neighbours"]],
     reduction = "rpca",
-    verbose = FALSE,
+    verbose = TRUE,
     reference = NULL
 )
 
@@ -1243,7 +1243,7 @@ batch_corrected_seurat_obj <- Seurat::IntegrateData(
     anchorset = anchors,
     features.to.integrate = markers_to_correct,
     dims = seq(npcs_computed),
-    verbose = FALSE,
+    verbose = TRUE,
 )
 # just to be sure!
 Seurat::DefaultAssay(batch_corrected_seurat_obj) <- "integrated"
