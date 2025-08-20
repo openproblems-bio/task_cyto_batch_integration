@@ -3384,7 +3384,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/methods/rpca_to_mid",
     "viash_version" : "0.9.4",
-    "git_commit" : "a46b43dc1b2e77a8a0e1c24c95e0c2c777de62e0",
+    "git_commit" : "6d5550f51203ee20a1a97245893df1f936219d85",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3538,7 +3538,7 @@ rm(.viash_orig_warn)
 
 ## VIASH END
 
-options(future.globals.maxSize = 5 * 1024^3)  # 5 GiB
+options(future.globals.maxSize = 8 * 1024^3)  # 8 GiB
 
 
 cat("Reading input files\\\\n")

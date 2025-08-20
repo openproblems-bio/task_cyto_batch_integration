@@ -3250,6 +3250,10 @@ meta = [
     {
       "type" : "file",
       "path" : "BatchAdjust.R"
+    },
+    {
+      "type" : "file",
+      "path" : "utils.R"
     }
   ],
   "label" : "Batchadjust with all controls",
@@ -3375,7 +3379,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/methods/batchadjust_all_controls",
     "viash_version" : "0.9.4",
-    "git_commit" : "a46b43dc1b2e77a8a0e1c24c95e0c2c777de62e0",
+    "git_commit" : "6d5550f51203ee20a1a97245893df1f936219d85",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3527,6 +3531,7 @@ rm(.viash_orig_warn)
 
 ## VIASH END
 
+source(paste0(meta\\$resources_dir, "/utils.R"))
 source(paste0(meta\\$resources_dir, "/anndata_to_fcs.R"))
 source(paste0(meta\\$resources_dir, "/BatchAdjust.R"))
 
@@ -3551,45 +3556,7 @@ input <- anndata::read_h5ad(par[["input"]])
 #use Original_ID column to restore cell order after I/O operations
 # input\\$layers["preprocessed"][, "Original_ID"] <- seq(1, dim(input)[1])
 
-if (!"Original_ID" %in% input\\$var_names) {
-    cat("Adding Original_ID to var and recreating input anndata\\\\n")
-    old_var <- input\\$var
-    old_var[] <- lapply(old_var, function(x) if (is.factor(x)) as.character(x) else x)
-    old_var <- rbind(
-        old_var,
-        data.frame(
-            numeric_id=length(input\\$var_names) + 1,
-            channel="Original_ID",
-            marker="",
-            marker_type="other",
-            to_correct=FALSE,
-            row.names = "Original_ID"
-    ))
-    old_var[] <- lapply(old_var, function(x) if (is.character(x)) as.factor(x) else x)
-    new_mat <- Matrix::as.matrix(input\\$layers[["preprocessed"]])
-    new_mat <- cbind(new_mat, Original_ID = seq_len(nrow(new_mat)))
-
-    # create new anndata
-    input <- anndata::AnnData(
-      X = new_mat,
-      obs = input\\$obs,
-      var = old_var,
-      layers = list(preprocessed = new_mat),
-      uns = list(
-        dataset_description = input\\$uns\\$dataset_description,
-        dataset_id = input\\$uns\\$dataset_id,
-        dataset_name = input\\$uns\\$dataset_name,
-        dataset_organism = input\\$uns\\$dataset_organism,
-        dataset_reference = input\\$uns\\$dataset_reference,
-        dataset_summary = input\\$uns\\$dataset_summary,
-        dataset_url = input\\$uns\\$dataset_url
-      )
-    )
-} else {
-  cat("Adding new Original_ID var\\\\n")
-  input\\$layers["preprocessed"][, "Original_ID"] <- seq(1, dim(input)[1])
-
-}
+input <- add_original_id(input)
 
 cat("Split cells\\\\n")
 input_controls <- input[input\\$obs\\$is_control != 0, ]
@@ -3604,6 +3571,11 @@ print(input_no_controls)
 
 #avoid NA due to invalid factor level
 input_controls\\$obs\\$sample <- as.character(input_controls\\$obs\\$sample)
+
+
+# make sure there is _ after the batch1 or batch2, otherwise batchadjust won't find the fcs files.
+input_no_controls\\$obs\\$sample <- sapply(input_no_controls\\$obs\\$sample, fix_batch_underscore_anynum)
+
 # Set sample names for batch-specific control files
 input_controls\\$obs\\$sample[input_controls\\$obs\\$batch == 1] <- "Batch1_anchor"
 input_controls\\$obs\\$sample[input_controls\\$obs\\$batch == 2] <- "Batch2_anchor"
