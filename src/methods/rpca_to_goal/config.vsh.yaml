@@ -84,4 +84,4 @@ runners:
   # Allows turning the component into a Nextflow module / pipeline.
   - type: nextflow
     directives:
-      label: [hightime,midmem,midcpu]
+      label: [veryhightime,midmem,midcpu]
