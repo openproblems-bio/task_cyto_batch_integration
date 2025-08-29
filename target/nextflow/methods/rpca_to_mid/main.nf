@@ -3329,7 +3329,7 @@ meta = [
       "id" : "nextflow",
       "directives" : {
         "label" : [
-          "hightime",
+          "veryhightime",
           "midmem",
           "midcpu"
         ],
@@ -3384,7 +3384,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/methods/rpca_to_mid",
     "viash_version" : "0.9.4",
-    "git_commit" : "5ea510a6d31b1c5277ebf876bdd713a70eaabb87",
+    "git_commit" : "9fbefbbd3aeca5a77c74bcbdcf659b04424c00ab",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -4056,7 +4056,7 @@ meta["defaults"] = [
     "tag" : "build_fix_failed_stuff"
   },
   "label" : [
-    "hightime",
+    "veryhightime",
     "midmem",
     "midcpu"
   ],

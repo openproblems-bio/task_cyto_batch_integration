@@ -3527,7 +3527,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/metrics/cms",
     "viash_version" : "0.9.4",
-    "git_commit" : "5ea510a6d31b1c5277ebf876bdd713a70eaabb87",
+    "git_commit" : "9fbefbbd3aeca5a77c74bcbdcf659b04424c00ab",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3706,11 +3706,13 @@ integrated_split2 <- anndataR::read_h5ad(par[["input_integrated_split2"]])
 cat("Fetching metadata from unintegrated\\\\n")
 integrated_split1 <- get_obs_var_for_integrated(
     i_adata = integrated_split1,
-    u_adata = unintegrated
+    u_adata = unintegrated,
+    split_id = 1
 )
 integrated_split2 <- get_obs_var_for_integrated(
     i_adata = integrated_split2,
-    u_adata = unintegrated
+    u_adata = unintegrated,
+    split_id = 2
 )
 
 # Get markers to correct

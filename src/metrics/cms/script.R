@@ -43,11 +43,13 @@ integrated_split2 <- anndataR::read_h5ad(par[["input_integrated_split2"]])
 cat("Fetching metadata from unintegrated\n")
 integrated_split1 <- get_obs_var_for_integrated(
     i_adata = integrated_split1,
-    u_adata = unintegrated
+    u_adata = unintegrated,
+    split_id = 1
 )
 integrated_split2 <- get_obs_var_for_integrated(
     i_adata = integrated_split2,
-    u_adata = unintegrated
+    u_adata = unintegrated,
+    split_id = 2
 )
 
 # Get markers to correct
