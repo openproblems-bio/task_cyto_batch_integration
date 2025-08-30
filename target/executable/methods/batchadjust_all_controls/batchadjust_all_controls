@@ -451,9 +451,9 @@ RUN Rscript -e 'options(warn = 2); if (!requireNamespace("remotes", quietly = TR
   Rscript -e 'options(warn = 2); remotes::install_cran(c("docstring"), repos = "https://cran.rstudio.com")'
 
 LABEL org.opencontainers.image.description="Companion container for running component methods batchadjust_all_controls"
-LABEL org.opencontainers.image.created="2025-08-30T05:23:26Z"
+LABEL org.opencontainers.image.created="2025-08-30T09:17:16Z"
 LABEL org.opencontainers.image.source="https://github.com/CUHIMSR/CytofBatchAdjust"
-LABEL org.opencontainers.image.revision="18a7440ffb76b02ebd3f03f76a7ee6fb7140fb2a"
+LABEL org.opencontainers.image.revision="d715b27ed45530123a59a68e5ba4f1bc766e22ef"
 LABEL org.opencontainers.image.version="build_fix_failed_stuff"
 
 VIASHDOCKER
