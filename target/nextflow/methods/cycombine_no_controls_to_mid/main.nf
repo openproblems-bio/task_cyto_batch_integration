@@ -3365,6 +3365,9 @@ meta = [
       "setup" : [
         {
           "type" : "r",
+          "packages" : [
+            "pbmcapply"
+          ],
           "bioc" : [
             "sva"
           ],
@@ -3383,7 +3386,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/methods/cycombine_no_controls_to_mid",
     "viash_version" : "0.9.4",
-    "git_commit" : "9fbefbbd3aeca5a77c74bcbdcf659b04424c00ab",
+    "git_commit" : "18a7440ffb76b02ebd3f03f76a7ee6fb7140fb2a",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
