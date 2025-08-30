@@ -6,10 +6,14 @@ par <- list(
   "input_unintegrated" = 'resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/unintegrated.h5ad',
   "input_integrated_split1" = 'resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/integrated_split1.h5ad',
   "input_integrated_split2" = 'resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/integrated_split2.h5ad',
+  # if using perfect integration
+  # input_integrated_split1 = "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/perfect_integrated_split1.h5ad",
+  # input_integrated_split2 = "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/perfect_integrated_split2.h5ad",
   "output" = 'resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/score.h5ad'
 )
 meta <- list(
-  "name" = 'flowsom_mapping_similarity'
+  "name" = 'flowsom_mapping_similarity',
+  "resources_dir" = "src/utils"
 )
 ## VIASH END
 
@@ -18,19 +22,16 @@ source(paste0(meta$resources_dir, "/helper_functions.R"))
 library(anndata)
 
 unintegrated <- anndata::read_h5ad(par[["input_unintegrated"]])
-integrated_s1 <- anndata::read_h5ad(par[["input_integrated_split1"]]) 
 
-print(unintegrated)
-print(integrated_s1)
 # read and filter split 1 data
 integrated_s1 <- anndata::read_h5ad(par[["input_integrated_split1"]]) |>
-  get_obs_var_for_integrated(unintegrated) |>
+  get_obs_var_for_integrated(unintegrated, split_id = 1) |>
   subset_nocontrols() |>
   remove_unlabelled()
 
 # read and filter split 2 data
 integrated_s2 <- anndata::read_h5ad(par[["input_integrated_split2"]]) |>
-  get_obs_var_for_integrated(unintegrated) |>
+  get_obs_var_for_integrated(unintegrated, split_id = 2) |>
   subset_nocontrols() |>
   remove_unlabelled()
 
