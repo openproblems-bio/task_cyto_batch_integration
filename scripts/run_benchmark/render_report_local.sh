@@ -13,7 +13,7 @@ BASE_DIR="s3://openproblems-data/resources/$TASK/results"
 OUTPUT_DIR="output/report"
 
 # find subdir in bucket with latest date
-DATE=$(aws s3 ls $BASE_DIR --recursive | awk '{print $4}' | grep 'task_info.yaml' | sort -r | head -n 1 | sed 's#.*/run_\(.*\)/[^/]*$#\1#')
+DATE=$(aws s3 ls $BASE_DIR --recursive --no-sign-request | awk '{print $4}' | grep 'task_info.yaml' | sort -r | head -n 1 | sed 's#.*/run_\(.*\)/[^/]*$#\1#')
 
 INPUT_DIR="$BASE_DIR/run_$DATE"
 TASK_STRIP_PREFIX=$(echo $TASK | sed 's/task_//')
