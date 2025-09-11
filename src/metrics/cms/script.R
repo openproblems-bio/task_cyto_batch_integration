@@ -28,6 +28,9 @@ cores_to_use <- meta$cpus
 if (is.null(cores_to_use)) {
     cores_to_use <- min(5, parallel::detectCores() - 2)
 }
+bpparam <- BiocParallel::MulticoreParam(
+    workers = cores_to_use
+)
 
 source(paste0(meta$resources_dir, "/helper_functions.R"))
 
@@ -37,87 +40,96 @@ unintegrated <- anndataR::read_h5ad(par[["input_unintegrated"]])
 integrated_split1 <- anndataR::read_h5ad(par[["input_integrated_split1"]])
 integrated_split2 <- anndataR::read_h5ad(par[["input_integrated_split2"]])
 
-cat("Fetching some metadata from unintegrated\n")
+cat("Fetching metadata from unintegrated\n")
 integrated_split1 <- get_obs_var_for_integrated(
     i_adata = integrated_split1,
-    u_adata = unintegrated
+    u_adata = unintegrated,
+    split_id = 1
 )
 integrated_split2 <- get_obs_var_for_integrated(
     i_adata = integrated_split2,
-    u_adata = unintegrated
+    u_adata = unintegrated,
+    split_id = 2
 )
-
-# Fetch batch annotations from unintegrated
-# batch_key <- input_unintegrated$obs$batch
 
 # Get markers to correct
 markers_to_correct <- unintegrated$var_names[unintegrated$var$to_correct]
 
-cat("Converting to SingleCellExperiment object\n")
-
-# Convert to SingleCellExperiment
-integrated_split1_sce <- integrated_split1$as_SingleCellExperiment()
-integrated_split1_sce <- integrated_split1_sce[markers_to_correct, ]
-
-integrated_split2_sce <- integrated_split2$as_SingleCellExperiment()
-integrated_split2_sce <- integrated_split2_sce[markers_to_correct, ]
-
-# cores_to_use <- 5
-bpparam <- BiocParallel::MulticoreParam(
-    workers = cores_to_use
-)
 cat(paste("Compute Cell Mixing Score using", cores_to_use, "cores for split 1\n"))
 
-integrated_split1_sce <- CellMixS::cms(
-    integrated_split1_sce,
+cms_distr_split1 <- list()
+medcouples_split1 <- list()
+
+integrated_subset <- subset_by_celltype(
+    integrated_split1,
+    frac = 0.6,
+    seed = 1
+)
+
+cat("Transforming to SingleCellExperiment and subsetting markers\n")
+integrated_subset_sce <- integrated_subset$as_SingleCellExperiment()
+integrated_subset_sce <- integrated_subset_sce[markers_to_correct, ]
+cat("Computing Cell Mixing Scores\n")
+integrated_subset_sce <- CellMixS::cms(
+    integrated_subset_sce,
     group = "batch",
     assay_name = "integrated",
     k = par[["n_neighbors"]],
     n_dim = par[["n_dim"]],
     BPPARAM = bpparam
 )
+distr <- SingleCellExperiment::colData(integrated_subset_sce)[, "cms"]
+cms_distr_split1[["split1"]] <- distr
+medcouples_split1[["split1"]] <- robustbase::mc(distr)
 
-cat(paste("Compute Cell Mixing Score using", cores_to_use, "cores for split 2\n"))
+cat(paste("Compute Cell Mixing Score using", cores_to_use, "cores for split 2\n"), flush = TRUE)
 
-integrated_split2_sce <- CellMixS::cms(
-    integrated_split2_sce,
+cms_distr_split2 <- list()
+medcouples_split2 <- list()
+
+integrated_subset <- subset_by_celltype(
+    integrated_split2,
+    frac = 0.6,
+    seed = 1
+)
+cat("Transforming to SingleCellExperiment and subsetting markers\n")
+integrated_subset_sce <- integrated_subset$as_SingleCellExperiment()
+integrated_subset_sce <- integrated_subset_sce[markers_to_correct, ]
+cat("Computing Cell Mixing Scores\n")
+integrated_subset_sce <- CellMixS::cms(
+    integrated_subset_sce,
     group = "batch",
     assay_name = "integrated",
     k = par[["n_neighbors"]],
     n_dim = par[["n_dim"]],
     BPPARAM = bpparam
 )
+distr <- SingleCellExperiment::colData(integrated_subset_sce)[, "cms"]
+cms_distr_split2[["split2"]] <- distr
+medcouples_split2[["split2"]] <- robustbase::mc(distr)
 
-cat("Compute Medcouple statistic\n")
 
-cms_distr_split1 <- SingleCellExperiment::colData(integrated_split1_sce)[, "cms"]
-cms_distr_split2 <- SingleCellExperiment::colData(integrated_split2_sce)[, "cms"]
+cat("Aggregate scores\n", flush = TRUE)
+#concat named lists
+cms_distr_list <- c(cms_distr_split1, cms_distr_split2)
+medcouples_list <- c(medcouples_split1, medcouples_split2)
+# Compute mean medcouple
+mean_medcouple_cms <- mean(unlist(medcouples_list))
 
-cms_mc_split1 <- robustbase::mc(cms_distr_split1)
-cms_mc_split2 <- robustbase::mc(cms_distr_split2)
-
-cms_mc_mean <- mean(c(cms_mc_split1, cms_mc_split2))
-
-cat("Write output AnnData to file\n")
+cat("Write output AnnData to file\n", flush = TRUE)
 output <- anndataR::AnnData(
     shape = c(0L, 0L),
     uns = list(
         dataset_id = integrated_split1$uns$dataset_id,
         method_id = integrated_split1$uns$method_id,
         metric_ids = meta$name,
-        metric_values = cms_mc_mean,
+        metric_values = mean_medcouple_cms,
         cms_parameters = list(
             n_neighbors = par[["n_neighbors"]],
             n_dim = par[["n_dim"]]
         ),
-        cms_medcouple_score = list(
-            left = cms_mc_split1,
-            right = cms_mc_split2
-        ),
-        cms_distribution = list(
-            left = cms_distr_split1,
-            right = cms_distr_split2
-        )
+        list_medcouples = medcouples_list,
+        cms_distributions = cms_distr_list
     )
 )
 
