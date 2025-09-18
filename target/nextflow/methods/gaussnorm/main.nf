@@ -3346,7 +3346,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/methods/gaussnorm",
     "viash_version" : "0.9.4",
-    "git_commit" : "a1a1e7651f076eb02328c7bc48fda3b801d993d8",
+    "git_commit" : "3ebfec1bf2dd42b470a1686239a6a02ff622661e",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3387,7 +3387,8 @@ meta = [
           "maintainer"
         ],
         "info" : {
-          "github" : "LuLeom"
+          "github" : "LuLeom",
+          "orcid" : "0009-0002-0742-8504"
         }
       },
       {
@@ -3417,7 +3418,8 @@ meta = [
           "contributor"
         ],
         "info" : {
-          "github" : "KatrienQ"
+          "github" : "KatrienQ",
+          "orcid" : "0000-0001-5306-5615"
         }
       },
       {
@@ -3426,7 +3428,8 @@ meta = [
           "contributor"
         ],
         "info" : {
-          "github" : "SofieVG"
+          "github" : "SofieVG",
+          "orcid" : "0000-0002-7119-5330"
         }
       }
     ],

@@ -29,6 +29,7 @@ authors:
     roles: ["author", "maintainer"]
     info:
       github: LuLeom
+      orcid: 0009-0002-0742-8504
   - name: Givanna Putri
     roles: ["author", "maintainer"]
     info:
@@ -43,10 +44,12 @@ authors:
     roles: ["contributor"]
     info:
       github: KatrienQ
+      orcid: 0000-0001-5306-5615
   - name: Sofie Van Gassen
     roles: ["contributor"]
     info:
       github: SofieVG
+      orcid: 0000-0002-7119-5330
 config_mods: |
   .runners[.type == "nextflow"].config.labels := { lowmem : "memory = 20.Gb", midmem : "memory = 50.Gb", highmem : "memory = 100.Gb", lowcpu : "cpus = 5", midcpu : "cpus = 15", highcpu : "cpus = 30", lowtime : "time = 1.h", midtime : "time = 4.h", hightime : "time = 8.h", veryhightime : "time = 24.h" }
 repositories:
