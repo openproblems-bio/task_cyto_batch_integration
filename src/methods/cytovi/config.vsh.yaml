@@ -50,11 +50,22 @@ resources:
 
 engines:
   - type: docker
-    image: openproblems/base_python:1
+    image: nvcr.io/nvidia/pytorch:25.03-py3
     setup:
+      - type: apt
+        packages:
+          - procps
+          - git
       - type: python
-        pypi:
+        packages:
+          - anndata~=0.11.0
+          - scanpy~=1.11.0
+          - pyyaml
+          - requests
+          - jsonschema
           - scvi-tools>=1.4.0
+        github:
+          - openproblems-bio/core#subdirectory=packages/python/openproblems
 
 runners:
   # This platform allows running the component natively
@@ -62,4 +73,4 @@ runners:
   # Allows turning the component into a Nextflow module / pipeline.
   - type: nextflow
     directives:
-      label: [hightime, midmem, midcpu]
+      label: [hightime, highmem, midcpu, gpu]
