@@ -34,7 +34,8 @@ methods = [
   cytonorm_all_controls_to_goal,
   cytonorm_one_control_to_goal,
   rpca_to_goal,
-  rpca_to_mid
+  rpca_to_mid,
+  cytovi
 ]
 
 // construct list of metrics
