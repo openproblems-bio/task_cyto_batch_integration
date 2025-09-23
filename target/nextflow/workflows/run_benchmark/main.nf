@@ -3743,6 +3743,12 @@ meta = [
       }
     },
     {
+      "name" : "methods/cytovi",
+      "repository" : {
+        "type" : "local"
+      }
+    },
+    {
       "name" : "metrics/emd",
       "repository" : {
         "type" : "local"
@@ -3835,7 +3841,7 @@ meta = [
     "engine" : "native",
     "output" : "target/nextflow/workflows/run_benchmark",
     "viash_version" : "0.9.4",
-    "git_commit" : "d715b27ed45530123a59a68e5ba4f1bc766e22ef",
+    "git_commit" : "18ebe83b5e652dcb17b4e48d2f0bd7cddff9d729",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3961,6 +3967,7 @@ include { batchadjust_one_control } from "${meta.resources_dir}/../../../nextflo
 include { batchadjust_all_controls } from "${meta.resources_dir}/../../../nextflow/methods/batchadjust_all_controls/main.nf"
 include { rpca_to_goal } from "${meta.resources_dir}/../../../nextflow/methods/rpca_to_goal/main.nf"
 include { rpca_to_mid } from "${meta.resources_dir}/../../../nextflow/methods/rpca_to_mid/main.nf"
+include { cytovi } from "${meta.resources_dir}/../../../nextflow/methods/cytovi/main.nf"
 include { emd } from "${meta.resources_dir}/../../../nextflow/metrics/emd/main.nf"
 include { n_inconsistent_peaks } from "${meta.resources_dir}/../../../nextflow/metrics/n_inconsistent_peaks/main.nf"
 include { average_batch_r2 } from "${meta.resources_dir}/../../../nextflow/metrics/average_batch_r2/main.nf"
@@ -4006,7 +4013,8 @@ methods = [
   cytonorm_all_controls_to_goal,
   cytonorm_one_control_to_goal,
   rpca_to_goal,
-  rpca_to_mid
+  rpca_to_mid,
+  cytovi
 ]
 
 // construct list of metrics

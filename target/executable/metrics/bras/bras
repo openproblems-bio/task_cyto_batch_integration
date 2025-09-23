@@ -454,9 +454,9 @@ RUN pip install --upgrade pip && \
   pip install --upgrade --no-cache-dir "git+https://github.com/openproblems-bio/core#subdirectory=packages/python/openproblems"
 
 LABEL org.opencontainers.image.description="Companion container for running component metrics bras"
-LABEL org.opencontainers.image.created="2025-08-30T09:17:18Z"
+LABEL org.opencontainers.image.created="2025-09-23T03:31:00Z"
 LABEL org.opencontainers.image.source="https://github.com/openproblems-bio/task_cyto_batch_integration"
-LABEL org.opencontainers.image.revision="d715b27ed45530123a59a68e5ba4f1bc766e22ef"
+LABEL org.opencontainers.image.revision="18ebe83b5e652dcb17b4e48d2f0bd7cddff9d729"
 LABEL org.opencontainers.image.version="build_fix_failed_stuff"
 
 VIASHDOCKER
@@ -1084,9 +1084,10 @@ function interrupt {
 trap clean_up EXIT
 trap interrupt INT SIGINT
 cat > "\$tempscript" << 'VIASHMAIN'
+import sys
+
 import anndata as ad
 import numpy as np
-import sys
 from scib_metrics import bras
 
 ## VIASH START
@@ -1151,25 +1152,25 @@ integrated_s2 = subset_markers_tocorrect(integrated_s2)
 integrated_s2 = subset_nocontrols(integrated_s2)
 integrated_s2 = remove_unlabelled(integrated_s2)
 
-print('Compute metrics', flush=True)
-batch_labels_s1 = integrated_s1.obs['batch'].values
-ct_labels_s1 = integrated_s1.obs['cell_type'].values
+print("Compute metrics", flush=True)
+batch_labels_s1 = integrated_s1.obs["batch"].values
+ct_labels_s1 = integrated_s1.obs["cell_type"].values
 
 bras_s1 = bras(
     integrated_s1.layers["integrated"],
-    labels = batch_labels_s1,
-    batch = ct_labels_s1,
-    metric='cosine'
+    labels=ct_labels_s1,
+    batch=batch_labels_s1,
+    metric="euclidean",
 )
 
-batch_labels_s2 = integrated_s2.obs['batch'].values
-ct_labels_s2 = integrated_s2.obs['cell_type'].values
+batch_labels_s2 = integrated_s2.obs["batch"].values
+ct_labels_s2 = integrated_s2.obs["cell_type"].values
 
 bras_s2 = bras(
     integrated_s2.layers["integrated"],
-    labels = batch_labels_s2,
-    batch = ct_labels_s2,
-    metric='cosine'
+    labels=ct_labels_s2,
+    batch=batch_labels_s2,
+    metric="euclidean",
 )
 
 bras_score = np.mean([bras_s1, bras_s2])
@@ -1177,15 +1178,15 @@ bras_score = np.mean([bras_s1, bras_s2])
 print("Write output AnnData to file", flush=True)
 output = ad.AnnData(
     uns={
-    'dataset_id': integrated_s1.uns['dataset_id'],
-    'method_id': integrated_s1.uns['method_id'],
-    'metric_ids': ['bras'],
-    'metric_values': [bras_score],
-    'bras_s1': bras_s1,
-    'bras_s2': bras_s2
-  }
+        "dataset_id": integrated_s1.uns["dataset_id"],
+        "method_id": integrated_s1.uns["method_id"],
+        "metric_ids": ["bras"],
+        "metric_values": [bras_score],
+        "bras_s1": bras_s1,
+        "bras_s2": bras_s2,
+    }
 )
-output.write_h5ad(par['output'], compression='gzip')
+output.write_h5ad(par["output"], compression="gzip")
 VIASHMAIN
 python -B "\$tempscript" &
 wait "\$!"

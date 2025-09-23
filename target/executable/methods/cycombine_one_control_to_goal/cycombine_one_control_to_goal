@@ -452,9 +452,9 @@ RUN Rscript -e 'options(warn = 2); if (!requireNamespace("remotes", quietly = TR
   Rscript -e 'options(warn = 2); remotes::install_github(c("biosurf/cyCombine"), repos = "https://cran.rstudio.com")'
 
 LABEL org.opencontainers.image.description="Companion container for running component methods cycombine_one_control_to_goal"
-LABEL org.opencontainers.image.created="2025-08-30T09:17:17Z"
+LABEL org.opencontainers.image.created="2025-09-23T03:30:58Z"
 LABEL org.opencontainers.image.source="https://github.com/biosurf/cyCombine"
-LABEL org.opencontainers.image.revision="d715b27ed45530123a59a68e5ba4f1bc766e22ef"
+LABEL org.opencontainers.image.revision="18ebe83b5e652dcb17b4e48d2f0bd7cddff9d729"
 LABEL org.opencontainers.image.version="build_fix_failed_stuff"
 
 VIASHDOCKER

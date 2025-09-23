@@ -3510,7 +3510,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/metrics/bras",
     "viash_version" : "0.9.4",
-    "git_commit" : "d715b27ed45530123a59a68e5ba4f1bc766e22ef",
+    "git_commit" : "18ebe83b5e652dcb17b4e48d2f0bd7cddff9d729",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3619,9 +3619,10 @@ def innerWorkflowFactory(args) {
   def rawScript = '''set -e
 tempscript=".viash_script.py"
 cat > "$tempscript" << VIASHMAIN
+import sys
+
 import anndata as ad
 import numpy as np
-import sys
 from scib_metrics import bras
 
 ## VIASH START
@@ -3686,25 +3687,25 @@ integrated_s2 = subset_markers_tocorrect(integrated_s2)
 integrated_s2 = subset_nocontrols(integrated_s2)
 integrated_s2 = remove_unlabelled(integrated_s2)
 
-print('Compute metrics', flush=True)
-batch_labels_s1 = integrated_s1.obs['batch'].values
-ct_labels_s1 = integrated_s1.obs['cell_type'].values
+print("Compute metrics", flush=True)
+batch_labels_s1 = integrated_s1.obs["batch"].values
+ct_labels_s1 = integrated_s1.obs["cell_type"].values
 
 bras_s1 = bras(
     integrated_s1.layers["integrated"],
-    labels = batch_labels_s1,
-    batch = ct_labels_s1,
-    metric='cosine'
+    labels=ct_labels_s1,
+    batch=batch_labels_s1,
+    metric="euclidean",
 )
 
-batch_labels_s2 = integrated_s2.obs['batch'].values
-ct_labels_s2 = integrated_s2.obs['cell_type'].values
+batch_labels_s2 = integrated_s2.obs["batch"].values
+ct_labels_s2 = integrated_s2.obs["cell_type"].values
 
 bras_s2 = bras(
     integrated_s2.layers["integrated"],
-    labels = batch_labels_s2,
-    batch = ct_labels_s2,
-    metric='cosine'
+    labels=ct_labels_s2,
+    batch=batch_labels_s2,
+    metric="euclidean",
 )
 
 bras_score = np.mean([bras_s1, bras_s2])
@@ -3712,15 +3713,15 @@ bras_score = np.mean([bras_s1, bras_s2])
 print("Write output AnnData to file", flush=True)
 output = ad.AnnData(
     uns={
-    'dataset_id': integrated_s1.uns['dataset_id'],
-    'method_id': integrated_s1.uns['method_id'],
-    'metric_ids': ['bras'],
-    'metric_values': [bras_score],
-    'bras_s1': bras_s1,
-    'bras_s2': bras_s2
-  }
+        "dataset_id": integrated_s1.uns["dataset_id"],
+        "method_id": integrated_s1.uns["method_id"],
+        "metric_ids": ["bras"],
+        "metric_values": [bras_score],
+        "bras_s1": bras_s1,
+        "bras_s2": bras_s2,
+    }
 )
-output.write_h5ad(par['output'], compression='gzip')
+output.write_h5ad(par["output"], compression="gzip")
 VIASHMAIN
 python -B "$tempscript"
 '''
