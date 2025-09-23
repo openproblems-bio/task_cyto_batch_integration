@@ -6,6 +6,8 @@ from scvi.external import cytovi
 par = {
     "input": "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/censored_split2.h5ad",
     "output": "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/output_cytovi_split2.h5ad",
+    "n_hidden": 128,
+    "n_layers": 1,
 }
 meta = {"name": "cytovi"}
 ## VIASH END
@@ -28,7 +30,9 @@ cytovi.scale(
 print("Run CytoVI", flush=True)
 
 cytovi.CYTOVI.setup_anndata(adata_to_correct, layer="scaled", batch_key="batch_str")
-model = cytovi.CYTOVI(adata_to_correct)
+model = cytovi.CYTOVI(
+    adata=adata_to_correct, n_hidden=par["n_hidden"], n_layers=par["n_layers"]
+)
 model.train()
 
 # get batch corrected data
