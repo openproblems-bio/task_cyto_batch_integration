@@ -50,7 +50,7 @@ resources:
 
 engines:
   - type: docker
-    image: openproblems/base_pytorch_nvidia:1
+    image: openproblems/base_python:1
     setup:
       - type: python
         pypi:
@@ -62,4 +62,4 @@ runners:
   # Allows turning the component into a Nextflow module / pipeline.
   - type: nextflow
     directives:
-      label: [hightime, midmem, lowcpu, gpu]
+      label: [hightime, midmem, midcpu]
