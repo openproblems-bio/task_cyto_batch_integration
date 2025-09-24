@@ -58,9 +58,9 @@ engines:
           - git
       - type: python
         packages:
-          - anndata>=0.11.0
-          - scanpy[skmisc]>=1.10
-          - scvi-tools==1.4.0
+          - anndata
+          - scanpy
+          - scvi-tools
           - pyyaml
           - requests
           - jsonschema
