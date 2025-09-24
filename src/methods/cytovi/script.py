@@ -22,6 +22,8 @@ markers_not_correct = adata.var[~adata.var["to_correct"]].index.to_numpy()
 
 adata_to_correct = adata[:, markers_to_correct].copy()
 
+print("Scaling data", flush=True)
+
 # scale data
 cytovi.scale(
     adata=adata_to_correct, transformed_layer_key="preprocessed", batch_key="batch_str"
