@@ -114,7 +114,7 @@ dependencies:
   - name: metrics/n_inconsistent_peaks
   - name: metrics/average_batch_r2
   - name: metrics/flowsom_mapping_similarity
-  - name: metrics/cms
+  - name: metrics/lisi
   - name: metrics/bras
 
 runners:
