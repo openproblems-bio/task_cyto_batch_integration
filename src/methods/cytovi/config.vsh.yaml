@@ -29,12 +29,16 @@ links:
   repository: https://github.com/YosefLab/cytovi-reference-implementation
 
 # Component-specific parameters (optional)
-# arguments:
-#   - name: "--n_neighbors"
-#     type: "integer"
-#     default: 5
-#     description: Number of neighbors to use.
-
+arguments:
+  - name: --n_hidden
+    type: integer
+    default: 128
+    description: Number of hidden units.
+  - name: --n_layers
+    type: integer
+    default: 1
+    description: Number of layers.
+  
 # Resources required to run the component
 resources:
   # The script of your component (required)
@@ -58,4 +62,4 @@ runners:
   # Allows turning the component into a Nextflow module / pipeline.
   - type: nextflow
     directives:
-      label: [midtime,midmem,midcpu]
+      label: [veryhightime, midmem, midcpu]

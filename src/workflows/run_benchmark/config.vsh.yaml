@@ -109,6 +109,7 @@ dependencies:
   - name: methods/rpca_to_goal
   - name: methods/rpca_to_mid
   - name: methods/cytovi
+  - name: methods/mnnpy
   - name: metrics/emd
   - name: metrics/n_inconsistent_peaks
   - name: metrics/average_batch_r2

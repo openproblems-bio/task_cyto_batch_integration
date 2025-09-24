@@ -3410,7 +3410,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/methods/cytonorm_one_control_to_mid",
     "viash_version" : "0.9.4",
-    "git_commit" : "18ebe83b5e652dcb17b4e48d2f0bd7cddff9d729",
+    "git_commit" : "4547726de218f7329d1297a40bab3c5069ef3dfe",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
