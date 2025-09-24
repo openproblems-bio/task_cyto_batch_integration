@@ -58,12 +58,12 @@ engines:
           - git
       - type: python
         packages:
-          - anndata~=0.12.0
-          - scanpy~=1.11.4
+          - anndata~=0.11.0
+          - scanpy~=1.11.0
+          - scvi-tools~=1.4.0
           - pyyaml
           - requests
           - jsonschema
-          - scvi-tools>=1.4.0
         github:
           - openproblems-bio/core#subdirectory=packages/python/openproblems
 
@@ -73,4 +73,4 @@ runners:
   # Allows turning the component into a Nextflow module / pipeline.
   - type: nextflow
     directives:
-      label: [hightime, highmem, midcpu, gpu]
+      label: [hightime, highmem, lowcpu, gpu]
