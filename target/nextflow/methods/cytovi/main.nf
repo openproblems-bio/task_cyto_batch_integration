@@ -3309,7 +3309,8 @@ meta = [
         "label" : [
           "veryhightime",
           "midmem",
-          "midcpu"
+          "midcpu",
+          "gpu"
         ],
         "tag" : "$id"
       },
@@ -3341,14 +3342,30 @@ meta = [
     {
       "type" : "docker",
       "id" : "docker",
-      "image" : "openproblems/base_python:1",
+      "image" : "nvcr.io/nvidia/pytorch:25.08-py3",
       "namespace_separator" : "/",
       "setup" : [
+        {
+          "type" : "apt",
+          "packages" : [
+            "procps",
+            "git"
+          ],
+          "interactive" : false
+        },
         {
           "type" : "python",
           "user" : false,
           "packages" : [
-            "scvi-tools"
+            "anndata>=0.11.0",
+            "scanpy[skmisc]>=1.10",
+            "scvi-tools==1.4.0",
+            "pyyaml",
+            "requests",
+            "jsonschema"
+          ],
+          "github" : [
+            "openproblems-bio/core#subdirectory=packages/python/openproblems"
           ],
           "upgrade" : true
         }
@@ -3361,7 +3378,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/methods/cytovi",
     "viash_version" : "0.9.4",
-    "git_commit" : "4547726de218f7329d1297a40bab3c5069ef3dfe",
+    "git_commit" : "e18afe3c26ba25dd6e80dff13d21f1e3b5abe216",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3957,7 +3974,8 @@ meta["defaults"] = [
   "label" : [
     "veryhightime",
     "midmem",
-    "midcpu"
+    "midcpu",
+    "gpu"
   ],
   "tag" : "$id"
 }'''),
