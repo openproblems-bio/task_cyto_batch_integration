@@ -24,7 +24,6 @@ methods = [
   cycombine_all_controls_to_mid,
   cycombine_all_controls_to_goal,
   gaussnorm,
-  mnn,
   batchadjust_one_control,
   batchadjust_all_controls,
   cytonorm_no_controls_to_mid,
@@ -34,16 +33,18 @@ methods = [
   cytonorm_all_controls_to_goal,
   cytonorm_one_control_to_goal,
   rpca_to_goal,
-  rpca_to_mid
+  rpca_to_mid,
+  cytovi,
+  mnnpy
 ]
 
 // construct list of metrics
 metrics = [
   emd,
-  // n_inconsistent_peaks,
+  n_inconsistent_peaks,
   average_batch_r2,
   flowsom_mapping_similarity,
-  cms,
+  lisi,
   bras
 ]
 

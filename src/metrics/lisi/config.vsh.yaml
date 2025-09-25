@@ -1,0 +1,130 @@
+# The API specifies which type of component this is.
+# It contains specifications for:
+#   - The input/output files
+#   - Common parameters
+#   - A unit test
+__merge__: ../../api/comp_metric.yaml
+
+# A unique identifier for your component (required).
+# Can contain only lowercase letters or underscores.
+name: lisi
+
+
+
+# Metadata for your component
+info:
+  metrics:
+      # A unique identifier for your metric (required).
+      # Can contain only lowercase letters or underscores.
+    - name: iLisi
+      # A relatively short label, used when rendering visualisarions (required)
+      label: iLisi
+      summary: "Integration Lisi score."
+      description: |
+        Compute the integration local inverse simpson index (iLISI) for each cell, then return the median 
+        as the final score. 
+      references:
+        doi: 
+          - 10.1038/s41592-019-0619-0
+        bibtex:
+          - |
+            @article{korsunsky2019fast,
+            title={Fast, sensitive and accurate integration of single-cell data with Harmony},
+            author={Korsunsky, Ilya and Millard, Nghia and Fan, Jean and Slowikowski, Kamil and Zhang, Fan and Wei, Kevin and Baglaenko, Yuriy and Brenner, Michael and Loh, Po-ru and Raychaudhuri, Soumya},
+            journal={Nature methods},
+            volume={16},
+            number={12},
+            pages={1289--1296},
+            year={2019},
+            publisher={Nature Publishing Group US New York}
+            }
+      links:
+        # URL to the documentation for this metric (required).
+        documentation: https://scib-metrics.readthedocs.io/en/latest/api.html
+        # URL to the code repository for this metric (required).
+        repository: https://github.com/YosefLab/scib-metrics
+      # The minimum possible value for this metric (required)
+      min: -0.0001
+      # The maximum possible value for this metric (required)
+      max: 1.0001
+      # Whether a higher value represents a 'better' solution (required)
+      maximize: true
+
+
+    - name: cLisi
+      label: cLisi
+      summary: "Cell type Lisi score."
+      description: |
+        Compute the cell type local inverse simpson index (cLISI) for each cell, then return the median 
+        as the final score. 
+      references:
+        doi: 
+          - 10.1038/s41592-019-0619-0
+        bibtex:
+          - |
+            @article{korsunsky2019fast,
+            title={Fast, sensitive and accurate integration of single-cell data with Harmony},
+            author={Korsunsky, Ilya and Millard, Nghia and Fan, Jean and Slowikowski, Kamil and Zhang, Fan and Wei, Kevin and Baglaenko, Yuriy and Brenner, Michael and Loh, Po-ru and Raychaudhuri, Soumya},
+            journal={Nature methods},
+            volume={16},
+            number={12},
+            pages={1289--1296},
+            year={2019},
+            publisher={Nature Publishing Group US New York}
+            }
+      links:
+        # URL to the documentation for this metric (required).
+        documentation: https://scib-metrics.readthedocs.io/en/latest/api.html
+        # URL to the code repository for this metric (required).
+        repository: https://github.com/YosefLab/scib-metrics
+      # The minimum possible value for this metric (required)
+      min: -0.0001
+      # The maximum possible value for this metric (required)
+      max: 1.0001
+      # Whether a higher value represents a 'better' solution (required)
+      maximize: true
+
+
+# Component-specific parameters (optional)
+# arguments:
+#   - name: "--n_neighbors"
+#     type: "integer"
+#     default: 5
+#     description: Number of neighbors to use.
+
+# Resources required to run the component
+resources:
+  # The script of your component (required)
+  - type: python_script
+    path: script.py
+  - path: /src/utils/helper_functions.py
+
+engines:
+  # Specifications for the Docker image for this component.
+  - type: docker
+    image: python:3.11
+    setup:
+      - type: apt
+        packages:
+          - procps
+      - type: python
+        packages:
+          - jax~=0.6.2
+          - jaxlib~=0.6.2
+          - anndata~=0.11.0
+          - scanpy~=1.11.0
+          - scib-metrics~=0.5.7
+          - pyyaml
+          - requests
+          - jsonschema
+        github:
+          - "openproblems-bio/core#subdirectory=packages/python/openproblems"
+
+
+runners:
+  # This platform allows running the component natively
+  - type: executable
+  # Allows turning the component into a Nextflow module / pipeline.
+  - type: nextflow
+    directives:
+      label: [midtime,midmem,midcpu]
