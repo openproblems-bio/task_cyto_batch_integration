@@ -24,7 +24,6 @@ methods = [
   cycombine_all_controls_to_mid,
   cycombine_all_controls_to_goal,
   gaussnorm,
-  mnn,
   batchadjust_one_control,
   batchadjust_all_controls,
   cytonorm_no_controls_to_mid,

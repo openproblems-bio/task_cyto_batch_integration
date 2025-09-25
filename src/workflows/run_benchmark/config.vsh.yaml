@@ -103,7 +103,6 @@ dependencies:
   - name: methods/cytonorm_no_controls_to_goal
   - name: methods/cytonorm_all_controls_to_goal
   - name: methods/cytonorm_one_control_to_goal
-  - name: methods/mnn
   - name: methods/batchadjust_one_control
   - name: methods/batchadjust_all_controls
   - name: methods/rpca_to_goal
