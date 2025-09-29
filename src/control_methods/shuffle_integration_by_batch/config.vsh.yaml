@@ -3,7 +3,7 @@ name: shuffle_integration_by_batch
 label: Shuffle integration by batch
 summary: Integrations are randomly permuted within each batch
 description: Integrations are randomly permuted within each batch
-status: disabled
+# status: disabled
 resources:
   - type: python_script
     path: script.py

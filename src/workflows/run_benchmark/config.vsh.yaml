@@ -83,8 +83,8 @@ dependencies:
   - name: utils/extract_uns_metadata
     repository: op
   # - name: control_methods/shuffle_integration
-  # - name: control_methods/shuffle_integration_by_batch
-  # - name: control_methods/shuffle_integration_by_cell_type
+  - name: control_methods/shuffle_integration_by_batch
+  - name: control_methods/shuffle_integration_by_cell_type
   - name: control_methods/no_integration
   - name: control_methods/perfect_integration
   - name: methods/harmonypy
