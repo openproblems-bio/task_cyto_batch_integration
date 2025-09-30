@@ -5,8 +5,6 @@ import numpy as np
 import pandas as pd
 from scipy.stats import wasserstein_distance
 
-KEY_MEAN_EMD_GLOBAL = "mean_emd_global"
-KEY_MAX_EMD_GLOBAL = "max_emd_global"
 KEY_MEAN_EMD_CT = "mean_emd_ct"
 KEY_MAX_EMD_CT = "max_emd_ct"
 KEY_EMD_VERT_MAT_split1 = "emd_vert_mat_split1"
@@ -27,10 +25,6 @@ def calculate_vertical_emd(
 
     Returns:
         dict: a dictionary containing the following elements.
-            "mean_emd_global": np.float32: mean emd value computed from a flattened data frame containing
-                mean emd computed for every marker across all pairing two samples from the same group.
-            "max_emd_global": np.float32: max emd value computed from a flattened data frame containing
-                max emd computed for every marker across all pairing two samples from the same group.
             "mean_emd_ct": np.float32: mean emd value computed from a flattened data frame containing
                 mean emd computed for every marker and cell type across all pairing two samples from the same group.
             "max_emd_ct": np.float32: max emd value computed from a flattened data frame containing
@@ -51,8 +45,6 @@ def calculate_vertical_emd(
     )
 
     # safeguard
-    mean_emd_global = np.nan
-    max_emd_global = np.nan
     mean_emd_ct = np.nan
     max_emd_ct = np.nan
 
@@ -64,20 +56,6 @@ def calculate_vertical_emd(
 
     if len(emd_long) > 0:
         emd_long = pd.concat(emd_long)
-
-        # mean global emd across all sample combinations, markers, and splits
-        mean_emd_global = np.nanmean(
-            emd_long[emd_long["cell_type"] == "global"]
-            .drop(columns=["cell_type", "first_sample", "second_sample"])
-            .to_numpy()
-            .flatten()
-        )
-        max_emd_global = np.nanmax(
-            emd_long[emd_long["cell_type"] == "global"]
-            .drop(columns=["cell_type", "first_sample", "second_sample"])
-            .to_numpy()
-            .flatten()
-        )
 
         # mean cell type emd across all sample combinations, markers, and splits
         mean_emd_ct = np.nanmean(
@@ -94,8 +72,6 @@ def calculate_vertical_emd(
         )
 
     return {
-        KEY_MEAN_EMD_GLOBAL: mean_emd_global,
-        KEY_MAX_EMD_GLOBAL: max_emd_global,
         KEY_MEAN_EMD_CT: mean_emd_ct,
         KEY_MAX_EMD_CT: max_emd_ct,
         KEY_EMD_VERT_MAT_split1: emd_split1_wide,
@@ -149,17 +125,6 @@ def get_vert_emd_for_integrated_adata(i_adata: ad.AnnData, markers_to_assess: li
 
         first_sample_adata = i_adata[i_adata.obs["sample"] == sample_combo[0]]
         second_sample_adata = i_adata[i_adata.obs["sample"] == sample_combo[1]]
-
-        # global emd
-        emd_df = compute_emd(
-            left_sample=first_sample_adata,
-            right_sample=second_sample_adata,
-            markers_to_assess=markers_to_assess,
-        )
-        emd_df["cell_type"] = "global"
-        emd_df["first_sample"] = sample_combo[0]
-        emd_df["second_sample"] = sample_combo[1]
-        emd_vals.append(emd_df)
 
         # emd per cell type
         for cell_type in cell_types:
@@ -239,10 +204,6 @@ def calculate_horizontal_emd(
 
     Returns:
         dict: a dictionary containing the following elements.
-            "mean_emd_global": np.float32: mean emd value computed from a flattened data frame containing
-                mean emd computed for every marker across all pairs of samples from a given donor.
-            "max_emd_global": np.float32: max emd value computed from a flattened data frame containing
-                max emd computed for every marker across all pairs of samples from a given donor.
             "mean_emd_ct": np.float32: mean emd value computed from a flattened data frame containing
                 mean emd computed for every marker and cell type across all pairs of samples from a given donor.
             "max_emd_ct": np.float32: max emd value computed from a flattened data frame containing
@@ -252,8 +213,6 @@ def calculate_horizontal_emd(
     """
 
     emd_per_donor_per_ct = []
-    # global means agnostic of cell type labels
-    emd_per_donor_global = []
 
     for donor in donor_list:
         # donor = donor_list[0]
@@ -305,19 +264,7 @@ def calculate_horizontal_emd(
 
             emd_per_donor_per_ct.append(emd_df)
 
-        # calculate EMD when combining all cell types as well.
-        emd_df = compute_emd(
-            left_sample=i_split1_donor,
-            right_sample=i_split2_donor,
-            markers_to_assess=markers_to_assess,
-        )
-        emd_df["cell_type"] = "global"
-        emd_df["donor"] = donor
-
-        emd_per_donor_global.append(emd_df)
-
     emd_per_donor_per_ct = pd.concat(emd_per_donor_per_ct)
-    emd_per_donor_global = pd.concat(emd_per_donor_global)
 
     # compute the mean and max per ct and for global.
     mean_emd_ct = np.nanmean(
@@ -327,24 +274,15 @@ def calculate_horizontal_emd(
         emd_per_donor_per_ct.drop(columns=["cell_type", "donor"]).values
     )
 
-    mean_emd_global = np.nanmean(
-        emd_per_donor_global.drop(columns=["cell_type", "donor"]).values
-    )
-    max_emd_global = np.nanmax(
-        emd_per_donor_global.drop(columns=["cell_type", "donor"]).values
-    )
-
     # concatenate the global and cell type emd
-    emd_per_donor = pd.concat([emd_per_donor_per_ct, emd_per_donor_global])
-
-    emd_per_donor.columns = emd_per_donor.columns.str.replace("/", "_", regex=False)
+    emd_per_donor_per_ct.columns = emd_per_donor_per_ct.columns.str.replace(
+        "/", "_", regex=False
+    )
 
     return {
-        KEY_MEAN_EMD_GLOBAL: mean_emd_global,
-        KEY_MAX_EMD_GLOBAL: max_emd_global,
         KEY_MEAN_EMD_CT: mean_emd_ct,
         KEY_MAX_EMD_CT: max_emd_ct,
-        KEY_EMD_HORZ_PER_DONOR: emd_per_donor,
+        KEY_EMD_HORZ_PER_DONOR: emd_per_donor_per_ct,
     }
 
 
