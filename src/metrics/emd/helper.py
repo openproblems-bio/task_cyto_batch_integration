@@ -36,11 +36,11 @@ def calculate_vertical_emd(
                     or global, depending on what the 2d matrix represents.
     """
 
-    emd_split1_long, emd_split1_wide = get_vert_emd_for_integrated_adata(
+    emd_split1_long = get_vert_emd_for_integrated_adata(
         i_adata=i_split1_adata, markers_to_assess=markers_to_assess
     )
 
-    emd_split2_long, emd_split2_wide = get_vert_emd_for_integrated_adata(
+    emd_split2_long = get_vert_emd_for_integrated_adata(
         i_adata=i_split2_adata, markers_to_assess=markers_to_assess
     )
 
@@ -74,8 +74,8 @@ def calculate_vertical_emd(
     return {
         KEY_MEAN_EMD_CT: mean_emd_ct,
         KEY_MAX_EMD_CT: max_emd_ct,
-        KEY_EMD_VERT_MAT_split1: emd_split1_wide,
-        KEY_EMD_VERT_MAT_split2: emd_split2_wide,
+        KEY_EMD_VERT_MAT_split1: emd_split1_long,
+        KEY_EMD_VERT_MAT_split2: emd_split2_long,
     }
 
 
@@ -153,6 +153,8 @@ def get_vert_emd_for_integrated_adata(i_adata: ad.AnnData, markers_to_assess: li
 
     # concatenate EMD values
     emd_vals = pd.concat(emd_vals)
+    # remove unparsable characters like "/"
+    emd_vals.columns = emd_vals.columns.str.replace("/", "_")
 
     # prepare the data to draw the heatmap in cytonorm 2 supp paper.
     # 1 row/column = 1 sample, a cell is emd for a given marker
@@ -160,31 +162,31 @@ def get_vert_emd_for_integrated_adata(i_adata: ad.AnnData, markers_to_assess: li
     # note, only run this after calculating mean, otherwise you end up having to
     # remove the sample id columns.
 
-    emd_wide = {}
+    # emd_wide = {}
 
-    emd_types = emd_vals["cell_type"].unique()
+    # emd_types = emd_vals["cell_type"].unique()
 
-    for marker in markers_to_assess:
-        # marker = markers_to_assess[0]
+    # for marker in markers_to_assess:
+    #     # marker = markers_to_assess[0]
 
-        # remove unparsable characters like "/"
-        marker_name = marker.replace("/", "_")
-        # have to initialise the dictionary..
-        emd_wide[marker_name] = {}
+    #     # remove unparsable characters like "/"
+    #     marker_name = marker.replace("/", "_")
+    #     # have to initialise the dictionary..
+    #     emd_wide[marker_name] = {}
 
-        for emd_type in emd_types:
-            # ct = cell_types[0]
-            emd_df = emd_vals[emd_vals["cell_type"] == emd_type]
+    #     for emd_type in emd_types:
+    #         # ct = cell_types[0]
+    #         emd_df = emd_vals[emd_vals["cell_type"] == emd_type]
 
-            if emd_df.shape[0] > 0:
-                # safeguard. Only pivot if we computed the emd.
-                # This is a safeguard in case there is a rare cell type which we don't have
-                # any samples with at least 50 cells for.
-                emd_wide[marker_name][emd_type] = emd_df.pivot(
-                    index="second_sample", columns="first_sample", values=marker
-                )
+    #         if emd_df.shape[0] > 0:
+    #             # safeguard. Only pivot if we computed the emd.
+    #             # This is a safeguard in case there is a rare cell type which we don't have
+    #             # any samples with at least 50 cells for.
+    #             emd_wide[marker_name][emd_type] = emd_df.pivot(
+    #                 index="second_sample", columns="first_sample", values=marker
+    #             )
 
-    return emd_vals, emd_wide
+    return emd_vals
 
 
 def calculate_horizontal_emd(
