@@ -38,6 +38,14 @@ arguments:
     type: integer
     default: 1
     description: Number of layers.
+  - name: --n_clusters
+    type: integer
+    default: 20
+    description: Number of clusters to use for subsampling.
+  - name: --subsample_fraction
+    type: double
+    default: 0.5
+    description: Fraction of cells to subsample from each cluster for training.
   
 # Resources required to run the component
 resources:
@@ -67,18 +75,10 @@ engines:
         github:
           - openproblems-bio/core#subdirectory=packages/python/openproblems
 
-# engines:
-#   - type: docker
-#     image: openproblems/base_python:1
-#     setup:
-#       - type: python
-#         packages:
-#           - scvi-tools
-
 runners:
   # This platform allows running the component natively
   - type: executable
   # Allows turning the component into a Nextflow module / pipeline.
   - type: nextflow
     directives:
-      label: [veryhightime, midmem, midcpu, gpu]
+      label: [veryhightime, lowmem, lowcpu, gpu]

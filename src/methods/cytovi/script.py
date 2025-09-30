@@ -1,6 +1,8 @@
 import anndata as ad
 import numpy as np
+import scanpy as sc
 from scvi.external import cytovi
+from sklearn.cluster import KMeans
 
 ## VIASH START
 par = {
@@ -8,6 +10,8 @@ par = {
     "output": "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/output_cytovi_split2.h5ad",
     "n_hidden": 128,
     "n_layers": 1,
+    "n_clusters": 10,
+    "subsample_fraction": 0.5,
 }
 meta = {"name": "cytovi"}
 ## VIASH END
@@ -24,26 +28,54 @@ adata_to_correct = adata[:, markers_to_correct].copy()
 
 print("Scaling data", flush=True)
 
-# scale data
+# scale data. this will add a layer "scaled" to the anndata
 cytovi.scale(
-    adata=adata_to_correct, transformed_layer_key="preprocessed", batch_key="batch_str"
+    adata=adata_to_correct,
+    transformed_layer_key="preprocessed",
+    batch_key="batch_str",
+    inplace=True,
 )
 
-print("Run CytoVI", flush=True)
+print("Clustering using k-means with k =", par["n_clusters"], flush=True)
+# cluster data using Kmeans
+adata_to_correct.obs["clusters"] = (
+    KMeans(n_clusters=par["n_clusters"], random_state=0)
+    .fit_predict(adata_to_correct.layers["scaled"])
+    .astype(str)
+)
+# concatenate obs so we can use it for subsampling
+adata_to_correct.obs["sample_cluster"] = (
+    adata_to_correct.obs["sample"].astype(str) + "_" + adata_to_correct.obs["clusters"]
+)
+# subsample cells without replacement
+print("Subsampling cells", flush=True)
+subsampled_cells = adata_to_correct.obs.groupby("sample_cluster")[
+    "sample_cluster"
+].apply(lambda x: x.sample(n=round(len(x) * par["subsample_fraction"]), replace=False))
+# need the cell id included in the subsample
+subsampled_cells_idx = [x[1] for x in subsampled_cells.index.to_list()]
 
-cytovi.CYTOVI.setup_anndata(adata_to_correct, layer="scaled", batch_key="batch_str")
+adata_subsampled = adata_to_correct[subsampled_cells_idx, :].copy()
+
+print(
+    f"Train CytoVI on subsampled data containing {adata_subsampled.shape[0]} cells",
+    flush=True,
+)
+
+cytovi.CYTOVI.setup_anndata(adata_subsampled, layer="scaled", batch_key="batch_str")
 model = cytovi.CYTOVI(
-    adata=adata_to_correct, n_hidden=par["n_hidden"], n_layers=par["n_layers"]
+    adata=adata_subsampled, n_hidden=par["n_hidden"], n_layers=par["n_layers"]
 )
 model.train()
 
 # get batch corrected data
-corrected_data = model.get_normalized_expression()
+print("Correcting data", flush=True)
+corrected_data = model.get_normalized_expression(adata=adata_to_correct)
 
 # have to add in the uncorrected markers as well
 uncorrected_data = adata[:, markers_not_correct].layers["preprocessed"]
 
-out_matrix = np.concatenate([corrected_data.to_numpy(), uncorrected_data], axis=1)
+out_matrix = np.concatenate([corrected_data, uncorrected_data], axis=1)
 out_var_idx = np.concatenate([corrected_data.columns, markers_not_correct])
 
 # create new anndata
@@ -61,12 +93,16 @@ out_adata = ad.AnnData(
 # reorder var to match input
 out_adata = out_adata[:, adata.var_names]
 
+# leave this here for debugging purposes
 # run umap for quick check
 # import scanpy as sc
-# test_adata = out_adata.copy()
+
+# test_adata = ad.AnnData(
+#     X=out_adata.layers["integrated"].toarray(),
+#     obs=adata.obs,
+#     var=adata.var,
+# )
 # test_adata = test_adata[:, markers_to_correct]
-# test_adata.X = test_adata.layers["integrated"]
-# test_adata.obs = adata.obs
 # sc.pp.neighbors(test_adata, use_rep="X")
 # sc.tl.umap(test_adata)
 # sc.pl.umap(test_adata, color="batch")
