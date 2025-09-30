@@ -24,6 +24,8 @@ adata = ad.read_h5ad("$RAW_DIR/human_cll_mass_cytometry.h5ad")
 for col in ["parameter_num_clusters", "parameter_som_xdim", "parameter_som_ydim"]:
   adata.uns[col] = int(adata.uns[col])
 
+adata.uns["dataset_reference"] = "10.1016/j.cell.2020.12.002"
+
 # make sure the output is compressed
 adata.write_h5ad("$OUTPUT_DIR/common_dataset.h5ad", compression='gzip')
 HERE
