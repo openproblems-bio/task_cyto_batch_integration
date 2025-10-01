@@ -1,22 +1,8 @@
-# The API specifies which type of component this is.
-# It contains specifications for:
-#   - The input/output files
-#   - Common parameters
-#   - A unit test
 __merge__: ../../api/comp_method.yaml
-
-# A unique identifier for your component (required).
-# Can contain only lowercase letters or underscores.
 name: rpca_to_mid
-# A relatively short label, used when rendering visualisations (required)
+# status: disabled
 label: Seurat RPCA (to-middle)
-
-# A one sentence summary of how this method works (required). Used when 
-# rendering summary tables.
 summary: "Batch integrate data to a midpoint using mutual nearest neighbors identified via Seurat reciprocal PCA."
-
-# A multi-line description of how this component works (required). Used
-# when rendering reference documentation.
 description: |
   Seurat RPCA performs batch integration by identifying mutual nearest neighbors (anchors) 
   between all batches using reciprocal PCA (RPCA). 
@@ -102,4 +88,4 @@ runners:
   # Allows turning the component into a Nextflow module / pipeline.
   - type: nextflow
     directives:
-      label: [midtime,midmem,midcpu]
+      label: [veryhightime,midmem,midcpu]

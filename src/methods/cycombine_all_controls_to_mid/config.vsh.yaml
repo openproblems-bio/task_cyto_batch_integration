@@ -71,6 +71,7 @@ engines:
     setup:
       - type: r
         bioc: [sva]
+        packages: [pbmcapply]
         github: [biosurf/cyCombine]
 
 runners:

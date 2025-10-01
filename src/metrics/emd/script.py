@@ -9,13 +9,18 @@ par = {
     "input_integrated_split1": "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/integrated_split1.h5ad",
     "input_integrated_split2": "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/integrated_split2.h5ad",
     "input_unintegrated": "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/unintegrated.h5ad",
+    # "input_integrated_split1": "resources_test/task_cyto_batch_integration/human_blood_mass_cytometry_subset/integrated_split1.h5ad",
+    # "input_integrated_split2": "resources_test/task_cyto_batch_integration/human_blood_mass_cytometry_subset/integrated_split2.h5ad",
+    # "input_unintegrated": "resources_test/task_cyto_batch_integration/human_blood_mass_cytometry_subset/unintegrated.h5ad",
     "output": "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/emd_out.h5ad",
 }
-meta = {"name": "emd", "resources_dir": "src/utils/helper_functions.py"}
+meta = {"name": "emd", "resources_dir": "src/utils/"}
 ## VIASH END
 
 sys.path.append(meta["resources_dir"])
 
+# import src.metrics.emd.helper as emd_helper
+# import src.utils.helper_functions as global_helper
 import helper as emd_helper
 import helper_functions as global_helper
 
@@ -37,11 +42,15 @@ input_integrated_split1, input_integrated_split2 = (
 )
 
 # more preprocessing
-input_integrated_split1 = global_helper.subset_markers_tocorrect(input_integrated_split1)
+input_integrated_split1 = global_helper.subset_markers_tocorrect(
+    input_integrated_split1
+)
 input_integrated_split1 = global_helper.subset_nocontrols(input_integrated_split1)
 input_integrated_split1 = global_helper.remove_unlabelled(input_integrated_split1)
 
-input_integrated_split2 = global_helper.subset_markers_tocorrect(input_integrated_split2)
+input_integrated_split2 = global_helper.subset_markers_tocorrect(
+    input_integrated_split2
+)
 input_integrated_split2 = global_helper.subset_nocontrols(input_integrated_split2)
 input_integrated_split2 = global_helper.remove_unlabelled(input_integrated_split2)
 
@@ -54,36 +63,16 @@ markers_to_assess = input_unintegrated.var_names[
 dataset_id = input_unintegrated.uns["dataset_id"]
 method_id = input_integrated_split1.uns["method_id"]
 
-# shouldn't need these anymore
-# del input_unintegrated
+
+# check that the data for each donor in integrated left and right are actually
+# from two different batches!
+emd_helper.check_donor_batches(
+    input_integrated_split1=input_integrated_split1,
+    input_integrated_split2=input_integrated_split2,
+)
 
 # calculate horizontal EMD for each donor across integrated left and right
 donor_list = input_integrated_split1.obs["donor"].unique()
-
-# check that the data for each donor in integrated left and right are actually from two different batches!
-for donor in donor_list:
-    # donor = donor_list[0]
-    batch_split1 = input_integrated_split1.obs[input_integrated_split1.obs["donor"] == donor][
-        "batch"
-    ].unique()
-    batch_split2 = input_integrated_split2.obs[
-        input_integrated_split2.obs["donor"] == donor
-    ]["batch"].unique()
-
-    if len(batch_split1) > 1 or len(batch_split2) > 1:
-        raise ValueError(
-            f"Donor {donor} has samples in {len(batch_split1)} batches in integrated left"
-            f" and {len(batch_split2)} batches in integrated right.It should only have"
-            f"samples in exactly ONE batch in each of integrated left and integrated right."
-        )
-
-    if batch_split1[0] == batch_split2[0]:
-        raise ValueError(
-            f"Donor {donor} has samples in the same batch for both integrated left and right.\n"
-            f"Integrated left batch id: {batch_split1[0]}.\n"
-            f"Integrated right batch id: {batch_split2[0]}."
-        )
-
 emd_horz = emd_helper.calculate_horizontal_emd(
     i_split1_adata=input_integrated_split1,
     i_split2_adata=input_integrated_split2,
@@ -105,22 +94,14 @@ output = ad.AnnData(
         "dataset_id": dataset_id,
         "method_id": method_id,
         "metric_ids": [
-            "emd_mean_global_horiz",
-            "emd_max_global_horiz",
             "emd_mean_ct_horiz",
             "emd_max_ct_horiz",
-            "emd_mean_global_vert",
-            "emd_max_global_vert",
             "emd_mean_ct_vert",
             "emd_max_ct_vert",
         ],
         "metric_values": [
-            emd_horz[emd_helper.KEY_MEAN_EMD_GLOBAL],
-            emd_horz[emd_helper.KEY_MAX_EMD_GLOBAL],
             emd_horz[emd_helper.KEY_MEAN_EMD_CT],
             emd_horz[emd_helper.KEY_MAX_EMD_CT],
-            emd_vert[emd_helper.KEY_MEAN_EMD_GLOBAL],
-            emd_vert[emd_helper.KEY_MAX_EMD_GLOBAL],
             emd_vert[emd_helper.KEY_MEAN_EMD_CT],
             emd_vert[emd_helper.KEY_MAX_EMD_CT],
         ],
