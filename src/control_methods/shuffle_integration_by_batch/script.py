@@ -16,7 +16,7 @@ from utils import _randomize_features
 
 print("Reading and preparing input files", flush=True)
 adata = ad.read_h5ad(par["input_unintegrated"])
-adata_split1 = adata[(adata.obs.is_control > 0) | (adata.obs.batch == 1)].copy()
+adata_split1 = adata[(adata.obs.is_control > 0) | (adata.obs.split == 1)].copy()
 adata_split2 = adata[(adata.obs.is_control > 0) | (adata.obs.split == 2)].copy()
 
 print("Randomise features - split 1", flush=True)

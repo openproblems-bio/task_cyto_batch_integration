@@ -97,6 +97,8 @@
 * Added EMD vertical global metric and split perfect integration into horizontal and vertical 
   for computing horizontal and vertical metrics (PR #63).
 
+* Fix problems identified during a full run (PR #99).
+
 ## MINOR CHANGES
 
 * Enabled unit tests (PR #2).
@@ -153,5 +155,6 @@
 
 * Fix missing anndata in yaml file and set the base_r docker image version to 1 instead of 1.0.0 (PR #89).
 
+* Fix bug in control methods (PR #107).
 
 
