@@ -5,9 +5,10 @@ import anndata as ad
 ## VIASH START
 par = {
     "input_unintegrated": "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/unintegrated.h5ad",
-    "output": "output.h5ad",
+    "output_integrated_split1": "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/control_integrated_split1.h5ad",
+    "output_integrated_split2": "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/control_integrated_split2.h5ad",
 }
-meta = {"name": "harmonypy"}
+meta = {"name": "shuffle_integration_by_cell_type", "resources_dir": "src/control_methods"}
 ## VIASH END
 
 print("Importing helper functions", flush=True)
@@ -16,7 +17,7 @@ from utils import _randomize_features
 
 print("Reading and preparing input files", flush=True)
 adata = ad.read_h5ad(par["input_unintegrated"])
-adata_split1 = adata[(adata.obs.is_control > 0) | (adata.obs.batch == 1)].copy()
+adata_split1 = adata[(adata.obs.is_control > 0) | (adata.obs.split == 1)].copy()
 adata_split2 = adata[(adata.obs.is_control > 0) | (adata.obs.split == 2)].copy()
 
 print("Randomise features - split 1", flush=True)

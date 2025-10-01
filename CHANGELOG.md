@@ -97,6 +97,8 @@
 * Added EMD vertical global metric and split perfect integration into horizontal and vertical 
   for computing horizontal and vertical metrics (PR #63).
 
+* Fix problems identified during a full run (PR #99).
+
 ## MINOR CHANGES
 
 * Enabled unit tests (PR #2).
