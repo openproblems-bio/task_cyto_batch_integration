@@ -14,9 +14,10 @@ requireNamespace("anndataR", quietly = TRUE)
 #'
 #' @param i_adata AnnData object, integrated data
 #' @param u_adata AnnData object, unintegrated dataset
+#' @param split_id numeric, split id of the integrated data
 #' @return AnnData object with .var and .obs added
 #'
-get_obs_var_for_integrated <- function(i_adata, u_adata) {
+get_obs_var_for_integrated <- function(i_adata, u_adata, split_id) {
 
     i_adata$obs <- u_adata$obs[i_adata$obs_names, ]
     i_adata$var <- u_adata$var[i_adata$var_names, ]
@@ -25,15 +26,22 @@ get_obs_var_for_integrated <- function(i_adata, u_adata) {
     # everything is from batch 1, but some samples need to be labelled to come from batch 2
     if (i_adata$uns["method_id"] == "perfect_integration") {
         cat(
-            "Control method 'perfect_integration' detected. Changing batch labels for split 2.\n"
+            "Control method 'perfect_integration' detected. Changing batch labels.\n"
         )
         cat("Computing new batch labels\n")
         # mutate is needed as donors that are used for controls, we won't have the mapping
         i_adata_new_batch_labels <- get_batch_label_perfect_integration(
             u_adata = u_adata,
             i_adata = i_adata,
-            split_id = 1
+            split_id = split_id
         )
+
+        # safeguard
+        if (! all(i_adata_new_batch_labels$donor == i_adata$obs$donor)) {
+            stop(
+                "Donor labels do not match between new batch labels and integrated data. This should not happen!"
+            )
+        }
 
         cat("Attaching new batch labels\n")
         i_adata$obs$batch <- i_adata_new_batch_labels$new_batch_label
@@ -53,12 +61,14 @@ get_obs_var_for_integrated <- function(i_adata, u_adata) {
 #' @return a dataframe with donor and new batch label
 #'
 get_batch_label_perfect_integration <- function(u_adata, i_adata, split_id) {
+    # this return which batch sample we used for a donor for a given split
     actual_donor_batch_map <- unique(
         u_adata$obs[(u_adata$obs$split == split_id), c("donor", "batch")]
     )
-    # mutate is needed as donors that are used for controls, we won't have the mapping
+    # mutate is needed as donors that are used for controls, won't have batch_new as 
+    # the split id is 0
     i_adata_new_batch_labels <- i_adata$obs[, c("donor", "batch")] %>%
-        left_join(actual_donor_batch_map, by="donor", suffix = c("_old", "_new")) %>%
+        left_join(actual_donor_batch_map, by = "donor", suffix = c("_old", "_new")) %>%
         mutate(new_batch_label = ifelse(is.na(batch_new), batch_old, batch_new)) %>%
         select(donor, new_batch_label)
 
@@ -105,3 +115,43 @@ remove_unlabelled <- function(adata) {
         c("unlabelled", "unlabeled")
     adata[!is_unlabelled, ]
 }
+
+#' Subsets the anndata object in a stratified manner
+#' with 'cell type' and 'sample' as strata.
+#'
+#' @param adata AnnData object
+#' @param frac numeric, fraction of cells to keep for each cell type
+#' @param seed numeric, seed for reproducibility
+#' @param anndatar logical, whether the input is anndataR object or not
+#' @return AnnData object with only the markers to correct
+subset_by_celltype <- function(adata, frac = 0.5, seed = 1, anndatar = TRUE) {
+  set.seed(seed)
+  
+  obs <- adata$obs
+  obs$cell_id <- rownames(obs)
+  obs$.row <- seq_len(nrow(obs))   # original order
+  
+  keep_ids <- obs %>%
+    group_by(cell_type, sample) %>%
+    slice_sample(prop = frac) %>%
+    ungroup() %>%
+    arrange(.row) %>%     # restore original order
+    pull(cell_id)
+  
+  if (anndatar == TRUE){
+    keep_idx <- match(keep_ids, adata$obs_names)
+    
+    adata_sub <- anndataR::AnnData(
+      X   = NULL,
+      obs = adata$obs[keep_idx, , drop = FALSE],
+      var = adata$var,
+      uns = adata$uns,
+      layers = list(
+        "integrated" = adata$layers$integrated[keep_idx, , drop = FALSE]
+      )
+    )
+  } else{
+    adata_sub <- adata[keep_ids, ]
+  }
+}
+

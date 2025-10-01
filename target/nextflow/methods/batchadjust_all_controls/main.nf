@@ -3250,6 +3250,10 @@ meta = [
     {
       "type" : "file",
       "path" : "BatchAdjust.R"
+    },
+    {
+      "type" : "file",
+      "path" : "utils.R"
     }
   ],
   "label" : "Batchadjust with all controls",
@@ -3375,7 +3379,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/methods/batchadjust_all_controls",
     "viash_version" : "0.9.4",
-    "git_commit" : "3ebfec1bf2dd42b470a1686239a6a02ff622661e",
+    "git_commit" : "90b7dc9513186b5fad7515731bc737c62601fc13",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3530,6 +3534,7 @@ rm(.viash_orig_warn)
 
 ## VIASH END
 
+source(paste0(meta\\$resources_dir, "/utils.R"))
 source(paste0(meta\\$resources_dir, "/anndata_to_fcs.R"))
 source(paste0(meta\\$resources_dir, "/BatchAdjust.R"))
 
@@ -3552,7 +3557,11 @@ source(paste0(meta\\$resources_dir, "/BatchAdjust.R"))
 cat("Reading input files\\\\n")
 input <- anndata::read_h5ad(par[["input"]])
 #use Original_ID column to restore cell order after I/O operations
-input\\$layers["preprocessed"][, "Original_ID"] <- seq(1, dim(input)[1])
+# input\\$layers["preprocessed"][, "Original_ID"] <- seq(1, dim(input)[1])
+
+original_id_in_var <- "Original_ID" %in% input\\$var_names
+
+input <- add_original_id(input)
 
 cat("Split cells\\\\n")
 input_controls <- input[input\\$obs\\$is_control != 0, ]
@@ -3567,9 +3576,14 @@ print(input_no_controls)
 
 #avoid NA due to invalid factor level
 input_controls\\$obs\\$sample <- as.character(input_controls\\$obs\\$sample)
+
+
+# make sure there is _ after the batch1 or batch2, otherwise batchadjust won't find the fcs files.
+input_no_controls\\$obs\\$sample <- sapply(input_no_controls\\$obs\\$sample, fix_batch_underscore_anynum)
+
 # Set sample names for batch-specific control files
-input_controls\\$obs\\$sample[input_controls\\$obs\\$batch == 1] <- "0Batch1_anchor"
-input_controls\\$obs\\$sample[input_controls\\$obs\\$batch == 2] <- "0Batch2_anchor"
+input_controls\\$obs\\$sample[input_controls\\$obs\\$batch == 1] <- "Batch1_anchor"
+input_controls\\$obs\\$sample[input_controls\\$obs\\$batch == 2] <- "Batch2_anchor"
 
 cat("Writing FCS files\\\\n")
 anndata_to_fcs(input_controls, out_dir = meta[["temp_dir"]])
@@ -3591,7 +3605,7 @@ BatchAdjust(
   outdir = output_dir,
   channelsFile = paste0(meta[["temp_dir"]], "/to_correct_list.txt"),
   anchorKeyword = "anchor",
-  batchKeyword = "atch", #skip 'b' to make it robust to upper/lowercase
+  batchKeyword = "Batch", #skip 'b' to make it robust to upper/lowercase
   method = perc,
   transformation = FALSE,
   addExt = NULL,
@@ -3613,6 +3627,11 @@ corrected_matrix <- corrected_matrix[order(corrected_matrix\\$Original_ID), ]
 order_check <- corrected_matrix\\$Original_ID == input\\$layers[['preprocessed']][, 'Original_ID']
 if (FALSE %in% order_check) {
   stop("Failed in restoring indexing")
+}
+
+# Remove Original_ID if it was not there in the beginning
+if (!original_id_in_var) {
+    corrected_matrix\\$Original_ID <- NULL
 }
 
 cat("Write output AnnData to file\\\\n")

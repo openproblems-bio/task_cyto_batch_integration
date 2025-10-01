@@ -5,8 +5,6 @@ import numpy as np
 import pandas as pd
 from scipy.stats import wasserstein_distance
 
-KEY_MEAN_EMD_GLOBAL = "mean_emd_global"
-KEY_MAX_EMD_GLOBAL = "max_emd_global"
 KEY_MEAN_EMD_CT = "mean_emd_ct"
 KEY_MAX_EMD_CT = "max_emd_ct"
 KEY_EMD_VERT_MAT_split1 = "emd_vert_mat_split1"
@@ -27,10 +25,6 @@ def calculate_vertical_emd(
 
     Returns:
         dict: a dictionary containing the following elements.
-            "mean_emd_global": np.float32: mean emd value computed from a flattened data frame containing
-                mean emd computed for every marker across all pairing two samples from the same group.
-            "max_emd_global": np.float32: max emd value computed from a flattened data frame containing
-                max emd computed for every marker across all pairing two samples from the same group.
             "mean_emd_ct": np.float32: mean emd value computed from a flattened data frame containing
                 mean emd computed for every marker and cell type across all pairing two samples from the same group.
             "max_emd_ct": np.float32: max emd value computed from a flattened data frame containing
@@ -42,51 +36,46 @@ def calculate_vertical_emd(
                     or global, depending on what the 2d matrix represents.
     """
 
-    emd_split1_long, emd_split1_wide = get_vert_emd_for_integrated_adata(
+    emd_split1_long = get_vert_emd_for_integrated_adata(
         i_adata=i_split1_adata, markers_to_assess=markers_to_assess
     )
 
-    emd_split2_long, emd_split2_wide = get_vert_emd_for_integrated_adata(
+    emd_split2_long = get_vert_emd_for_integrated_adata(
         i_adata=i_split2_adata, markers_to_assess=markers_to_assess
     )
 
-    emd_long = pd.concat([emd_split1_long, emd_split2_long])
+    # safeguard
+    mean_emd_ct = np.nan
+    max_emd_ct = np.nan
 
-    # mean global emd across all sample combinations, markers, and splits
-    mean_emd_global = np.nanmean(
-        emd_long[emd_long["cell_type"] == "global"]
-        .drop(columns=["cell_type", "first_sample", "second_sample"])
-        .to_numpy()
-        .flatten()
-    )
-    max_emd_global = np.nanmax(
-        emd_long[emd_long["cell_type"] == "global"]
-        .drop(columns=["cell_type", "first_sample", "second_sample"])
-        .to_numpy()
-        .flatten()
-    )
+    # compute these only if we can.
+    emd_long = []
+    for df in [emd_split1_long, emd_split2_long]:
+        if isinstance(df, pd.DataFrame):
+            emd_long.append(df)
 
-    # mean cell type emd across all sample combinations, markers, and splits
-    mean_emd_ct = np.nanmean(
-        emd_long[emd_long["cell_type"] != "global"]
-        .drop(columns=["cell_type", "first_sample", "second_sample"])
-        .to_numpy()
-        .flatten()
-    )
-    max_emd_ct = np.nanmax(
-        emd_long[emd_long["cell_type"] != "global"]
-        .drop(columns=["cell_type", "first_sample", "second_sample"])
-        .to_numpy()
-        .flatten()
-    )
+    if len(emd_long) > 0:
+        emd_long = pd.concat(emd_long)
+
+        # mean cell type emd across all sample combinations, markers, and splits
+        mean_emd_ct = np.nanmean(
+            emd_long[emd_long["cell_type"] != "global"]
+            .drop(columns=["cell_type", "first_sample", "second_sample"])
+            .to_numpy()
+            .flatten()
+        )
+        max_emd_ct = np.nanmax(
+            emd_long[emd_long["cell_type"] != "global"]
+            .drop(columns=["cell_type", "first_sample", "second_sample"])
+            .to_numpy()
+            .flatten()
+        )
 
     return {
-        KEY_MEAN_EMD_GLOBAL: mean_emd_global,
-        KEY_MAX_EMD_GLOBAL: max_emd_global,
         KEY_MEAN_EMD_CT: mean_emd_ct,
         KEY_MAX_EMD_CT: max_emd_ct,
-        KEY_EMD_VERT_MAT_split1: emd_split1_wide,
-        KEY_EMD_VERT_MAT_split2: emd_split2_wide,
+        KEY_EMD_VERT_MAT_split1: emd_split1_long,
+        KEY_EMD_VERT_MAT_split2: emd_split2_long,
     }
 
 
@@ -122,10 +111,10 @@ def get_vert_emd_for_integrated_adata(i_adata: ad.AnnData, markers_to_assess: li
 
         print(
             f"{i_adata.uns['dataset_id']} from {i_adata.uns['method_id']} does not have"
-            f"at least 2 samples per group. Skipping EMD vertical calculation."
+            f" at least 2 samples per group. Skipping EMD vertical calculation."
         )
 
-        return np.nan, np.nan, np.nan
+        return np.nan, np.nan
 
     cell_types = i_adata.obs["cell_type"].unique()
 
@@ -136,17 +125,6 @@ def get_vert_emd_for_integrated_adata(i_adata: ad.AnnData, markers_to_assess: li
 
         first_sample_adata = i_adata[i_adata.obs["sample"] == sample_combo[0]]
         second_sample_adata = i_adata[i_adata.obs["sample"] == sample_combo[1]]
-
-        # global emd
-        emd_df = compute_emd(
-            left_sample=first_sample_adata,
-            right_sample=second_sample_adata,
-            markers_to_assess=markers_to_assess,
-        )
-        emd_df["cell_type"] = "global"
-        emd_df["first_sample"] = sample_combo[0]
-        emd_df["second_sample"] = sample_combo[1]
-        emd_vals.append(emd_df)
 
         # emd per cell type
         for cell_type in cell_types:
@@ -175,6 +153,8 @@ def get_vert_emd_for_integrated_adata(i_adata: ad.AnnData, markers_to_assess: li
 
     # concatenate EMD values
     emd_vals = pd.concat(emd_vals)
+    # remove unparsable characters like "/"
+    emd_vals.columns = emd_vals.columns.str.replace("/", "_")
 
     # prepare the data to draw the heatmap in cytonorm 2 supp paper.
     # 1 row/column = 1 sample, a cell is emd for a given marker
@@ -182,31 +162,31 @@ def get_vert_emd_for_integrated_adata(i_adata: ad.AnnData, markers_to_assess: li
     # note, only run this after calculating mean, otherwise you end up having to
     # remove the sample id columns.
 
-    emd_wide = {}
+    # emd_wide = {}
 
-    emd_types = emd_vals["cell_type"].unique()
+    # emd_types = emd_vals["cell_type"].unique()
 
-    for marker in markers_to_assess:
-        # marker = markers_to_assess[0]
+    # for marker in markers_to_assess:
+    #     # marker = markers_to_assess[0]
 
-        # remove unparsable characters like "/"
-        marker_name = marker.replace("/", "_")
-        # have to initialise the dictionary..
-        emd_wide[marker_name] = {}
+    #     # remove unparsable characters like "/"
+    #     marker_name = marker.replace("/", "_")
+    #     # have to initialise the dictionary..
+    #     emd_wide[marker_name] = {}
 
-        for emd_type in emd_types:
-            # ct = cell_types[0]
-            emd_df = emd_vals[emd_vals["cell_type"] == emd_type]
+    #     for emd_type in emd_types:
+    #         # ct = cell_types[0]
+    #         emd_df = emd_vals[emd_vals["cell_type"] == emd_type]
 
-            if emd_df.shape[0] > 0:
-                # safeguard. Only pivot if we computed the emd.
-                # This is a safeguard in case there is a rare cell type which we don't have
-                # any samples with at least 50 cells for.
-                emd_wide[marker_name][emd_type] = emd_df.pivot(
-                    index="second_sample", columns="first_sample", values=marker
-                )
+    #         if emd_df.shape[0] > 0:
+    #             # safeguard. Only pivot if we computed the emd.
+    #             # This is a safeguard in case there is a rare cell type which we don't have
+    #             # any samples with at least 50 cells for.
+    #             emd_wide[marker_name][emd_type] = emd_df.pivot(
+    #                 index="second_sample", columns="first_sample", values=marker
+    #             )
 
-    return emd_vals, emd_wide
+    return emd_vals
 
 
 def calculate_horizontal_emd(
@@ -226,10 +206,6 @@ def calculate_horizontal_emd(
 
     Returns:
         dict: a dictionary containing the following elements.
-            "mean_emd_global": np.float32: mean emd value computed from a flattened data frame containing
-                mean emd computed for every marker across all pairs of samples from a given donor.
-            "max_emd_global": np.float32: max emd value computed from a flattened data frame containing
-                max emd computed for every marker across all pairs of samples from a given donor.
             "mean_emd_ct": np.float32: mean emd value computed from a flattened data frame containing
                 mean emd computed for every marker and cell type across all pairs of samples from a given donor.
             "max_emd_ct": np.float32: max emd value computed from a flattened data frame containing
@@ -239,8 +215,6 @@ def calculate_horizontal_emd(
     """
 
     emd_per_donor_per_ct = []
-    # global means agnostic of cell type labels
-    emd_per_donor_global = []
 
     for donor in donor_list:
         # donor = donor_list[0]
@@ -254,8 +228,8 @@ def calculate_horizontal_emd(
         )
         if len(cell_type_not_in_both) > 1:
             print(
-                f"In donor {donor}: some cell types are in left integrated output"
-                f" but not in right integrated output.\n"
+                f"In donor {donor}: some cell types are in split 1"
+                f" but not in split 2.\n"
                 f"Cell types missing: {''.join(cell_type_not_in_both)}]n"
                 f"Computing cell type EMD using just cell types common in both."
             )
@@ -274,9 +248,11 @@ def calculate_horizontal_emd(
             # Do not calculate if we have less than 50 cells as it does not make sense.
             if i_split1_ct.n_obs < 50 or i_split2_ct.n_obs < 50:
                 print(
-                    f"There are less than 50 cells for either left or right integrated "
-                    f"data for donor {donor} and cell type {cell_type}.\n"
-                    f"Skipping calculating EMD for this donor and cell type."
+                    f"There are less than 50 cells in either split 1 or split 2"
+                    f" for donor {donor} and cell type {cell_type}.\n"
+                    f"Split 1 {cell_type}: {i_split1_ct.n_obs} cells.\n"
+                    f"Split 2 {cell_type}: {i_split2_ct.n_obs} cells.\n"
+                    f"Skipping calculating horizontal EMD for this donor and cell type."
                 )
                 continue
 
@@ -290,19 +266,7 @@ def calculate_horizontal_emd(
 
             emd_per_donor_per_ct.append(emd_df)
 
-        # calculate EMD when combining all cell types as well.
-        emd_df = compute_emd(
-            left_sample=i_split1_donor,
-            right_sample=i_split2_donor,
-            markers_to_assess=markers_to_assess,
-        )
-        emd_df["cell_type"] = "global"
-        emd_df["donor"] = donor
-
-        emd_per_donor_global.append(emd_df)
-
     emd_per_donor_per_ct = pd.concat(emd_per_donor_per_ct)
-    emd_per_donor_global = pd.concat(emd_per_donor_global)
 
     # compute the mean and max per ct and for global.
     mean_emd_ct = np.nanmean(
@@ -312,24 +276,15 @@ def calculate_horizontal_emd(
         emd_per_donor_per_ct.drop(columns=["cell_type", "donor"]).values
     )
 
-    mean_emd_global = np.nanmean(
-        emd_per_donor_global.drop(columns=["cell_type", "donor"]).values
-    )
-    max_emd_global = np.nanmax(
-        emd_per_donor_global.drop(columns=["cell_type", "donor"]).values
-    )
-
     # concatenate the global and cell type emd
-    emd_per_donor = pd.concat([emd_per_donor_per_ct, emd_per_donor_global])
-
-    emd_per_donor.columns = emd_per_donor.columns.str.replace("/", "_", regex=False)
+    emd_per_donor_per_ct.columns = emd_per_donor_per_ct.columns.str.replace(
+        "/", "_", regex=False
+    )
 
     return {
-        KEY_MEAN_EMD_GLOBAL: mean_emd_global,
-        KEY_MAX_EMD_GLOBAL: max_emd_global,
         KEY_MEAN_EMD_CT: mean_emd_ct,
         KEY_MAX_EMD_CT: max_emd_ct,
-        KEY_EMD_HORZ_PER_DONOR: emd_per_donor,
+        KEY_EMD_HORZ_PER_DONOR: emd_per_donor_per_ct,
     }
 
 
@@ -411,3 +366,34 @@ def bin_array(values):
 
     # the 1st return value is the bin indices
     return bin_indices, bin_probabilities
+
+
+def check_donor_batches(input_integrated_split1, input_integrated_split2):
+    """
+    Ensure each donor is present in exactly one batch per split,
+    and that the batch IDs differ between splits.
+    """
+
+    donor_list = input_integrated_split1.obs["donor"].unique()
+
+    for donor in donor_list:
+        batch_split1 = input_integrated_split1.obs[
+            input_integrated_split1.obs["donor"] == donor
+        ]["batch"].unique()
+        batch_split2 = input_integrated_split2.obs[
+            input_integrated_split2.obs["donor"] == donor
+        ]["batch"].unique()
+
+        if len(batch_split1) > 1 or len(batch_split2) > 1:
+            raise ValueError(
+                f"Donor {donor} has samples in {len(batch_split1)} batches in integrated left"
+                f" and {len(batch_split2)} batches in integrated right. It should only have"
+                f" samples in exactly ONE batch in each of integrated left and integrated right."
+            )
+
+        if batch_split1[0] == batch_split2[0]:
+            raise ValueError(
+                f"Donor {donor} has samples in the same batch for both integrated left and right.\n"
+                f"Integrated left batch id: {batch_split1[0]}.\n"
+                f"Integrated right batch id: {batch_split2[0]}."
+            )

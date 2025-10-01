@@ -3605,6 +3605,18 @@ meta = [
       }
     },
     {
+      "name" : "control_methods/shuffle_integration_by_batch",
+      "repository" : {
+        "type" : "local"
+      }
+    },
+    {
+      "name" : "control_methods/shuffle_integration_by_cell_type",
+      "repository" : {
+        "type" : "local"
+      }
+    },
+    {
       "name" : "control_methods/no_integration",
       "repository" : {
         "type" : "local"
@@ -3713,12 +3725,6 @@ meta = [
       }
     },
     {
-      "name" : "methods/mnn",
-      "repository" : {
-        "type" : "local"
-      }
-    },
-    {
       "name" : "methods/batchadjust_one_control",
       "repository" : {
         "type" : "local"
@@ -3743,7 +3749,19 @@ meta = [
       }
     },
     {
+      "name" : "methods/cytovi",
+      "repository" : {
+        "type" : "local"
+      }
+    },
+    {
       "name" : "metrics/emd",
+      "repository" : {
+        "type" : "local"
+      }
+    },
+    {
+      "name" : "metrics/n_inconsistent_peaks",
       "repository" : {
         "type" : "local"
       }
@@ -3761,7 +3779,7 @@ meta = [
       }
     },
     {
-      "name" : "metrics/cms",
+      "name" : "metrics/lisi",
       "repository" : {
         "type" : "local"
       }
@@ -3829,7 +3847,7 @@ meta = [
     "engine" : "native",
     "output" : "target/nextflow/workflows/run_benchmark",
     "viash_version" : "0.9.4",
-    "git_commit" : "3ebfec1bf2dd42b470a1686239a6a02ff622661e",
+    "git_commit" : "90b7dc9513186b5fad7515731bc737c62601fc13",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3935,6 +3953,8 @@ meta = [
 // resolve dependencies dependencies (if any)
 meta["root_dir"] = getRootDir()
 include { extract_uns_metadata } from "${meta.root_dir}/dependencies/github/openproblems-bio/openproblems/build/main/nextflow/utils/extract_uns_metadata/main.nf"
+include { shuffle_integration_by_batch } from "${meta.resources_dir}/../../../nextflow/control_methods/shuffle_integration_by_batch/main.nf"
+include { shuffle_integration_by_cell_type } from "${meta.resources_dir}/../../../nextflow/control_methods/shuffle_integration_by_cell_type/main.nf"
 include { no_integration } from "${meta.resources_dir}/../../../nextflow/control_methods/no_integration/main.nf"
 include { perfect_integration } from "${meta.resources_dir}/../../../nextflow/control_methods/perfect_integration/main.nf"
 include { harmonypy } from "${meta.resources_dir}/../../../nextflow/methods/harmonypy/main.nf"
@@ -3953,15 +3973,16 @@ include { cytonorm_one_control_to_mid } from "${meta.resources_dir}/../../../nex
 include { cytonorm_no_controls_to_goal } from "${meta.resources_dir}/../../../nextflow/methods/cytonorm_no_controls_to_goal/main.nf"
 include { cytonorm_all_controls_to_goal } from "${meta.resources_dir}/../../../nextflow/methods/cytonorm_all_controls_to_goal/main.nf"
 include { cytonorm_one_control_to_goal } from "${meta.resources_dir}/../../../nextflow/methods/cytonorm_one_control_to_goal/main.nf"
-include { mnn } from "${meta.resources_dir}/../../../nextflow/methods/mnn/main.nf"
 include { batchadjust_one_control } from "${meta.resources_dir}/../../../nextflow/methods/batchadjust_one_control/main.nf"
 include { batchadjust_all_controls } from "${meta.resources_dir}/../../../nextflow/methods/batchadjust_all_controls/main.nf"
 include { rpca_to_goal } from "${meta.resources_dir}/../../../nextflow/methods/rpca_to_goal/main.nf"
 include { rpca_to_mid } from "${meta.resources_dir}/../../../nextflow/methods/rpca_to_mid/main.nf"
+include { cytovi } from "${meta.resources_dir}/../../../nextflow/methods/cytovi/main.nf"
 include { emd } from "${meta.resources_dir}/../../../nextflow/metrics/emd/main.nf"
+include { n_inconsistent_peaks } from "${meta.resources_dir}/../../../nextflow/metrics/n_inconsistent_peaks/main.nf"
 include { average_batch_r2 } from "${meta.resources_dir}/../../../nextflow/metrics/average_batch_r2/main.nf"
 include { flowsom_mapping_similarity } from "${meta.resources_dir}/../../../nextflow/metrics/flowsom_mapping_similarity/main.nf"
-include { cms } from "${meta.resources_dir}/../../../nextflow/metrics/cms/main.nf"
+include { lisi } from "${meta.resources_dir}/../../../nextflow/metrics/lisi/main.nf"
 include { bras } from "${meta.resources_dir}/../../../nextflow/metrics/bras/main.nf"
 
 // inner workflow
@@ -3978,8 +3999,8 @@ workflow auto {
 // construct list of methods and control methods
 methods = [
   // shuffle_integration,
-  // shuffle_integration_by_batch,
-  // shuffle_integration_by_cell_type,
+  shuffle_integration_by_batch,
+  shuffle_integration_by_cell_type,
   harmonypy,
   limma_remove_batch_effect,
   no_integration,
@@ -3992,7 +4013,6 @@ methods = [
   cycombine_all_controls_to_mid,
   cycombine_all_controls_to_goal,
   gaussnorm,
-  mnn,
   batchadjust_one_control,
   batchadjust_all_controls,
   cytonorm_no_controls_to_mid,
@@ -4002,16 +4022,17 @@ methods = [
   cytonorm_all_controls_to_goal,
   cytonorm_one_control_to_goal,
   rpca_to_goal,
-  rpca_to_mid
+  rpca_to_mid,
+  cytovi
 ]
 
 // construct list of metrics
 metrics = [
   emd,
-  // n_inconsistent_peaks,
+  n_inconsistent_peaks,
   average_batch_r2,
   flowsom_mapping_similarity,
-  cms,
+  lisi,
   bras
 ]
 

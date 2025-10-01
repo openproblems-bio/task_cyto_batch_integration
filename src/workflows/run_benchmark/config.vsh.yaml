@@ -83,8 +83,8 @@ dependencies:
   - name: utils/extract_uns_metadata
     repository: op
   # - name: control_methods/shuffle_integration
-  # - name: control_methods/shuffle_integration_by_batch
-  # - name: control_methods/shuffle_integration_by_cell_type
+  - name: control_methods/shuffle_integration_by_batch
+  - name: control_methods/shuffle_integration_by_cell_type
   - name: control_methods/no_integration
   - name: control_methods/perfect_integration
   - name: methods/harmonypy
@@ -103,16 +103,16 @@ dependencies:
   - name: methods/cytonorm_no_controls_to_goal
   - name: methods/cytonorm_all_controls_to_goal
   - name: methods/cytonorm_one_control_to_goal
-  - name: methods/mnn
   - name: methods/batchadjust_one_control
   - name: methods/batchadjust_all_controls
   - name: methods/rpca_to_goal
   - name: methods/rpca_to_mid
+  - name: methods/cytovi
   - name: metrics/emd
-  # - name: metrics/n_inconsistent_peaks
+  - name: metrics/n_inconsistent_peaks
   - name: metrics/average_batch_r2
   - name: metrics/flowsom_mapping_similarity
-  - name: metrics/cms
+  - name: metrics/lisi
   - name: metrics/bras
 
 runners:

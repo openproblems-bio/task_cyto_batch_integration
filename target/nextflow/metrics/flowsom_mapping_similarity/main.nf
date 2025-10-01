@@ -3497,7 +3497,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/metrics/flowsom_mapping_similarity",
     "viash_version" : "0.9.4",
-    "git_commit" : "3ebfec1bf2dd42b470a1686239a6a02ff622661e",
+    "git_commit" : "90b7dc9513186b5fad7515731bc737c62601fc13",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3659,19 +3659,16 @@ source(paste0(meta\\$resources_dir, "/helper_functions.R"))
 library(anndata)
 
 unintegrated <- anndata::read_h5ad(par[["input_unintegrated"]])
-integrated_s1 <- anndata::read_h5ad(par[["input_integrated_split1"]]) 
 
-print(unintegrated)
-print(integrated_s1)
 # read and filter split 1 data
 integrated_s1 <- anndata::read_h5ad(par[["input_integrated_split1"]]) |>
-  get_obs_var_for_integrated(unintegrated) |>
+  get_obs_var_for_integrated(unintegrated, split_id = 1) |>
   subset_nocontrols() |>
   remove_unlabelled()
 
 # read and filter split 2 data
 integrated_s2 <- anndata::read_h5ad(par[["input_integrated_split2"]]) |>
-  get_obs_var_for_integrated(unintegrated) |>
+  get_obs_var_for_integrated(unintegrated, split_id = 2) |>
   subset_nocontrols() |>
   remove_unlabelled()
 

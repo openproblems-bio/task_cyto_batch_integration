@@ -3329,7 +3329,7 @@ meta = [
       "id" : "nextflow",
       "directives" : {
         "label" : [
-          "midtime",
+          "veryhightime",
           "midmem",
           "midcpu"
         ],
@@ -3384,7 +3384,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/methods/rpca_to_mid",
     "viash_version" : "0.9.4",
-    "git_commit" : "3ebfec1bf2dd42b470a1686239a6a02ff622661e",
+    "git_commit" : "90b7dc9513186b5fad7515731bc737c62601fc13",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3541,6 +3541,9 @@ rm(.viash_orig_warn)
 
 ## VIASH END
 
+options(future.globals.maxSize = 25 * 1024^3)  # 25 GiB
+
+
 cat("Reading input files\\\\n")
 input_adata <- anndata::read_h5ad(par[["input"]])
 
@@ -3587,7 +3590,7 @@ seurat_objs <- lapply(batches, function(batch) {
         object = seurat_obj,
         features = markers_to_correct,
         assay = "cyto",
-        verbose = FALSE
+        verbose = TRUE
     )
 
     # run pca. mandatory
@@ -3600,7 +3603,7 @@ seurat_objs <- lapply(batches, function(batch) {
         assay = "cyto",
         npcs = par[["npcs"]],
         approx = FALSE,
-        verbose = FALSE
+        verbose = TRUE
     )
 
     return(seurat_obj)
@@ -3624,7 +3627,7 @@ anchors <- Seurat::FindIntegrationAnchors(
     dims = seq(npcs_computed),
     k.anchor = par[["n_neighbours"]],
     reduction = "rpca",
-    verbose = FALSE,
+    verbose = TRUE,
     reference = NULL
 )
 
@@ -3634,7 +3637,7 @@ batch_corrected_seurat_obj <- Seurat::IntegrateData(
     anchorset = anchors,
     features.to.integrate = markers_to_correct,
     dims = seq(npcs_computed),
-    verbose = FALSE,
+    verbose = TRUE,
 )
 # just to be sure!
 Seurat::DefaultAssay(batch_corrected_seurat_obj) <- "integrated"
@@ -4056,7 +4059,7 @@ meta["defaults"] = [
     "tag" : "build_main"
   },
   "label" : [
-    "midtime",
+    "veryhightime",
     "midmem",
     "midcpu"
   ],
