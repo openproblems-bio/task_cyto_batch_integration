@@ -2,6 +2,7 @@ import anndata as ad
 import numpy as np
 from scvi.external import cytovi
 from sklearn.cluster import KMeans
+from threadpoolctl import threadpool_limits
 
 ## VIASH START
 par = {
@@ -37,11 +38,12 @@ cytovi.scale(
 
 print("Clustering using k-means with k =", par["n_clusters"], flush=True)
 # cluster data using Kmeans
-adata_to_correct.obs["clusters"] = (
-    KMeans(n_clusters=par["n_clusters"], random_state=0)
-    .fit_predict(adata_to_correct.layers["scaled"])
-    .astype(str)
-)
+with threadpool_limits(limits=1):
+    adata_to_correct.obs["clusters"] = (
+        KMeans(n_clusters=par["n_clusters"], random_state=0)
+        .fit_predict(adata_to_correct.layers["scaled"])
+        .astype(str)
+    )
 # concatenate obs so we can use it for subsampling
 adata_to_correct.obs["sample_cluster"] = (
     adata_to_correct.obs["sample"].astype(str) + "_" + adata_to_correct.obs["clusters"]
