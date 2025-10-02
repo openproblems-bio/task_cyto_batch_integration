@@ -10,7 +10,7 @@ workflow auto {
 // construct list of methods and control methods
 methods = [
   shuffle_integration,
-  // shuffle_integration_by_batch,
+  shuffle_integration_by_batch,
   shuffle_integration_by_cell_type,
   harmonypy,
   limma_remove_batch_effect,
