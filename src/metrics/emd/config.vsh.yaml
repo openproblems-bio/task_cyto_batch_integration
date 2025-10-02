@@ -1,0 +1,206 @@
+# The API specifies which type of component this is.
+# It contains specifications for:
+#   - The input/output files
+#   - Common parameters
+#   - A unit test
+__merge__: ../../api/comp_metric.yaml
+
+# A unique identifier for your component (required).
+# Can contain only lowercase letters or underscores.
+name: emd
+
+# Metadata for your component
+info:
+  metrics:
+      # A unique identifier for your metric (required).
+      # Can contain only lowercase letters or underscores.
+    - name: emd_mean_ct_horiz
+      # A relatively short label, used when rendering visualisarions (required)
+      label: EMD Mean CT Horizontal
+      # A one sentence summary of how this metric works (required). Used when 
+      # rendering summary tables.
+      summary: "Mean Earth Mover Distance calculated horizontally across donors for each cell type and marker."
+      # A multi-line description of how this component works (required). Used
+      # when rendering reference documentation.
+      description: |
+        Earth Mover Distance (EMD), also known as the Wasserstein metric, measures the difference 
+        between two probability distributions. 
+        
+        Here, EMD is used to compare marker expression distributions between paired samples from the same donor 
+        quantified across two different batches. 
+        For each paired sample, cell type, and marker, the marker expression values are first converted into 
+        probability distributions. 
+        This is done by binning the expression values into a range from -100 to 100 with a bin width of 0.1.
+        The `wasserstein_distance` function from SciPy is then used to calculate the EMD between the two 
+        probability distributions belonging to the same cell type, marker, and a given paired samples.
+        This is then repeated for every cell type, marker, and paired sample.
+        Finally, the average of all these EMD values is computed and reported as the metric score.
+
+        A high score indicates large overall differences in the distributions of marker expressions 
+        between the paired samples, suggesting poor batch integration.
+        A low score means the small differences in marker expression distributions between batches, 
+        indicating good batch integration.
+
+      references:
+        doi: 
+          - 10.1023/A:1026543900054
+      links:
+        # URL to the documentation for this metric (required).
+        documentation: https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.wasserstein_distance.html
+        # URL to the code repository for this metric (required).
+        repository: https://github.com/scipy/scipy
+      # The minimum possible value for this metric (required)
+      min: 0
+      # The maximum possible value for this metric (required)
+      max: .inf
+      # Whether a higher value represents a 'better' solution (required)
+      maximize: false
+      
+      # A unique identifier for your metric (required).
+      # Can contain only lowercase letters or underscores.
+    - name: emd_max_ct_horiz
+      # A relatively short label, used when rendering visualisarions (required)
+      label: EMD Max CT Horizontal
+      # A one sentence summary of how this metric works (required). Used when 
+      # rendering summary tables.
+      summary: "Max Earth Mover Distance calculated horizontally across donors for each cell type and marker."
+      # A multi-line description of how this component works (required). Used
+      # when rendering reference documentation.
+      description: |
+        Earth Mover Distance (EMD), also known as the Wasserstein metric, measures the difference 
+        between two probability distributions. 
+        
+        Here, EMD is used to compare marker expression distributions between paired samples from the same donor 
+        quantified across two different batches. 
+        For each paired sample, cell type, and marker, the marker expression values are first converted into 
+        probability distributions. 
+        This is done by binning the expression values into a range from -100 to 100 with a bin width of 0.1.
+        The `wasserstein_distance` function from SciPy is then used to calculate the EMD between the two 
+        probability distributions belonging to the same cell type, marker, and a given paired samples.
+        This is then repeated for every cell type, marker, and paired sample.
+        Finally, the maximum of all these EMD values is computed and reported as the metric score.
+
+        EMD Max CT score reflects the largest difference in marker expression distributions across all cell types, 
+        markers, and paired samples.
+        A high score indicates that at least one marker, cell type, or sample pair has a large difference in 
+        distribution after batch integration.
+        A low score means that even the most poorly corrected marker expression is well integrated across batches.    
+      references:
+        doi: 
+          - 10.1023/A:1026543900054
+      links:
+        # URL to the documentation for this metric (required).
+        documentation: https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.wasserstein_distance.html
+        # URL to the code repository for this metric (required).
+        repository: https://github.com/scipy/scipy
+      # The minimum possible value for this metric (required)
+      min: 0
+      # The maximum possible value for this metric (required)
+      max: .inf
+      # Whether a higher value represents a 'better' solution (required)
+      maximize: false
+
+      # A unique identifier for your metric (required).
+      # Can contain only lowercase letters or underscores.
+    - name: emd_mean_ct_vert
+      # A relatively short label, used when rendering visualisarions (required)
+      label: EMD Mean CT Vertical
+      # A one sentence summary of how this metric works (required). Used when 
+      # rendering summary tables.
+      summary: "Mean Earth Mover Distance across batch corrected samples, cell types, and markers."
+      # A multi-line description of how this component works (required). Used
+      # when rendering reference documentation.
+      description: |
+        Earth Mover Distance (EMD), also known as the Wasserstein metric, measures the difference 
+        between two probability distributions. 
+        
+        Here, EMD is used to compare marker expression distributions between all integrated 
+        samples from the same group.
+        For each pair of samples, cell type, and marker, the marker expression values are first converted into 
+        probability distributions. 
+        This is done by binning the expression values into a range from -100 to 100 with a bin width of 0.1.
+        The `wasserstein_distance` function from SciPy is then used to calculate the EMD between the two 
+        probability distributions belonging to the same cell type, marker, and a given paired samples.
+        This is then repeated for every cell type, marker, and paired sample.
+        Finally, the average of all these EMD values is computed and reported as the metric score.
+
+        A high score indicates overall, there is a large difference in distribution of marker expression after batch integration.
+        A low score means that overall, the samples are well integrated.
+      references:
+        doi: 
+          - 10.1023/A:1026543900054
+      links:
+        # URL to the documentation for this metric (required).
+        documentation: https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.wasserstein_distance.html
+        # URL to the code repository for this metric (required).
+        repository: https://github.com/scipy/scipy
+      # The minimum possible value for this metric (required)
+      min: 0
+      # The maximum possible value for this metric (required)
+      max: .inf
+      # Whether a higher value represents a 'better' solution (required)
+      maximize: false
+      
+      # A unique identifier for your metric (required).
+      # Can contain only lowercase letters or underscores.
+    - name: emd_max_ct_vert
+      # A relatively short label, used when rendering visualisarions (required)
+      label: EMD Max CT Vertical
+      # A one sentence summary of how this metric works (required). Used when 
+      # rendering summary tables.
+      summary: "Max Earth Mover Distance across batch corrected samples, cell types, and markers."
+      # A multi-line description of how this component works (required). Used
+      # when rendering reference documentation.
+      description: |
+        Earth Mover Distance (EMD), also known as the Wasserstein metric, measures the difference 
+        between two probability distributions. 
+        
+        Here, EMD is used to compare marker expression distributions between all integrated 
+        samples from the same group.
+        For each pair of samples, cell type, and marker, the marker expression values are first converted into 
+        probability distributions. 
+        This is done by binning the expression values into a range from -100 to 100 with a bin width of 0.1.
+        The `wasserstein_distance` function from SciPy is then used to calculate the EMD between the two 
+        probability distributions belonging to the same cell type, marker, and a given paired samples.
+        This is then repeated for every cell type, marker, and paired sample.
+        Finally, the maximum of all these EMD values is computed and reported as the metric score.
+
+        A high score indicates there is a pair of samples and marker which show large difference in distribution after batch integration.
+        A low score means that, the worst integrated pair of samples and marker are well integrated.
+      references:
+        doi: 
+          - 10.1023/A:1026543900054
+      links:
+        # URL to the documentation for this metric (required).
+        documentation: https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.wasserstein_distance.html
+        # URL to the code repository for this metric (required).
+        repository: https://github.com/scipy/scipy
+      # The minimum possible value for this metric (required)
+      min: 0
+      # The maximum possible value for this metric (required)
+      max: .inf
+      # Whether a higher value represents a 'better' solution (required)
+      maximize: false
+
+# Resources required to run the component
+resources:
+  # The script of your component (required)
+  - type: python_script
+    path: script.py
+  - path: helper.py
+  - path: /src/utils/helper_functions.py
+
+engines:
+  # Specifications for the Docker image for this component.
+  - type: docker
+    image: openproblems/base_python:1
+    # Add custom dependencies here (optional). For more information, see
+    # https://viash.io/reference/config/engines/docker/#setup .
+
+runners:
+  # This platform allows running the component natively
+  - type: executable
+  # Allows turning the component into a Nextflow module / pipeline.
+  - type: nextflow
+    directives:
+      label: [midtime,midmem,midcpu]

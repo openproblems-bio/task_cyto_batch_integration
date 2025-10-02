@@ -1,0 +1,353 @@
+name: "cycombine_one_control_to_goal"
+namespace: "methods"
+version: "build_fix_cytovi_kmeans_openblas"
+argument_groups:
+- name: "Parameters"
+  arguments:
+  - type: "integer"
+    name: "--som_grid_size"
+    description: "SOM grid size used by create_som"
+    info:
+      optimize:
+        type: "linear"
+        lower: 6
+        upper: 16
+    default:
+    - 8
+    required: false
+    direction: "input"
+    multiple: false
+    multiple_sep: ";"
+  - type: "integer"
+    name: "--rlen"
+    description: "The number of time data is presented to SOM when clustering"
+    info:
+      optimize:
+        type: "linear"
+        lower: 10
+        upper: 20
+    default:
+    - 10
+    required: false
+    direction: "input"
+    multiple: false
+    multiple_sep: ";"
+- name: "Arguments"
+  arguments:
+  - type: "file"
+    name: "--input"
+    label: "Censored (split 1)"
+    summary: "An unintegrated dataset with certain columns (cells metadata), such\
+      \ as the donor information, hidden.\nThese columns are intentionally hidden\
+      \ to prevent bias.\n"
+    description: "An unintegrated dataset with certain columns (cells metadata), such\
+      \ as the donor information, hidden.\nThese columns are intentionally hidden\
+      \ to prevent bias.\nThe batch correction algorithm should not have to rely on\
+      \ these information \nto properly integrate different batches.\nThis dataset\
+      \ is used as the input for the batch correction algorithm. \nThe cells therein\
+      \ are identical to those in the unintegrated dataset.\n"
+    info:
+      format:
+        type: "h5ad"
+        layers:
+        - type: "double"
+          name: "preprocessed"
+          description: "preprocessed data, e.g. already compensated, transformed and\
+            \ debris/doublets removed"
+          required: true
+        obs:
+        - type: "string"
+          name: "batch"
+          description: "Batch information"
+          required: true
+        - type: "string"
+          name: "sample"
+          description: "Sample ID"
+          required: true
+        - type: "integer"
+          name: "is_control"
+          description: "Whether the sample the cell came from can be used as a control\
+            \ for batch \neffect correction.\n\n* 0: cannot be used as a control.\n\
+            * >= 1: can be used as a control.\n* For cells with >= 1: cells with the\
+            \ same value come from the same donor.\n\nDifferent values indicate different\
+            \ donors.\n"
+          required: true
+        var:
+        - type: "integer"
+          name: "numeric_id"
+          description: "Numeric ID associated with each marker"
+          required: true
+        - type: "string"
+          name: "channel"
+          description: "The channel / detector of the instrument"
+          required: true
+        - type: "string"
+          name: "marker"
+          description: "The marker name associated with the channel"
+          required: false
+        - type: "string"
+          name: "marker_type"
+          description: "Whether the marker is a functional or lineage marker"
+          required: true
+        - type: "boolean"
+          name: "to_correct"
+          description: "Whether the marker will be batch corrected"
+          required: true
+        uns:
+        - type: "string"
+          name: "dataset_id"
+          description: "A unique identifier for the dataset"
+          required: true
+        - name: "dataset_name"
+          type: "string"
+          description: "Nicely formatted name."
+          required: true
+        - type: "string"
+          name: "dataset_url"
+          description: "Link to the original source of the dataset."
+          required: false
+        - name: "dataset_reference"
+          type: "string"
+          description: "Bibtex reference of the paper in which the dataset was published."
+          required: false
+        - name: "dataset_summary"
+          type: "string"
+          description: "Short description of the dataset."
+          required: true
+        - name: "dataset_description"
+          type: "string"
+          description: "Long description of the dataset."
+          required: true
+        - name: "dataset_organism"
+          type: "string"
+          description: "The organism of the sample in the dataset."
+          required: false
+    example:
+    - "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/censored_split1.h5ad"
+    must_exist: true
+    create_parent: true
+    required: true
+    direction: "input"
+    multiple: false
+    multiple_sep: ";"
+  - type: "file"
+    name: "--output"
+    label: "Integrated (split 1)"
+    summary: "Integrated dataset which batch effect was corrected by an algorithm"
+    info:
+      format:
+        type: "h5ad"
+        layers:
+        - type: "double"
+          name: "integrated"
+          description: "The integrated data as returned by a batch correction method"
+          required: true
+        uns:
+        - type: "string"
+          name: "dataset_id"
+          description: "A unique identifier for the dataset"
+          required: true
+        - type: "string"
+          name: "method_id"
+          description: "A unique identifier for the method"
+          required: true
+        - type: "object"
+          name: "parameters"
+          description: "The parameters used for the integration"
+          required: false
+    example:
+    - "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/integrated_split1.h5ad"
+    must_exist: true
+    create_parent: true
+    required: true
+    direction: "output"
+    multiple: false
+    multiple_sep: ";"
+resources:
+- type: "r_script"
+  path: "script.R"
+  is_executable: true
+label: "cyCombine (one-control, to-goal)"
+summary: "cyCombine run with control sample from one group only, correcting to a goal\
+  \ batch"
+description: "cyCombine perform batch integration using self-organizing maps and ComBat.\n\
+  It first uses self-organizing maps (SOM) to group similar cells into clusters, \n\
+  then applies a ComBat-based method to correct batch effects within \neach cluster.\
+  \ \nHere, we run cyCombine using control samples only from one biological group\
+  \ (replicates, in cyCombine terms), \nwith a square SOM grid and correct the batches\
+  \ to batch 1.\nThe size of the SOM grid is varied linearly between value of 6-16,\
+  \ with default set to 8\nfollowing the default value in create_som function in cyCombine.\n\
+  Rlen, which is the number of times data is presented to the SOM network and can\
+  \ impact\nclustering quality. \nIt is varied linearly between value of 10-20 with\
+  \ default set to 10.\n"
+test_resources:
+- type: "python_script"
+  path: "run_and_check_output.py"
+  is_executable: true
+- type: "python_script"
+  path: "check_config.py"
+  is_executable: true
+- type: "file"
+  path: "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset"
+  dest: "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset"
+info:
+  type: "method"
+  type_info:
+    label: "Method"
+    summary: "A method for integrating batch effects in cytometry data."
+    description: "A method for integrating batch effects in cytometry data.\n"
+status: "enabled"
+scope:
+  image: "public"
+  target: "public"
+repositories:
+- type: "github"
+  name: "op"
+  repo: "openproblems-bio/openproblems"
+  tag: "build/main"
+license: "MIT"
+references:
+  doi:
+  - "10.1038/s41467-022-29383-5"
+links:
+  repository: "https://github.com/biosurf/cyCombine"
+  docker_registry: "ghcr.io"
+  documentation: "https://biosurf.org/cyCombine.html"
+runners:
+- type: "executable"
+  id: "executable"
+  docker_setup_strategy: "ifneedbepullelsecachedbuild"
+- type: "nextflow"
+  id: "nextflow"
+  directives:
+    label:
+    - "midtime"
+    - "midmem"
+    - "midcpu"
+    tag: "$id"
+  auto:
+    simplifyInput: true
+    simplifyOutput: false
+    transcript: false
+    publish: false
+  config:
+    labels:
+      lowmem: "memory = 20.Gb"
+      midmem: "memory = 50.Gb"
+      highmem: "memory = 100.Gb"
+      lowcpu: "cpus = 5"
+      midcpu: "cpus = 15"
+      highcpu: "cpus = 30"
+      lowtime: "time = 1.h"
+      midtime: "time = 4.h"
+      hightime: "time = 8.h"
+      veryhightime: "time = 24.h"
+  debug: false
+  container: "docker"
+engines:
+- type: "docker"
+  id: "docker"
+  image: "openproblems/base_r:1"
+  namespace_separator: "/"
+  setup:
+  - type: "r"
+    packages:
+    - "pbmcapply"
+    bioc:
+    - "sva"
+    github:
+    - "biosurf/cyCombine"
+    bioc_force_install: false
+    warnings_as_errors: true
+  entrypoint: []
+  cmd: null
+build_info:
+  config: "src/methods/cycombine_one_control_to_goal/config.vsh.yaml"
+  runner: "nextflow"
+  engine: "docker"
+  output: "target/nextflow/methods/cycombine_one_control_to_goal"
+  executable: "target/nextflow/methods/cycombine_one_control_to_goal/main.nf"
+  viash_version: "0.9.4"
+  git_commit: "d87ccddadb10dceae9a2b833bb0cb66431f2e8d2"
+  git_remote: "https://github.com/openproblems-bio/task_cyto_batch_integration"
+package_config:
+  name: "task_cyto_batch_integration"
+  version: "build_fix_cytovi_kmeans_openblas"
+  label: "Cyto Batch Integration"
+  summary: "Benchmarking of batch integration algorithms for cytometry data."
+  description: "Cytometry is a non-sequencing single cell profiling technique commonly\
+    \ used in clinical studies. \nIt is very sensitive to batch effects, which can\
+    \ lead to biases in the interpretation of the result. \nBatch integration algorithms\
+    \ are often used to mitigate this effect.\n\nIn this project, we are building\
+    \ a pipeline for reproducible and continuous benchmarking \nof batch integration\
+    \ algorithms for cytometry data.\nAs input, methods require cleaned and normalised\
+    \ (using arc-sinh or logicle transformation)\ndata with multiple batches, cell\
+    \ type labels, and biological subjects, with paired samples\nfrom a subject profiled\
+    \ across multiple batches.\nThe batch integrated output must be an integrated\
+    \ marker by cell matrix stored in \nAnndata format.\nAll markers in the input\
+    \ data must be returned, regardless of whether they were integrated or not.\n\
+    This output is then evaluated using metrics that assess how well the batch effects\n\
+    were removed and how much biological signals were preserved. \n"
+  info:
+    image: "The name of the image file to use for the component on the website."
+    test_resources:
+    - type: "s3"
+      path: "s3://openproblems-data/resources_test/task_cyto_batch_integration/"
+      dest: "resources_test/task_cyto_batch_integration"
+  repositories:
+  - type: "github"
+    name: "op"
+    repo: "openproblems-bio/openproblems"
+    tag: "build/main"
+  viash_version: "0.9.4"
+  source: "src"
+  target: "target"
+  config_mods:
+  - ".runners[.type == \"nextflow\"].config.labels := { lowmem : \"memory = 20.Gb\"\
+    , midmem : \"memory = 50.Gb\", highmem : \"memory = 100.Gb\", lowcpu : \"cpus\
+    \ = 5\", midcpu : \"cpus = 15\", highcpu : \"cpus = 30\", lowtime : \"time = 1.h\"\
+    , midtime : \"time = 4.h\", hightime : \"time = 8.h\", veryhightime : \"time =\
+    \ 24.h\" }\n"
+  authors:
+  - name: "Luca Leomazzi"
+    roles:
+    - "author"
+    - "maintainer"
+    info:
+      github: "LuLeom"
+      orcid: "0009-0002-0742-8504"
+  - name: "Givanna Putri"
+    roles:
+    - "author"
+    - "maintainer"
+    info:
+      github: "ghar1821"
+      orcid: "0000-0002-7399-8014"
+  - name: "Robrecht Cannoodt"
+    roles:
+    - "author"
+    info:
+      github: "rcannood"
+      orcid: "0000-0003-3641-729X"
+  - name: "Katrien Quintelier"
+    roles:
+    - "contributor"
+    info:
+      github: "KatrienQ"
+      orcid: "0000-0001-5306-5615"
+  - name: "Sofie Van Gassen"
+    roles:
+    - "contributor"
+    info:
+      github: "SofieVG"
+      orcid: "0000-0002-7119-5330"
+  keywords:
+  - "single-cell"
+  - "openproblems"
+  - "benchmark"
+  license: "MIT"
+  organization: "openproblems-bio"
+  links:
+    repository: "https://github.com/openproblems-bio/task_cyto_batch_integration"
+    docker_registry: "ghcr.io"
+    issue_tracker: "https://github.com/openproblems-bio/task_cyto_batch_integration/issues"
