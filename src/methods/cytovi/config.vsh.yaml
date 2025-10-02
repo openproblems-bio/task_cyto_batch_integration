@@ -72,6 +72,7 @@ engines:
           - pyyaml
           - requests
           - jsonschema
+          - scikit-learn
         github:
           - openproblems-bio/core#subdirectory=packages/python/openproblems
 
