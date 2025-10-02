@@ -155,6 +155,8 @@
 
 * Fix missing anndata in yaml file and set the base_r docker image version to 1 instead of 1.0.0 (PR #89).
 
-* Fix bug in control methods (PR #107 and PR #108).
+* Fix bug in control methods (PR #107, #108, #109).
+  * All control methods are updated to cater the new schema.
+  * All control methods are re-enabled. Selectively disable them when running the pipeline using method exclude.
 
 
