@@ -446,9 +446,9 @@ function ViashDockerfile {
 FROM openproblems/base_python:1
 ENTRYPOINT []
 LABEL org.opencontainers.image.description="Companion container for running component control_methods shuffle_integration_by_batch"
-LABEL org.opencontainers.image.created="2025-10-01T15:28:11Z"
+LABEL org.opencontainers.image.created="2025-10-02T00:56:59Z"
 LABEL org.opencontainers.image.source="https://github.com/openproblems-bio/task_cyto_batch_integration"
-LABEL org.opencontainers.image.revision="90b7dc9513186b5fad7515731bc737c62601fc13"
+LABEL org.opencontainers.image.revision="0a3ba9b0314e63a1af7b70898928770c9f8fa237"
 LABEL org.opencontainers.image.version="build_main"
 
 VIASHDOCKER
@@ -568,7 +568,18 @@ VIASH_DOCKER_RUN_ARGS=(-i --rm)
 function ViashHelp {
   echo "shuffle_integration_by_batch build_main"
   echo ""
-  echo "Integrations are randomly permuted within each batch"
+  echo "This negative-control method randomly permutes cell-to-cell type assignments."
+  echo "Cells remain assigned to their original batch (batch effects preserved)."
+  echo "Within each batch, cells are reassigned to random samples, destroying"
+  echo "biological/sample-specific structure (e.g., KO vs WT differences)."
+  echo ""
+  echo "Purpose:"
+  echo "- Evaluate whether an integration method preserves differences between samples"
+  echo "  and biological groups while removing batch effects."
+  echo ""
+  echo "Example:"
+  echo "- A cell from a KO sample in batch 1 may be reassigned to any sample in batch 1"
+  echo "  (KO or WT), but it will never be moved to batch 2."
   echo ""
   echo "Arguments:"
   echo "    --input_unintegrated"

@@ -446,9 +446,9 @@ function ViashDockerfile {
 FROM openproblems/base_python:1
 ENTRYPOINT []
 LABEL org.opencontainers.image.description="Companion container for running component control_methods shuffle_integration_by_cell_type"
-LABEL org.opencontainers.image.created="2025-10-01T15:28:11Z"
+LABEL org.opencontainers.image.created="2025-10-02T00:56:59Z"
 LABEL org.opencontainers.image.source="https://github.com/openproblems-bio/task_cyto_batch_integration"
-LABEL org.opencontainers.image.revision="90b7dc9513186b5fad7515731bc737c62601fc13"
+LABEL org.opencontainers.image.revision="0a3ba9b0314e63a1af7b70898928770c9f8fa237"
 LABEL org.opencontainers.image.version="build_main"
 
 VIASHDOCKER
@@ -568,7 +568,18 @@ VIASH_DOCKER_RUN_ARGS=(-i --rm)
 function ViashHelp {
   echo "shuffle_integration_by_cell_type build_main"
   echo ""
-  echo "Integrations are randomly permuted within each cell type"
+  echo "This negative-control method randomly permutes cell-to-cell type assignments."
+  echo "Cells will be assigned to any cell types, regardless of their original cell type"
+  echo "or sample of origin or batch of origin."
+  echo ""
+  echo "Purpose:"
+  echo "- Evaluate whether an integration method preserves differences between cell"
+  echo "types"
+  echo "while removing batch effects."
+  echo ""
+  echo "Example:"
+  echo "- A Neutrophil from a KO sample in batch 1 may be reassigned to any cell type"
+  echo "  (B cell, T cell, Monocyte, etc.) from any sample in any batch."
   echo ""
   echo "Arguments:"
   echo "    --input_unintegrated"

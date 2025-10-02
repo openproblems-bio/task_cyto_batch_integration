@@ -3314,9 +3314,9 @@ meta = [
       "path" : "/src/control_methods/utils.py"
     }
   ],
-  "label" : "Shuffle integration by cell type",
-  "summary" : "Integrations are randomly permuted within each cell type",
-  "description" : "Integrations are randomly permuted within each cell type",
+  "label" : "Shuffle Integration — within cell type",
+  "summary" : "Randomly reassign cells to any cell types",
+  "description" : "This negative-control method randomly permutes cell-to-cell type assignments.\nCells will be assigned to any cell types, regardless of their original cell type\nor sample of origin or batch of origin.\n\nPurpose:\n- Evaluate whether an integration method preserves differences between cell types\nwhile removing batch effects.\n\nExample:\n- A Neutrophil from a KO sample in batch 1 may be reassigned to any cell type\n  (B cell, T cell, Monocyte, etc.) from any sample in any batch.\n",
   "test_resources" : [
     {
       "type" : "python_script",
@@ -3415,7 +3415,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/control_methods/shuffle_integration_by_cell_type",
     "viash_version" : "0.9.4",
-    "git_commit" : "90b7dc9513186b5fad7515731bc737c62601fc13",
+    "git_commit" : "0a3ba9b0314e63a1af7b70898928770c9f8fa237",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {

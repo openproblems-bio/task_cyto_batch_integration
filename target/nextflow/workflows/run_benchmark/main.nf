@@ -3605,6 +3605,12 @@ meta = [
       }
     },
     {
+      "name" : "control_methods/shuffle_integration",
+      "repository" : {
+        "type" : "local"
+      }
+    },
+    {
       "name" : "control_methods/shuffle_integration_by_batch",
       "repository" : {
         "type" : "local"
@@ -3847,7 +3853,7 @@ meta = [
     "engine" : "native",
     "output" : "target/nextflow/workflows/run_benchmark",
     "viash_version" : "0.9.4",
-    "git_commit" : "90b7dc9513186b5fad7515731bc737c62601fc13",
+    "git_commit" : "0a3ba9b0314e63a1af7b70898928770c9f8fa237",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3953,6 +3959,7 @@ meta = [
 // resolve dependencies dependencies (if any)
 meta["root_dir"] = getRootDir()
 include { extract_uns_metadata } from "${meta.root_dir}/dependencies/github/openproblems-bio/openproblems/build/main/nextflow/utils/extract_uns_metadata/main.nf"
+include { shuffle_integration } from "${meta.resources_dir}/../../../nextflow/control_methods/shuffle_integration/main.nf"
 include { shuffle_integration_by_batch } from "${meta.resources_dir}/../../../nextflow/control_methods/shuffle_integration_by_batch/main.nf"
 include { shuffle_integration_by_cell_type } from "${meta.resources_dir}/../../../nextflow/control_methods/shuffle_integration_by_cell_type/main.nf"
 include { no_integration } from "${meta.resources_dir}/../../../nextflow/control_methods/no_integration/main.nf"
@@ -3998,7 +4005,7 @@ workflow auto {
 
 // construct list of methods and control methods
 methods = [
-  // shuffle_integration,
+  shuffle_integration,
   shuffle_integration_by_batch,
   shuffle_integration_by_cell_type,
   harmonypy,

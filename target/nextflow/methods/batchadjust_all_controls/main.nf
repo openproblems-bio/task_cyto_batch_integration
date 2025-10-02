@@ -3379,7 +3379,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/methods/batchadjust_all_controls",
     "viash_version" : "0.9.4",
-    "git_commit" : "90b7dc9513186b5fad7515731bc737c62601fc13",
+    "git_commit" : "0a3ba9b0314e63a1af7b70898928770c9f8fa237",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
