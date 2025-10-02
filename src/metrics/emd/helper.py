@@ -59,14 +59,12 @@ def calculate_vertical_emd(
 
         # mean cell type emd across all sample combinations, markers, and splits
         mean_emd_ct = np.nanmean(
-            emd_long[emd_long["cell_type"] != "global"]
-            .drop(columns=["cell_type", "first_sample", "second_sample"])
+            emd_long.drop(columns=["cell_type", "first_sample", "second_sample"])
             .to_numpy()
             .flatten()
         )
         max_emd_ct = np.nanmax(
-            emd_long[emd_long["cell_type"] != "global"]
-            .drop(columns=["cell_type", "first_sample", "second_sample"])
+            emd_long.drop(columns=["cell_type", "first_sample", "second_sample"])
             .to_numpy()
             .flatten()
         )
@@ -114,7 +112,7 @@ def get_vert_emd_for_integrated_adata(i_adata: ad.AnnData, markers_to_assess: li
             f" at least 2 samples per group. Skipping EMD vertical calculation."
         )
 
-        return np.nan, np.nan
+        return np.nan
 
     cell_types = i_adata.obs["cell_type"].unique()
 
@@ -156,6 +154,7 @@ def get_vert_emd_for_integrated_adata(i_adata: ad.AnnData, markers_to_assess: li
     # remove unparsable characters like "/"
     emd_vals.columns = emd_vals.columns.str.replace("/", "_")
 
+    # TODO remove me once we are happy with the results
     # prepare the data to draw the heatmap in cytonorm 2 supp paper.
     # 1 row/column = 1 sample, a cell is emd for a given marker
     # repeat for every marker assessed
