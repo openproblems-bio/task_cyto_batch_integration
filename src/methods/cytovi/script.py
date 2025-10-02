@@ -1,6 +1,5 @@
 import anndata as ad
 import numpy as np
-import scanpy as sc
 from scvi.external import cytovi
 from sklearn.cluster import KMeans
 

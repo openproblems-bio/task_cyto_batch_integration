@@ -3386,7 +3386,8 @@ meta = [
             "scvi-tools==1.4.0",
             "pyyaml",
             "requests",
-            "jsonschema"
+            "jsonschema",
+            "scikit-learn"
           ],
           "github" : [
             "openproblems-bio/core#subdirectory=packages/python/openproblems"
@@ -3402,7 +3403,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/methods/cytovi",
     "viash_version" : "0.9.4",
-    "git_commit" : "0a3ba9b0314e63a1af7b70898928770c9f8fa237",
+    "git_commit" : "1870f2f566eb73409224fd7b0b258c589a7b6d3f",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3516,7 +3517,6 @@ tempscript=".viash_script.py"
 cat > "$tempscript" << VIASHMAIN
 import anndata as ad
 import numpy as np
-import scanpy as sc
 from scvi.external import cytovi
 from sklearn.cluster import KMeans
 

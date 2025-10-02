@@ -159,4 +159,6 @@
   * All control methods are updated to cater the new schema.
   * All control methods are re-enabled. Selectively disable them when running the pipeline using method exclude.
 
+* Fix bug in EMD where nan cannot be written out and added sklearn dependency for cytovi (PR #110). 
+
 
