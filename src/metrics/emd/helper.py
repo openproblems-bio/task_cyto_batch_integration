@@ -36,10 +36,12 @@ def calculate_vertical_emd(
                     or global, depending on what the 2d matrix represents.
     """
 
+    print("Calculating vertical EMD for split 1", flush=True)
     emd_split1_long = get_vert_emd_for_integrated_adata(
         i_adata=i_split1_adata, markers_to_assess=markers_to_assess
     )
 
+    print("Calculating vertical EMD for split 2", flush=True)
     emd_split2_long = get_vert_emd_for_integrated_adata(
         i_adata=i_split2_adata, markers_to_assess=markers_to_assess
     )
@@ -47,6 +49,8 @@ def calculate_vertical_emd(
     # safeguard
     mean_emd_ct = np.nan
     max_emd_ct = np.nan
+
+    print("Computing mean and max vertical EMD", flush=True)
 
     # compute these only if we can.
     emd_long = []
@@ -56,6 +60,10 @@ def calculate_vertical_emd(
 
     if len(emd_long) > 0:
         emd_long = pd.concat(emd_long)
+
+        # note we did some marker name cleaning before. So the markers_to_assess
+        # parameter may not match exactly the column names in emd_long.
+        # so don't just subset to markers_to_assess!
 
         # mean cell type emd across all sample combinations, markers, and splits
         mean_emd_ct = np.nanmean(
@@ -91,17 +99,24 @@ def get_vert_emd_for_integrated_adata(i_adata: ad.AnnData, markers_to_assess: li
         emd_wide_dfs: the break down of EMD per donor and cell type.
     """
 
-    # calculate the global first, agnostic of cell type
-
+    print("Determining samples per group", flush=True)
     # comparing one sample against every other sample (one at a time).
     # get all samples for each group first
     sample_group_map = i_adata.obs.groupby("group", observed=True)["sample"].apply(
         lambda x: list(set(x))
     )
-    # then get combinations of 2 for each group
-    sample_combos = np.array(
-        [list(itertools.combinations(x, 2)) for x in sample_group_map]
-    ).reshape(-1, 2)
+
+    print(f"Sample groups found: {sample_group_map}", flush=True)
+    print("Getting sample combinations to compute EMD for", flush=True)
+
+    sample_combos = []
+    for sample_type in sample_group_map:
+        # sample_type = sample_group_map[1]
+        if len(sample_type) >= 2:
+            sample_combo = list(itertools.combinations(sample_type, 2))
+            sample_combos.extend(sample_combo)
+        else:
+            print(f"There are less than 2 samples for group {sample_type}. Skipping.")
 
     if len(sample_combos) == 0:
         # this means the data processed do not have at least 2 samples per group.
@@ -114,6 +129,10 @@ def get_vert_emd_for_integrated_adata(i_adata: ad.AnnData, markers_to_assess: li
 
         return np.nan
 
+    print("Sample combinations found:", flush=True)
+    print(sample_combos, flush=True)
+
+    print("Calculating EMD for each sample combination and cell type", flush=True)
     cell_types = i_adata.obs["cell_type"].unique()
 
     emd_vals = []
@@ -126,6 +145,11 @@ def get_vert_emd_for_integrated_adata(i_adata: ad.AnnData, markers_to_assess: li
 
         # emd per cell type
         for cell_type in cell_types:
+            print(
+                f"Calculating EMD for sample combo: {sample_combo}, cell type: {cell_type}",
+                flush=True,
+            )
+
             # cell_type = cell_types[0]
             first_sample_adata_ct = first_sample_adata[
                 first_sample_adata.obs["cell_type"] == cell_type
@@ -136,6 +160,14 @@ def get_vert_emd_for_integrated_adata(i_adata: ad.AnnData, markers_to_assess: li
 
             # Do not calculate if we have less than 50 cells as it does not make sense.
             if first_sample_adata_ct.n_obs < 50 or second_sample_adata_ct.n_obs < 50:
+                print(
+                    f"There are less than 50 cells in either sample {sample_combo[0]} or"
+                    f" sample {sample_combo[1]} for cell type {cell_type}.\n"
+                    f"Sample {sample_combo[0]} {cell_type}: {first_sample_adata_ct.n_obs} cells.\n"
+                    f"Sample {sample_combo[1]} {cell_type}: {second_sample_adata_ct.n_obs} cells.\n"
+                    f"Skipping calculating vertical EMD for this sample combination and cell type.",
+                    flush=True,
+                )
                 continue
 
             emd_df = compute_emd(
@@ -152,38 +184,10 @@ def get_vert_emd_for_integrated_adata(i_adata: ad.AnnData, markers_to_assess: li
     # concatenate EMD values
     emd_vals = pd.concat(emd_vals)
     # remove unparsable characters like "/"
+    print("Cleaning up column names", flush=True)
     emd_vals.columns = emd_vals.columns.str.replace("/", "_")
 
-    # TODO remove me once we are happy with the results
-    # prepare the data to draw the heatmap in cytonorm 2 supp paper.
-    # 1 row/column = 1 sample, a cell is emd for a given marker
-    # repeat for every marker assessed
-    # note, only run this after calculating mean, otherwise you end up having to
-    # remove the sample id columns.
-
-    # emd_wide = {}
-
-    # emd_types = emd_vals["cell_type"].unique()
-
-    # for marker in markers_to_assess:
-    #     # marker = markers_to_assess[0]
-
-    #     # remove unparsable characters like "/"
-    #     marker_name = marker.replace("/", "_")
-    #     # have to initialise the dictionary..
-    #     emd_wide[marker_name] = {}
-
-    #     for emd_type in emd_types:
-    #         # ct = cell_types[0]
-    #         emd_df = emd_vals[emd_vals["cell_type"] == emd_type]
-
-    #         if emd_df.shape[0] > 0:
-    #             # safeguard. Only pivot if we computed the emd.
-    #             # This is a safeguard in case there is a rare cell type which we don't have
-    #             # any samples with at least 50 cells for.
-    #             emd_wide[marker_name][emd_type] = emd_df.pivot(
-    #                 index="second_sample", columns="first_sample", values=marker
-    #             )
+    print("Finished calculating vertical EMD", flush=True)
 
     return emd_vals
 
@@ -216,6 +220,7 @@ def calculate_horizontal_emd(
     emd_per_donor_per_ct = []
 
     for donor in donor_list:
+        print(f"Calculating horizontal EMD for donor: {donor}", flush=True)
         # donor = donor_list[0]
         i_split1_donor = i_split1_adata[i_split1_adata.obs["donor"] == donor]
         i_split2_donor = i_split2_adata[i_split2_adata.obs["donor"] == donor]
@@ -240,6 +245,7 @@ def calculate_horizontal_emd(
         )
 
         for cell_type in cell_types:
+            print(f"Calculating EMD for cell type: {cell_type}", flush=True)
             # cell_type = cell_types[0]
             i_split1_ct = i_split1_donor[i_split1_donor.obs["cell_type"] == cell_type]
             i_split2_ct = i_split2_donor[i_split2_donor.obs["cell_type"] == cell_type]
@@ -268,6 +274,7 @@ def calculate_horizontal_emd(
     emd_per_donor_per_ct = pd.concat(emd_per_donor_per_ct)
 
     # compute the mean and max per ct and for global.
+    print("Computing mean and max horizontal EMD", flush=True)
     mean_emd_ct = np.nanmean(
         emd_per_donor_per_ct.drop(columns=["cell_type", "donor"]).values
     )
