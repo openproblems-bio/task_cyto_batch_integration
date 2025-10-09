@@ -1,0 +1,22 @@
+
+__merge__: ../../api/comp_control_method.yaml
+
+name: no_integration
+label: No Integration
+
+summary: "Control method returning the unintegrated data without performing batch correction."
+
+description: |
+  The component works by reading and writing back the 'unintegrated' data without performing any operation. 
+
+resources:
+  - type: python_script
+    path: script.py
+engines:
+  - type: docker
+    image: openproblems/base_python:1
+runners:
+  - type: executable
+  - type: nextflow
+    directives:
+      label: [midtime,midmem,midcpu]
