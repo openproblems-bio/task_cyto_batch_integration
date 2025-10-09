@@ -66,6 +66,7 @@ resources:
     path: script.R
   - path: /src/utils/anndata_to_fcs.R
   - path: BatchAdjust.R
+  - path: utils.R
 
 engines:
   # Specifications for the Docker image for this component.

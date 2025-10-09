@@ -16,7 +16,7 @@ def get_kde_density(expression_array):
     min_val = expression_array.min()
     max_val = expression_array.max()
     marker_values = np.reshape(expression_array, (1,-1)) # Reshape array for KDE
-    kde = gaussian_kde(marker_values, bw_method=0.3)
+    kde = gaussian_kde(marker_values, bw_method='scott')
     x_grid = np.linspace(min_val, max_val, 100)
     density = kde(x_grid)
     #Plot, for debugging
@@ -35,8 +35,8 @@ def call_peaks(density):
     peaks: array of values representing the peaks of the density
     '''
 
-    height_trsh = 0.05*density.max()
-    prom_trsh = 0.1
+    height_trsh = 0.1
+    prom_trsh = 0.01
                 
     peaks, _ = find_peaks(density, 
                         prominence=prom_trsh,

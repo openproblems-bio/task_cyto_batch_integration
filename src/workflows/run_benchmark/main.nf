@@ -9,9 +9,9 @@ workflow auto {
 
 // construct list of methods and control methods
 methods = [
-  // shuffle_integration,
-  // shuffle_integration_by_batch,
-  // shuffle_integration_by_cell_type,
+  shuffle_integration,
+  shuffle_integration_by_batch,
+  shuffle_integration_by_cell_type,
   harmonypy,
   limma_remove_batch_effect,
   no_integration,
@@ -24,7 +24,6 @@ methods = [
   cycombine_all_controls_to_mid,
   cycombine_all_controls_to_goal,
   gaussnorm,
-  mnn,
   batchadjust_one_control,
   batchadjust_all_controls,
   cytonorm_no_controls_to_mid,
@@ -34,16 +33,17 @@ methods = [
   cytonorm_all_controls_to_goal,
   cytonorm_one_control_to_goal,
   rpca_to_goal,
-  rpca_to_mid
+  rpca_to_mid,
+  cytovi
 ]
 
 // construct list of metrics
 metrics = [
   emd,
-  // n_inconsistent_peaks,
+  n_inconsistent_peaks,
   average_batch_r2,
   flowsom_mapping_similarity,
-  cms,
+  lisi,
   bras
 ]
 
