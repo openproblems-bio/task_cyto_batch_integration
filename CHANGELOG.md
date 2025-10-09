@@ -64,6 +64,7 @@
 
 * Added Seurat rPCA (PR #95).
 
+* Added processing scripts for CLL dataset (PR #106).
 
 ## MAJOR CHANGES
 
