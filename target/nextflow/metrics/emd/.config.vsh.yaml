@@ -276,36 +276,6 @@ info:
     min: 0
     max: ".inf"
     maximize: false
-  - name: "emd_max_ct_horiz"
-    label: "EMD Max CT Horizontal"
-    summary: "Max Earth Mover Distance calculated horizontally across donors for each\
-      \ cell type and marker."
-    description: "Earth Mover Distance (EMD), also known as the Wasserstein metric,\
-      \ measures the difference \nbetween two probability distributions. \n\nHere,\
-      \ EMD is used to compare marker expression distributions between paired samples\
-      \ from the same donor \nquantified across two different batches. \nFor each\
-      \ paired sample, cell type, and marker, the marker expression values are first\
-      \ converted into \nprobability distributions. \nThis is done by binning the\
-      \ expression values into a range from -100 to 100 with a bin width of 0.1.\n\
-      The `wasserstein_distance` function from SciPy is then used to calculate the\
-      \ EMD between the two \nprobability distributions belonging to the same cell\
-      \ type, marker, and a given paired samples.\nThis is then repeated for every\
-      \ cell type, marker, and paired sample.\nFinally, the maximum of all these EMD\
-      \ values is computed and reported as the metric score.\n\nEMD Max CT score reflects\
-      \ the largest difference in marker expression distributions across all cell\
-      \ types, \nmarkers, and paired samples.\nA high score indicates that at least\
-      \ one marker, cell type, or sample pair has a large difference in \ndistribution\
-      \ after batch integration.\nA low score means that even the most poorly corrected\
-      \ marker expression is well integrated across batches.    \n"
-    references:
-      doi:
-      - "10.1023/A:1026543900054"
-    links:
-      documentation: "https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.wasserstein_distance.html"
-      repository: "https://github.com/scipy/scipy"
-    min: 0
-    max: ".inf"
-    maximize: false
   - name: "emd_mean_ct_vert"
     label: "EMD Mean CT Vertical"
     summary: "Mean Earth Mover Distance across batch corrected samples, cell types,\
@@ -324,33 +294,6 @@ info:
       \ score.\n\nA high score indicates overall, there is a large difference in distribution\
       \ of marker expression after batch integration.\nA low score means that overall,\
       \ the samples are well integrated.\n"
-    references:
-      doi:
-      - "10.1023/A:1026543900054"
-    links:
-      documentation: "https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.wasserstein_distance.html"
-      repository: "https://github.com/scipy/scipy"
-    min: 0
-    max: ".inf"
-    maximize: false
-  - name: "emd_max_ct_vert"
-    label: "EMD Max CT Vertical"
-    summary: "Max Earth Mover Distance across batch corrected samples, cell types,\
-      \ and markers."
-    description: "Earth Mover Distance (EMD), also known as the Wasserstein metric,\
-      \ measures the difference \nbetween two probability distributions. \n\nHere,\
-      \ EMD is used to compare marker expression distributions between all integrated\
-      \ \nsamples from the same group.\nFor each pair of samples, cell type, and marker,\
-      \ the marker expression values are first converted into \nprobability distributions.\
-      \ \nThis is done by binning the expression values into a range from -100 to\
-      \ 100 with a bin width of 0.1.\nThe `wasserstein_distance` function from SciPy\
-      \ is then used to calculate the EMD between the two \nprobability distributions\
-      \ belonging to the same cell type, marker, and a given paired samples.\nThis\
-      \ is then repeated for every cell type, marker, and paired sample.\nFinally,\
-      \ the maximum of all these EMD values is computed and reported as the metric\
-      \ score.\n\nA high score indicates there is a pair of samples and marker which\
-      \ show large difference in distribution after batch integration.\nA low score\
-      \ means that, the worst integrated pair of samples and marker are well integrated.\n"
     references:
       doi:
       - "10.1023/A:1026543900054"
@@ -386,9 +329,9 @@ runners:
   id: "nextflow"
   directives:
     label:
-    - "midtime"
-    - "midmem"
-    - "midcpu"
+    - "lowtime"
+    - "lowmem"
+    - "lowcpu"
     tag: "$id"
   auto:
     simplifyInput: true
@@ -423,7 +366,7 @@ build_info:
   output: "target/nextflow/metrics/emd"
   executable: "target/nextflow/metrics/emd/main.nf"
   viash_version: "0.9.4"
-  git_commit: "8d64860e11f4029a2c6138217c8c97890390db8e"
+  git_commit: "680f9e901f8dbb10127f74a1ba2ad0595a146b53"
   git_remote: "https://github.com/openproblems-bio/task_cyto_batch_integration"
 package_config:
   name: "task_cyto_batch_integration"
