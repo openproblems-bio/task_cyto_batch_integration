@@ -128,6 +128,8 @@
 
 * Add arguments for including/excluding methods and metrics in the benchmarking workflow (PR #100).
 
+* Removed EMD max from calculation (PR #113).
+
 
 ## BUG FIXES
 
@@ -160,5 +162,7 @@
   * All control methods are re-enabled. Selectively disable them when running the pipeline using method exclude.
 
 * Fix bug in EMD where nan cannot be written out and added sklearn dependency for cytovi (PR #110). 
+
+* Fix bug in EMD vertical where sample combination was malformed (PR #113)
 
 
