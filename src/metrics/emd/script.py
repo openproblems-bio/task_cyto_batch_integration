@@ -99,15 +99,11 @@ output = ad.AnnData(
         "method_id": method_id,
         "metric_ids": [
             "emd_mean_ct_horiz",
-            "emd_max_ct_horiz",
             "emd_mean_ct_vert",
-            "emd_max_ct_vert",
         ],
         "metric_values": [
             emd_horz[emd_helper.KEY_MEAN_EMD_CT],
-            emd_horz[emd_helper.KEY_MAX_EMD_CT],
             emd_vert[emd_helper.KEY_MEAN_EMD_CT],
-            emd_vert[emd_helper.KEY_MAX_EMD_CT],
         ],
         "emd_values": {
             "emd_values_horiz": emd_horz[emd_helper.KEY_EMD_HORZ_PER_DONOR],

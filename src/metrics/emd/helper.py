@@ -6,7 +6,6 @@ import pandas as pd
 from scipy.stats import wasserstein_distance
 
 KEY_MEAN_EMD_CT = "mean_emd_ct"
-KEY_MAX_EMD_CT = "max_emd_ct"
 KEY_EMD_VERT_MAT_split1 = "emd_vert_mat_split1"
 KEY_EMD_VERT_MAT_split2 = "emd_vert_mat_split2"
 KEY_EMD_HORZ_PER_DONOR = "emd_horz_per_donor"
@@ -27,13 +26,14 @@ def calculate_vertical_emd(
         dict: a dictionary containing the following elements.
             "mean_emd_ct": np.float32: mean emd value computed from a flattened data frame containing
                 mean emd computed for every marker and cell type across all pairing two samples from the same group.
-            "max_emd_ct": np.float32: max emd value computed from a flattened data frame containing
-                max emd computed for every marker and cell type across all pairing two samples from the same group.
-            "emd_wide_dfs": dict: each key is a marker. A value is yet another dictionary which value is
-                a 2d matrix where each row/column is a pair of sample and a cell contains
-                    emd value computed for the sample pair for either a given cell type
-                    or global. The key for this dictionary then is either a given cell type
-                    or global, depending on what the 2d matrix represents.
+            "emd_split1_long": pd.DataFrame or np.nan: a long format dataframe where each row is a combination of
+                first_sample, second_sample, cell_type, and markers.
+                Value is the EMD computed for that combination.
+                If the input data does not have at least 2 samples per group, then return np.nan.
+            "emd_split2_long": pd.DataFrame or np.nan: a long format dataframe where each row is a combination of
+                first_sample, second_sample, cell_type, and markers.
+                Value is the EMD computed for that combination.
+                If the input data does not have at least 2 samples per group, then return np.nan.
     """
 
     print("Calculating vertical EMD for split 1", flush=True)
@@ -48,9 +48,8 @@ def calculate_vertical_emd(
 
     # safeguard
     mean_emd_ct = np.nan
-    max_emd_ct = np.nan
 
-    print("Computing mean and max vertical EMD", flush=True)
+    print("Computing mean vertical EMD", flush=True)
 
     # compute these only if we can.
     emd_long = []
@@ -71,15 +70,9 @@ def calculate_vertical_emd(
             .to_numpy()
             .flatten()
         )
-        max_emd_ct = np.nanmax(
-            emd_long.drop(columns=["cell_type", "first_sample", "second_sample"])
-            .to_numpy()
-            .flatten()
-        )
 
     return {
         KEY_MEAN_EMD_CT: mean_emd_ct,
-        KEY_MAX_EMD_CT: max_emd_ct,
         KEY_EMD_VERT_MAT_split1: emd_split1_long,
         KEY_EMD_VERT_MAT_split2: emd_split2_long,
     }
@@ -94,9 +87,10 @@ def get_vert_emd_for_integrated_adata(i_adata: ad.AnnData, markers_to_assess: li
         markers_to_assess (list): list of markers to compute EMD for.
 
     Returns:
-        emd_dfs_ct: EMD per cell type,
-        emd_dfs_global: EMD per donor,
-        emd_wide_dfs: the break down of EMD per donor and cell type.
+        emd_vals (pd.DataFrame or np.nan): a long format dataframe where each row is a combination of
+            first_sample, second_sample, cell_type, and markers.
+            Value is the EMD computed for that combination.
+            If the input data does not have at least 2 samples per group, then return np.nan.
     """
 
     print("Determining samples per group", flush=True)
@@ -278,9 +272,6 @@ def calculate_horizontal_emd(
     mean_emd_ct = np.nanmean(
         emd_per_donor_per_ct.drop(columns=["cell_type", "donor"]).values
     )
-    max_emd_ct = np.nanmax(
-        emd_per_donor_per_ct.drop(columns=["cell_type", "donor"]).values
-    )
 
     # concatenate the global and cell type emd
     emd_per_donor_per_ct.columns = emd_per_donor_per_ct.columns.str.replace(
@@ -289,7 +280,6 @@ def calculate_horizontal_emd(
 
     return {
         KEY_MEAN_EMD_CT: mean_emd_ct,
-        KEY_MAX_EMD_CT: max_emd_ct,
         KEY_EMD_HORZ_PER_DONOR: emd_per_donor_per_ct,
     }
 
