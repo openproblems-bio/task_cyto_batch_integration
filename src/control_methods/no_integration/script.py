@@ -1,0 +1,51 @@
+import anndata as ad
+
+## VIASH START
+par = {
+    "input_unintegrated": "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/unintegrated.h5ad",
+    "output_integrated_split1": "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/integrated.h5ad",
+    "output_integrated_split2": "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/integrated.h5ad",
+}
+meta = {
+    "name": "no_integration",
+}
+
+## VIASH END
+
+print("Reading input files", flush=True)
+adata = ad.read_h5ad(par["input_unintegrated"])
+
+print("Extracting and splitting unintegrated data", flush=True)
+# split 1
+adata_split1 = adata[(adata.obs.is_control > 0) | (adata.obs.split == 1)]
+integrated_split1 = adata_split1.layers["preprocessed"]
+# split 2
+adata_split2 = adata[(adata.obs.is_control > 0) | (adata.obs.split == 2)]
+integrated_split2 = adata_split2.layers["preprocessed"]
+
+print("Write output AnnData to files", flush=True)
+# split 1
+output_split1 = ad.AnnData(
+    obs=adata_split1.obs[[]],
+    var=adata_split1.var[[]],
+    layers={"integrated": integrated_split1},
+    uns={
+        "dataset_id": adata.uns["dataset_id"],
+        "method_id": meta["name"],
+        "parameters": {},
+    },
+)
+# split 2
+output_split2 = ad.AnnData(
+    obs=adata_split2.obs[[]],
+    var=adata_split2.var[[]],
+    layers={"integrated": integrated_split2},
+    uns={
+        "dataset_id": adata.uns["dataset_id"],
+        "method_id": meta["name"],
+        "parameters": {},
+    },
+)
+
+output_split1.write_h5ad(par["output_integrated_split1"], compression="gzip")
+output_split2.write_h5ad(par["output_integrated_split2"], compression="gzip")

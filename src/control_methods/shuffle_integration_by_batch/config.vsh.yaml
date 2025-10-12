@@ -1,0 +1,30 @@
+__merge__: /src/api/comp_control_method.yaml
+name: shuffle_integration_by_batch
+label: Shuffle Integration — within batches
+summary: Randomly reassign cells to any samples within the same batch.
+description: | 
+  This negative-control method randomly permutes cell-to-cell type assignments.
+  Cells remain assigned to their original batch (batch effects preserved).
+  Within each batch, cells are reassigned to random samples, destroying
+  biological/sample-specific structure (e.g., KO vs WT differences).
+
+  Purpose:
+  - Evaluate whether an integration method preserves differences between samples
+    and biological groups while removing batch effects.
+
+  Example:
+  - A cell from a KO sample in batch 1 may be reassigned to any sample in batch 1
+    (KO or WT), but it will never be moved to batch 2.
+# status: disabled
+resources:
+  - type: python_script
+    path: script.py
+  - path: /src/control_methods/utils.py
+engines:
+  - type: docker
+    image: openproblems/base_python:1
+runners:
+  - type: executable
+  - type: nextflow
+    directives:
+      label: [midtime, midmem, lowcpu]
