@@ -41,6 +41,7 @@ methods = [
 metrics = [
   emd,
   n_inconsistent_peaks,
+  ratio_inconsistent_peaks
   average_batch_r2,
   flowsom_mapping_similarity,
   lisi,

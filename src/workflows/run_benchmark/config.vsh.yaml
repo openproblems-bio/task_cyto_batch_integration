@@ -110,6 +110,7 @@ dependencies:
   - name: methods/cytovi
   - name: metrics/emd
   - name: metrics/n_inconsistent_peaks
+  - name: metrics/ratio_inconsistent_peaks
   - name: metrics/average_batch_r2
   - name: metrics/flowsom_mapping_similarity
   - name: metrics/lisi
