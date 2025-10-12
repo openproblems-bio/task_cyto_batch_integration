@@ -3859,7 +3859,7 @@ meta = [
     "engine" : "native",
     "output" : "target/nextflow/workflows/run_benchmark",
     "viash_version" : "0.9.4",
-    "git_commit" : "0bb39a034e4faf0dcea5994a69aec794e4adc3ee",
+    "git_commit" : "d36e9c15f00c0210d6ca6249e0b7711d0c2b53e6",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -4044,7 +4044,7 @@ methods = [
 metrics = [
   emd,
   n_inconsistent_peaks,
-  ratio_inconsistent_peaks
+  ratio_inconsistent_peaks,
   average_batch_r2,
   flowsom_mapping_similarity,
   lisi,

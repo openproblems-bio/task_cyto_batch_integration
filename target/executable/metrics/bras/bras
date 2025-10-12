@@ -454,9 +454,9 @@ RUN pip install --upgrade pip && \
   pip install --upgrade --no-cache-dir "git+https://github.com/openproblems-bio/core#subdirectory=packages/python/openproblems"
 
 LABEL org.opencontainers.image.description="Companion container for running component metrics bras"
-LABEL org.opencontainers.image.created="2025-10-12T01:15:57Z"
+LABEL org.opencontainers.image.created="2025-10-12T23:12:56Z"
 LABEL org.opencontainers.image.source="https://github.com/openproblems-bio/task_cyto_batch_integration"
-LABEL org.opencontainers.image.revision="0bb39a034e4faf0dcea5994a69aec794e4adc3ee"
+LABEL org.opencontainers.image.revision="d36e9c15f00c0210d6ca6249e0b7711d0c2b53e6"
 LABEL org.opencontainers.image.version="build_update_n_inconsistent_peak"
 
 VIASHDOCKER
