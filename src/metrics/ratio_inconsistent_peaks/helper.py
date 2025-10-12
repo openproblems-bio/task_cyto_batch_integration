@@ -84,7 +84,7 @@ def call_peaks(density):
     return num_peaks
 
 
-def persistent_peak_count(ys, persistence_cutoff=0.05):
+def persistent_peak_count(ys, persistence_cutoff=0.08):
     """
     Counts robust peaks in a 1D dataset using persistent homology.
 
@@ -96,10 +96,10 @@ def persistent_peak_count(ys, persistence_cutoff=0.05):
             0.01: very low threshold counts even weak bumps as peaks
             0.05: moderate (default) counts clearly separated peaks
             0.1–0.2: high threshold counts only strong, dominant peaks
+            Default to 0.08 to biased towards strong peaks but not overly.
 
     Returns:
         int: number of significant peaks
-        (diagram, persistence_values): raw persistence outputs
     """
 
     # Invert to turn peaks into "holes" for 0D persistence
@@ -110,4 +110,4 @@ def persistent_peak_count(ys, persistence_cutoff=0.05):
     # Define significance threshold relative to data range
     threshold = persistence_cutoff * np.ptp(ys)
     n_peaks = np.sum(persistence > threshold)
-    return n_peaks, diagram, persistence
+    return n_peaks
