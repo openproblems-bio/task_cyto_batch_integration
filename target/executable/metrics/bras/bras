@@ -454,9 +454,9 @@ RUN pip install --upgrade pip && \
   pip install --upgrade --no-cache-dir "git+https://github.com/openproblems-bio/core#subdirectory=packages/python/openproblems"
 
 LABEL org.opencontainers.image.description="Companion container for running component metrics bras"
-LABEL org.opencontainers.image.created="2025-10-12T23:12:56Z"
+LABEL org.opencontainers.image.created="2025-10-13T22:38:49Z"
 LABEL org.opencontainers.image.source="https://github.com/openproblems-bio/task_cyto_batch_integration"
-LABEL org.opencontainers.image.revision="d36e9c15f00c0210d6ca6249e0b7711d0c2b53e6"
+LABEL org.opencontainers.image.revision="a0740ccc0bfe897044d6e4098048acd4a1303b82"
 LABEL org.opencontainers.image.version="build_update_n_inconsistent_peak"
 
 VIASHDOCKER
@@ -1161,6 +1161,7 @@ bras_s1 = bras(
     labels=ct_labels_s1,
     batch=batch_labels_s1,
     metric="euclidean",
+    chunk_size=1000,
 )
 
 batch_labels_s2 = integrated_s2.obs["batch"].values

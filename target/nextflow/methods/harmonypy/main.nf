@@ -3337,7 +3337,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/methods/harmonypy",
     "viash_version" : "0.9.4",
-    "git_commit" : "d36e9c15f00c0210d6ca6249e0b7711d0c2b53e6",
+    "git_commit" : "a0740ccc0bfe897044d6e4098048acd4a1303b82",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3488,6 +3488,7 @@ dep = {
 print("Reading and preparing input files", flush=True)
 adata = ad.read_h5ad(par["input"])
 
+# harmony can't handle integer batch labels
 adata.obs["batch_str"] = adata.obs["batch"].astype(str)
 
 markers_to_correct = adata.var[adata.var["to_correct"]].index.to_numpy()
@@ -3496,10 +3497,13 @@ markers_not_correct = adata.var[~adata.var["to_correct"]].index.to_numpy()
 adata_to_correct = adata[:, markers_to_correct].copy()
 
 print("Run harmony", flush=True)
-# harmony can't handle integer batch labels
+
+# TODO numerical instability in kmeans causing problem with harmony.
+# so adding a very small value to all entries to make sure there are no zeros
+epsilon = 1e-20
 
 out = harmonypy.run_harmony(
-    data_mat=adata_to_correct.layers["preprocessed"],
+    data_mat=adata_to_correct.layers["preprocessed"] + epsilon,
     meta_data=adata_to_correct.obs,
     vars_use="batch_str",
 )

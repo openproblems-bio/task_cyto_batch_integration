@@ -57,6 +57,7 @@ bras_s1 = bras(
     labels=ct_labels_s1,
     batch=batch_labels_s1,
     metric="euclidean",
+    chunk_size=1000,
 )
 
 batch_labels_s2 = integrated_s2.obs["batch"].values

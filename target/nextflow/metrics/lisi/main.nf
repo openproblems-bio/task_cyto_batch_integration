@@ -3531,7 +3531,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/metrics/lisi",
     "viash_version" : "0.9.4",
-    "git_commit" : "d36e9c15f00c0210d6ca6249e0b7711d0c2b53e6",
+    "git_commit" : "a0740ccc0bfe897044d6e4098048acd4a1303b82",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
