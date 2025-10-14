@@ -76,6 +76,7 @@ engines:
           - git
       - type: python
         packages:
+          - jax[cuda_13]
           - anndata~=0.11.0
           - scanpy~=1.11.0
           - pyyaml
