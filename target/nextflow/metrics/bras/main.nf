@@ -3441,7 +3441,8 @@ meta = [
         "label" : [
           "midtime",
           "midmem",
-          "midcpu"
+          "lowcpu",
+          "gpu"
         ],
         "tag" : "$id"
       },
@@ -3473,31 +3474,15 @@ meta = [
     {
       "type" : "docker",
       "id" : "docker",
-      "image" : "python:3.11",
+      "image" : "openproblems/base_pytorch_nvidia:1.1",
       "namespace_separator" : "/",
       "setup" : [
-        {
-          "type" : "apt",
-          "packages" : [
-            "procps"
-          ],
-          "interactive" : false
-        },
         {
           "type" : "python",
           "user" : false,
           "packages" : [
-            "jax~=0.6.2",
-            "jaxlib~=0.6.2",
-            "anndata~=0.11.0",
-            "scanpy~=1.11.0",
-            "scib-metrics~=0.5.6",
-            "pyyaml",
-            "requests",
-            "jsonschema"
-          ],
-          "github" : [
-            "openproblems-bio/core#subdirectory=packages/python/openproblems"
+            "jax[cuda_12_pip]",
+            "scib-metrics~=0.5.6"
           ],
           "upgrade" : true
         }
@@ -3510,7 +3495,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/metrics/bras",
     "viash_version" : "0.9.4",
-    "git_commit" : "a0740ccc0bfe897044d6e4098048acd4a1303b82",
+    "git_commit" : "320fd3ca4c1864c2ed47b79f41bcc97d364e21b2",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3699,7 +3684,6 @@ bras_s1 = bras(
     labels=ct_labels_s1,
     batch=batch_labels_s1,
     metric="euclidean",
-    chunk_size=1000,
 )
 
 batch_labels_s2 = integrated_s2.obs["batch"].values
@@ -4113,7 +4097,8 @@ meta["defaults"] = [
   "label" : [
     "midtime",
     "midmem",
-    "midcpu"
+    "lowcpu",
+    "gpu"
   ],
   "tag" : "$id"
 }'''),

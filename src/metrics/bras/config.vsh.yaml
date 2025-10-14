@@ -56,13 +56,6 @@ info:
       # Whether a higher value represents a 'better' solution (required)
       maximize: true
 
-# Component-specific parameters (optional)
-# arguments:
-#   - name: "--n_neighbors"
-#     type: "integer"
-#     default: 5
-#     description: Number of neighbors to use.
-
 # Resources required to run the component
 resources:
   # The script of your component (required)
@@ -73,24 +66,32 @@ resources:
 
 engines:
   # Specifications for the Docker image for this component.
+  # testing gpu jax version
   - type: docker
-    image: python:3.11
+    image: openproblems/base_pytorch_nvidia:1.1
     setup:
-      - type: apt
-        packages:
-          - procps
       - type: python
         packages:
-          - jax~=0.6.2
-          - jaxlib~=0.6.2
-          - anndata~=0.11.0
-          - scanpy~=1.11.0
+          - jax[cuda_12_pip]
           - scib-metrics~=0.5.6
-          - pyyaml
-          - requests
-          - jsonschema
-        github:
-          - "openproblems-bio/core#subdirectory=packages/python/openproblems"
+  # - type: docker
+  #   image: python:3.11
+  #   setup:
+  #     - type: apt
+  #       packages:
+  #         - procps
+  #     - type: python
+  #       packages:
+  #         - jax~=0.6.2
+  #         - jaxlib~=0.6.2
+  #         - anndata~=0.11.0
+  #         - scanpy~=1.11.0
+  #         - scib-metrics~=0.5.6
+  #         - pyyaml
+  #         - requests
+  #         - jsonschema
+  #       github:
+  #         - "openproblems-bio/core#subdirectory=packages/python/openproblems"
 
 runners:
   # This platform allows running the component natively
@@ -98,4 +99,4 @@ runners:
   # Allows turning the component into a Nextflow module / pipeline.
   - type: nextflow
     directives:
-      label: [midtime,midmem,midcpu]
+      label: [midtime,midmem,lowcpu,gpu]

@@ -449,9 +449,9 @@ RUN Rscript -e 'options(warn = 2); if (!requireNamespace("BiocManager", quietly 
   Rscript -e 'options(warn = 2); if (!requireNamespace("limma", quietly = TRUE)) BiocManager::install("limma")'
 
 LABEL org.opencontainers.image.description="Companion container for running component methods limma_remove_batch_effect"
-LABEL org.opencontainers.image.created="2025-10-13T22:38:50Z"
+LABEL org.opencontainers.image.created="2025-10-14T10:11:30Z"
 LABEL org.opencontainers.image.source="https://github.com/bioc/limma"
-LABEL org.opencontainers.image.revision="a0740ccc0bfe897044d6e4098048acd4a1303b82"
+LABEL org.opencontainers.image.revision="320fd3ca4c1864c2ed47b79f41bcc97d364e21b2"
 LABEL org.opencontainers.image.version="build_update_n_inconsistent_peak"
 
 VIASHDOCKER

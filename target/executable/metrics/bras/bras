@@ -443,20 +443,15 @@ function ViashDockerfile {
 
   if [[ "$engine_id" == "docker" ]]; then
     cat << 'VIASHDOCKER'
-FROM python:3.11
+FROM openproblems/base_pytorch_nvidia:1.1
 ENTRYPOINT []
-RUN apt-get update && \
-  DEBIAN_FRONTEND=noninteractive apt-get install -y procps && \
-  rm -rf /var/lib/apt/lists/*
-
 RUN pip install --upgrade pip && \
-  pip install --upgrade --no-cache-dir "jax~=0.6.2" "jaxlib~=0.6.2" "anndata~=0.11.0" "scanpy~=1.11.0" "scib-metrics~=0.5.6" "pyyaml" "requests" "jsonschema" && \
-  pip install --upgrade --no-cache-dir "git+https://github.com/openproblems-bio/core#subdirectory=packages/python/openproblems"
+  pip install --upgrade --no-cache-dir "jax[cuda_12_pip]" "scib-metrics~=0.5.6"
 
 LABEL org.opencontainers.image.description="Companion container for running component metrics bras"
-LABEL org.opencontainers.image.created="2025-10-13T22:38:49Z"
+LABEL org.opencontainers.image.created="2025-10-14T10:11:30Z"
 LABEL org.opencontainers.image.source="https://github.com/openproblems-bio/task_cyto_batch_integration"
-LABEL org.opencontainers.image.revision="a0740ccc0bfe897044d6e4098048acd4a1303b82"
+LABEL org.opencontainers.image.revision="320fd3ca4c1864c2ed47b79f41bcc97d364e21b2"
 LABEL org.opencontainers.image.version="build_update_n_inconsistent_peak"
 
 VIASHDOCKER
@@ -1161,7 +1156,6 @@ bras_s1 = bras(
     labels=ct_labels_s1,
     batch=batch_labels_s1,
     metric="euclidean",
-    chunk_size=1000,
 )
 
 batch_labels_s2 = integrated_s2.obs["batch"].values
