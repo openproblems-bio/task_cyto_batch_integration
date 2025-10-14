@@ -68,7 +68,7 @@ engines:
   # Specifications for the Docker image for this component.
   # testing gpu jax version
   - type: docker
-    image: nvidia/cuda:13.0.1-cudnn-devel-ubuntu24.04
+    image: nvidia/cuda:12.4-runtime-ubuntu22.04
     setup:
       - type: apt
         packages:
@@ -77,14 +77,13 @@ engines:
           - git
       - type: python
         packages:
-          - jax[cuda_13]
+          - jax[cuda_12_pip]
           - anndata~=0.11.0
           - scanpy~=1.11.0
           - scib-metrics~=0.5.7
           - pyyaml
           - requests
           - jsonschema
-          - scikit-learn
         github:
           - openproblems-bio/core#subdirectory=packages/python/openproblems
   # - type: docker
