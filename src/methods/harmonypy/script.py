@@ -4,8 +4,8 @@ import numpy as np
 
 ## VIASH START
 par = {
-    "input": "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/censored_split2.h5ad",
-    "output": "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/output_harmony_split2.h5ad",
+    "input": "/Users/putri.g/Documents/cytobenchmark/debug_general/_viash_par/input_1/censored_split1.h5ad",
+    "output": "/Users/putri.g/Documents/cytobenchmark/debug_general/_viash_par/output_1/output_harmony_split1.h5ad",
 }
 meta = {"name": "harmonypy"}
 ## VIASH END
@@ -13,6 +13,7 @@ meta = {"name": "harmonypy"}
 print("Reading and preparing input files", flush=True)
 adata = ad.read_h5ad(par["input"])
 
+# harmony can't handle integer batch labels
 adata.obs["batch_str"] = adata.obs["batch"].astype(str)
 
 markers_to_correct = adata.var[adata.var["to_correct"]].index.to_numpy()
@@ -21,10 +22,13 @@ markers_not_correct = adata.var[~adata.var["to_correct"]].index.to_numpy()
 adata_to_correct = adata[:, markers_to_correct].copy()
 
 print("Run harmony", flush=True)
-# harmony can't handle integer batch labels
+
+# TODO numerical instability in kmeans causing problem with harmony.
+# so adding a very small value to all entries to make sure there are no zeros
+epsilon = 1e-20
 
 out = harmonypy.run_harmony(
-    data_mat=adata_to_correct.layers["preprocessed"],
+    data_mat=adata_to_correct.layers["preprocessed"] + epsilon,
     meta_data=adata_to_correct.obs,
     vars_use="batch_str",
 )
