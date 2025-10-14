@@ -73,7 +73,7 @@ engines:
       - type: python
         packages:
           - jax[cuda_12_pip]
-          - scib-metrics~=0.5.7
+          - scib-metrics~=0.5.6
   # - type: docker
   #   image: python:3.11
   #   setup:
