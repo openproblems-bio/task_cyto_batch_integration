@@ -3441,8 +3441,7 @@ meta = [
         "label" : [
           "midtime",
           "midmem",
-          "lowcpu",
-          "gpu"
+          "midcpu"
         ],
         "tag" : "$id"
       },
@@ -3474,15 +3473,31 @@ meta = [
     {
       "type" : "docker",
       "id" : "docker",
-      "image" : "openproblems/base_pytorch_nvidia:1.1",
+      "image" : "python:3.11",
       "namespace_separator" : "/",
       "setup" : [
+        {
+          "type" : "apt",
+          "packages" : [
+            "procps"
+          ],
+          "interactive" : false
+        },
         {
           "type" : "python",
           "user" : false,
           "packages" : [
-            "jax[cuda_12_pip]",
-            "scib-metrics~=0.5.6"
+            "jax~=0.6.2",
+            "jaxlib~=0.6.2",
+            "anndata~=0.11.0",
+            "scanpy~=1.11.0",
+            "scib-metrics~=0.5.6",
+            "pyyaml",
+            "requests",
+            "jsonschema"
+          ],
+          "github" : [
+            "openproblems-bio/core#subdirectory=packages/python/openproblems"
           ],
           "upgrade" : true
         }
@@ -3495,7 +3510,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/metrics/bras",
     "viash_version" : "0.9.4",
-    "git_commit" : "320fd3ca4c1864c2ed47b79f41bcc97d364e21b2",
+    "git_commit" : "ea44a387ec504b97016453f8ca8ed19a0dcaab04",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3684,6 +3699,7 @@ bras_s1 = bras(
     labels=ct_labels_s1,
     batch=batch_labels_s1,
     metric="euclidean",
+    chunk_size=512,
 )
 
 batch_labels_s2 = integrated_s2.obs["batch"].values
@@ -3694,6 +3710,7 @@ bras_s2 = bras(
     labels=ct_labels_s2,
     batch=batch_labels_s2,
     metric="euclidean",
+    chunk_size=512,
 )
 
 bras_score = np.mean([bras_s1, bras_s2])
@@ -4097,8 +4114,7 @@ meta["defaults"] = [
   "label" : [
     "midtime",
     "midmem",
-    "lowcpu",
-    "gpu"
+    "midcpu"
   ],
   "tag" : "$id"
 }'''),

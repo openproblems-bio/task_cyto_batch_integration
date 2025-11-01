@@ -48,6 +48,15 @@ def get_kde_density(expression_array, return_xgrid=False, plot=False):
     x_grid = np.linspace(min_val, max_val, 100)
     density = kde(x_grid)
 
+    # If the highest value is at the first bin, shift bins by one and adjust x_grid
+    if np.argmax(density) == 0 and density.size > 1:
+        # Prepend a zero so the former first bin becomes index 1
+        density = np.concatenate([[0.0], density])[: density.size]
+        # Have to use actual grid spacing to keep uniform spacing in x_grid.
+        # Can't just blindly add 1.
+        step = (max_val - min_val) / (len(x_grid) - 1) if len(x_grid) > 1 else 0.0
+        x_grid = np.concatenate([[min_val - step], x_grid])[: x_grid.size]
+
     if plot:
         fig, ax = plt.subplots()
         sns.scatterplot(x=x_grid, y=density, ax=ax)
@@ -101,6 +110,14 @@ def persistent_peak_count(ys, persistence_cutoff=0.08):
     Returns:
         int: number of significant peaks
     """
+
+    y = np.asarray(ys)
+    if y.size == 0:
+        return 0
+
+    # Shift if max is at the first bin
+    if y.size > 1 and np.argmax(y) == 0:
+        y = np.concatenate([[0.0], y[:-1]])
 
     # Invert to turn peaks into "holes" for 0D persistence
     Y = -ys.reshape(-1, 1)

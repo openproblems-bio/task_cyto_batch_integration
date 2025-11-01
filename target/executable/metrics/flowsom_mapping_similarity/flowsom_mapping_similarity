@@ -450,9 +450,9 @@ RUN Rscript -e 'options(warn = 2); if (!requireNamespace("BiocManager", quietly 
   Rscript -e 'options(warn = 2); if (!requireNamespace("flowCore", quietly = TRUE)) BiocManager::install("flowCore")'
 
 LABEL org.opencontainers.image.description="Companion container for running component metrics flowsom_mapping_similarity"
-LABEL org.opencontainers.image.created="2025-10-14T10:11:30Z"
+LABEL org.opencontainers.image.created="2025-11-01T12:12:01Z"
 LABEL org.opencontainers.image.source="https://github.com/openproblems-bio/task_cyto_batch_integration"
-LABEL org.opencontainers.image.revision="320fd3ca4c1864c2ed47b79f41bcc97d364e21b2"
+LABEL org.opencontainers.image.revision="ea44a387ec504b97016453f8ca8ed19a0dcaab04"
 LABEL org.opencontainers.image.version="build_update_n_inconsistent_peak"
 
 VIASHDOCKER

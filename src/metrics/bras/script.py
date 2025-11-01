@@ -57,6 +57,7 @@ bras_s1 = bras(
     labels=ct_labels_s1,
     batch=batch_labels_s1,
     metric="euclidean",
+    chunk_size=512,
 )
 
 batch_labels_s2 = integrated_s2.obs["batch"].values
@@ -67,6 +68,7 @@ bras_s2 = bras(
     labels=ct_labels_s2,
     batch=batch_labels_s2,
     metric="euclidean",
+    chunk_size=512,
 )
 
 bras_score = np.mean([bras_s1, bras_s2])
