@@ -40,12 +40,12 @@ methods = [
 // construct list of metrics
 metrics = [
   emd,
-  n_inconsistent_peaks,
+  // bras,
+  // n_inconsistent_peaks,
   ratio_inconsistent_peaks,
   average_batch_r2,
   flowsom_mapping_similarity,
-  lisi,
-  bras
+  lisi
 ]
 
 workflow run_wf {
