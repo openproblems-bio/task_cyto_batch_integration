@@ -50,12 +50,19 @@ def get_kde_density(expression_array, return_xgrid=False, plot=False):
 
     # If the highest value is at the first bin, shift bins by one and adjust x_grid
     if np.argmax(density) == 0 and density.size > 1:
-        # Prepend a zero so the former first bin becomes index 1
-        density = np.concatenate([[0.0], density])[: density.size]
+        print("Shifting KDE bins by one as the highest density is at the first bin.")
+        # orig_x_grid = x_grid.copy()
+        # recale the grid so we only have 99 bins and shift everything by one to the right..
+        x_grid = np.linspace(min_val, max_val, 99)
+        density = kde(x_grid)
+
+        # Prepend a zero so the beginning, but remove the last value to keep size consistent
+        # as otherwise we will end up with an extra bin...
+        density = np.concatenate([[0.0], density])
         # Have to use actual grid spacing to keep uniform spacing in x_grid.
         # Can't just blindly add 1.
-        step = (max_val - min_val) / (len(x_grid) - 1) if len(x_grid) > 1 else 0.0
-        x_grid = np.concatenate([[min_val - step], x_grid])[: x_grid.size]
+        step = (max_val - min_val) / (len(x_grid)) if len(x_grid) > 1 else 0.0
+        x_grid = np.concatenate([[min_val - step], x_grid])
 
     if plot:
         fig, ax = plt.subplots()

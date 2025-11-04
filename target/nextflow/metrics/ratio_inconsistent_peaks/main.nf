@@ -3494,7 +3494,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/metrics/ratio_inconsistent_peaks",
     "viash_version" : "0.9.4",
-    "git_commit" : "ea44a387ec504b97016453f8ca8ed19a0dcaab04",
+    "git_commit" : "c50a0c0d52455d4e33fa01dc7ddd39ad3b2087eb",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3735,6 +3735,10 @@ for donor in donor_list:
             # TODO uncomment me when done
             continue
 
+        # unintegrated for split 1
+        u_view_ct_s1 = u_view_ct[u_view_ct.obs["split"] == 1]
+        u_view_ct_s2 = u_view_ct[u_view_ct.obs["split"] == 2]
+
         for marker in s1_view_ct.var.index:
             # for testing only
             # marker = u_view_ct.var.index[0]
@@ -3743,9 +3747,6 @@ for donor in donor_list:
 
             print("--------------------------------", flush=True)
             print("Computing peaks for unintegrated", flush=True)
-            # unintegrated for split 1
-            u_view_ct_s1 = u_view_ct[u_view_ct.obs["split"] == 1]
-            u_view_ct_s2 = u_view_ct[u_view_ct.obs["split"] == 2]
 
             print("Standardising marker expression", flush=True)
             # standardise marker expression based on pooled mean and sd of
@@ -3758,8 +3759,12 @@ for donor in donor_list:
                 u_s2_unscaled,
             )
             print("Computing KDE density", flush=True)
-            density_dist_u_s1 = metric_helper.get_kde_density(u_s1_scaled)
-            density_dist_u_s2 = metric_helper.get_kde_density(u_s2_scaled)
+            density_dist_u_s1 = metric_helper.get_kde_density(
+                expression_array=u_s1_scaled
+            )
+            density_dist_u_s2 = metric_helper.get_kde_density(
+                expression_array=u_s2_scaled
+            )
 
             print("Calling peaks", flush=True)
 
