@@ -1,8 +1,11 @@
 import anndata as ad
+import cytovi
 import numpy as np
-from scvi.external import cytovi
-from sklearn.cluster import KMeans
-from threadpoolctl import threadpool_limits
+
+# from scvi.external import cytovi
+
+# from sklearn.cluster import KMeans
+# from threadpoolctl import threadpool_limits
 
 ## VIASH START
 par = {
@@ -20,6 +23,7 @@ print("Reading and preparing input files", flush=True)
 adata = ad.read_h5ad(par["input"])
 
 adata.obs["batch_str"] = adata.obs["batch"].astype(str)
+adata.obs["sample_key_str"] = adata.obs["sample"].astype(str)
 
 markers_to_correct = adata.var[adata.var["to_correct"]].index.to_numpy()
 markers_not_correct = adata.var[~adata.var["to_correct"]].index.to_numpy()
@@ -29,45 +33,63 @@ adata_to_correct = adata[:, markers_to_correct].copy()
 print("Scaling data", flush=True)
 
 # scale data. this will add a layer "scaled" to the anndata
-cytovi.scale(
+cytovi.pp.scale(
     adata=adata_to_correct,
     transformed_layer_key="preprocessed",
     batch_key="batch_str",
     inplace=True,
 )
 
-print("Clustering using k-means with k =", par["n_clusters"], flush=True)
-# cluster data using Kmeans
-with threadpool_limits(limits=1):
-    adata_to_correct.obs["clusters"] = (
-        KMeans(n_clusters=par["n_clusters"], random_state=0)
-        .fit_predict(adata_to_correct.layers["scaled"])
-        .astype(str)
-    )
-# concatenate obs so we can use it for subsampling
-adata_to_correct.obs["sample_cluster"] = (
-    adata_to_correct.obs["sample"].astype(str) + "_" + adata_to_correct.obs["clusters"]
-)
-# subsample cells without replacement
-print("Subsampling cells", flush=True)
-subsampled_cells = adata_to_correct.obs.groupby("sample_cluster")[
-    "sample_cluster"
-].apply(lambda x: x.sample(n=round(len(x) * par["subsample_fraction"]), replace=False))
-# need the cell id included in the subsample
-subsampled_cells_idx = [x[1] for x in subsampled_cells.index.to_list()]
-
-adata_subsampled = adata_to_correct[subsampled_cells_idx, :].copy()
-
 print(
-    f"Train CytoVI on subsampled data containing {adata_subsampled.shape[0]} cells",
+    f"Train CytoVI on {adata_to_correct.shape[0]} cells",
     flush=True,
 )
 
-cytovi.CYTOVI.setup_anndata(adata_subsampled, layer="scaled", batch_key="batch_str")
-model = cytovi.CYTOVI(
-    adata=adata_subsampled, n_hidden=par["n_hidden"], n_layers=par["n_layers"]
+cytovi.CytoVI.setup_anndata(
+    adata_to_correct, layer="scaled", batch_key="batch_str", sample_key="sample_key_str"
 )
+
+model = cytovi.CytoVI(
+    adata_to_correct, n_hidden=par["n_hidden"], n_layers=par["n_layers"]
+)
+
+
+print("Start training CytoVI model", flush=True)
 model.train()
+
+# Todo: re-enable subsampling if needed..
+# print("Clustering using k-means with k =", par["n_clusters"], flush=True)
+# # cluster data using Kmeans
+# with threadpool_limits(limits=1):
+#     adata_to_correct.obs["clusters"] = (
+#         KMeans(n_clusters=par["n_clusters"], random_state=0)
+#         .fit_predict(adata_to_correct.layers["scaled"])
+#         .astype(str)
+#     )
+# # concatenate obs so we can use it for subsampling
+# adata_to_correct.obs["sample_cluster"] = (
+#     adata_to_correct.obs["sample"].astype(str) + "_" + adata_to_correct.obs["clusters"]
+# )
+# # subsample cells without replacement
+# print("Subsampling cells", flush=True)
+# subsampled_cells = adata_to_correct.obs.groupby("sample_cluster")[
+#     "sample_cluster"
+# ].apply(lambda x: x.sample(n=round(len(x) * par["subsample_fraction"]), replace=False))
+# # need the cell id included in the subsample
+# subsampled_cells_idx = [x[1] for x in subsampled_cells.index.to_list()]
+
+# adata_subsampled = adata_to_correct[subsampled_cells_idx, :].copy()
+
+# print(
+#     f"Train CytoVI on subsampled data containing {adata_subsampled.shape[0]} cells",
+#     flush=True,
+# )
+
+# cytovi.CYTOVI.setup_anndata(adata_subsampled, layer="scaled", batch_key="batch_str")
+# model = cytovi.CYTOVI(
+#     adata=adata_subsampled, n_hidden=par["n_hidden"], n_layers=par["n_layers"]
+# )
+# model.train()
 
 # get batch corrected data
 print("Correcting data", flush=True)
