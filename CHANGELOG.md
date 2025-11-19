@@ -166,4 +166,4 @@
 
 * Fix bug in EMD vertical where sample combination was malformed (PR #113)
 
-
+* Fix lisi inconsistent naming (PR #117) for issue #116.
