@@ -3384,7 +3384,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/methods/rpca_to_goal",
     "viash_version" : "0.9.4",
-    "git_commit" : "95829de9f7c08869575835efd82031a3ad835a51",
+    "git_commit" : "ec561089b120b85cc6e9e8f2661f8848d345ccae",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
