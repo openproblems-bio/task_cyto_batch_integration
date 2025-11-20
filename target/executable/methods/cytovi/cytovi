@@ -454,9 +454,9 @@ RUN pip install --upgrade pip && \
   pip install --upgrade --no-cache-dir "git+https://github.com/openproblems-bio/core#subdirectory=packages/python/openproblems" "git+https://github.com/YosefLab/cytovi-reference-implementation"
 
 LABEL org.opencontainers.image.description="Companion container for running component methods cytovi"
-LABEL org.opencontainers.image.created="2025-11-20T01:58:44Z"
+LABEL org.opencontainers.image.created="2025-11-20T12:34:50Z"
 LABEL org.opencontainers.image.source="https://github.com/YosefLab/cytovi-reference-implementation"
-LABEL org.opencontainers.image.revision="d361dd0bd7ad25a7f6d9e6e1b07d740fd329f7b3"
+LABEL org.opencontainers.image.revision="51552a4405b0b62c20226db2ec2943c0969c1e3f"
 LABEL org.opencontainers.image.version="build_update_n_inconsistent_peak"
 
 VIASHDOCKER
@@ -1202,29 +1202,21 @@ markers_not_correct = adata.var[~adata.var["to_correct"]].index.to_numpy()
 
 adata_to_correct = adata[:, markers_to_correct].copy()
 
-print("Scaling data", flush=True)
-
-# scale data. this will add a layer "scaled" to the anndata
-cytovi.pp.scale(
-    adata=adata_to_correct,
-    transformed_layer_key="preprocessed",
-    batch_key="batch_str",
-    inplace=True,
-)
-
 print(
     f"Train CytoVI on {adata_to_correct.shape[0]} cells",
     flush=True,
 )
 
 cytovi.CytoVI.setup_anndata(
-    adata_to_correct, layer="scaled", batch_key="batch_str", sample_key="sample_key_str"
+    adata_to_correct,
+    layer="preprocessed",
+    batch_key="batch_str",
+    sample_key="sample_key_str",
 )
 
 model = cytovi.CytoVI(
     adata_to_correct, n_hidden=par["n_hidden"], n_layers=par["n_layers"]
 )
-
 
 print("Start training CytoVI model", flush=True)
 model.train()

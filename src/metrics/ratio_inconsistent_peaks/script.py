@@ -74,10 +74,6 @@ n_case3 = 0
 # so we can see where each cases comes from
 case_details = defaultdict(list)
 
-# for comparison only
-persistent_peaks_res = []
-
-
 for donor in donor_list:
     # for testing only
     # donor = donor_list[0]
@@ -153,14 +149,6 @@ for donor in donor_list:
             peaks_u_s1 = metric_helper.call_peaks(density_dist_u_s1)
             peaks_u_s2 = metric_helper.call_peaks(density_dist_u_s2)
 
-            # use persistent peak only if the peak calling method is too sensitive...
-            persistent_peak_count_u_s1 = metric_helper.persistent_peak_count(
-                density_dist_u_s1
-            )
-            persistent_peak_count_u_s2 = metric_helper.persistent_peak_count(
-                density_dist_u_s2
-            )
-
             print("--------------------------------", flush=True)
 
             print("\n", flush=True)
@@ -186,14 +174,6 @@ for donor in donor_list:
 
             peaks_s1 = metric_helper.call_peaks(density_dist_s1)
             peaks_s2 = metric_helper.call_peaks(density_dist_s2)
-
-            # use persistent peak only if the peak calling method is too sensitive...
-            persistent_peak_count_s1 = metric_helper.persistent_peak_count(
-                density_dist_s1
-            )
-            persistent_peak_count_s2 = metric_helper.persistent_peak_count(
-                density_dist_s2
-            )
 
             print("--------------------------------", flush=True)
 
@@ -223,22 +203,6 @@ for donor in donor_list:
                 )
                 case_details["case2or4"].append((donor, celltype, marker))
 
-            # for comparison only
-            persistent_peaks_res.append(
-                [
-                    donor,
-                    celltype,
-                    marker,
-                    peaks_u_s1,
-                    peaks_u_s2,
-                    persistent_peak_count_u_s1,
-                    persistent_peak_count_u_s2,
-                    peaks_s1,
-                    peaks_s2,
-                    persistent_peak_count_s1,
-                    persistent_peak_count_s2,
-                ]
-            )
             print("Done comparing peaks.", flush=True)
             print("\n", flush=True)
 
@@ -254,22 +218,6 @@ if n_case1 + n_case3 == 0:
 else:
     metric_val = n_case3 / (n_case1 + n_case3)
 
-persistent_peaks_res = pd.DataFrame(
-    persistent_peaks_res,
-    columns=[
-        "donor",
-        "celltype",
-        "marker",
-        "peaks_u_s1",
-        "peaks_u_s2",
-        "persistent_peaks_u_s1",
-        "persistent_peaks_u_s2",
-        "peaks_s1",
-        "peaks_s2",
-        "persistent_peaks_s1",
-        "persistent_peaks_s2",
-    ],
-)
 
 print("Write output AnnData to file", flush=True)
 output = ad.AnnData(
@@ -284,7 +232,6 @@ output = ad.AnnData(
             "case2or4": len(case_details["case2or4"]),
         },
         "case_details": dict(case_details),
-        "peak_calling_results_comparison": persistent_peaks_res,
     }
 )
 output.write_h5ad(par["output"], compression="gzip")

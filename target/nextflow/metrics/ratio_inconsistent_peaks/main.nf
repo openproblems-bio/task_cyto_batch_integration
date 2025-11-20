@@ -3388,8 +3388,8 @@ meta = [
       {
         "name" : "ratio_inconsistent_peaks",
         "label" : "Ratio of inconsistent peaks",
-        "summary" : "Ratio of the number of cell‑type marker‑expression peaks between unintegrated and batch‑normalized data.",
-        "description" : "The metric compares the number of cell type specific marker expression peaks between unintegrated and batch normalized data.\nThe number of peaks is calculated using the `scipy.signal.find_peaks` function.\nThe metric is calculated as the absolute difference between the number of peaks in the unintegrated and batch-normalized data.\nThe (cell type) marker expression profiles are first smoothed using kernel density estimation (KDE) (`scipy.stats.gaussian_kde`),\nand then peaks are then identified using the `scipy.signal.find_peaks` function.\nFor peak calling, the `prominence` parameter is set to 0.1 and the `height` parameter is set to 0.05*max_density.\nRatio of inconsistent peaks is defined as number of cases where the number of peaks differ between the two splits in the batch\nnormalized data divided by the total number of cases.\nCases where there are different number of peaks between the two splits in the unintegrated data are ignored from the denominator.\nA lower score indicates better performance, means there are less cases with inconsistent peaks after batch correction.\nAn alternative peak counting method using persistent homology is also implemented for comparison because peak calling \nis sensitive to noise and parameter choices.\n",
+        "summary" : "Ratio of the number of cell‑type marker‑expression peaks between unintegrated and batch-integrated data.",
+        "description" : "The metric compares the number of cell type specific marker expression peaks between unintegrated and batch integrated data.\nThe number of peaks is calculated using the `scipy.signal.find_peaks` function.\nThe metric is calculated as the absolute difference between the number of peaks in the unintegrated and batch-normalized data.\nThe (cell type) marker expression profiles are first smoothed using kernel density estimation (KDE) (`scipy.stats.gaussian_kde`),\nand then peaks are then identified using the `scipy.signal.find_peaks` function.\nFor peak calling, the `prominence` parameter is set to 0.1 and the `height` parameter is set to 0.05*max_density.\nRatio of inconsistent peaks is defined as number of cases where the number of peaks differ between the two splits in the batch\nnormalized data divided by the total number of cases.\nCases where there are different number of peaks between the two splits in the unintegrated data are ignored from the denominator.\nA lower score indicates better performance, means there are less cases with inconsistent peaks after batch integration.\n",
         "references" : {
           "doi" : [
             "10.1038/s41592-019-0686-2"
@@ -3494,7 +3494,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/metrics/ratio_inconsistent_peaks",
     "viash_version" : "0.9.4",
-    "git_commit" : "d361dd0bd7ad25a7f6d9e6e1b07d740fd329f7b3",
+    "git_commit" : "51552a4405b0b62c20226db2ec2943c0969c1e3f",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3692,10 +3692,6 @@ n_case3 = 0
 # so we can see where each cases comes from
 case_details = defaultdict(list)
 
-# for comparison only
-persistent_peaks_res = []
-
-
 for donor in donor_list:
     # for testing only
     # donor = donor_list[0]
@@ -3771,14 +3767,6 @@ for donor in donor_list:
             peaks_u_s1 = metric_helper.call_peaks(density_dist_u_s1)
             peaks_u_s2 = metric_helper.call_peaks(density_dist_u_s2)
 
-            # use persistent peak only if the peak calling method is too sensitive...
-            persistent_peak_count_u_s1 = metric_helper.persistent_peak_count(
-                density_dist_u_s1
-            )
-            persistent_peak_count_u_s2 = metric_helper.persistent_peak_count(
-                density_dist_u_s2
-            )
-
             print("--------------------------------", flush=True)
 
             print("\\\\n", flush=True)
@@ -3804,14 +3792,6 @@ for donor in donor_list:
 
             peaks_s1 = metric_helper.call_peaks(density_dist_s1)
             peaks_s2 = metric_helper.call_peaks(density_dist_s2)
-
-            # use persistent peak only if the peak calling method is too sensitive...
-            persistent_peak_count_s1 = metric_helper.persistent_peak_count(
-                density_dist_s1
-            )
-            persistent_peak_count_s2 = metric_helper.persistent_peak_count(
-                density_dist_s2
-            )
 
             print("--------------------------------", flush=True)
 
@@ -3841,22 +3821,6 @@ for donor in donor_list:
                 )
                 case_details["case2or4"].append((donor, celltype, marker))
 
-            # for comparison only
-            persistent_peaks_res.append(
-                [
-                    donor,
-                    celltype,
-                    marker,
-                    peaks_u_s1,
-                    peaks_u_s2,
-                    persistent_peak_count_u_s1,
-                    persistent_peak_count_u_s2,
-                    peaks_s1,
-                    peaks_s2,
-                    persistent_peak_count_s1,
-                    persistent_peak_count_s2,
-                ]
-            )
             print("Done comparing peaks.", flush=True)
             print("\\\\n", flush=True)
 
@@ -3872,22 +3836,6 @@ if n_case1 + n_case3 == 0:
 else:
     metric_val = n_case3 / (n_case1 + n_case3)
 
-persistent_peaks_res = pd.DataFrame(
-    persistent_peaks_res,
-    columns=[
-        "donor",
-        "celltype",
-        "marker",
-        "peaks_u_s1",
-        "peaks_u_s2",
-        "persistent_peaks_u_s1",
-        "persistent_peaks_u_s2",
-        "peaks_s1",
-        "peaks_s2",
-        "persistent_peaks_s1",
-        "persistent_peaks_s2",
-    ],
-)
 
 print("Write output AnnData to file", flush=True)
 output = ad.AnnData(
@@ -3902,7 +3850,6 @@ output = ad.AnnData(
             "case2or4": len(case_details["case2or4"]),
         },
         "case_details": dict(case_details),
-        "peak_calling_results_comparison": persistent_peaks_res,
     }
 )
 output.write_h5ad(par["output"], compression="gzip")

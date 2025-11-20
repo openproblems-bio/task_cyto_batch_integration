@@ -3403,7 +3403,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/methods/cytovi",
     "viash_version" : "0.9.4",
-    "git_commit" : "d361dd0bd7ad25a7f6d9e6e1b07d740fd329f7b3",
+    "git_commit" : "51552a4405b0b62c20226db2ec2943c0969c1e3f",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3575,29 +3575,21 @@ markers_not_correct = adata.var[~adata.var["to_correct"]].index.to_numpy()
 
 adata_to_correct = adata[:, markers_to_correct].copy()
 
-print("Scaling data", flush=True)
-
-# scale data. this will add a layer "scaled" to the anndata
-cytovi.pp.scale(
-    adata=adata_to_correct,
-    transformed_layer_key="preprocessed",
-    batch_key="batch_str",
-    inplace=True,
-)
-
 print(
     f"Train CytoVI on {adata_to_correct.shape[0]} cells",
     flush=True,
 )
 
 cytovi.CytoVI.setup_anndata(
-    adata_to_correct, layer="scaled", batch_key="batch_str", sample_key="sample_key_str"
+    adata_to_correct,
+    layer="preprocessed",
+    batch_key="batch_str",
+    sample_key="sample_key_str",
 )
 
 model = cytovi.CytoVI(
     adata_to_correct, n_hidden=par["n_hidden"], n_layers=par["n_layers"]
 )
-
 
 print("Start training CytoVI model", flush=True)
 model.train()

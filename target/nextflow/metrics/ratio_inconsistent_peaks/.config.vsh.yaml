@@ -250,9 +250,9 @@ info:
   - name: "ratio_inconsistent_peaks"
     label: "Ratio of inconsistent peaks"
     summary: "Ratio of the number of cell‑type marker‑expression peaks between unintegrated\
-      \ and batch‑normalized data."
+      \ and batch-integrated data."
     description: "The metric compares the number of cell type specific marker expression\
-      \ peaks between unintegrated and batch normalized data.\nThe number of peaks\
+      \ peaks between unintegrated and batch integrated data.\nThe number of peaks\
       \ is calculated using the `scipy.signal.find_peaks` function.\nThe metric is\
       \ calculated as the absolute difference between the number of peaks in the unintegrated\
       \ and batch-normalized data.\nThe (cell type) marker expression profiles are\
@@ -264,10 +264,7 @@ info:
       \ in the batch\nnormalized data divided by the total number of cases.\nCases\
       \ where there are different number of peaks between the two splits in the unintegrated\
       \ data are ignored from the denominator.\nA lower score indicates better performance,\
-      \ means there are less cases with inconsistent peaks after batch correction.\n\
-      An alternative peak counting method using persistent homology is also implemented\
-      \ for comparison because peak calling \nis sensitive to noise and parameter\
-      \ choices.\n"
+      \ means there are less cases with inconsistent peaks after batch integration.\n"
     references:
       doi:
       - "10.1038/s41592-019-0686-2"
@@ -346,7 +343,7 @@ build_info:
   output: "target/nextflow/metrics/ratio_inconsistent_peaks"
   executable: "target/nextflow/metrics/ratio_inconsistent_peaks/main.nf"
   viash_version: "0.9.4"
-  git_commit: "d361dd0bd7ad25a7f6d9e6e1b07d740fd329f7b3"
+  git_commit: "51552a4405b0b62c20226db2ec2943c0969c1e3f"
   git_remote: "https://github.com/openproblems-bio/task_cyto_batch_integration"
 package_config:
   name: "task_cyto_batch_integration"
