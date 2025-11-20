@@ -1,6 +1,7 @@
 import anndata as ad
 import cytovi
 import numpy as np
+import torch
 
 # from scvi.external import cytovi
 
@@ -18,6 +19,9 @@ par = {
 }
 meta = {"name": "cytovi"}
 ## VIASH END
+
+# setting calculation to TF32 to speed up training
+torch.backends.cuda.matmul.allow_tf32 = True
 
 print("Reading and preparing input files", flush=True)
 adata = ad.read_h5ad(par["input"])

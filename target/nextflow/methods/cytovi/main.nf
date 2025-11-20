@@ -3403,7 +3403,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/methods/cytovi",
     "viash_version" : "0.9.4",
-    "git_commit" : "956325241c42f6de1c87cfcf51ad68fe6ac9b3e2",
+    "git_commit" : "d361dd0bd7ad25a7f6d9e6e1b07d740fd329f7b3",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3518,6 +3518,7 @@ cat > "$tempscript" << VIASHMAIN
 import anndata as ad
 import cytovi
 import numpy as np
+import torch
 
 # from scvi.external import cytovi
 
@@ -3559,6 +3560,9 @@ dep = {
 }
 
 ## VIASH END
+
+# setting calculation to TF32 to speed up training
+torch.backends.cuda.matmul.allow_tf32 = True
 
 print("Reading and preparing input files", flush=True)
 adata = ad.read_h5ad(par["input"])
