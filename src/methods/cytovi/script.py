@@ -15,8 +15,8 @@ par = {
     "output": "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/output_cytovi_split2.h5ad",
     "n_hidden": 128,
     "n_layers": 1,
-    "max_epochs": 500,
-    "train_size": 0.7,
+    "max_epochs": 1000,
+    "train_size": 0.9,
 }
 meta = {"name": "cytovi"}
 ## VIASH END
