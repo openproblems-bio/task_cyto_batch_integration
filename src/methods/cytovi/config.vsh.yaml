@@ -68,14 +68,12 @@ engines:
         packages:
           - anndata>=0.11.0
           - scanpy[skmisc]>=1.10
-          # - scvi-tools==1.4.0
+          - scvi-tools==1.4.0.post1
           - pyyaml
           - requests
           - jsonschema
-          - scikit-learn
         github:
           - openproblems-bio/core#subdirectory=packages/python/openproblems
-          - YosefLab/cytovi-reference-implementation
 
 runners:
   # This platform allows running the component natively
