@@ -15,6 +15,8 @@ par = {
     "output": "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/output_cytovi_split2.h5ad",
     "n_hidden": 128,
     "n_layers": 1,
+    "max_epochs": 500,
+    "train_size": 0.7,
 }
 meta = {"name": "cytovi"}
 ## VIASH END
@@ -57,6 +59,8 @@ print("Start training CytoVI model", flush=True)
 start = time.time()
 model.train(
     batch_size=8192,
+    max_epochs=par["max_epochs"],
+    train_size=par["train_size"],
 )
 end = time.time()
 print(f"Training took {end - start:.2f} seconds", flush=True)
