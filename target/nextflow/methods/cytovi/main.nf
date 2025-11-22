@@ -3239,7 +3239,7 @@ meta = [
           "name" : "--max_epochs",
           "description" : "Number of epochs to train the model.",
           "default" : [
-            500
+            1000
           ],
           "required" : false,
           "direction" : "input",
@@ -3251,7 +3251,7 @@ meta = [
           "name" : "--train_size",
           "description" : "Fraction of cells to subsample from each cluster for training.",
           "default" : [
-            0.7
+            0.9
           ],
           "required" : false,
           "direction" : "input",
@@ -3402,7 +3402,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/methods/cytovi",
     "viash_version" : "0.9.4",
-    "git_commit" : "65e48a6cea8385bf895502fc1ec6cb402559dcde",
+    "git_commit" : "e94a30ea4b1828fd56f55ae9f3e0599991f9b643",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {

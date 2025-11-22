@@ -454,9 +454,9 @@ RUN pip install --upgrade pip && \
   pip install --upgrade --no-cache-dir "git+https://github.com/openproblems-bio/core#subdirectory=packages/python/openproblems"
 
 LABEL org.opencontainers.image.description="Companion container for running component methods cytovi"
-LABEL org.opencontainers.image.created="2025-11-22T03:23:32Z"
+LABEL org.opencontainers.image.created="2025-11-22T07:52:56Z"
 LABEL org.opencontainers.image.source="https://github.com/YosefLab/cytovi-reference-implementation"
-LABEL org.opencontainers.image.revision="65e48a6cea8385bf895502fc1ec6cb402559dcde"
+LABEL org.opencontainers.image.revision="e94a30ea4b1828fd56f55ae9f3e0599991f9b643"
 LABEL org.opencontainers.image.version="build_update_n_inconsistent_peak"
 
 VIASHDOCKER
@@ -613,12 +613,12 @@ function ViashHelp {
   echo ""
   echo "    --max_epochs"
   echo "        type: integer"
-  echo "        default: 500"
+  echo "        default: 1000"
   echo "        Number of epochs to train the model."
   echo ""
   echo "    --train_size"
   echo "        type: double"
-  echo "        default: 0.7"
+  echo "        default: 0.9"
   echo "        Fraction of cells to subsample from each cluster for training."
   echo ""
   echo "Viash built in Computational Requirements:"
@@ -948,10 +948,10 @@ if [ -z ${VIASH_PAR_N_LAYERS+x} ]; then
   VIASH_PAR_N_LAYERS="1"
 fi
 if [ -z ${VIASH_PAR_MAX_EPOCHS+x} ]; then
-  VIASH_PAR_MAX_EPOCHS="500"
+  VIASH_PAR_MAX_EPOCHS="1000"
 fi
 if [ -z ${VIASH_PAR_TRAIN_SIZE+x} ]; then
-  VIASH_PAR_TRAIN_SIZE="0.7"
+  VIASH_PAR_TRAIN_SIZE="0.9"
 fi
 
 # check whether required files exist

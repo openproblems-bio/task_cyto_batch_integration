@@ -40,11 +40,11 @@ arguments:
     description: Number of layers.
   - name: --max_epochs
     type: integer
-    default: 500
+    default: 1000
     description: Number of epochs to train the model.
   - name: --train_size
     type: double
-    default: 0.7
+    default: 0.9
     description: Fraction of cells to subsample from each cluster for training.
   
 # Resources required to run the component
