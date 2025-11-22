@@ -3236,10 +3236,10 @@ meta = [
         },
         {
           "type" : "integer",
-          "name" : "--n_clusters",
-          "description" : "Number of clusters to use for subsampling.",
+          "name" : "--max_epochs",
+          "description" : "Number of epochs to train the model.",
           "default" : [
-            20
+            500
           ],
           "required" : false,
           "direction" : "input",
@@ -3248,10 +3248,10 @@ meta = [
         },
         {
           "type" : "double",
-          "name" : "--subsample_fraction",
+          "name" : "--train_size",
           "description" : "Fraction of cells to subsample from each cluster for training.",
           "default" : [
-            0.5
+            0.7
           ],
           "required" : false,
           "direction" : "input",
@@ -3383,14 +3383,13 @@ meta = [
           "packages" : [
             "anndata>=0.11.0",
             "scanpy[skmisc]>=1.10",
+            "scvi-tools==1.4.0.post1",
             "pyyaml",
             "requests",
-            "jsonschema",
-            "scikit-learn"
+            "jsonschema"
           ],
           "github" : [
-            "openproblems-bio/core#subdirectory=packages/python/openproblems",
-            "YosefLab/cytovi-reference-implementation"
+            "openproblems-bio/core#subdirectory=packages/python/openproblems"
           ],
           "upgrade" : true
         }
@@ -3403,7 +3402,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/methods/cytovi",
     "viash_version" : "0.9.4",
-    "git_commit" : "51552a4405b0b62c20226db2ec2943c0969c1e3f",
+    "git_commit" : "65e48a6cea8385bf895502fc1ec6cb402559dcde",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3515,12 +3514,13 @@ def innerWorkflowFactory(args) {
   def rawScript = '''set -e
 tempscript=".viash_script.py"
 cat > "$tempscript" << VIASHMAIN
-import anndata as ad
-import cytovi
-import numpy as np
-import torch
+import time
 
-# from scvi.external import cytovi
+import anndata as ad
+import numpy as np
+import scvi
+import torch
+from scvi.external import cytovi
 
 # from sklearn.cluster import KMeans
 # from threadpoolctl import threadpool_limits
@@ -3532,8 +3532,8 @@ par = {
   'output': $( if [ ! -z ${VIASH_PAR_OUTPUT+x} ]; then echo "r'${VIASH_PAR_OUTPUT//\\'/\\'\\"\\'\\"r\\'}'"; else echo None; fi ),
   'n_hidden': $( if [ ! -z ${VIASH_PAR_N_HIDDEN+x} ]; then echo "int(r'${VIASH_PAR_N_HIDDEN//\\'/\\'\\"\\'\\"r\\'}')"; else echo None; fi ),
   'n_layers': $( if [ ! -z ${VIASH_PAR_N_LAYERS+x} ]; then echo "int(r'${VIASH_PAR_N_LAYERS//\\'/\\'\\"\\'\\"r\\'}')"; else echo None; fi ),
-  'n_clusters': $( if [ ! -z ${VIASH_PAR_N_CLUSTERS+x} ]; then echo "int(r'${VIASH_PAR_N_CLUSTERS//\\'/\\'\\"\\'\\"r\\'}')"; else echo None; fi ),
-  'subsample_fraction': $( if [ ! -z ${VIASH_PAR_SUBSAMPLE_FRACTION+x} ]; then echo "float(r'${VIASH_PAR_SUBSAMPLE_FRACTION//\\'/\\'\\"\\'\\"r\\'}')"; else echo None; fi )
+  'max_epochs': $( if [ ! -z ${VIASH_PAR_MAX_EPOCHS+x} ]; then echo "int(r'${VIASH_PAR_MAX_EPOCHS//\\'/\\'\\"\\'\\"r\\'}')"; else echo None; fi ),
+  'train_size': $( if [ ! -z ${VIASH_PAR_TRAIN_SIZE+x} ]; then echo "float(r'${VIASH_PAR_TRAIN_SIZE//\\'/\\'\\"\\'\\"r\\'}')"; else echo None; fi )
 }
 meta = {
   'name': $( if [ ! -z ${VIASH_META_NAME+x} ]; then echo "r'${VIASH_META_NAME//\\'/\\'\\"\\'\\"r\\'}'"; else echo None; fi ),
@@ -3564,6 +3564,9 @@ dep = {
 # setting calculation to TF32 to speed up training
 torch.backends.cuda.matmul.allow_tf32 = True
 
+# increase num workers for data loading
+scvi.settings.num_workers = 95
+
 print("Reading and preparing input files", flush=True)
 adata = ad.read_h5ad(par["input"])
 
@@ -3580,53 +3583,27 @@ print(
     flush=True,
 )
 
-cytovi.CytoVI.setup_anndata(
+cytovi.CYTOVI.setup_anndata(
     adata_to_correct,
     layer="preprocessed",
     batch_key="batch_str",
     sample_key="sample_key_str",
 )
 
-model = cytovi.CytoVI(
+model = cytovi.CYTOVI(
     adata_to_correct, n_hidden=par["n_hidden"], n_layers=par["n_layers"]
 )
 
 print("Start training CytoVI model", flush=True)
-model.train()
 
-# Todo: re-enable subsampling if needed..
-# print("Clustering using k-means with k =", par["n_clusters"], flush=True)
-# # cluster data using Kmeans
-# with threadpool_limits(limits=1):
-#     adata_to_correct.obs["clusters"] = (
-#         KMeans(n_clusters=par["n_clusters"], random_state=0)
-#         .fit_predict(adata_to_correct.layers["scaled"])
-#         .astype(str)
-#     )
-# # concatenate obs so we can use it for subsampling
-# adata_to_correct.obs["sample_cluster"] = (
-#     adata_to_correct.obs["sample"].astype(str) + "_" + adata_to_correct.obs["clusters"]
-# )
-# # subsample cells without replacement
-# print("Subsampling cells", flush=True)
-# subsampled_cells = adata_to_correct.obs.groupby("sample_cluster")[
-#     "sample_cluster"
-# ].apply(lambda x: x.sample(n=round(len(x) * par["subsample_fraction"]), replace=False))
-# # need the cell id included in the subsample
-# subsampled_cells_idx = [x[1] for x in subsampled_cells.index.to_list()]
-
-# adata_subsampled = adata_to_correct[subsampled_cells_idx, :].copy()
-
-# print(
-#     f"Train CytoVI on subsampled data containing {adata_subsampled.shape[0]} cells",
-#     flush=True,
-# )
-
-# cytovi.CYTOVI.setup_anndata(adata_subsampled, layer="scaled", batch_key="batch_str")
-# model = cytovi.CYTOVI(
-#     adata=adata_subsampled, n_hidden=par["n_hidden"], n_layers=par["n_layers"]
-# )
-# model.train()
+start = time.time()
+model.train(
+    batch_size=8192,
+    max_epochs=par["max_epochs"],
+    train_size=par["train_size"],
+)
+end = time.time()
+print(f"Training took {end - start:.2f} seconds", flush=True)
 
 # get batch corrected data
 print("Correcting data", flush=True)
