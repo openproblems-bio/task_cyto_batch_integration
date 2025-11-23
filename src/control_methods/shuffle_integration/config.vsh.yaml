@@ -3,10 +3,9 @@ name: shuffle_integration
 label: Shuffle Integration
 summary: Randomly shuffle cells in the whole dataset.
 description: |
-  This negative control randomly permutes cell-to-sample (hence batch)
-  assignments while keeping each cell's measured markers unchanged. 
-  This destroys any biological and batch specific structure but preserves marker expression.
-
+  This negative control randomly shuffles all cells in the input data,
+  destroying any biological structure (e.g., sample to cell mapping or batch assignments).
+  
   Purpose:
   - Provide a baseline to verify that integration methods outperform
     random assignment of cells to batches.

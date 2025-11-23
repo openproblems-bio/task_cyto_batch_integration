@@ -3,11 +3,9 @@ name: shuffle_integration_by_batch
 label: Shuffle Integration — within batches
 summary: Randomly reassign cells to any samples within the same batch.
 description: | 
-  This negative-control method randomly permutes cell-to-cell type assignments.
-  Cells remain assigned to their original batch (batch effects preserved).
-  Within each batch, cells are reassigned to random samples, destroying
-  biological/sample-specific structure (e.g., KO vs WT differences).
-
+  This negative-control method randomly shuffles cells within each batch independently, 
+  destroying cell to sample mapping while preserving batch-specific distributions. 
+  
   Purpose:
   - Evaluate whether an integration method preserves differences between samples
     and biological groups while removing batch effects.
