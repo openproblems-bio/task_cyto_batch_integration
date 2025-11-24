@@ -38,6 +38,17 @@ markers_not_correct = adata.var[~adata.var["to_correct"]].index.to_numpy()
 
 adata_to_correct = adata[:, markers_to_correct].copy()
 
+print("Scaling data", flush=True)
+
+# scale data. this will add a layer "scaled" to the anndata
+cytovi.scale(
+    adata=adata_to_correct,
+    transformed_layer_key="preprocessed",
+    batch_key="batch_str",
+    scaled_layer_key="scaled",
+    inplace=True,
+)
+
 print(
     f"Train CytoVI on {adata_to_correct.shape[0]} cells",
     flush=True,
@@ -45,7 +56,7 @@ print(
 
 cytovi.CYTOVI.setup_anndata(
     adata_to_correct,
-    layer="preprocessed",
+    layer="scaled",
     batch_key="batch_str",
     sample_key="sample_key_str",
 )
