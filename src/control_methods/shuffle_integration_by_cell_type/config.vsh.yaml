@@ -3,17 +3,21 @@ name: shuffle_integration_by_cell_type
 label: Shuffle Integration — within cell type
 summary: Randomly reassign cells to any cell types
 description: | 
-  This negative-control method randomly permutes cell-to-cell type assignments.
-  Cells will be assigned to any cell types, regardless of their original cell type
-  or sample of origin or batch of origin.
+  This negative-control method randomly shuffles cells within each cell type independently, 
+  destroying batch structure while preserving cell type-specific distributions. 
+  This serves as a negative control that maintains biological groupings but 
+  eliminates batch grouping in each cell type.
 
   Purpose:
   - Evaluate whether an integration method preserves differences between cell types
   while removing batch effects.
 
   Example:
-  - A Neutrophil from a KO sample in batch 1 may be reassigned to any cell type
-    (B cell, T cell, Monocyte, etc.) from any sample in any batch.
+  - A Neutrophil in batch 1 from KO sample may be reassigned to a Neutrophil in batch 2
+  KO or WT sample or remain in a KO sample in batch 1 but assigned to different donor,
+  or moved to a WT sample in batch 1 or 2, or remain in the same sample,
+  but it will never be re-assigned to another cell type.
+
 # status: disabled
 resources:
   - type: python_script

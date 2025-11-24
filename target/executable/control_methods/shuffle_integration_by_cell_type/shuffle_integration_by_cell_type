@@ -446,9 +446,9 @@ function ViashDockerfile {
 FROM openproblems/base_python:1
 ENTRYPOINT []
 LABEL org.opencontainers.image.description="Companion container for running component control_methods shuffle_integration_by_cell_type"
-LABEL org.opencontainers.image.created="2025-11-22T07:52:56Z"
+LABEL org.opencontainers.image.created="2025-11-24T08:09:16Z"
 LABEL org.opencontainers.image.source="https://github.com/openproblems-bio/task_cyto_batch_integration"
-LABEL org.opencontainers.image.revision="e94a30ea4b1828fd56f55ae9f3e0599991f9b643"
+LABEL org.opencontainers.image.revision="ca35329934029ee02b805e39ca8e5b84ca2e02d3"
 LABEL org.opencontainers.image.version="build_update_n_inconsistent_peak"
 
 VIASHDOCKER
@@ -568,9 +568,11 @@ VIASH_DOCKER_RUN_ARGS=(-i --rm)
 function ViashHelp {
   echo "shuffle_integration_by_cell_type build_update_n_inconsistent_peak"
   echo ""
-  echo "This negative-control method randomly permutes cell-to-cell type assignments."
-  echo "Cells will be assigned to any cell types, regardless of their original cell type"
-  echo "or sample of origin or batch of origin."
+  echo "This negative-control method randomly shuffles cells within each cell type"
+  echo "independently,"
+  echo "destroying batch structure while preserving cell type-specific distributions."
+  echo "This serves as a negative control that maintains biological groupings but"
+  echo "eliminates batch grouping in each cell type."
   echo ""
   echo "Purpose:"
   echo "- Evaluate whether an integration method preserves differences between cell"
@@ -578,8 +580,12 @@ function ViashHelp {
   echo "while removing batch effects."
   echo ""
   echo "Example:"
-  echo "- A Neutrophil from a KO sample in batch 1 may be reassigned to any cell type"
-  echo "  (B cell, T cell, Monocyte, etc.) from any sample in any batch."
+  echo "- A Neutrophil in batch 1 from KO sample may be reassigned to a Neutrophil in"
+  echo "batch 2"
+  echo "KO or WT sample or remain in a KO sample in batch 1 but assigned to different"
+  echo "donor,"
+  echo "or moved to a WT sample in batch 1 or 2, or remain in the same sample,"
+  echo "but it will never be re-assigned to another cell type."
   echo ""
   echo "Arguments:"
   echo "    --input_unintegrated"

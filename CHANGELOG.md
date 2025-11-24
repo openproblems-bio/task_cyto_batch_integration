@@ -64,6 +64,7 @@
 
 * Added Seurat rPCA (PR #95).
 
+* Added processing scripts for CLL dataset (PR #106).
 
 ## MAJOR CHANGES
 
@@ -165,4 +166,4 @@
 
 * Fix bug in EMD vertical where sample combination was malformed (PR #113)
 
-
+* Fix lisi inconsistent naming (PR #117) for issue #116.
