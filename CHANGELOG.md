@@ -57,7 +57,6 @@
   * Added CytoNorm with aggregate of samples as controls (`methods/cytonorm_no_controls`).
   * Added parameters to tune CytoNorm.
 
-
 * Added CytoNorm correction to a goal batch (PR #92).
 * Added cyCombine correction to a reference batch (PR #90).
 * Added `metrics/bras` (PR #91).
@@ -65,6 +64,8 @@
 * Added Seurat rPCA (PR #95).
 
 * Added processing scripts for CLL dataset (PR #106).
+
+* Added new metric `ratio_inconsistent_peaks` (PR #114).
 
 ## MAJOR CHANGES
 
@@ -99,6 +100,8 @@
   for computing horizontal and vertical metrics (PR #63).
 
 * Fix problems identified during a full run (PR #99).
+
+* Update CytoVI (PR #114).
 
 ## MINOR CHANGES
 

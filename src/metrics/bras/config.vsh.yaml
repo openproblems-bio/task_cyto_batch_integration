@@ -1,16 +1,9 @@
-# The API specifies which type of component this is.
-# It contains specifications for:
-#   - The input/output files
-#   - Common parameters
-#   - A unit test
 __merge__: ../../api/comp_metric.yaml
 
 # A unique identifier for your component (required).
 # Can contain only lowercase letters or underscores.
 name: bras
-
-
-
+status: disabled
 # Metadata for your component
 info:
   metrics:
@@ -56,13 +49,6 @@ info:
       # Whether a higher value represents a 'better' solution (required)
       maximize: true
 
-# Component-specific parameters (optional)
-# arguments:
-#   - name: "--n_neighbors"
-#     type: "integer"
-#     default: 5
-#     description: Number of neighbors to use.
-
 # Resources required to run the component
 resources:
   # The script of your component (required)
@@ -73,6 +59,14 @@ resources:
 
 engines:
   # Specifications for the Docker image for this component.
+  # testing gpu jax version
+  # - type: docker
+  #   image: openproblems/base_pytorch_nvidia:1.1
+  #   setup:
+  #     - type: python
+  #       packages:
+  #         - jax[cuda_12_pip]
+  #         - scib-metrics~=0.5.6
   - type: docker
     image: python:3.11
     setup:

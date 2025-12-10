@@ -38,13 +38,13 @@ arguments:
     type: integer
     default: 1
     description: Number of layers.
-  - name: --n_clusters
+  - name: --max_epochs
     type: integer
-    default: 20
-    description: Number of clusters to use for subsampling.
-  - name: --subsample_fraction
+    default: 1000
+    description: Number of epochs to train the model.
+  - name: --train_size
     type: double
-    default: 0.5
+    default: 0.9
     description: Fraction of cells to subsample from each cluster for training.
   
 # Resources required to run the component
@@ -68,11 +68,10 @@ engines:
         packages:
           - anndata>=0.11.0
           - scanpy[skmisc]>=1.10
-          - scvi-tools==1.4.0
+          - scvi-tools==1.4.0.post1
           - pyyaml
           - requests
           - jsonschema
-          - scikit-learn
         github:
           - openproblems-bio/core#subdirectory=packages/python/openproblems
 
