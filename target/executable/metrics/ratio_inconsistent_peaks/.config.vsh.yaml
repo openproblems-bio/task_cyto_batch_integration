@@ -1,4 +1,4 @@
-name: "n_inconsistent_peaks"
+name: "ratio_inconsistent_peaks"
 namespace: "metrics"
 version: "build_main"
 argument_groups:
@@ -247,40 +247,24 @@ test_resources:
   dest: "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset"
 info:
   metrics:
-  - name: "n_inconsistent_peaks"
-    label: "Number of inconsistent peaks Global"
-    summary: "Comparison of the number of marker‑expression peaks between validation\
-      \ and batch‑normalized data."
-    description: "The metric compares the number of marker expression peaks between\
-      \ batch integrated technical replicates (split 1 and split 2). \nThe metric\
-      \ is calculated as the absolute difference between the number of peaks in the\
-      \ technical replicates.\nThe marker expression profiles are first z-score scaled\
-      \ (with common mu and sigma) and then smoothed using kernel density estimation\
-      \ (KDE) (`scipy.stats.gaussian_kde`).\nFinally, peaks are identified using the\
-      \ `scipy.signal.find_peaks` function.\nFor peak calling, the `prominence` parameter\
-      \ is set to 0.01 and the `height` parameter is set to 0.1.\n"
-    references:
-      doi:
-      - "10.1038/s41592-019-0686-2"
-    links:
-      documentation: "https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.find_peaks.html#scipy.signal.find_peaks"
-      repository: "https://github.com/scipy/scipy/blob/main/scipy/signal/_peak_finding.py"
-    min: 0
-    max: "+.inf"
-    maximize: false
-  - name: "n_inconsistent_peaks_ct"
-    label: "Number of inconsistent peaks (Cell Type)"
-    summary: "Comparison of the number of cell‑type marker‑expression peaks between\
-      \ validation and batch‑normalized data."
+  - name: "ratio_inconsistent_peaks"
+    label: "Ratio of inconsistent peaks"
+    summary: "Ratio of the number of cell‑type marker‑expression peaks between unintegrated\
+      \ and batch-integrated data."
     description: "The metric compares the number of cell type specific marker expression\
-      \ peaks between the validation and batch-normalized data. \nThe number of peaks\
-      \ is calculated using the `scipy.signal.find_peaks` function. \nThe metric is\
-      \ calculated as the absolute difference between the number of peaks in the validation\
+      \ peaks between unintegrated and batch integrated data.\nThe number of peaks\
+      \ is calculated using the `scipy.signal.find_peaks` function.\nThe metric is\
+      \ calculated as the absolute difference between the number of peaks in the unintegrated\
       \ and batch-normalized data.\nThe (cell type) marker expression profiles are\
       \ first smoothed using kernel density estimation (KDE) (`scipy.stats.gaussian_kde`),\n\
       and then peaks are then identified using the `scipy.signal.find_peaks` function.\n\
       For peak calling, the `prominence` parameter is set to 0.1 and the `height`\
-      \ parameter is set to 0.05*max_density.\n"
+      \ parameter is set to 0.05*max_density.\nRatio of inconsistent peaks is defined\
+      \ as number of cases where the number of peaks differ between the two splits\
+      \ in the batch\nnormalized data divided by the total number of cases.\nCases\
+      \ where there are different number of peaks between the two splits in the unintegrated\
+      \ data are ignored from the denominator.\nA lower score indicates better performance,\
+      \ means there are less cases with inconsistent peaks after batch integration.\n"
     references:
       doi:
       - "10.1038/s41592-019-0686-2"
@@ -344,16 +328,22 @@ engines:
   id: "docker"
   image: "openproblems/base_python:1"
   namespace_separator: "/"
+  setup:
+  - type: "python"
+    user: false
+    packages:
+    - "scikit-tda"
+    upgrade: true
   entrypoint: []
   cmd: null
 build_info:
-  config: "src/metrics/n_inconsistent_peaks/config.vsh.yaml"
-  runner: "nextflow"
+  config: "src/metrics/ratio_inconsistent_peaks/config.vsh.yaml"
+  runner: "executable"
   engine: "docker"
-  output: "target/nextflow/metrics/n_inconsistent_peaks"
-  executable: "target/nextflow/metrics/n_inconsistent_peaks/main.nf"
+  output: "target/executable/metrics/ratio_inconsistent_peaks"
+  executable: "target/executable/metrics/ratio_inconsistent_peaks/ratio_inconsistent_peaks"
   viash_version: "0.9.4"
-  git_commit: "971a82aabfcbeee26aab1cc9db8d0b535370e6f3"
+  git_commit: "6b44468da0db36a53af016960862cf27c710f314"
   git_remote: "https://github.com/openproblems-bio/task_cyto_batch_integration"
 package_config:
   name: "task_cyto_batch_integration"

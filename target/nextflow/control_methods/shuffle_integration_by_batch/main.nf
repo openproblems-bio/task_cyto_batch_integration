@@ -3316,7 +3316,7 @@ meta = [
   ],
   "label" : "Shuffle Integration — within batches",
   "summary" : "Randomly reassign cells to any samples within the same batch.",
-  "description" : "This negative-control method randomly permutes cell-to-cell type assignments.\nCells remain assigned to their original batch (batch effects preserved).\nWithin each batch, cells are reassigned to random samples, destroying\nbiological/sample-specific structure (e.g., KO vs WT differences).\n\nPurpose:\n- Evaluate whether an integration method preserves differences between samples\n  and biological groups while removing batch effects.\n\nExample:\n- A cell from a KO sample in batch 1 may be reassigned to any sample in batch 1\n  (KO or WT), but it will never be moved to batch 2.\n",
+  "description" : "This negative-control method randomly shuffles cells within each batch independently, \ndestroying cell to sample mapping while preserving batch-specific distributions. \n\nPurpose:\n- Evaluate whether an integration method preserves differences between samples\n  and biological groups while removing batch effects.\n\nExample:\n- A cell from a KO sample in batch 1 may be reassigned to any sample in batch 1\n  (KO or WT), but it will never be moved to batch 2.\n",
   "test_resources" : [
     {
       "type" : "python_script",
@@ -3415,7 +3415,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/control_methods/shuffle_integration_by_batch",
     "viash_version" : "0.9.4",
-    "git_commit" : "971a82aabfcbeee26aab1cc9db8d0b535370e6f3",
+    "git_commit" : "6b44468da0db36a53af016960862cf27c710f314",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {

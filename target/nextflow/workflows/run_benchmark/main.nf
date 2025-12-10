@@ -3767,7 +3767,7 @@ meta = [
       }
     },
     {
-      "name" : "metrics/n_inconsistent_peaks",
+      "name" : "metrics/ratio_inconsistent_peaks",
       "repository" : {
         "type" : "local"
       }
@@ -3786,12 +3786,6 @@ meta = [
     },
     {
       "name" : "metrics/lisi",
-      "repository" : {
-        "type" : "local"
-      }
-    },
-    {
-      "name" : "metrics/bras",
       "repository" : {
         "type" : "local"
       }
@@ -3853,7 +3847,7 @@ meta = [
     "engine" : "native",
     "output" : "target/nextflow/workflows/run_benchmark",
     "viash_version" : "0.9.4",
-    "git_commit" : "971a82aabfcbeee26aab1cc9db8d0b535370e6f3",
+    "git_commit" : "6b44468da0db36a53af016960862cf27c710f314",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3986,11 +3980,10 @@ include { rpca_to_goal } from "${meta.resources_dir}/../../../nextflow/methods/r
 include { rpca_to_mid } from "${meta.resources_dir}/../../../nextflow/methods/rpca_to_mid/main.nf"
 include { cytovi } from "${meta.resources_dir}/../../../nextflow/methods/cytovi/main.nf"
 include { emd } from "${meta.resources_dir}/../../../nextflow/metrics/emd/main.nf"
-include { n_inconsistent_peaks } from "${meta.resources_dir}/../../../nextflow/metrics/n_inconsistent_peaks/main.nf"
+include { ratio_inconsistent_peaks } from "${meta.resources_dir}/../../../nextflow/metrics/ratio_inconsistent_peaks/main.nf"
 include { average_batch_r2 } from "${meta.resources_dir}/../../../nextflow/metrics/average_batch_r2/main.nf"
 include { flowsom_mapping_similarity } from "${meta.resources_dir}/../../../nextflow/metrics/flowsom_mapping_similarity/main.nf"
 include { lisi } from "${meta.resources_dir}/../../../nextflow/metrics/lisi/main.nf"
-include { bras } from "${meta.resources_dir}/../../../nextflow/metrics/bras/main.nf"
 
 // inner workflow
 // user-provided Nextflow code
@@ -4036,11 +4029,12 @@ methods = [
 // construct list of metrics
 metrics = [
   emd,
-  n_inconsistent_peaks,
+  // bras,
+  // n_inconsistent_peaks,
+  ratio_inconsistent_peaks,
   average_batch_r2,
   flowsom_mapping_similarity,
-  lisi,
-  bras
+  lisi
 ]
 
 workflow run_wf {

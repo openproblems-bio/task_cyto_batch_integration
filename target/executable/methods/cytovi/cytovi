@@ -450,13 +450,13 @@ RUN apt-get update && \
   rm -rf /var/lib/apt/lists/*
 
 RUN pip install --upgrade pip && \
-  pip install --upgrade --no-cache-dir "anndata>=0.11.0" "scanpy[skmisc]>=1.10" "scvi-tools==1.4.0" "pyyaml" "requests" "jsonschema" "scikit-learn" && \
+  pip install --upgrade --no-cache-dir "anndata>=0.11.0" "scanpy[skmisc]>=1.10" "scvi-tools==1.4.0.post1" "pyyaml" "requests" "jsonschema" && \
   pip install --upgrade --no-cache-dir "git+https://github.com/openproblems-bio/core#subdirectory=packages/python/openproblems"
 
 LABEL org.opencontainers.image.description="Companion container for running component methods cytovi"
-LABEL org.opencontainers.image.created="2025-11-19T23:40:06Z"
+LABEL org.opencontainers.image.created="2025-12-10T01:25:20Z"
 LABEL org.opencontainers.image.source="https://github.com/YosefLab/cytovi-reference-implementation"
-LABEL org.opencontainers.image.revision="971a82aabfcbeee26aab1cc9db8d0b535370e6f3"
+LABEL org.opencontainers.image.revision="6b44468da0db36a53af016960862cf27c710f314"
 LABEL org.opencontainers.image.version="build_main"
 
 VIASHDOCKER
@@ -611,14 +611,14 @@ function ViashHelp {
   echo "        default: 1"
   echo "        Number of layers."
   echo ""
-  echo "    --n_clusters"
+  echo "    --max_epochs"
   echo "        type: integer"
-  echo "        default: 20"
-  echo "        Number of clusters to use for subsampling."
+  echo "        default: 1000"
+  echo "        Number of epochs to train the model."
   echo ""
-  echo "    --subsample_fraction"
+  echo "    --train_size"
   echo "        type: double"
-  echo "        default: 0.5"
+  echo "        default: 0.9"
   echo "        Fraction of cells to subsample from each cluster for training."
   echo ""
   echo "Viash built in Computational Requirements:"
@@ -715,26 +715,26 @@ while [[ $# -gt 0 ]]; do
             VIASH_PAR_N_LAYERS=$(ViashRemoveFlags "$1")
             shift 1
             ;;
-        --n_clusters)
-            [ -n "$VIASH_PAR_N_CLUSTERS" ] && ViashError Bad arguments for option \'--n_clusters\': \'$VIASH_PAR_N_CLUSTERS\' \& \'$2\' - you should provide exactly one argument for this option. && exit 1
-            VIASH_PAR_N_CLUSTERS="$2"
-            [ $# -lt 2 ] && ViashError Not enough arguments passed to --n_clusters. Use "--help" to get more information on the parameters. && exit 1
+        --max_epochs)
+            [ -n "$VIASH_PAR_MAX_EPOCHS" ] && ViashError Bad arguments for option \'--max_epochs\': \'$VIASH_PAR_MAX_EPOCHS\' \& \'$2\' - you should provide exactly one argument for this option. && exit 1
+            VIASH_PAR_MAX_EPOCHS="$2"
+            [ $# -lt 2 ] && ViashError Not enough arguments passed to --max_epochs. Use "--help" to get more information on the parameters. && exit 1
             shift 2
             ;;
-        --n_clusters=*)
-            [ -n "$VIASH_PAR_N_CLUSTERS" ] && ViashError Bad arguments for option \'--n_clusters=*\': \'$VIASH_PAR_N_CLUSTERS\' \& \'$2\' - you should provide exactly one argument for this option. && exit 1
-            VIASH_PAR_N_CLUSTERS=$(ViashRemoveFlags "$1")
+        --max_epochs=*)
+            [ -n "$VIASH_PAR_MAX_EPOCHS" ] && ViashError Bad arguments for option \'--max_epochs=*\': \'$VIASH_PAR_MAX_EPOCHS\' \& \'$2\' - you should provide exactly one argument for this option. && exit 1
+            VIASH_PAR_MAX_EPOCHS=$(ViashRemoveFlags "$1")
             shift 1
             ;;
-        --subsample_fraction)
-            [ -n "$VIASH_PAR_SUBSAMPLE_FRACTION" ] && ViashError Bad arguments for option \'--subsample_fraction\': \'$VIASH_PAR_SUBSAMPLE_FRACTION\' \& \'$2\' - you should provide exactly one argument for this option. && exit 1
-            VIASH_PAR_SUBSAMPLE_FRACTION="$2"
-            [ $# -lt 2 ] && ViashError Not enough arguments passed to --subsample_fraction. Use "--help" to get more information on the parameters. && exit 1
+        --train_size)
+            [ -n "$VIASH_PAR_TRAIN_SIZE" ] && ViashError Bad arguments for option \'--train_size\': \'$VIASH_PAR_TRAIN_SIZE\' \& \'$2\' - you should provide exactly one argument for this option. && exit 1
+            VIASH_PAR_TRAIN_SIZE="$2"
+            [ $# -lt 2 ] && ViashError Not enough arguments passed to --train_size. Use "--help" to get more information on the parameters. && exit 1
             shift 2
             ;;
-        --subsample_fraction=*)
-            [ -n "$VIASH_PAR_SUBSAMPLE_FRACTION" ] && ViashError Bad arguments for option \'--subsample_fraction=*\': \'$VIASH_PAR_SUBSAMPLE_FRACTION\' \& \'$2\' - you should provide exactly one argument for this option. && exit 1
-            VIASH_PAR_SUBSAMPLE_FRACTION=$(ViashRemoveFlags "$1")
+        --train_size=*)
+            [ -n "$VIASH_PAR_TRAIN_SIZE" ] && ViashError Bad arguments for option \'--train_size=*\': \'$VIASH_PAR_TRAIN_SIZE\' \& \'$2\' - you should provide exactly one argument for this option. && exit 1
+            VIASH_PAR_TRAIN_SIZE=$(ViashRemoveFlags "$1")
             shift 1
             ;;
         ---engine)
@@ -947,11 +947,11 @@ fi
 if [ -z ${VIASH_PAR_N_LAYERS+x} ]; then
   VIASH_PAR_N_LAYERS="1"
 fi
-if [ -z ${VIASH_PAR_N_CLUSTERS+x} ]; then
-  VIASH_PAR_N_CLUSTERS="20"
+if [ -z ${VIASH_PAR_MAX_EPOCHS+x} ]; then
+  VIASH_PAR_MAX_EPOCHS="1000"
 fi
-if [ -z ${VIASH_PAR_SUBSAMPLE_FRACTION+x} ]; then
-  VIASH_PAR_SUBSAMPLE_FRACTION="0.5"
+if [ -z ${VIASH_PAR_TRAIN_SIZE+x} ]; then
+  VIASH_PAR_TRAIN_SIZE="0.9"
 fi
 
 # check whether required files exist
@@ -973,15 +973,15 @@ if [[ -n "$VIASH_PAR_N_LAYERS" ]]; then
     exit 1
   fi
 fi
-if [[ -n "$VIASH_PAR_N_CLUSTERS" ]]; then
-  if ! [[ "$VIASH_PAR_N_CLUSTERS" =~ ^[-+]?[0-9]+$ ]]; then
-    ViashError '--n_clusters' has to be an integer. Use "--help" to get more information on the parameters.
+if [[ -n "$VIASH_PAR_MAX_EPOCHS" ]]; then
+  if ! [[ "$VIASH_PAR_MAX_EPOCHS" =~ ^[-+]?[0-9]+$ ]]; then
+    ViashError '--max_epochs' has to be an integer. Use "--help" to get more information on the parameters.
     exit 1
   fi
 fi
-if [[ -n "$VIASH_PAR_SUBSAMPLE_FRACTION" ]]; then
-  if ! [[ "$VIASH_PAR_SUBSAMPLE_FRACTION" =~ ^[-+]?(\.[0-9]+|[0-9]+(\.[0-9]*)?)([eE][-+]?[0-9]+)?$ ]]; then
-    ViashError '--subsample_fraction' has to be a double. Use "--help" to get more information on the parameters.
+if [[ -n "$VIASH_PAR_TRAIN_SIZE" ]]; then
+  if ! [[ "$VIASH_PAR_TRAIN_SIZE" =~ ^[-+]?(\.[0-9]+|[0-9]+(\.[0-9]*)?)([eE][-+]?[0-9]+)?$ ]]; then
+    ViashError '--train_size' has to be a double. Use "--help" to get more information on the parameters.
     exit 1
   fi
 fi
@@ -1142,11 +1142,16 @@ function interrupt {
 trap clean_up EXIT
 trap interrupt INT SIGINT
 cat > "\$tempscript" << 'VIASHMAIN'
+import time
+
 import anndata as ad
 import numpy as np
+import scvi
+import torch
 from scvi.external import cytovi
-from sklearn.cluster import KMeans
-from threadpoolctl import threadpool_limits
+
+# from sklearn.cluster import KMeans
+# from threadpoolctl import threadpool_limits
 
 ## VIASH START
 # The following code has been auto-generated by Viash.
@@ -1155,8 +1160,8 @@ par = {
   'output': $( if [ ! -z ${VIASH_PAR_OUTPUT+x} ]; then echo "r'${VIASH_PAR_OUTPUT//\'/\'\"\'\"r\'}'"; else echo None; fi ),
   'n_hidden': $( if [ ! -z ${VIASH_PAR_N_HIDDEN+x} ]; then echo "int(r'${VIASH_PAR_N_HIDDEN//\'/\'\"\'\"r\'}')"; else echo None; fi ),
   'n_layers': $( if [ ! -z ${VIASH_PAR_N_LAYERS+x} ]; then echo "int(r'${VIASH_PAR_N_LAYERS//\'/\'\"\'\"r\'}')"; else echo None; fi ),
-  'n_clusters': $( if [ ! -z ${VIASH_PAR_N_CLUSTERS+x} ]; then echo "int(r'${VIASH_PAR_N_CLUSTERS//\'/\'\"\'\"r\'}')"; else echo None; fi ),
-  'subsample_fraction': $( if [ ! -z ${VIASH_PAR_SUBSAMPLE_FRACTION+x} ]; then echo "float(r'${VIASH_PAR_SUBSAMPLE_FRACTION//\'/\'\"\'\"r\'}')"; else echo None; fi )
+  'max_epochs': $( if [ ! -z ${VIASH_PAR_MAX_EPOCHS+x} ]; then echo "int(r'${VIASH_PAR_MAX_EPOCHS//\'/\'\"\'\"r\'}')"; else echo None; fi ),
+  'train_size': $( if [ ! -z ${VIASH_PAR_TRAIN_SIZE+x} ]; then echo "float(r'${VIASH_PAR_TRAIN_SIZE//\'/\'\"\'\"r\'}')"; else echo None; fi )
 }
 meta = {
   'name': $( if [ ! -z ${VIASH_META_NAME+x} ]; then echo "r'${VIASH_META_NAME//\'/\'\"\'\"r\'}'"; else echo None; fi ),
@@ -1184,10 +1189,17 @@ dep = {
 
 ## VIASH END
 
+# setting calculation to TF32 to speed up training
+torch.backends.cuda.matmul.allow_tf32 = True
+
+# increase num workers for data loading
+scvi.settings.num_workers = 95
+
 print("Reading and preparing input files", flush=True)
 adata = ad.read_h5ad(par["input"])
 
 adata.obs["batch_str"] = adata.obs["batch"].astype(str)
+adata.obs["sample_key_str"] = adata.obs["sample"].astype(str)
 
 markers_to_correct = adata.var[adata.var["to_correct"]].index.to_numpy()
 markers_not_correct = adata.var[~adata.var["to_correct"]].index.to_numpy()
@@ -1201,41 +1213,36 @@ cytovi.scale(
     adata=adata_to_correct,
     transformed_layer_key="preprocessed",
     batch_key="batch_str",
+    scaled_layer_key="scaled",
     inplace=True,
 )
 
-print("Clustering using k-means with k =", par["n_clusters"], flush=True)
-# cluster data using Kmeans
-with threadpool_limits(limits=1):
-    adata_to_correct.obs["clusters"] = (
-        KMeans(n_clusters=par["n_clusters"], random_state=0)
-        .fit_predict(adata_to_correct.layers["scaled"])
-        .astype(str)
-    )
-# concatenate obs so we can use it for subsampling
-adata_to_correct.obs["sample_cluster"] = (
-    adata_to_correct.obs["sample"].astype(str) + "_" + adata_to_correct.obs["clusters"]
-)
-# subsample cells without replacement
-print("Subsampling cells", flush=True)
-subsampled_cells = adata_to_correct.obs.groupby("sample_cluster")[
-    "sample_cluster"
-].apply(lambda x: x.sample(n=round(len(x) * par["subsample_fraction"]), replace=False))
-# need the cell id included in the subsample
-subsampled_cells_idx = [x[1] for x in subsampled_cells.index.to_list()]
-
-adata_subsampled = adata_to_correct[subsampled_cells_idx, :].copy()
-
 print(
-    f"Train CytoVI on subsampled data containing {adata_subsampled.shape[0]} cells",
+    f"Train CytoVI on {adata_to_correct.shape[0]} cells",
     flush=True,
 )
 
-cytovi.CYTOVI.setup_anndata(adata_subsampled, layer="scaled", batch_key="batch_str")
-model = cytovi.CYTOVI(
-    adata=adata_subsampled, n_hidden=par["n_hidden"], n_layers=par["n_layers"]
+cytovi.CYTOVI.setup_anndata(
+    adata_to_correct,
+    layer="scaled",
+    batch_key="batch_str",
+    sample_key="sample_key_str",
 )
-model.train()
+
+model = cytovi.CYTOVI(
+    adata_to_correct, n_hidden=par["n_hidden"], n_layers=par["n_layers"]
+)
+
+print("Start training CytoVI model", flush=True)
+
+start = time.time()
+model.train(
+    batch_size=8192,
+    max_epochs=par["max_epochs"],
+    train_size=par["train_size"],
+)
+end = time.time()
+print(f"Training took {end - start:.2f} seconds", flush=True)
 
 # get batch corrected data
 print("Correcting data", flush=True)

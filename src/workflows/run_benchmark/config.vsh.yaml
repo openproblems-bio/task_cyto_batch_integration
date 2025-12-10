@@ -109,11 +109,13 @@ dependencies:
   - name: methods/rpca_to_mid
   - name: methods/cytovi
   - name: metrics/emd
-  - name: metrics/n_inconsistent_peaks
+  # - name: metrics/bras
+  # - name: metrics/n_inconsistent_peaks
+  - name: metrics/ratio_inconsistent_peaks
   - name: metrics/average_batch_r2
   - name: metrics/flowsom_mapping_similarity
   - name: metrics/lisi
-  - name: metrics/bras
+  
 
 runners:
   - type: nextflow

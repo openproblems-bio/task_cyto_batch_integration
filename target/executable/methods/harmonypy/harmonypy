@@ -449,9 +449,9 @@ RUN pip install --upgrade pip && \
   pip install --upgrade --no-cache-dir "harmonypy"
 
 LABEL org.opencontainers.image.description="Companion container for running component methods harmonypy"
-LABEL org.opencontainers.image.created="2025-11-19T23:40:06Z"
+LABEL org.opencontainers.image.created="2025-12-10T01:25:20Z"
 LABEL org.opencontainers.image.source="https://github.com/slowkow/harmonypy"
-LABEL org.opencontainers.image.revision="971a82aabfcbeee26aab1cc9db8d0b535370e6f3"
+LABEL org.opencontainers.image.revision="6b44468da0db36a53af016960862cf27c710f314"
 LABEL org.opencontainers.image.version="build_main"
 
 VIASHDOCKER
@@ -1073,6 +1073,7 @@ dep = {
 print("Reading and preparing input files", flush=True)
 adata = ad.read_h5ad(par["input"])
 
+# harmony can't handle integer batch labels
 adata.obs["batch_str"] = adata.obs["batch"].astype(str)
 
 markers_to_correct = adata.var[adata.var["to_correct"]].index.to_numpy()
@@ -1081,10 +1082,13 @@ markers_not_correct = adata.var[~adata.var["to_correct"]].index.to_numpy()
 adata_to_correct = adata[:, markers_to_correct].copy()
 
 print("Run harmony", flush=True)
-# harmony can't handle integer batch labels
+
+# TODO numerical instability in kmeans causing problem with harmony.
+# so adding a very small value to all entries to make sure there are no zeros
+epsilon = 1e-20
 
 out = harmonypy.run_harmony(
-    data_mat=adata_to_correct.layers["preprocessed"],
+    data_mat=adata_to_correct.layers["preprocessed"] + epsilon,
     meta_data=adata_to_correct.obs,
     vars_use="batch_str",
 )

@@ -1,8 +1,13 @@
+import time
+
 import anndata as ad
 import numpy as np
+import scvi
+import torch
 from scvi.external import cytovi
-from sklearn.cluster import KMeans
-from threadpoolctl import threadpool_limits
+
+# from sklearn.cluster import KMeans
+# from threadpoolctl import threadpool_limits
 
 ## VIASH START
 par = {
@@ -10,16 +15,23 @@ par = {
     "output": "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/output_cytovi_split2.h5ad",
     "n_hidden": 128,
     "n_layers": 1,
-    "n_clusters": 10,
-    "subsample_fraction": 0.5,
+    "max_epochs": 1000,
+    "train_size": 0.9,
 }
 meta = {"name": "cytovi"}
 ## VIASH END
+
+# setting calculation to TF32 to speed up training
+torch.backends.cuda.matmul.allow_tf32 = True
+
+# increase num workers for data loading
+scvi.settings.num_workers = 95
 
 print("Reading and preparing input files", flush=True)
 adata = ad.read_h5ad(par["input"])
 
 adata.obs["batch_str"] = adata.obs["batch"].astype(str)
+adata.obs["sample_key_str"] = adata.obs["sample"].astype(str)
 
 markers_to_correct = adata.var[adata.var["to_correct"]].index.to_numpy()
 markers_not_correct = adata.var[~adata.var["to_correct"]].index.to_numpy()
@@ -33,41 +45,36 @@ cytovi.scale(
     adata=adata_to_correct,
     transformed_layer_key="preprocessed",
     batch_key="batch_str",
+    scaled_layer_key="scaled",
     inplace=True,
 )
 
-print("Clustering using k-means with k =", par["n_clusters"], flush=True)
-# cluster data using Kmeans
-with threadpool_limits(limits=1):
-    adata_to_correct.obs["clusters"] = (
-        KMeans(n_clusters=par["n_clusters"], random_state=0)
-        .fit_predict(adata_to_correct.layers["scaled"])
-        .astype(str)
-    )
-# concatenate obs so we can use it for subsampling
-adata_to_correct.obs["sample_cluster"] = (
-    adata_to_correct.obs["sample"].astype(str) + "_" + adata_to_correct.obs["clusters"]
-)
-# subsample cells without replacement
-print("Subsampling cells", flush=True)
-subsampled_cells = adata_to_correct.obs.groupby("sample_cluster")[
-    "sample_cluster"
-].apply(lambda x: x.sample(n=round(len(x) * par["subsample_fraction"]), replace=False))
-# need the cell id included in the subsample
-subsampled_cells_idx = [x[1] for x in subsampled_cells.index.to_list()]
-
-adata_subsampled = adata_to_correct[subsampled_cells_idx, :].copy()
-
 print(
-    f"Train CytoVI on subsampled data containing {adata_subsampled.shape[0]} cells",
+    f"Train CytoVI on {adata_to_correct.shape[0]} cells",
     flush=True,
 )
 
-cytovi.CYTOVI.setup_anndata(adata_subsampled, layer="scaled", batch_key="batch_str")
-model = cytovi.CYTOVI(
-    adata=adata_subsampled, n_hidden=par["n_hidden"], n_layers=par["n_layers"]
+cytovi.CYTOVI.setup_anndata(
+    adata_to_correct,
+    layer="scaled",
+    batch_key="batch_str",
+    sample_key="sample_key_str",
 )
-model.train()
+
+model = cytovi.CYTOVI(
+    adata_to_correct, n_hidden=par["n_hidden"], n_layers=par["n_layers"]
+)
+
+print("Start training CytoVI model", flush=True)
+
+start = time.time()
+model.train(
+    batch_size=8192,
+    max_epochs=par["max_epochs"],
+    train_size=par["train_size"],
+)
+end = time.time()
+print(f"Training took {end - start:.2f} seconds", flush=True)
 
 # get batch corrected data
 print("Correcting data", flush=True)

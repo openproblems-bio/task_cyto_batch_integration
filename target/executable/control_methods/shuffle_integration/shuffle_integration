@@ -446,9 +446,9 @@ function ViashDockerfile {
 FROM openproblems/base_python:1
 ENTRYPOINT []
 LABEL org.opencontainers.image.description="Companion container for running component control_methods shuffle_integration"
-LABEL org.opencontainers.image.created="2025-11-19T23:40:06Z"
+LABEL org.opencontainers.image.created="2025-12-10T01:25:20Z"
 LABEL org.opencontainers.image.source="https://github.com/openproblems-bio/task_cyto_batch_integration"
-LABEL org.opencontainers.image.revision="971a82aabfcbeee26aab1cc9db8d0b535370e6f3"
+LABEL org.opencontainers.image.revision="6b44468da0db36a53af016960862cf27c710f314"
 LABEL org.opencontainers.image.version="build_main"
 
 VIASHDOCKER
@@ -568,10 +568,9 @@ VIASH_DOCKER_RUN_ARGS=(-i --rm)
 function ViashHelp {
   echo "shuffle_integration build_main"
   echo ""
-  echo "This negative control randomly permutes cell-to-sample (hence batch)"
-  echo "assignments while keeping each cell's measured markers unchanged."
-  echo "This destroys any biological and batch specific structure but preserves marker"
-  echo "expression."
+  echo "This negative control randomly shuffles all cells in the input data,"
+  echo "destroying any biological structure (e.g., sample to cell mapping or batch"
+  echo "assignments)."
   echo ""
   echo "Purpose:"
   echo "- Provide a baseline to verify that integration methods outperform"
