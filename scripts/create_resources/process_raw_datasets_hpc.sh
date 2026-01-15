@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # script to launch the process raw dataset workflow on slurm via seqera tower.
+# leave the input_states to s3 bucket as the datasets raw files are stored there.
 
 cat > /tmp/params.yaml << 'HERE'
 input_states: s3://openproblems-data/resources/task_cyto_batch_integration/datasets_raw/**/state.yaml
