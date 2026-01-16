@@ -1,0 +1,121 @@
+name: run_benchmark
+namespace: workflows
+argument_groups:
+  - name: Inputs
+    arguments:
+      - name: "--input_unintegrated"
+        __merge__: /src/api/file_unintegrated.yaml
+        type: file
+        direction: input
+        required: true
+      - name: "--input_censored_split1"
+        __merge__: /src/api/file_censored_split1.yaml
+        type: file
+        direction: input
+        required: true
+      - name: "--input_censored_split2"
+        __merge__: /src/api/file_censored_split2.yaml
+        type: file
+        direction: input
+        required: true
+  - name: Outputs
+    arguments:
+      - name: "--output_scores"
+        type: file
+        required: true
+        direction: output
+        description: A yaml file containing the scores of each of the methods
+        default: score_uns.yaml
+      - name: "--output_method_configs"
+        type: file
+        required: true
+        direction: output
+        default: method_configs.yaml
+      - name: "--output_metric_configs"
+        type: file
+        required: true
+        direction: output
+        default: metric_configs.yaml
+      - name: "--output_dataset_info"
+        type: file
+        required: true
+        direction: output
+        default: dataset_uns.yaml
+      - name: "--output_task_info"
+        type: file
+        required: true
+        direction: output
+        default: task_info.yaml
+  - name: Methods
+    arguments:
+      - name: "--methods_include"
+        type: string
+        multiple: true
+        description: |
+          A list of method ids to include. If specified, only these methods will be run.
+      - name: "--methods_exclude"
+        type: string
+        multiple: true
+        description: |
+          A list of method ids to exclude. If specified, all methods except the ones listed will be run.
+  - name: Metrics
+    arguments:
+      - name: "--metrics_include"
+        type: string
+        multiple: true
+        description: |
+          A list of metric ids to include. If specified, only these metrics will be run.
+      - name: "--metrics_exclude"
+        type: string
+        multiple: true
+        description: |
+          A list of metric ids to exclude. If specified, all metrics except the ones listed will be run.
+
+resources:
+  - type: nextflow_script
+    path: main.nf
+    entrypoint: run_wf
+  - type: file
+    path: /_viash.yaml
+  - path: /common/nextflow_helpers/helper.nf
+
+dependencies:
+  - name: utils/extract_uns_metadata
+    repository: op
+  - name: control_methods/shuffle_integration
+  - name: control_methods/shuffle_integration_by_batch
+  - name: control_methods/shuffle_integration_by_cell_type
+  - name: control_methods/no_integration
+  - name: control_methods/perfect_integration
+  - name: methods/harmonypy
+  - name: methods/limma_remove_batch_effect
+  - name: methods/combat
+  - name: methods/cycombine_no_controls_to_mid
+  - name: methods/cycombine_no_controls_to_goal
+  - name: methods/cycombine_one_control_to_mid
+  - name: methods/cycombine_one_control_to_goal
+  - name: methods/cycombine_all_controls_to_mid
+  - name: methods/cycombine_all_controls_to_goal
+  - name: methods/gaussnorm
+  - name: methods/cytonorm_no_controls_to_mid
+  - name: methods/cytonorm_all_controls_to_mid
+  - name: methods/cytonorm_one_control_to_mid
+  - name: methods/cytonorm_no_controls_to_goal
+  - name: methods/cytonorm_all_controls_to_goal
+  - name: methods/cytonorm_one_control_to_goal
+  - name: methods/batchadjust_one_control
+  - name: methods/batchadjust_all_controls
+  - name: methods/rpca_to_goal
+  - name: methods/rpca_to_mid
+  - name: methods/cytovi
+  - name: metrics/emd
+  # - name: metrics/bras
+  # - name: metrics/n_inconsistent_peaks
+  - name: metrics/ratio_inconsistent_peaks
+  - name: metrics/average_batch_r2
+  - name: metrics/flowsom_mapping_similarity
+  - name: metrics/lisi
+  
+
+runners:
+  - type: nextflow
