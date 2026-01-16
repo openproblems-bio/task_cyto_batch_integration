@@ -17,6 +17,14 @@ source(paste0(meta$resources_dir, "/utils.R"))
 source(paste0(meta$resources_dir, "/anndata_to_fcs.R"))
 source(paste0(meta$resources_dir, "/BatchAdjust.R"))
 
+# only for HPC, the idea is if running on HPC, use a temp dir set in the env variable
+if (!is.null(Sys.getenv("HPC_VIASH_META_TEMP_DIR", unset = NULL))) {
+  tmp_dir <- Sys.getenv("HPC_VIASH_META_TEMP_DIR")
+} else {
+  tmp_dir <- meta[["temp_dir"]] 
+}
+print(paste0("Using temp dir: ", tmp_dir))
+
 # As it only works with FCS files, the method requires substantial I/O
 # the startegy used here is the following:
 # 1. Read input AnnData file
@@ -64,24 +72,24 @@ input_controls$obs$sample[input_controls$obs$batch == 1] <- "Batch1_anchor"
 input_controls$obs$sample[input_controls$obs$batch == 2] <- "Batch2_anchor"
 
 cat("Writing FCS files\n")
-anndata_to_fcs(input_controls, out_dir = meta[["temp_dir"]])
-anndata_to_fcs(input_no_controls, out_dir =  meta[["temp_dir"]])
+anndata_to_fcs(input_controls, out_dir = tmp_dir)
+anndata_to_fcs(input_no_controls, out_dir =  tmp_dir)
 
 cat("Writing channels to correct as a text file\n")
 markers_to_correct <- as.character(
   input$var$channel[input$var$to_correct == TRUE]
 )
 writeLines(markers_to_correct,
-           con = paste0(meta[["temp_dir"]], "/to_correct_list.txt"))
+           con = paste0(tmp_dir, "/to_correct_list.txt"))
 
 cat("Running BatchAdjust\n")
 perc <- paste0(as.character(par[["percentile"]]), "p")
-output_dir <- paste0(meta[["temp_dir"]], "/corrected")
+output_dir <- paste0(tmp_dir, "/corrected")
 
 BatchAdjust(
-  basedir = meta[["temp_dir"]],
+  basedir = tmp_dir,
   outdir = output_dir,
-  channelsFile = paste0(meta[["temp_dir"]], "/to_correct_list.txt"),
+  channelsFile = paste0(tmp_dir, "/to_correct_list.txt"),
   anchorKeyword = "anchor",
   batchKeyword = "Batch", #skip 'b' to make it robust to upper/lowercase
   method = perc,
