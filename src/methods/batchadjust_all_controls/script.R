@@ -19,12 +19,15 @@ source(paste0(meta$resources_dir, "/anndata_to_fcs.R"))
 source(paste0(meta$resources_dir, "/BatchAdjust.R"))
 
 # only for HPC, the idea is if running on HPC, use a temp dir set in the env variable
-if (!is.null(Sys.getenv("HPC_VIASH_META_TEMP_DIR", unset = NULL))) {
-  tmp_dir <- Sys.getenv("HPC_VIASH_META_TEMP_DIR")
+tmp_dir <- Sys.getenv("HPC_VIASH_META_TEMP_DIR")
+if (tmp_dir != "") {
+  # Environment variable is set, use it
+  print(paste0("Using HPC temp dir from env: ", tmp_dir))
 } else {
-  tmp_dir <- meta[["temp_dir"]] 
+  # Environment variable not set, use meta
+  tmp_dir <- meta[["temp_dir"]]
+  print(paste0("Using meta temp dir: ", tmp_dir))
 }
-print(paste0("Using temp dir: ", tmp_dir))
 
 # As it only works with FCS files, the method requires substantial I/O
 # the startegy used here is the following:
