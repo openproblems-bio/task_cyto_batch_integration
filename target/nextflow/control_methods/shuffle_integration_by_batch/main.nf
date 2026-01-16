@@ -3415,7 +3415,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/control_methods/shuffle_integration_by_batch",
     "viash_version" : "0.9.4",
-    "git_commit" : "6b44468da0db36a53af016960862cf27c710f314",
+    "git_commit" : "93407428563b07cd6e916339ec005c4f98dfdc95",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {

@@ -8,8 +8,8 @@ cd "$REPO_ROOT"
 
 set -e
 
-RAW_DIR=resources_raw/human_cll_mass_cytometry/
-DATASET_ID=human_cll_mass_cytometry
+RAW_DIR=resources_raw/lille_spectral_flow_cytometry
+DATASET_ID=lille_spectral_flow_cytometry
 OUTPUT_DIR=resources/datasets_raw/$DATASET_ID/
 
 mkdir -p $OUTPUT_DIR
@@ -18,7 +18,7 @@ mkdir -p $OUTPUT_DIR
 python << HERE
 import anndata as ad
 
-adata = ad.read_h5ad("$RAW_DIR/human_cll_mass_cytometry.h5ad")
+adata = ad.read_h5ad("$RAW_DIR/lille_spectral_flow_cytometry.h5ad")
 
 # make sure the output is compressed
 adata.write_h5ad("$OUTPUT_DIR/common_dataset.h5ad", compression='gzip')
@@ -31,6 +31,6 @@ HERE
 
 # only run this if you have access to the openproblems-data bucket
 aws s3 sync --profile op \
-  resources/datasets_raw/human_cll_mass_cytometry \
-  s3://openproblems-data/resources/task_cyto_batch_integration/datasets_raw/human_cll_mass_cytometry/ \
+  resources/datasets_raw/lille_spectral_flow_cytometry \
+  s3://openproblems-data/resources/task_cyto_batch_integration/datasets_raw/lille_spectral_flow_cytometry/ \
   --delete --dryrun
