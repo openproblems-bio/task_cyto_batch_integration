@@ -91,8 +91,6 @@ engines:
     # Add custom dependencies here (optional). For more information, see
     # https://viash.io/reference/config/engines/docker/#setup .
     setup:
-      - type: python
-        packages: [ anndata, h5py ]
       - type: r
         github: [saeyslab/cytoNorm]
         bioc: [ flowCore, Biobase ]
