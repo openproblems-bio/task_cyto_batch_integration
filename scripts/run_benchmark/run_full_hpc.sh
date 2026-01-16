@@ -17,7 +17,7 @@ cat > /tmp/params.yaml << HERE
 input_states: /vast/scratch/users/putri.g/cytobenchmark/benchmark_out_hpc/datasets/**/state.yaml
 rename_keys: 'input_censored_split1:output_censored_split1;input_censored_split2:output_censored_split2;input_unintegrated:output_unintegrated'
 output_state: "state.yaml"
-settings: '{"metrics_include": ["ratio_inconsistent_peaks"], "methods_include": ["cycombine_all_controls_to_goal"]}'
+settings: '{"metrics_include": ["ratio_inconsistent_peaks"], "methods_include": ["cytonorm_all_controls_to_goal"]}'
 publish_dir: "$publish_dir"
 HERE
 

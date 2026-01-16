@@ -18,6 +18,9 @@ meta <- list(
 )
 ## VIASH END
 
+cat("Reticulate Python config:\n")
+print(reticulate::py_config())
+
 source(paste0(meta$resources_dir, "/anndata_to_fcs.R"))
 
 tmp_path <- meta[["temp_dir"]]
