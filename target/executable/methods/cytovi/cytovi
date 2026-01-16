@@ -454,9 +454,9 @@ RUN pip install --upgrade pip && \
   pip install --upgrade --no-cache-dir "git+https://github.com/openproblems-bio/core#subdirectory=packages/python/openproblems"
 
 LABEL org.opencontainers.image.description="Companion container for running component methods cytovi"
-LABEL org.opencontainers.image.created="2026-01-16T11:13:27Z"
+LABEL org.opencontainers.image.created="2026-01-16T12:57:48Z"
 LABEL org.opencontainers.image.source="https://github.com/YosefLab/cytovi-reference-implementation"
-LABEL org.opencontainers.image.revision="aa4b07aeda221137ab0522287563a47f17cc8ed5"
+LABEL org.opencontainers.image.revision="bcc7ddbc2c14d7de9700eb5d0bc400a471d5bdb5"
 LABEL org.opencontainers.image.version="build_setup_run_hpc"
 
 VIASHDOCKER

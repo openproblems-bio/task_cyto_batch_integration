@@ -3411,7 +3411,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/methods/cytonorm_no_controls_to_mid",
     "viash_version" : "0.9.4",
-    "git_commit" : "aa4b07aeda221137ab0522287563a47f17cc8ed5",
+    "git_commit" : "bcc7ddbc2c14d7de9700eb5d0bc400a471d5bdb5",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3574,7 +3574,16 @@ rm(.viash_orig_warn)
 
 source(paste0(meta\\$resources_dir, "/anndata_to_fcs.R"))
 
-tmp_path <- meta[["temp_dir"]]
+# only for HPC, the idea is if running on HPC, use a temp dir set in the env variable
+tmp_path <- Sys.getenv("HPC_VIASH_META_TEMP_DIR")
+if (tmp_path != "") {
+  # Environment variable is set, use it
+  print(paste0("Using HPC temp dir from env: ", tmp_path))
+} else {
+  # Environment variable not set, use meta
+  tmp_path <- meta[["temp_dir"]]
+  print(paste0("Using meta temp dir: ", tmp_path))
+}
 
 cat("Reading input files\\\\n")
 adata <- anndata::read_h5ad(par[["input"]])
