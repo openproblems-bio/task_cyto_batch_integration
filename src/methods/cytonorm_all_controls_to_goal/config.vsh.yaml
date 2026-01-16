@@ -92,7 +92,7 @@ engines:
     # https://viash.io/reference/config/engines/docker/#setup .
     setup:
       - type: python
-        packages: [ anndata ]
+        packages: [ anndata, h5py ]
       - type: r
         github: [saeyslab/cytoNorm]
         bioc: [ flowCore, Biobase ]
