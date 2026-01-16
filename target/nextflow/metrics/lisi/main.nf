@@ -3462,7 +3462,7 @@ meta = [
         "label" : [
           "midtime",
           "midmem",
-          "midcpu"
+          "highcpu"
         ],
         "tag" : "$id"
       },
@@ -3531,7 +3531,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/metrics/lisi",
     "viash_version" : "0.9.4",
-    "git_commit" : "f3019a95e8067c0afcdf7862e72423e2edf29d96",
+    "git_commit" : "5902468680195bcf96fdc53f119d8d934fb47829",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -4132,7 +4132,7 @@ meta["defaults"] = [
   "label" : [
     "midtime",
     "midmem",
-    "midcpu"
+    "highcpu"
   ],
   "tag" : "$id"
 }'''),
