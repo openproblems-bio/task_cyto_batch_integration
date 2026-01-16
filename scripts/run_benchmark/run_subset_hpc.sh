@@ -17,7 +17,7 @@ cat > /tmp/params.yaml << HERE
 input_states: /vast/scratch/users/putri.g/cytobenchmark/benchmark_out_hpc/datasets/**/state.yaml
 rename_keys: 'input_censored_split1:output_censored_split1;input_censored_split2:output_censored_split2;input_unintegrated:output_unintegrated'
 output_state: "state.yaml"
-settings: '{"metrics_include": ["ratio_inconsistent_peaks"], "methods_include": ["cytonorm_all_controls_to_goal"]}'
+settings: '{"metrics_include": ["emd"], "methods_include": ["batchadjust_all_controls"]}'
 publish_dir: "$publish_dir"
 HERE
 
@@ -29,4 +29,4 @@ tw launch https://github.com/openproblems-bio/task_cyto_batch_integration.git \
   --params-file /tmp/params.yaml \
   --entry-name auto \
   --config scripts/labels_tw_wehi.config \
-  --labels task_cyto_batch_integration,test_subset
+  --labels task_cyto_batch_integration,batchadjust_all_controls
