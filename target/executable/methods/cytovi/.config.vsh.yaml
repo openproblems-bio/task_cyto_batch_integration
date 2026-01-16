@@ -182,7 +182,12 @@ summary: "A deep generative model for correcting batch effects"
 description: "CytoVI is a deep generative model that utilizes antibody-based single-cell\
   \ profiles to \nlearn a biologically meaningful latent representation of each cell.\
   \ \nIt is part of the scvi-tools framework and is built upon the variational autoencoder\
-  \ (VAE) architecture.\n"
+  \ (VAE) architecture.\n\nIn this implementation, we first transform the data using\
+  \ minmax scaler in cytovi.scale function.\nWe also fit a separate sklearn minmax\
+  \ scaler on data from batch 1.\nWe then train CytoVI model on the scaled data and\
+  \ generate the corrected marker\nexpression values.\nWe then inverse transforms\
+  \ the corrected data using the scaler fitted on batch 1 data \nto obtain the final\
+  \ corrected values.\nThese values are saved in the anndata object.\n"
 test_resources:
 - type: "python_script"
   path: "run_and_check_output.py"
@@ -227,7 +232,7 @@ runners:
     - "veryhightime"
     - "midmem"
     - "midcpu"
-    - "biggpu"
+    - "gpu"
     tag: "$id"
   auto:
     simplifyInput: true
@@ -280,7 +285,7 @@ build_info:
   output: "target/executable/methods/cytovi"
   executable: "target/executable/methods/cytovi/cytovi"
   viash_version: "0.9.4"
-  git_commit: "5902468680195bcf96fdc53f119d8d934fb47829"
+  git_commit: "aa4b07aeda221137ab0522287563a47f17cc8ed5"
   git_remote: "https://github.com/openproblems-bio/task_cyto_batch_integration"
 package_config:
   name: "task_cyto_batch_integration"

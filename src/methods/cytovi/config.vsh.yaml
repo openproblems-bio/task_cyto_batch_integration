@@ -19,6 +19,14 @@ description: |
   CytoVI is a deep generative model that utilizes antibody-based single-cell profiles to 
   learn a biologically meaningful latent representation of each cell. 
   It is part of the scvi-tools framework and is built upon the variational autoencoder (VAE) architecture.
+
+  In this implementation, we first transform the data using minmax scaler in cytovi.scale function.
+  We also fit a separate sklearn minmax scaler on data from batch 1.
+  We then train CytoVI model on the scaled data and generate the corrected marker
+  expression values.
+  We then inverse transforms the corrected data using the scaler fitted on batch 1 data 
+  to obtain the final corrected values.
+  These values are saved in the anndata object.
 references:
   doi: 
     - 10.1101/2025.09.07.674699
@@ -81,4 +89,4 @@ runners:
   # Allows turning the component into a Nextflow module / pipeline.
   - type: nextflow
     directives:
-      label: [veryhightime, midmem, midcpu, biggpu]
+      label: [veryhightime, midmem, midcpu, gpu]

@@ -84,7 +84,8 @@ model <- CytoNorm::CytoNorm.train(
     transformList = NULL,
     normParams = list(nQ = par[["n_quantiles"]], goal = "mean"),
     seed = 42,
-    verbose = FALSE
+    verbose = FALSE,
+    recompute = TRUE
 )
 
 cat("Normalising using Cytonorm model using control samples from one condition\n")

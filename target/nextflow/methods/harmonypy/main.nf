@@ -3337,7 +3337,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/methods/harmonypy",
     "viash_version" : "0.9.4",
-    "git_commit" : "5902468680195bcf96fdc53f119d8d934fb47829",
+    "git_commit" : "aa4b07aeda221137ab0522287563a47f17cc8ed5",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3510,7 +3510,7 @@ out = harmonypy.run_harmony(
 
 # have to add in the uncorrected markers as well
 uncorrected_data = adata[:, markers_not_correct].layers["preprocessed"]
-out_matrix = np.concatenate([out.Z_corr.transpose(), uncorrected_data], axis=1)
+out_matrix = np.concatenate([out.Z_corr, uncorrected_data], axis=1)
 out_var_idx = np.concatenate([markers_to_correct, markers_not_correct])
 
 # create new anndata
