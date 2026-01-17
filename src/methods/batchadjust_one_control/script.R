@@ -9,7 +9,7 @@ par <- list(
 meta <- list(
   name = "batchadjust_all_controls",
   temp_dir = "resources_test/tmp",
-  resources_dir = 
+  resources_dir = "src/methods/batchadjust_one_control"
 )
 ## VIASH END
 
@@ -64,15 +64,39 @@ print("Cells in non-control sample:")
 print(unique(input_no_controls$obs$sample))
 print(input_no_controls)
 
-#avoid NA due to invalid factor level
+# avoid NA due to invalid factor level
 input_controls$obs$sample <- as.character(input_controls$obs$sample)
-
-# make sure there is _ after the batch1 or batch2, otherwise batchadjust won't find the fcs files.
-input_no_controls$obs$sample <- sapply(input_no_controls$obs$sample, fix_batch_underscore_anynum)
 
 # Set sample names for batch-specific control files
 input_controls$obs$sample[input_controls$obs$batch == 1] <- "Batch1_anchor"
 input_controls$obs$sample[input_controls$obs$batch == 2] <- "Batch2_anchor"
+
+# process non control samples' sample names
+input_no_controls$obs$sample <- as.character(input_no_controls$obs$sample)
+
+# the non control sampels also need to have batch in the sample name.. Doh..
+non_control_has_batch <- any(grepl("Batch", input_no_controls$obs$sample))
+
+if (!non_control_has_batch) {
+  cat(
+    "Non control samples do not have batch info in sample names!\n",
+    "Sample names before modification: ", 
+    paste0(unique(input_no_controls$obs$sample), collapse = ", "), "\n",
+    "Modifying sample names to include batch info!\n"
+  )
+
+  input_no_controls$obs$sample <- paste0(input_no_controls$obs$sample, "_Batch", input_no_controls$obs$batch, "_")
+
+  cat(
+    "Sample names after modification:\n", 
+    paste0(unique(input_no_controls$obs$sample), collapse = ", "), 
+    "\n"
+  )
+}
+
+# make sure there is _ after the batch1 or batch2, otherwise batchadjust won't find the fcs files.
+input_no_controls$obs$sample <- sapply(input_no_controls$obs$sample, fix_batch_underscore_anynum)
+
 
 cat("Writing FCS files\n")
 anndata_to_fcs(input_controls, out_dir = tmp_dir)
