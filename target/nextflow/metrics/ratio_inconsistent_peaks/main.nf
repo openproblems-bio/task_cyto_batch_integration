@@ -3494,7 +3494,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/metrics/ratio_inconsistent_peaks",
     "viash_version" : "0.9.4",
-    "git_commit" : "d062157373cc951f44bf1eae9470159d2dbc0b0d",
+    "git_commit" : "7627554f45d2a2bbd454c510492ec81affd2b71f",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
