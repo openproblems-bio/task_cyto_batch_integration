@@ -5,9 +5,7 @@ import numpy as np
 import scvi
 import torch
 from scvi.external import cytovi
-
-# from sklearn.cluster import KMeans
-# from threadpoolctl import threadpool_limits
+from sklearn.preprocessing import MinMaxScaler
 
 ## VIASH START
 par = {
@@ -47,7 +45,32 @@ cytovi.scale(
     batch_key="batch_str",
     scaled_layer_key="scaled",
     inplace=True,
+    method="minmax",
 )
+
+# create minmax scaler object for one batch to use later for untransforming batch corrected data
+print("Creating minmax scaler for untransforming data", flush=True)
+
+# the following are taken from cytovi source code
+feature_range = (0.0, 1.0)
+feat_eps = 1e-6
+feature_range = (feature_range[0] + feat_eps, feature_range[1] - feat_eps)
+
+# get data from batch one
+batch_one = (
+    adata_to_correct[adata_to_correct.obs["batch_str"] == "1"]
+    .layers["preprocessed"]
+    .copy()
+)
+batch_one_scaler = MinMaxScaler(feature_range=feature_range)
+
+print(
+    "Fitting minmax scaler on batch one using feature range", feature_range, flush=True
+)
+batch_one_scaler.fit(batch_one)
+
+print("Memory cleanup before training", flush=True)
+del batch_one
 
 print(
     f"Train CytoVI on {adata_to_correct.shape[0]} cells",
@@ -77,14 +100,21 @@ end = time.time()
 print(f"Training took {end - start:.2f} seconds", flush=True)
 
 # get batch corrected data
-print("Correcting data", flush=True)
+print("Calculating batch corrected data", flush=True)
 corrected_data = model.get_normalized_expression(adata=adata_to_correct)
 
+# have to save the columns to be able to reconstruct later
+corrected_data_markers = corrected_data.columns.to_numpy()
+
+print("Untransforming batch corrected data", flush=True)
+# untransform data using batch one scaler
+corrected_data = batch_one_scaler.inverse_transform(corrected_data.to_numpy())
+
 # have to add in the uncorrected markers as well
-uncorrected_data = adata[:, markers_not_correct].layers["preprocessed"]
+uncorrected_data = adata[:, markers_not_correct].layers["preprocessed"].copy()
 
 out_matrix = np.concatenate([corrected_data, uncorrected_data], axis=1)
-out_var_idx = np.concatenate([corrected_data.columns, markers_not_correct])
+out_var_idx = np.concatenate([corrected_data_markers, markers_not_correct])
 
 # create new anndata
 out_adata = ad.AnnData(
@@ -94,26 +124,12 @@ out_adata = ad.AnnData(
     uns={
         "dataset_id": adata.uns["dataset_id"],
         "method_id": meta["name"],
-        "parameters": {},
+        "parameters": par,
     },
 )
 
 # reorder var to match input
 out_adata = out_adata[:, adata.var_names]
-
-# leave this here for debugging purposes
-# run umap for quick check
-# import scanpy as sc
-
-# test_adata = ad.AnnData(
-#     X=out_adata.layers["integrated"].toarray(),
-#     obs=adata.obs,
-#     var=adata.var,
-# )
-# test_adata = test_adata[:, markers_to_correct]
-# sc.pp.neighbors(test_adata, use_rep="X")
-# sc.tl.umap(test_adata)
-# sc.pl.umap(test_adata, color="batch")
 
 print("Write output AnnData to file", flush=True)
 

@@ -9,13 +9,24 @@ par <- list(
 meta <- list(
   name = "batchadjust_all_controls",
   temp_dir = "resources_test/tmp",
-  resources_dir = 
+  resources_dir = "src/methods/batchadjust_one_control"
 )
 ## VIASH END
 
 source(paste0(meta$resources_dir, "/utils.R"))
 source(paste0(meta$resources_dir, "/anndata_to_fcs.R"))
 source(paste0(meta$resources_dir, "/BatchAdjust.R"))
+
+# only for HPC, the idea is if running on HPC, use a temp dir set in the env variable
+tmp_dir <- Sys.getenv("HPC_VIASH_META_TEMP_DIR")
+if (tmp_dir != "") {
+  # Environment variable is set, use it
+  print(paste0("Using HPC temp dir from env: ", tmp_dir))
+} else {
+  # Environment variable not set, use meta
+  tmp_dir <- meta[["temp_dir"]]
+  print(paste0("Using meta temp dir: ", tmp_dir))
+}
 
 # As it only works with FCS files, the method requires substantial I/O
 # the startegy used here is the following:
@@ -53,35 +64,59 @@ print("Cells in non-control sample:")
 print(unique(input_no_controls$obs$sample))
 print(input_no_controls)
 
-#avoid NA due to invalid factor level
+# avoid NA due to invalid factor level
 input_controls$obs$sample <- as.character(input_controls$obs$sample)
-
-# make sure there is _ after the batch1 or batch2, otherwise batchadjust won't find the fcs files.
-input_no_controls$obs$sample <- sapply(input_no_controls$obs$sample, fix_batch_underscore_anynum)
 
 # Set sample names for batch-specific control files
 input_controls$obs$sample[input_controls$obs$batch == 1] <- "Batch1_anchor"
 input_controls$obs$sample[input_controls$obs$batch == 2] <- "Batch2_anchor"
 
+# process non control samples' sample names
+input_no_controls$obs$sample <- as.character(input_no_controls$obs$sample)
+
+# the non control sampels also need to have batch in the sample name.. Doh..
+non_control_has_batch <- any(grepl("Batch", input_no_controls$obs$sample))
+
+if (!non_control_has_batch) {
+  cat(
+    "Non control samples do not have batch info in sample names!\n",
+    "Sample names before modification: ", 
+    paste0(unique(input_no_controls$obs$sample), collapse = ", "), "\n",
+    "Modifying sample names to include batch info!\n"
+  )
+
+  input_no_controls$obs$sample <- paste0(input_no_controls$obs$sample, "_Batch", input_no_controls$obs$batch, "_")
+
+  cat(
+    "Sample names after modification:\n", 
+    paste0(unique(input_no_controls$obs$sample), collapse = ", "), 
+    "\n"
+  )
+}
+
+# make sure there is _ after the batch1 or batch2, otherwise batchadjust won't find the fcs files.
+input_no_controls$obs$sample <- sapply(input_no_controls$obs$sample, fix_batch_underscore_anynum)
+
+
 cat("Writing FCS files\n")
-anndata_to_fcs(input_controls, out_dir = meta[["temp_dir"]])
-anndata_to_fcs(input_no_controls, out_dir =  meta[["temp_dir"]])
+anndata_to_fcs(input_controls, out_dir = tmp_dir)
+anndata_to_fcs(input_no_controls, out_dir =  tmp_dir)
 
 cat("Writing channels to correct as a text file\n")
 markers_to_correct <- as.character(
   input$var$channel[input$var$to_correct == TRUE]
 )
 writeLines(markers_to_correct,
-           con = paste0(meta[["temp_dir"]], "/to_correct_list.txt"))
+           con = paste0(tmp_dir, "/to_correct_list.txt"))
 
 cat("Running BatchAdjust\n")
 perc <- paste0(as.character(par[["percentile"]]), "p")
-output_dir <- paste0(meta[["temp_dir"]], "/corrected")
+output_dir <- paste0(tmp_dir, "/corrected")
 
 BatchAdjust(
-  basedir = meta[["temp_dir"]],
+  basedir = tmp_dir,
   outdir = output_dir,
-  channelsFile = paste0(meta[["temp_dir"]], "/to_correct_list.txt"),
+  channelsFile = paste0(tmp_dir, "/to_correct_list.txt"),
   anchorKeyword = "anchor",
   batchKeyword = "Batch", #skip 'b' to make it robust to upper/lowercase
   method = perc,
