@@ -14,13 +14,35 @@ meta = {"name": "perfect_integration"}
 print("Reading input files", flush=True)
 adata = ad.read_h5ad(par["input_unintegrated"])
 
+# make sure batch is string so we don't run into issues later on when subsetting
+# also make sure is_control is numeric
+adata.obs["batch"] = adata.obs["batch"].astype("str")
+adata.obs["is_control"] = adata.obs["is_control"].astype(int)
+
 print("Extracting and splitting unintegrated data", flush=True)
 
 # split 1
-adata_split1 = adata[(adata.obs.is_control > 0) | (adata.obs.batch == 1)]
+# reminder: is_control > 0 will include control samples.
+adata_split1 = adata[(adata.obs.is_control > 0) | (adata.obs.batch == "1")]
 integrated_split1 = adata_split1.layers["preprocessed"]
 
 # split 2 == split 1 in this case
+
+print(
+    "Sanity check: verifying perfect integration have both control and non-control samples",
+    flush=True,
+)
+# Check that we have both control and non-control cells
+n_control = (adata_split1.obs.is_control > 0).sum()
+n_non_control = (adata_split1.obs.is_control == 0).sum()
+
+assert n_non_control > 0, (
+    f"Split 1 should contain cells from non-control samples, but found {n_non_control} cells!"
+)
+assert n_control > 0, (
+    f"Split 1 should contain cells from control samples, but found {n_control} cells!"
+)
+
 
 print("Write output AnnData to file", flush=True)
 # split 1
