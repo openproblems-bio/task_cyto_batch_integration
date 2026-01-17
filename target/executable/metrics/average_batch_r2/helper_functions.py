@@ -27,7 +27,7 @@ def get_obs_var_for_integrated(
 
     if s1_adata.uns["method_id"] == "perfect_integration":
         print(
-            "Control method 'perfect_integration' detected. Changing batch labels for each split as we only have batch 1 in each split."
+            "Control method 'perfect_integration' detected. Changing batch labels for non-control cells in each split as they are all from batch 1."
         )
 
         # the idea is, we will change the batch labels in each split to reflect the correct donor/batch mapping
@@ -38,45 +38,39 @@ def get_obs_var_for_integrated(
 
         print("Old split 1 donor/batch mapping:", flush=True)
         print(
-            s1_adata.obs.loc[
-                (s1_adata.obs.is_control == 0), ["donor", "batch"]
-            ].value_counts(),
+            s1_adata.obs.loc[:, ["donor", "batch", "is_control"]].value_counts(),
             flush=True,
         )
 
         split_dict_s1 = get_donor_batch_map(u_adata, split_of_interest=1)
-        s1_adata.obs.loc[(s1_adata.obs.is_control == 0), "batch"] = s1_adata.obs[
-            "donor"
-        ].map(split_dict_s1)
-        s1_adata.obs.loc[(s1_adata.obs.is_control == 0), "split"] = 1
+        mask_s1 = s1_adata.obs.is_control == 0
+        s1_adata.obs.loc[mask_s1, "batch"] = s1_adata.obs.loc[mask_s1, "donor"].map(
+            split_dict_s1
+        )
+        s1_adata.obs.loc[mask_s1, "split"] = 1
 
         print("New split 1 donor/batch mapping:", flush=True)
         print(
-            s1_adata.obs.loc[
-                (s1_adata.obs.is_control == 0), ["donor", "batch"]
-            ].value_counts(),
+            s1_adata.obs.loc[:, ["donor", "batch", "is_control"]].value_counts(),
             flush=True,
         )
 
         print("Old split 2 donor/batch mapping:", flush=True)
         print(
-            s2_adata.obs.loc[
-                (s2_adata.obs.is_control == 0), ["donor", "batch"]
-            ].value_counts(),
+            s2_adata.obs.loc[:, ["donor", "batch", "is_control"]].value_counts(),
             flush=True,
         )
 
         split_dict_s2 = get_donor_batch_map(u_adata, split_of_interest=2)
-        s2_adata.obs.loc[(s2_adata.obs.is_control == 0), "batch"] = s2_adata.obs[
-            "donor"
-        ].map(split_dict_s2)
-        s2_adata.obs.loc[(s2_adata.obs.is_control == 0), "split"] = 2
+        mask_s2 = s2_adata.obs.is_control == 0
+        s2_adata.obs.loc[mask_s2, "batch"] = s2_adata.obs.loc[mask_s2, "donor"].map(
+            split_dict_s2
+        )
+        s2_adata.obs.loc[mask_s2, "split"] = 2
 
         print("New split 2 donor/batch mapping:", flush=True)
         print(
-            s2_adata.obs.loc[
-                (s2_adata.obs.is_control == 0), ["donor", "batch"]
-            ].value_counts(),
+            s2_adata.obs.loc[:, ["donor", "batch", "is_control"]].value_counts(),
             flush=True,
         )
 

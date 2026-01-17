@@ -454,9 +454,9 @@ RUN pip install --upgrade pip && \
   pip install --upgrade --no-cache-dir "git+https://github.com/openproblems-bio/core#subdirectory=packages/python/openproblems"
 
 LABEL org.opencontainers.image.description="Companion container for running component metrics lisi"
-LABEL org.opencontainers.image.created="2026-01-17T03:56:21Z"
+LABEL org.opencontainers.image.created="2026-01-17T04:15:05Z"
 LABEL org.opencontainers.image.source="https://github.com/openproblems-bio/task_cyto_batch_integration"
-LABEL org.opencontainers.image.revision="7627554f45d2a2bbd454c510492ec81affd2b71f"
+LABEL org.opencontainers.image.revision="5ff088b90731780d444bd8b27dcd09da87c22aa4"
 LABEL org.opencontainers.image.version="build_setup_run_hpc"
 
 VIASHDOCKER
