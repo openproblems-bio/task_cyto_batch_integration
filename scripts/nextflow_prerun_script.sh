@@ -1,6 +1,4 @@
-# new version now
-
-# paste me as pre-run script in Tower
+# paste me as pre-run script in Tower if setting up workflow run in WEHI HPC.
 # load module first so the variables don't get overwritten
 module load nextflow/25.04.2
 

@@ -28,4 +28,4 @@ tw launch https://github.com/openproblems-bio/task_cyto_batch_integration.git \
   --params-file /tmp/params.yaml \
   --entry-name auto \
   --config scripts/labels_tw_wehi.config \
-  --labels task_cyto_batch_integration,test_subset
+  --labels task_cyto_batch_integration,full
