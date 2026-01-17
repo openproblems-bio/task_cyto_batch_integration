@@ -167,8 +167,8 @@ for donor in donor_list:
             # case 1 or 3 as corrected version is flat but the
             # uncorrected version is not.
             # we can detect this by calculating we can't calculate sd
-            if not (np.std(s1_unscaled) == 0 and np.std(u_s1_unscaled) == 0) or (
-                np.std(s2_unscaled) == 0 and np.std(u_s2_unscaled) == 0
+            if (np.std(s1_unscaled) == 0 and np.std(u_s1_unscaled) != 0) or (
+                np.std(s2_unscaled) == 0 and np.std(u_s2_unscaled) != 0
             ):
                 print(
                     f"WARNING: Marker {marker}, donor {donor}, cell type {celltype}: has no variance either before or after integration. Automatic to case 3.",
