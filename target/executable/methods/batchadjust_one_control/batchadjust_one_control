@@ -451,9 +451,9 @@ RUN Rscript -e 'options(warn = 2); if (!requireNamespace("remotes", quietly = TR
   Rscript -e 'options(warn = 2); remotes::install_cran(c("docstring"), repos = "https://cran.rstudio.com")'
 
 LABEL org.opencontainers.image.description="Companion container for running component methods batchadjust_one_control"
-LABEL org.opencontainers.image.created="2026-01-16T12:57:47Z"
+LABEL org.opencontainers.image.created="2026-01-17T02:13:31Z"
 LABEL org.opencontainers.image.source="https://github.com/CUHIMSR/CytofBatchAdjust"
-LABEL org.opencontainers.image.revision="bcc7ddbc2c14d7de9700eb5d0bc400a471d5bdb5"
+LABEL org.opencontainers.image.revision="d062157373cc951f44bf1eae9470159d2dbc0b0d"
 LABEL org.opencontainers.image.version="build_setup_run_hpc"
 
 VIASHDOCKER
@@ -1162,15 +1162,39 @@ print("Cells in non-control sample:")
 print(unique(input_no_controls\$obs\$sample))
 print(input_no_controls)
 
-#avoid NA due to invalid factor level
+# avoid NA due to invalid factor level
 input_controls\$obs\$sample <- as.character(input_controls\$obs\$sample)
-
-# make sure there is _ after the batch1 or batch2, otherwise batchadjust won't find the fcs files.
-input_no_controls\$obs\$sample <- sapply(input_no_controls\$obs\$sample, fix_batch_underscore_anynum)
 
 # Set sample names for batch-specific control files
 input_controls\$obs\$sample[input_controls\$obs\$batch == 1] <- "Batch1_anchor"
 input_controls\$obs\$sample[input_controls\$obs\$batch == 2] <- "Batch2_anchor"
+
+# process non control samples' sample names
+input_no_controls\$obs\$sample <- as.character(input_no_controls\$obs\$sample)
+
+# the non control sampels also need to have batch in the sample name.. Doh..
+non_control_has_batch <- any(grepl("Batch", input_no_controls\$obs\$sample))
+
+if (!non_control_has_batch) {
+  cat(
+    "Non control samples do not have batch info in sample names!\\n",
+    "Sample names before modification: ", 
+    paste0(unique(input_no_controls\$obs\$sample), collapse = ", "), "\\n",
+    "Modifying sample names to include batch info!\\n"
+  )
+
+  input_no_controls\$obs\$sample <- paste0(input_no_controls\$obs\$sample, "_Batch", input_no_controls\$obs\$batch, "_")
+
+  cat(
+    "Sample names after modification:\\n", 
+    paste0(unique(input_no_controls\$obs\$sample), collapse = ", "), 
+    "\\n"
+  )
+}
+
+# make sure there is _ after the batch1 or batch2, otherwise batchadjust won't find the fcs files.
+input_no_controls\$obs\$sample <- sapply(input_no_controls\$obs\$sample, fix_batch_underscore_anynum)
+
 
 cat("Writing FCS files\\n")
 anndata_to_fcs(input_controls, out_dir = tmp_dir)

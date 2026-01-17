@@ -3379,7 +3379,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/methods/batchadjust_all_controls",
     "viash_version" : "0.9.4",
-    "git_commit" : "bcc7ddbc2c14d7de9700eb5d0bc400a471d5bdb5",
+    "git_commit" : "d062157373cc951f44bf1eae9470159d2dbc0b0d",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3585,15 +3585,38 @@ print("Cells in non-control sample:")
 print(unique(input_no_controls\\$obs\\$sample))
 print(input_no_controls)
 
-#avoid NA due to invalid factor level
+# avoid NA due to invalid factor level
 input_controls\\$obs\\$sample <- as.character(input_controls\\$obs\\$sample)
-
-# make sure there is _ after the batch1 or batch2, otherwise batchadjust won't find the fcs files.
-input_no_controls\\$obs\\$sample <- sapply(input_no_controls\\$obs\\$sample, fix_batch_underscore_anynum)
 
 # Set sample names for batch-specific control files
 input_controls\\$obs\\$sample[input_controls\\$obs\\$batch == 1] <- "Batch1_anchor"
 input_controls\\$obs\\$sample[input_controls\\$obs\\$batch == 2] <- "Batch2_anchor"
+
+# process non control samples' sample names
+input_no_controls\\$obs\\$sample <- as.character(input_no_controls\\$obs\\$sample)
+
+# the non control sampels also need to have batch in the sample name.. Doh..
+non_control_has_batch <- any(grepl("Batch", input_no_controls\\$obs\\$sample))
+
+if (!non_control_has_batch) {
+  cat(
+    "Non control samples do not have batch info in sample names!\\\\n",
+    "Sample names before modification: ", 
+    paste0(unique(input_no_controls\\$obs\\$sample), collapse = ", "), "\\\\n",
+    "Modifying sample names to include batch info!\\\\n"
+  )
+
+  input_no_controls\\$obs\\$sample <- paste0(input_no_controls\\$obs\\$sample, "_Batch", input_no_controls\\$obs\\$batch, "_")
+
+  cat(
+    "Sample names after modification:\\\\n", 
+    paste0(unique(input_no_controls\\$obs\\$sample), collapse = ", "), 
+    "\\\\n"
+  )
+}
+
+# make sure there is _ after the batch1 or batch2, otherwise batchadjust won't find the fcs files.
+input_no_controls\\$obs\\$sample <- sapply(input_no_controls\\$obs\\$sample, fix_batch_underscore_anynum)
 
 cat("Writing FCS files\\\\n")
 anndata_to_fcs(input_controls, out_dir = tmp_dir)
@@ -3629,12 +3652,12 @@ cat("Reading FCS files\\\\n")
 fs <- read.flowSet(path = output_dir, pattern = "*.fcs")
 fs_all <- as(fs, "flowFrame")
 corrected_matrix <- as.data.frame(exprs(fs_all))
-#Remove column created when converting to flowframe
+# Remove column created when converting to flowframe
 corrected_matrix\\$Original <- NULL
 colnames(corrected_matrix) <- input\\$var_names
 
 cat("Converting to Anndata + ordering check\\\\n")
-#Sort cells and check order
+# Sort cells and check order
 corrected_matrix <- corrected_matrix[order(corrected_matrix\\$Original_ID), ]
 order_check <- corrected_matrix\\$Original_ID == input\\$layers[['preprocessed']][, 'Original_ID']
 if (FALSE %in% order_check) {
