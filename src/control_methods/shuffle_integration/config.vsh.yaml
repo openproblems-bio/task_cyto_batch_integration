@@ -1,9 +1,19 @@
 __merge__: /src/api/comp_control_method.yaml
 name: shuffle_integration
-label: Shuffle integration
-summary: Integrations are randomly permuted
-description: Integrations are randomly permuted
-status: disabled
+label: Shuffle Integration
+summary: Randomly shuffle cells in the whole dataset.
+description: |
+  This negative control randomly shuffles all cells in the input data,
+  destroying any biological structure (e.g., sample to cell mapping or batch assignments).
+  
+  Purpose:
+  - Provide a baseline to verify that integration methods outperform
+    random assignment of cells to batches.
+  
+  Example:
+    - A cell from a KO sample in batch 1 may be reassigned to any sample in the whole data.
+    It may be reassigned to another KO sample in batch 1 or 2, or to a WT sample in batch 1 or 2.
+# status: disabled
 resources:
   - type: python_script
     path: script.py

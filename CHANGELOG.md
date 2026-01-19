@@ -57,13 +57,15 @@
   * Added CytoNorm with aggregate of samples as controls (`methods/cytonorm_no_controls`).
   * Added parameters to tune CytoNorm.
 
-
 * Added CytoNorm correction to a goal batch (PR #92).
 * Added cyCombine correction to a reference batch (PR #90).
 * Added `metrics/bras` (PR #91).
 
 * Added Seurat rPCA (PR #95).
 
+* Added processing scripts for CLL dataset (PR #106).
+
+* Added new metric `ratio_inconsistent_peaks` (PR #114).
 
 ## MAJOR CHANGES
 
@@ -97,6 +99,10 @@
 * Added EMD vertical global metric and split perfect integration into horizontal and vertical 
   for computing horizontal and vertical metrics (PR #63).
 
+* Fix problems identified during a full run (PR #99).
+
+* Update CytoVI (PR #114).
+
 ## MINOR CHANGES
 
 * Enabled unit tests (PR #2).
@@ -126,6 +132,8 @@
 
 * Add arguments for including/excluding methods and metrics in the benchmarking workflow (PR #100).
 
+* Removed EMD max from calculation (PR #113).
+
 
 ## BUG FIXES
 
@@ -153,5 +161,12 @@
 
 * Fix missing anndata in yaml file and set the base_r docker image version to 1 instead of 1.0.0 (PR #89).
 
+* Fix bug in control methods (PR #107, #108, #109).
+  * All control methods are updated to cater the new schema.
+  * All control methods are re-enabled. Selectively disable them when running the pipeline using method exclude.
 
+* Fix bug in EMD where nan cannot be written out and added sklearn dependency for cytovi (PR #110). 
 
+* Fix bug in EMD vertical where sample combination was malformed (PR #113)
+
+* Fix lisi inconsistent naming (PR #117) for issue #116.

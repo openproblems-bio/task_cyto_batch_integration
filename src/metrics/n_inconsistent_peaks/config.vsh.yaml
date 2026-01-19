@@ -14,12 +14,11 @@ info:
       # A multi-line description of how this component works (required). Used
       # when rendering reference documentation.
       description: |
-        The metric compares the number of marker expression peaks between the validation and batch-normalized data. 
-        The number of peaks is calculated using the `scipy.signal.find_peaks` function. 
-        The metric is calculated as the absolute difference between the number of peaks in the validation and batch-normalized data.
-        The marker expression profiles are first smoothed using kernel density estimation (KDE) (`scipy.stats.gaussian_kde`),
-        and then peaks are then identified using the `scipy.signal.find_peaks` function.
-        For peak calling, the `prominence` parameter is set to 0.1 and the `height` parameter is set to 0.05*max_density.
+        The metric compares the number of marker expression peaks between batch integrated technical replicates (split 1 and split 2). 
+        The metric is calculated as the absolute difference between the number of peaks in the technical replicates.
+        The marker expression profiles are first z-score scaled (with common mu and sigma) and then smoothed using kernel density estimation (KDE) (`scipy.stats.gaussian_kde`).
+        Finally, peaks are identified using the `scipy.signal.find_peaks` function.
+        For peak calling, the `prominence` parameter is set to 0.01 and the `height` parameter is set to 0.1.
       references:
         doi: 
           - 10.1038/s41592-019-0686-2

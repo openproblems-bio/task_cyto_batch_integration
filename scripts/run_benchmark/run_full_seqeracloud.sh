@@ -17,7 +17,6 @@ cat > /tmp/params.yaml << HERE
 input_states: s3://openproblems-data/resources/task_cyto_batch_integration/datasets/**/state.yaml
 rename_keys: 'input_censored_split1:output_censored_split1;input_censored_split2:output_censored_split2;input_unintegrated:output_unintegrated'
 output_state: "state.yaml"
-# settings: '{"methods_include": ["combat", "gaussnorm"]}'
 publish_dir: "$publish_dir"
 HERE
 
@@ -29,4 +28,4 @@ tw launch https://github.com/openproblems-bio/task_cyto_batch_integration.git \
   --params-file /tmp/params.yaml \
   --entry-name auto \
   --config common/nextflow_helpers/labels_tw.config \
-  --labels task_cyto_batch_integration,full
+  --labels task_cyto_batch_integration,test_subset

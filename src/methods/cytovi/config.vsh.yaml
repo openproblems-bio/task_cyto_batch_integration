@@ -1,0 +1,84 @@
+# The API specifies which type of component this is.
+# It contains specifications for:
+#   - The input/output files
+#   - Common parameters
+#   - A unit test
+__merge__: ../../api/comp_method.yaml
+
+# A unique identifier for your component (required).
+# Can contain only lowercase letters or underscores.
+name: cytovi
+# A relatively short label, used when rendering visualisations (required)
+label: CytoVI
+# A one sentence summary of how this method works (required). Used when 
+# rendering summary tables.
+summary: "A deep generative model for correcting batch effects"
+# A multi-line description of how this component works (required). Used
+# when rendering reference documentation.
+description: |
+  CytoVI is a deep generative model that utilizes antibody-based single-cell profiles to 
+  learn a biologically meaningful latent representation of each cell. 
+  It is part of the scvi-tools framework and is built upon the variational autoencoder (VAE) architecture.
+references:
+  doi: 
+    - 10.1101/2025.09.07.674699
+links:
+  # URL to the documentation for this method (required).
+  documentation: https://docs.scvi-tools.org/en/latest/user_guide/models/cytovi.html
+  # URL to the code repository for this method (required).
+  repository: https://github.com/YosefLab/cytovi-reference-implementation
+
+# Component-specific parameters (optional)
+arguments:
+  - name: --n_hidden
+    type: integer
+    default: 128
+    description: Number of hidden units.
+  - name: --n_layers
+    type: integer
+    default: 1
+    description: Number of layers.
+  - name: --max_epochs
+    type: integer
+    default: 1000
+    description: Number of epochs to train the model.
+  - name: --train_size
+    type: double
+    default: 0.9
+    description: Fraction of cells to subsample from each cluster for training.
+  
+# Resources required to run the component
+resources:
+  # The script of your component (required)
+  - type: python_script
+    path: script.py
+  # Additional resources your script needs (optional)
+  # - type: file
+  #   path: weights.pt
+
+engines:
+  - type: docker
+    image: nvcr.io/nvidia/pytorch:25.08-py3
+    setup:
+      - type: apt
+        packages:
+          - procps
+          - git
+      - type: python
+        packages:
+          - anndata>=0.11.0
+          - scanpy[skmisc]>=1.10
+          - scvi-tools==1.4.0.post1
+          - pyyaml
+          - requests
+          - jsonschema
+        github:
+          - openproblems-bio/core#subdirectory=packages/python/openproblems
+
+runners:
+  # This platform allows running the component natively
+  - type: executable
+  # Allows turning the component into a Nextflow module / pipeline.
+  - type: nextflow
+    directives:
+      label: [veryhightime, lowmem, lowcpu, gpu]
