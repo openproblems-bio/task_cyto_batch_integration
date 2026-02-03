@@ -89,6 +89,32 @@ subset_nocontrols <- function(adata) {
     adata[adata$obs$is_control == 0, ]
 }
 
+
+#' Subset AnnData Object to Single Control
+#'
+#' @description
+#' Extracts no control samples and just one control sample from an AnnData object based on the specified index.
+#'
+#' @param adata An AnnData object containing multiple samples with control groups.
+#' @param which_control Integer specifying which control sample to extract (default: 1).
+#'
+#' @return
+#' An AnnData object subset to contain only the specified control sample.
+#'
+#' @examples
+#' \dontrun{
+#' control_sample <- subset_onecontrol(adata, which_control = 1)
+#' }
+#'
+subset_onecontrol <- function(adata, which_control = 1) {
+    if (!"is_control" %in% colnames(adata$obs)) {
+        stop("The column 'is_control' is not present in the adata object.")
+    }
+
+    # Subset the adata to keep cells where is_control == which_control
+    adata[adata$obs$is_control %in% c(which_control, 0), ]
+}
+
 #' Subsets the anndata object to only include markers that need to be
 #' (or have been) corrected.
 #' These markers are all the entries in adata.var where to_correct == TRUE.

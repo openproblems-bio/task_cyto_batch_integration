@@ -3,14 +3,22 @@ requireNamespace("anndata", quietly = TRUE)
 
 ## VIASH START
 par <- list(
-    input = "resources_test/task_cyto_batch_integration/leomazzi_cyto_spleen_subset/unintegrated_censored.h5ad",
-    output = "resources_test/task_cyto_batch_integration/leomazzi_cyto_spleen_subset/output.h5ad"
+    input = "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/censored_split1.h5ad",
+    output = "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/output_split1.h5ad",
+    som_grid_size = 4,
+    rlen = 10
 )
-meta <- list(name = "cycombine_one_control")
+meta <- list(
+    name = "cycombine_one_control_to_goal",
+    resources_dir = "src/utils"
+)
 ## VIASH END
 
+source(paste0(meta$resources_dir, "/helper_functions.R"))
+
 cat("Reading input files\n")
-input_adata <- anndata::read_h5ad(par[["input"]])
+input_adata <- anndata::read_h5ad(par[["input"]]) |>
+    subset_onecontrol()
 
 cat("Preparing input Anndata and df\n")
 
