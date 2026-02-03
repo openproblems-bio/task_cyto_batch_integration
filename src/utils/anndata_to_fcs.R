@@ -26,7 +26,7 @@ get_temp_dir <- function(viash_meta) {
         pattern = viash_meta[["name"]],
         tmpdir = viash_meta[["temp_dir"]]
     )
-    dir.create(dir_path)
+    dir.create(dir_path, recursive = TRUE)
     cat("Created temporary directory:", dir_path, "\n")
     return(dir_path)
 }
