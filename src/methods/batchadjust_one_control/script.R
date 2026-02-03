@@ -2,21 +2,23 @@ library(anndata)
 library(flowCore)
 ## VIASH START
 par <- list(
-  input = "resources_test/debug/batchadjust/_viash_par/input_1/censored_split1.h5ad",
+  input = "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/censored_split1.h5ad",
   output = "resources_test/debug/batchadjust/output.h5ad",
   percentile = as.integer('80')
 )
 meta <- list(
   name = "batchadjust_one_control",
-  temp_dir = "resources_test/tmp",
+  temp_dir = "resources_test/tmp_batchadjust_one_control",
   resources_dir = "src/methods/batchadjust_one_control"
 )
 source("src/utils/anndata_to_fcs.R")
+source("src/utils/helper_functions.R")
 ## VIASH END
 
 source(paste0(meta$resources_dir, "/utils.R"))
 source(paste0(meta$resources_dir, "/anndata_to_fcs.R"))
 source(paste0(meta$resources_dir, "/BatchAdjust.R"))
+source(paste0(meta$resources_dir, "/helper_functions.R"))
 
 tmp_dir <- get_temp_dir(meta)
 print(paste0("Using temp dir: ", tmp_dir))
@@ -39,7 +41,9 @@ on.exit(clean_temp_dir(tmp_dir))
 
 
 cat("Reading input files\n")
-input <- anndata::read_h5ad(par[["input"]])
+input <- anndata::read_h5ad(par[["input"]]) |> 
+  subset_onecontrol()
+
 #use Original_ID column to restore cell order after I/O operations
 # input$layers["preprocessed"][, "Original_ID"] <- seq(1, dim(input)[1])
 
@@ -92,8 +96,9 @@ if (!non_control_has_batch) {
 input_no_controls$obs$sample <- sapply(input_no_controls$obs$sample, fix_batch_underscore_anynum)
 
 
-cat("Writing FCS files\n")
+cat("Writing control FCS files\n")
 anndata_to_fcs(input_controls, out_dir = tmp_dir)
+cat("Writing non-control FCS files\n")
 anndata_to_fcs(input_no_controls, out_dir =  tmp_dir)
 
 cat("Writing channels to correct as a text file\n")

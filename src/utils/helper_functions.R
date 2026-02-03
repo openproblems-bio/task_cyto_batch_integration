@@ -86,7 +86,7 @@ subset_nocontrols <- function(adata) {
     }
 
     # Subset the adata to remove cells where is_control != 0
-    adata[adata$obs$is_control == 0, ]
+    adata[adata$obs$is_control == 0, ]$copy()
 }
 
 
@@ -112,7 +112,7 @@ subset_onecontrol <- function(adata, which_control = 1) {
     }
 
     # Subset the adata to keep cells where is_control == which_control
-    adata[adata$obs$is_control %in% c(which_control, 0), ]
+    adata[adata$obs$is_control %in% c(which_control, 0), ]$copy()
 }
 
 #' Subsets the anndata object to only include markers that need to be

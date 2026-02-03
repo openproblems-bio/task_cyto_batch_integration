@@ -67,6 +67,8 @@ resources:
   - path: /src/utils/anndata_to_fcs.R
   - path: BatchAdjust.R
   - path: utils.R
+  - type: r_script
+    path: /src/utils/helper_functions.R
 
 engines:
   # Specifications for the Docker image for this component.
@@ -77,7 +79,7 @@ engines:
     setup:
       - type: r
         bioc: [flowCore]
-        packages: [docstring]
+        packages: [docstring, dplyr]
 
 runners:
   # This platform allows running the component natively
