@@ -18,7 +18,8 @@ links:
 resources:
   - type: python_script
     path: script.py
-
+  - path: /src/utils/helper_functions.py
+  
 engines:
   - type: docker
     image: openproblems/base_python:1
