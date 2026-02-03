@@ -19,6 +19,8 @@ links:
 resources:
   - type: r_script
     path: script.R
+  - type: r_script
+    path: /src/utils/helper_functions.R
 
 engines:
   - type: docker
@@ -26,6 +28,7 @@ engines:
     setup:
       - type: r
         bioc: limma
+        packages: [ lifecycle, vctrs, dplyr, rlang ]
 
 runners:
   - type: executable
