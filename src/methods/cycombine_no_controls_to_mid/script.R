@@ -9,8 +9,11 @@ par <- list(
 meta <- list(name = "cycombine_no_controls")
 ## VIASH END
 
+source(paste0(meta$resources_dir, "/helper_functions.R"))
+
 cat("Reading input files\n")
-input_adata <- anndata::read_h5ad(par[["input"]])
+input_adata <- anndata::read_h5ad(par[["input"]]) |>
+  subset_nocontrols()
 
 cat("Preparing input Anndata and df\n")
 
