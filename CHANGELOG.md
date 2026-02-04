@@ -123,6 +123,10 @@
   They will no longer be given access to other samples to correct or to train the model. 
   Notably, the included control samples may still be corrected (PR #119).
 
+* Change temp folder for methods which rely on writing out FCS files. 
+  Temp folders are now created by a new helper function which will create a subdirectory under `meta[["temp_dir"]]`. 
+  This will be used as the temp directory (PR #119).
+
 ## MINOR CHANGES
 
 * Enabled unit tests (PR #2).
