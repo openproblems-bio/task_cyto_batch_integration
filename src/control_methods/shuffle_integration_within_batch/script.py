@@ -4,11 +4,10 @@ import anndata as ad
 
 ## VIASH START
 par = {
-    "input_unintegrated": "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/unintegrated.h5ad",
-    "output_integrated_split1": "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/control_integrated_split1.h5ad",
-    "output_integrated_split2": "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/control_integrated_split2.h5ad",
+    "input_unintegrated": "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/unintegrated_censored.h5ad",
+    "output": "output.h5ad",
 }
-meta = {"name": "shuffle_integration_by_cell_type", "resources_dir": "src/control_methods"}
+meta = {"name": "shuffle_integration_within_batch"}
 ## VIASH END
 
 print("Importing helper functions", flush=True)
@@ -23,7 +22,8 @@ adata_split2 = adata[(adata.obs.is_control > 0) | (adata.obs.split == 2)].copy()
 print("Randomise features - split 1", flush=True)
 adata_split1.obs["batch_str"] = adata_split1.obs["batch"].astype(str)
 integrated = _randomize_features(
-    adata_split1.layers["preprocessed"]
+    adata_split1.layers["preprocessed"],
+    partition=adata_split1.obs["batch"],
 )
 
 # create new anndata
@@ -41,8 +41,10 @@ output_split1 = ad.AnnData(
 print("Randomise features - split 2", flush=True)
 adata_split2.obs["batch_str"] = adata_split2.obs["batch"].astype(str)
 integrated = _randomize_features(
-    adata_split2.layers["preprocessed"]
+    adata_split2.layers["preprocessed"],
+    partition=adata_split2.obs["batch"],
 )
+
 # create new anndata
 output_split2 = ad.AnnData(
     obs=adata_split2.obs[[]],
