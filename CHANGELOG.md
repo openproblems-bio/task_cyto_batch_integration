@@ -121,7 +121,7 @@
 
 * One control and no control method will only get either samples from one control plus non-control samples or just no control samples. 
   They will no longer be given access to other samples to correct or to train the model. 
-  Notably, the included control samples may still be corrected.
+  Notably, the included control samples may still be corrected (PR #119).
 
 ## MINOR CHANGES
 
