@@ -79,7 +79,7 @@ engines:
     setup:
       - type: r
         bioc: [flowCore]
-        packages: [docstring, dplyr]
+        packages: [ dplyr, docstring, rlang, vctrs, lifecycle ]
 
 runners:
   # This platform allows running the component natively

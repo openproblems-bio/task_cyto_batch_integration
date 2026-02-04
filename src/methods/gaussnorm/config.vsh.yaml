@@ -47,7 +47,7 @@ engines:
     setup:
       - type: r
         bioc: [ flowStats, flowCore, Biobase ]
-        packages: [ docstring ]
+        packages: [ docstring, rlang, vctrs, lifecycle ]
 
 
 runners:

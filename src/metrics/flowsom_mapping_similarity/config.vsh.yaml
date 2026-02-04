@@ -74,6 +74,7 @@ engines:
     setup:
       - type: r
         bioc: [FlowSOM, flowCore]
+        packages: [ dplyr, docstring, rlang, vctrs, lifecycle ]
 runners:
   # This platform allows running the component natively
   - type: executable
