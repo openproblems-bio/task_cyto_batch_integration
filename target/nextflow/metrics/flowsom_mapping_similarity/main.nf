@@ -3481,6 +3481,13 @@ meta = [
       "setup" : [
         {
           "type" : "r",
+          "packages" : [
+            "dplyr",
+            "docstring",
+            "rlang",
+            "vctrs",
+            "lifecycle"
+          ],
           "bioc" : [
             "FlowSOM",
             "flowCore"
@@ -3497,7 +3504,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/metrics/flowsom_mapping_similarity",
     "viash_version" : "0.9.4",
-    "git_commit" : "0e116929b88d211f5f3d62c1e31b811899453119",
+    "git_commit" : "3e3af60f2a959864c3c5fb3d66a67f7e4524c0c2",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {

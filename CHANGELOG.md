@@ -119,6 +119,14 @@
 * Update ratio inconsistent peaks to handle edge cases where methods return only zero values
   for a marker/cell type/donor combination, causing sd to be zero and division by zero (PR #119).
 
+* One control and no control method will only get either samples from one control plus non-control samples or just no control samples. 
+  They will no longer be given access to other samples to correct or to train the model. 
+  Notably, the included control samples may still be corrected (PR #119).
+
+* Change temp folder for methods which rely on writing out FCS files. 
+  Temp folders are now created by a new helper function which will create a subdirectory under `meta[["temp_dir"]]`. 
+  This will be used as the temp directory (PR #119).
+
 ## MINOR CHANGES
 
 * Enabled unit tests (PR #2).
@@ -153,7 +161,7 @@
 * Tune the resource requirement for each method (PR #119).
   * Low time, mem, cpu for control methods.
   * Mid time, mem, cpu for most methods, except below.
-  * High (or very high) time, mem, cpu for computationally ones like rPCA.
+  * High (or very high) time, mem, cpu for computationally expensive methods like rPCA.
 
 
 ## BUG FIXES
