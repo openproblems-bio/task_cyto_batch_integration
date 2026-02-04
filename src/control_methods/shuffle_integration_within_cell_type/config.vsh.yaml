@@ -1,0 +1,24 @@
+__merge__: /src/api/comp_control_method.yaml
+name: shuffle_integration_by_cell_type
+label: Shuffle Integration — within cell type
+summary: Randomly reassign cells to any cell types
+description: | 
+  This negative-control method randomly shuffles cells within each cell type.
+  Cells retain their cell type identity but lose their sample and batch identity. 
+  
+  Example: A B cell remains a B cell but if may be reassigned from mouse 3 batch 1 to 
+  mouse 4 batch 1 or mouse 6 batch 2.
+
+# status: disabled
+resources:
+  - type: python_script
+    path: script.py
+  - path: /src/control_methods/utils.py
+engines:
+  - type: docker
+    image: openproblems/base_python:1
+runners:
+  - type: executable
+  - type: nextflow
+    directives:
+      label: [lowtime,lowmem,lowcpu]
