@@ -153,7 +153,7 @@
 * Tune the resource requirement for each method (PR #119).
   * Low time, mem, cpu for control methods.
   * Mid time, mem, cpu for most methods, except below.
-  * High (or very high) time, mem, cpu for computationally ones like rPCA.
+  * High (or very high) time, mem, cpu for computationally expensive methods like rPCA.
 
 
 ## BUG FIXES
