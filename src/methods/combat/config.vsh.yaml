@@ -28,9 +28,8 @@ resources:
   # The script of your component (required)
   - type: python_script
     path: script.py
-  # Additional resources your script needs (optional)
-  # - type: file
-  #   path: weights.pt
+  - path: /src/utils/helper_functions.py
+
 
 engines:
   - type: docker

@@ -3261,6 +3261,11 @@ meta = [
       "type" : "r_script",
       "path" : "script.R",
       "is_executable" : true
+    },
+    {
+      "type" : "r_script",
+      "path" : "/src/utils/helper_functions.R",
+      "is_executable" : true
     }
   ],
   "label" : "Seurat RPCA (to-goal)",
@@ -3384,7 +3389,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/methods/rpca_to_goal",
     "viash_version" : "0.9.4",
-    "git_commit" : "ddc57cf78c65d3c5f891f280419a20b8f66715df",
+    "git_commit" : "f27dad7d475f260bbbc44700bd89e0ff0aa48745",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3543,9 +3548,12 @@ rm(.viash_orig_warn)
 
 options(future.globals.maxSize = 25 * 1024^3)  # 25 GiB
 
+source(paste0(meta\\$resources_dir, "/helper_functions.R"))
+ 
 cat("Reading input files\\\\n")
-input_adata <- anndata::read_h5ad(par[["input"]])
-
+input_adata <- anndata::read_h5ad(par[["input"]]) |>
+  subset_nocontrols()
+  
 cat("Preparing input Anndata\\\\n")
 input_adata\\$obs\\$batch <- as.factor(input_adata\\$obs\\$batch)
 

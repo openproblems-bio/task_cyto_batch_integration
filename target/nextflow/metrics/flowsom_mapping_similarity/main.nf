@@ -3362,7 +3362,7 @@ meta = [
       "path" : "helper.R"
     },
     {
-      "type" : "python_script",
+      "type" : "r_script",
       "path" : "/src/utils/helper_functions.R",
       "is_executable" : true
     }
@@ -3497,7 +3497,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/metrics/flowsom_mapping_similarity",
     "viash_version" : "0.9.4",
-    "git_commit" : "ddc57cf78c65d3c5f891f280419a20b8f66715df",
+    "git_commit" : "f27dad7d475f260bbbc44700bd89e0ff0aa48745",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {

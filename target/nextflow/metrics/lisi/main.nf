@@ -3531,7 +3531,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/metrics/lisi",
     "viash_version" : "0.9.4",
-    "git_commit" : "ddc57cf78c65d3c5f891f280419a20b8f66715df",
+    "git_commit" : "f27dad7d475f260bbbc44700bd89e0ff0aa48745",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3689,6 +3689,9 @@ from helper_functions import (
     subset_markers_tocorrect,
 )
 
+# TODO: no idea why the new anndata >= 0.11 needs this even if we don't write anything to obs?
+ad.settings.allow_write_nullable_strings = True
+
 print("Reading input files", flush=True)
 input_unintegrated = ad.read_h5ad(par["input_unintegrated"])
 input_integrated_split1 = ad.read_h5ad(par["input_integrated_split1"])
@@ -3730,6 +3733,15 @@ ilisi = np.mean([ilisi_s1, ilisi_s2])
 clisi = np.mean([clisi_s1, clisi_s2])
 uns_metric_ids = ["iLisi", "cLisi"]
 uns_metric_values = [ilisi, clisi]
+
+print("iLisi split 1:", ilisi_s1, flush=True)
+print("iLisi split 2:", ilisi_s2, flush=True)
+print("cLisi split 1:", clisi_s1, flush=True)
+print("cLisi split 2:", clisi_s2, flush=True)
+print("Mean iLisi:", ilisi, flush=True)
+print("Mean cLisi:", clisi, flush=True)
+print("Metric IDs:", uns_metric_ids, flush=True)
+print("Metric values:", uns_metric_values, flush=True)
 
 print("Write output AnnData to file", flush=True)
 output = ad.AnnData(

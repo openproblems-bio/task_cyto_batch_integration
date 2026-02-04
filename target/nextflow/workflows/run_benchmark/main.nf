@@ -3755,12 +3755,6 @@ meta = [
       }
     },
     {
-      "name" : "methods/cytovi",
-      "repository" : {
-        "type" : "local"
-      }
-    },
-    {
       "name" : "metrics/emd",
       "repository" : {
         "type" : "local"
@@ -3847,7 +3841,7 @@ meta = [
     "engine" : "native",
     "output" : "target/nextflow/workflows/run_benchmark",
     "viash_version" : "0.9.4",
-    "git_commit" : "ddc57cf78c65d3c5f891f280419a20b8f66715df",
+    "git_commit" : "f27dad7d475f260bbbc44700bd89e0ff0aa48745",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3978,7 +3972,6 @@ include { batchadjust_one_control } from "${meta.resources_dir}/../../../nextflo
 include { batchadjust_all_controls } from "${meta.resources_dir}/../../../nextflow/methods/batchadjust_all_controls/main.nf"
 include { rpca_to_goal } from "${meta.resources_dir}/../../../nextflow/methods/rpca_to_goal/main.nf"
 include { rpca_to_mid } from "${meta.resources_dir}/../../../nextflow/methods/rpca_to_mid/main.nf"
-include { cytovi } from "${meta.resources_dir}/../../../nextflow/methods/cytovi/main.nf"
 include { emd } from "${meta.resources_dir}/../../../nextflow/metrics/emd/main.nf"
 include { ratio_inconsistent_peaks } from "${meta.resources_dir}/../../../nextflow/metrics/ratio_inconsistent_peaks/main.nf"
 include { average_batch_r2 } from "${meta.resources_dir}/../../../nextflow/metrics/average_batch_r2/main.nf"
@@ -4001,8 +3994,6 @@ methods = [
   shuffle_integration,
   shuffle_integration_by_batch,
   shuffle_integration_by_cell_type,
-  harmonypy,
-  limma_remove_batch_effect,
   no_integration,
   perfect_integration,
   combat,
@@ -4021,16 +4012,16 @@ methods = [
   cytonorm_no_controls_to_goal,
   cytonorm_all_controls_to_goal,
   cytonorm_one_control_to_goal,
+  harmonypy,
+  limma_remove_batch_effect,
   rpca_to_goal,
   rpca_to_mid,
-  cytovi
+  // cytovi
 ]
 
 // construct list of metrics
 metrics = [
   emd,
-  // bras,
-  // n_inconsistent_peaks,
   ratio_inconsistent_peaks,
   average_batch_r2,
   flowsom_mapping_similarity,

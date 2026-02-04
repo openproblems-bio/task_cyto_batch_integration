@@ -11,8 +11,11 @@ meta <- list(
 )
 ## VIASH END
 
+source(paste0(meta$resources_dir, "/helper_functions.R"))
+
 cat("Reading input files\n")
-input <- anndata::read_h5ad(par[["input"]])
+input <- anndata::read_h5ad(par[["input"]]) |>
+  subset_nocontrols()
 
 cat("Subset data\n")
 data_not_correct <- input[, !input$var$to_correct]

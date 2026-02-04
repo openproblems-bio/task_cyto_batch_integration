@@ -37,6 +37,8 @@ resources:
   - type: r_script
     path: script.R
   - path: /src/utils/anndata_to_fcs.R
+  - type: r_script
+    path: /src/utils/helper_functions.R
 
 engines:
   # Specifications for the Docker image for this component.

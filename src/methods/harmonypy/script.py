@@ -1,6 +1,7 @@
 import anndata as ad
 import harmonypy
 import numpy as np
+import sys
 
 ## VIASH START
 par = {
@@ -10,8 +11,14 @@ par = {
 meta = {"name": "harmonypy"}
 ## VIASH END
 
+sys.path.append(meta["resources_dir"])
+from helper_functions import subset_nocontrols
+
 print("Reading and preparing input files", flush=True)
 adata = ad.read_h5ad(par["input"])
+
+# Remove reference
+adata = subset_nocontrols(adata)
 
 # harmony can't handle integer batch labels
 adata.obs["batch_str"] = adata.obs["batch"].astype(str)

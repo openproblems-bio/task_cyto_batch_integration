@@ -452,9 +452,9 @@ RUN Rscript -e 'options(warn = 2); if (!requireNamespace("remotes", quietly = TR
   Rscript -e 'options(warn = 2); remotes::install_github(c("biosurf/cyCombine"), repos = "https://cran.rstudio.com")'
 
 LABEL org.opencontainers.image.description="Companion container for running component methods cycombine_no_controls_to_mid"
-LABEL org.opencontainers.image.created="2026-01-17T10:58:18Z"
+LABEL org.opencontainers.image.created="2026-02-04T00:09:01Z"
 LABEL org.opencontainers.image.source="https://github.com/biosurf/cyCombine"
-LABEL org.opencontainers.image.revision="ddc57cf78c65d3c5f891f280419a20b8f66715df"
+LABEL org.opencontainers.image.revision="f27dad7d475f260bbbc44700bd89e0ff0aa48745"
 LABEL org.opencontainers.image.version="build_setup_run_hpc"
 
 VIASHDOCKER
@@ -1146,8 +1146,11 @@ rm(.viash_orig_warn)
 
 ## VIASH END
 
+source(paste0(meta\$resources_dir, "/helper_functions.R"))
+
 cat("Reading input files\\n")
-input_adata <- anndata::read_h5ad(par[["input"]])
+input_adata <- anndata::read_h5ad(par[["input"]]) |>
+  subset_nocontrols()
 
 cat("Preparing input Anndata and df\\n")
 

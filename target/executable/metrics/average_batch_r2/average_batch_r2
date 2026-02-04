@@ -446,9 +446,9 @@ function ViashDockerfile {
 FROM openproblems/base_python:1
 ENTRYPOINT []
 LABEL org.opencontainers.image.description="Companion container for running component metrics average_batch_r2"
-LABEL org.opencontainers.image.created="2026-01-17T10:58:16Z"
+LABEL org.opencontainers.image.created="2026-02-04T00:09:01Z"
 LABEL org.opencontainers.image.source="https://github.com/openproblems-bio/task_cyto_batch_integration"
-LABEL org.opencontainers.image.revision="ddc57cf78c65d3c5f891f280419a20b8f66715df"
+LABEL org.opencontainers.image.revision="f27dad7d475f260bbbc44700bd89e0ff0aa48745"
 LABEL org.opencontainers.image.version="build_setup_run_hpc"
 
 VIASHDOCKER
@@ -1140,71 +1140,53 @@ integrated_s1 = subset_markers_tocorrect(integrated_s1)
 integrated_s2 = subset_nocontrols(integrated_s2)
 integrated_s2 = subset_markers_tocorrect(integrated_s2)
 
-print(integrated_s1.obs, integrated_s2.obs, flush=True) ### Debugging line, can be removed later
+print(
+    integrated_s1.obs, integrated_s2.obs, flush=True
+)  ### Debugging line, can be removed later
 print("Computing average_batch_r2 global", flush=True)
 
-donor_list = integrated_s1.obs['donor'].unique()
+donor_list = integrated_s1.obs["donor"].unique()
 
 r2_values = []
 r2_info = []
 
 for donor in donor_list:
-
-    s1_view = integrated_s1[integrated_s1.obs['donor'] == donor] # split 1
-    s2_view = integrated_s2[integrated_s2.obs['donor'] == donor] # split 2
-
-    r2_list,marker_list = batch_r2(s1_view, s2_view)
-
-    marker_list =[donor+"_"+ x for x in marker_list]
-    r2_info = [*r2_info, *marker_list]
-    r2_values = [*r2_values, *r2_list]
-
-average_batch_r2_global = np.mean(r2_values)
-r2_collection = dict(zip(r2_info,r2_values)) #kept for debugging only
-print("average_batch_r2_global",average_batch_r2_global)
-
-r2_values = []
-r2_info = []
-
-for donor in donor_list:
-
-    s1_view = integrated_s1[integrated_s1.obs['donor'] == donor] # split 1
+    s1_view = integrated_s1[integrated_s1.obs["donor"] == donor]  # split 1
     s1_view = remove_unlabelled(s1_view)
-    s2_view = integrated_s2[integrated_s2.obs['donor'] == donor] # split 2
+    s2_view = integrated_s2[integrated_s2.obs["donor"] == donor]  # split 2
     s2_view = remove_unlabelled(s2_view)
 
-    ct_list = s1_view.obs['cell_type'].unique()
+    ct_list = s1_view.obs["cell_type"].unique()
 
     for ct in ct_list:
-        s1_view_ct = s1_view[s1_view.obs['cell_type'] == ct]
-        s2_view_ct = s2_view[s2_view.obs['cell_type'] == ct]
-        if s1_view_ct.shape[0] < 20 or s2_view_ct.shape[0] < 20: #Skip Rˆ2 calculation if there are less than 10 cells
-            print(f"Warning: Rˆ2 not computed for donor {donor} cell type {ct}. Too few cells were present: {s1_view_ct.shape[0]} for split 1 and {s2_view_ct.shape[0]} for split 2")
+        s1_view_ct = s1_view[s1_view.obs["cell_type"] == ct]
+        s2_view_ct = s2_view[s2_view.obs["cell_type"] == ct]
+        if (
+            s1_view_ct.shape[0] < 20 or s2_view_ct.shape[0] < 20
+        ):  # Skip Rˆ2 calculation if there are less than 10 cells
+            print(
+                f"Warning: Rˆ2 not computed for donor {donor} cell type {ct}. Too few cells were present: {s1_view_ct.shape[0]} for split 1 and {s2_view_ct.shape[0]} for split 2"
+            )
             continue
 
+        r2_list, marker_list = batch_r2(s1_view, s2_view)
 
-        r2_list,marker_list = batch_r2(s1_view, s2_view)
-
-        marker_list =[ct+"_"+donor+"_"+ x for x in marker_list]
+        marker_list = [ct + "_" + donor + "_" + x for x in marker_list]
         r2_info = [*r2_info, *marker_list]
         r2_values = [*r2_values, *r2_list]
 
 average_batch_r2_ct = np.mean(r2_values)
-r2_collection_ct = dict(zip(r2_info,r2_values)) #kept for debugging only
-print("average_batch_r2_ct",average_batch_r2_ct)
-
-uns_metric_ids = ["average_batch_r2_global", "average_batch_r2_ct"]
-uns_metric_values = [average_batch_r2_global, average_batch_r2_ct]
+r2_collection_ct = dict(zip(r2_info, r2_values))  # kept for debugging only
+print("average_batch_r2_ct", average_batch_r2_ct)
 
 print("Write output AnnData to file", flush=True)
 output = ad.AnnData(
     uns={
         "dataset_id": integrated_s1.uns["dataset_id"],
         "method_id": integrated_s1.uns["method_id"],
-        "metric_ids": uns_metric_ids,
-        "metric_values": uns_metric_values,
-        "r2_collection": r2_collection,
-        "r2_collection_ct": r2_collection_ct
+        "metric_ids": "average_batch_r2_ct",
+        "metric_values": average_batch_r2_ct,
+        "r2_collection_ct": r2_collection_ct,
     }
 )
 output.write_h5ad(par["output"], compression="gzip")

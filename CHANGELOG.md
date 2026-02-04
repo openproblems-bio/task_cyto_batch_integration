@@ -67,6 +67,14 @@
 
 * Added new metric `ratio_inconsistent_peaks` (PR #114).
 
+* Added processing scripts for Lille dataset and remove ones for CLL dataset (PR #118).
+
+* Added config and run scripts for running the benchmark on WEHI HPC (PR #119). 
+  Refer to the pull request on Github to see what needs to be set up.
+  TLDR; Setup the compute environment and the caching directory, then run the warmup job
+  to pull and create the apptainer images (one job = one method + one metric).
+  After that, run the main benchmarking job with the config file for the HPC system.
+
 ## MAJOR CHANGES
 
 * Updated file schema (PR #18): 
@@ -103,6 +111,14 @@
 
 * Update CytoVI (PR #114).
 
+* Update CytoVI to normalise using minmax scaler fitted on batch 1 post correction (PR #119).
+
+* Update batchadjust, cytonorm to use HPC temp dir if the environment variable is set or else
+  default to what is set by viash. This is to prevent collision in temp files when the jobs are running (PR #119).  
+
+* Update ratio inconsistent peaks to handle edge cases where methods return only zero values
+  for a marker/cell type/donor combination, causing sd to be zero and division by zero (PR #119).
+
 ## MINOR CHANGES
 
 * Enabled unit tests (PR #2).
@@ -133,6 +149,11 @@
 * Add arguments for including/excluding methods and metrics in the benchmarking workflow (PR #100).
 
 * Removed EMD max from calculation (PR #113).
+
+* Tune the resource requirement for each method (PR #119).
+  * Low time, mem, cpu for control methods.
+  * Mid time, mem, cpu for most methods, except below.
+  * High (or very high) time, mem, cpu for computationally ones like rPCA.
 
 
 ## BUG FIXES
@@ -170,3 +191,14 @@
 * Fix bug in EMD vertical where sample combination was malformed (PR #113)
 
 * Fix lisi inconsistent naming (PR #117) for issue #116.
+
+* Fix bug in perfect integration where if batch is str (not int), it only returns control samples (PR #119).
+
+* Fix bug in batchadjust needing "Batch_" in the sample names for non-control samples (PR #119). 
+
+* Fix bug in cytonorm to mid where recompute was set to FALSE. It is now set to TRUE (PR #119).
+
+* Remove transpose in harmonypy as new updates to harmonypy no longer need the transpose (PR #119). 
+
+* Fix bug in get_obs_var_for_integrated to handle the cases where batch column in obs is str
+  and thus can't be directly overriden (new values given by get_donor_batch_map is int) (PR #119).

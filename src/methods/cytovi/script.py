@@ -24,6 +24,7 @@ torch.backends.cuda.matmul.allow_tf32 = True
 
 # increase num workers for data loading
 scvi.settings.num_workers = 95
+scvi.settings.seed = 0
 
 print("Reading and preparing input files", flush=True)
 adata = ad.read_h5ad(par["input"])

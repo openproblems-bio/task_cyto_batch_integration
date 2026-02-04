@@ -48,9 +48,8 @@ resources:
   # The script of your component (required)
   - type: r_script
     path: script.R
-  # Additional resources your script needs (optional)
-  # - type: file
-  #   path: weights.pt
+  - type: r_script
+    path: /src/utils/helper_functions.R
 
 engines:
   - type: docker

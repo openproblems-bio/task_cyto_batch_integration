@@ -445,13 +445,15 @@ function ViashDockerfile {
     cat << 'VIASHDOCKER'
 FROM openproblems/base_r:1
 ENTRYPOINT []
-RUN Rscript -e 'options(warn = 2); if (!requireNamespace("BiocManager", quietly = TRUE)) install.packages("BiocManager")' && \
-  Rscript -e 'options(warn = 2); if (!requireNamespace("limma", quietly = TRUE)) BiocManager::install("limma")'
+RUN Rscript -e 'options(warn = 2); if (!requireNamespace("remotes", quietly = TRUE)) install.packages("remotes")' && \
+  Rscript -e 'options(warn = 2); if (!requireNamespace("BiocManager", quietly = TRUE)) install.packages("BiocManager")' && \
+  Rscript -e 'options(warn = 2); if (!requireNamespace("limma", quietly = TRUE)) BiocManager::install("limma")' && \
+  Rscript -e 'options(warn = 2); remotes::install_cran(c("lifecycle", "vctrs", "dplyr", "rlang"), repos = "https://cran.rstudio.com")'
 
 LABEL org.opencontainers.image.description="Companion container for running component methods limma_remove_batch_effect"
-LABEL org.opencontainers.image.created="2026-01-17T10:58:17Z"
+LABEL org.opencontainers.image.created="2026-02-04T00:09:01Z"
 LABEL org.opencontainers.image.source="https://github.com/bioc/limma"
-LABEL org.opencontainers.image.revision="ddc57cf78c65d3c5f891f280419a20b8f66715df"
+LABEL org.opencontainers.image.revision="f27dad7d475f260bbbc44700bd89e0ff0aa48745"
 LABEL org.opencontainers.image.version="build_setup_run_hpc"
 
 VIASHDOCKER
@@ -1078,8 +1080,11 @@ rm(.viash_orig_warn)
 
 ## VIASH END
 
+source(paste0(meta\$resources_dir, "/helper_functions.R"))
+
 cat("Reading input files\\n")
-input <- anndata::read_h5ad(par[["input"]])
+input <- anndata::read_h5ad(par[["input"]]) |>
+  subset_nocontrols()
 
 cat("Subset data\\n")
 data_not_correct <- input[, !input\$var\$to_correct]

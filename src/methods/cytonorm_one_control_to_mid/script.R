@@ -5,7 +5,7 @@ requireNamespace("CytoNorm", quietly = TRUE)
 
 ## VIASH START
 par <- list(
-    input = "resources_test/task_cyto_batch_integration/cyto_spleen_subset/unintegrated_censored.h5ad",
+    input = "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/censored_split1.h5ad",
     output = "resources_test/output.h5ad",
     som_grid_size = 10,
     num_metacluster = 10,
@@ -19,20 +19,15 @@ meta <- list(
 ## VIASH ENDs
 
 source(paste0(meta$resources_dir, "/anndata_to_fcs.R"))
+source(paste0(meta$resources_dir, "/helper_functions.R"))
 
-# only for HPC, the idea is if running on HPC, use a temp dir set in the env variable
-tmp_path <- Sys.getenv("HPC_VIASH_META_TEMP_DIR")
-if (tmp_path != "") {
-  # Environment variable is set, use it
-  print(paste0("Using HPC temp dir from env: ", tmp_path))
-} else {
-  # Environment variable not set, use meta
-  tmp_path <- meta[["temp_dir"]]
-  print(paste0("Using meta temp dir: ", tmp_path))
-}
+tmp_path <- get_temp_dir(meta)
+print(paste0("Using temp dir: ", tmp_path))
+on.exit(clean_temp_dir(tmp_path))
 
 cat("Reading input files\n")
-adata <- anndata::read_h5ad(par[["input"]])
+adata <- anndata::read_h5ad(par[["input"]]) |>
+    subset_onecontrol()
 
 cat("Preparing training data\n")
 

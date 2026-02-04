@@ -3402,7 +3402,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/methods/cytovi",
     "viash_version" : "0.9.4",
-    "git_commit" : "ddc57cf78c65d3c5f891f280419a20b8f66715df",
+    "git_commit" : "f27dad7d475f260bbbc44700bd89e0ff0aa48745",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3564,6 +3564,7 @@ torch.backends.cuda.matmul.allow_tf32 = True
 
 # increase num workers for data loading
 scvi.settings.num_workers = 95
+scvi.settings.seed = 0
 
 print("Reading and preparing input files", flush=True)
 adata = ad.read_h5ad(par["input"])

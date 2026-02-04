@@ -3254,6 +3254,11 @@ meta = [
     {
       "type" : "file",
       "path" : "utils.R"
+    },
+    {
+      "type" : "r_script",
+      "path" : "/src/utils/helper_functions.R",
+      "is_executable" : true
     }
   ],
   "label" : "Batchadjust with one control",
@@ -3362,7 +3367,8 @@ meta = [
         {
           "type" : "r",
           "packages" : [
-            "docstring"
+            "docstring",
+            "dplyr"
           ],
           "bioc" : [
             "flowCore"
@@ -3379,7 +3385,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/methods/batchadjust_one_control",
     "viash_version" : "0.9.4",
-    "git_commit" : "ddc57cf78c65d3c5f891f280419a20b8f66715df",
+    "git_commit" : "f27dad7d475f260bbbc44700bd89e0ff0aa48745",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3537,17 +3543,11 @@ rm(.viash_orig_warn)
 source(paste0(meta\\$resources_dir, "/utils.R"))
 source(paste0(meta\\$resources_dir, "/anndata_to_fcs.R"))
 source(paste0(meta\\$resources_dir, "/BatchAdjust.R"))
+source(paste0(meta\\$resources_dir, "/helper_functions.R"))
 
-# only for HPC, the idea is if running on HPC, use a temp dir set in the env variable
-tmp_dir <- Sys.getenv("HPC_VIASH_META_TEMP_DIR")
-if (tmp_dir != "") {
-  # Environment variable is set, use it
-  print(paste0("Using HPC temp dir from env: ", tmp_dir))
-} else {
-  # Environment variable not set, use meta
-  tmp_dir <- meta[["temp_dir"]]
-  print(paste0("Using meta temp dir: ", tmp_dir))
-}
+tmp_dir <- get_temp_dir(meta)
+print(paste0("Using temp dir: ", tmp_dir))
+on.exit(clean_temp_dir(tmp_dir))
 
 # As it only works with FCS files, the method requires substantial I/O
 # the startegy used here is the following:
@@ -3566,7 +3566,9 @@ if (tmp_dir != "") {
 
 
 cat("Reading input files\\\\n")
-input <- anndata::read_h5ad(par[["input"]])
+input <- anndata::read_h5ad(par[["input"]]) |> 
+  subset_onecontrol()
+
 #use Original_ID column to restore cell order after I/O operations
 # input\\$layers["preprocessed"][, "Original_ID"] <- seq(1, dim(input)[1])
 
@@ -3619,8 +3621,9 @@ if (!non_control_has_batch) {
 input_no_controls\\$obs\\$sample <- sapply(input_no_controls\\$obs\\$sample, fix_batch_underscore_anynum)
 
 
-cat("Writing FCS files\\\\n")
+cat("Writing control FCS files\\\\n")
 anndata_to_fcs(input_controls, out_dir = tmp_dir)
+cat("Writing non-control FCS files\\\\n")
 anndata_to_fcs(input_no_controls, out_dir =  tmp_dir)
 
 cat("Writing channels to correct as a text file\\\\n")

@@ -12,8 +12,6 @@ methods = [
   shuffle_integration,
   shuffle_integration_by_batch,
   shuffle_integration_by_cell_type,
-  harmonypy,
-  limma_remove_batch_effect,
   no_integration,
   perfect_integration,
   combat,
@@ -32,16 +30,16 @@ methods = [
   cytonorm_no_controls_to_goal,
   cytonorm_all_controls_to_goal,
   cytonorm_one_control_to_goal,
+  harmonypy,
+  limma_remove_batch_effect,
   rpca_to_goal,
   rpca_to_mid,
-  cytovi
+  // cytovi
 ]
 
 // construct list of metrics
 metrics = [
   emd,
-  // bras,
-  // n_inconsistent_peaks,
   ratio_inconsistent_peaks,
   average_batch_r2,
   flowsom_mapping_similarity,

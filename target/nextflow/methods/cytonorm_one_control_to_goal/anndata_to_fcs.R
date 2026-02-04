@@ -3,6 +3,60 @@ library(flowCore)
 library(Biobase)
 library(docstring)
 
+
+#' Get Temporary Directory
+#'
+#' @description
+#' Retrieves the temporary directory path from Viash metadata
+#' and create a temp directory from it.
+#'
+#' @param viash_meta A list containing Viash metadata configuration.
+#'
+#' @return
+#' A character string representing the temporary directory path.
+#'
+#' @examples
+#' \dontrun{
+#'   temp_dir <- get_temp_dir(viash_meta)
+#' }
+#'
+#' @keywords internal
+get_temp_dir <- function(viash_meta) {
+    dir_path <- tempfile(
+        pattern = viash_meta[["name"]],
+        tmpdir = viash_meta[["temp_dir"]]
+    )
+    dir.create(dir_path, recursive = TRUE)
+    cat("Created temporary directory:", dir_path, "\n")
+    return(dir_path)
+}
+
+
+#' Clean Temporary Directory
+#'
+#' Removes all files and subdirectories from temporary directory.
+#' This function is for cleanup operations a method finished running.
+#'
+#' @param dir_path A character string specifying the path to the temporary
+#'   directory to be cleaned. The directory must exist.
+#'
+#' @return None.
+#'
+#' @examples
+#' \dontrun{
+#'   temp_dir <- tempdir()
+#'   clean_temp_dir(temp_dir)
+#' }
+#'
+clean_temp_dir <- function(dir_path) {
+    if (dir.exists(dir_path)) {
+        unlink(dir_path, recursive = TRUE, force = TRUE)
+        cat("Deleted temporary directory:", dir_path, "\n")
+    } else {
+        cat("Temporary directory does not exist:", dir_path, "\n")
+    }
+}
+
 #' @title Write FCS from anndata object. Alternatively, read a FlowSet from anndata object
 #'
 #' @description When `out_dir` is specified, it creates a collection of FCS flies from an anndata object and returns a list with he path of the created FCS files.
