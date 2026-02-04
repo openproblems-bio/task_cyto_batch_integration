@@ -119,6 +119,10 @@
 * Update ratio inconsistent peaks to handle edge cases where methods return only zero values
   for a marker/cell type/donor combination, causing sd to be zero and division by zero (PR #119).
 
+* One control and no control method will only get either samples from one control plus non-control samples or just no control samples. 
+  They will no longer be given access to other samples to correct or to train the model. 
+  Notably, the included control samples may still be corrected.
+
 ## MINOR CHANGES
 
 * Enabled unit tests (PR #2).
