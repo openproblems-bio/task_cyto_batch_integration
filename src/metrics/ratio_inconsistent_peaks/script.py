@@ -202,12 +202,12 @@ for donor in donor_list:
 
             # case 1 or 3 where we have consistent peaks in unintegrated
             if peaks_u_s1 == peaks_u_s2:
-                if peaks_s1 != peaks_s2:
-                    n_case3 += 1
-                    case_details["case3"].append((donor, celltype, marker))
-                else:
+                if peaks_s1 == peaks_u_s1 and peaks_u_s2 == peaks_s2:
                     n_case1 += 1
                     case_details["case1"].append((donor, celltype, marker))
+                else:
+                    n_case3 += 1
+                    case_details["case3"].append((donor, celltype, marker))
             else:
                 print(
                     "WARNING! Inconsistent peaks detected in unintegrated data (case 2 or 4). Skipping calculation",
@@ -232,7 +232,7 @@ if n_case1 + n_case3 == 0:
     )
     metric_val = np.nan
 else:
-    metric_val = n_case3 / (n_case1 + n_case3)
+    metric_val = n_case1 / (n_case1 + n_case3)
 
 
 print("Write output AnnData to file", flush=True)
