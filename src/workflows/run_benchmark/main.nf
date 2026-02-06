@@ -40,7 +40,7 @@ methods = [
 // construct list of metrics
 metrics = [
   emd,
-  ratio_inconsistent_peaks,
+  ratio_consistent_peaks,
   average_batch_r2,
   flowsom_mapping_similarity,
   lisi

@@ -69,10 +69,21 @@ print("Compute metric (per cell type)", flush=True)
 # case 3 = consistent peaks in unintegrated but inconsistent in integrated
 # not recording case 2 or 4 where unintegrated is inconsistent
 n_case1 = 0
-n_case3 = 0
+n_case2 = 0
 
 # so we can see where each cases comes from
 case_details = defaultdict(list)
+case_details["header"].append(
+    [
+        "donor",
+        "celltype",
+        "marker",
+        "n_peaks_unintegrated_s1",
+        "n_peaks_unintegrated_s2",
+        "n_peaks_integrated_s1",
+        "n_peaks_integrated_s2",
+    ]
+)
 
 for donor in donor_list:
     # for testing only
@@ -164,7 +175,7 @@ for donor in donor_list:
 
             # if s1_unscaled or s2_unscaled is all zeros,
             # but the uncorrected version is not, this is a guaranteed
-            # case 1 or 3 as corrected version is flat but the
+            # case 2 as corrected version is flat but the
             # uncorrected version is not.
             # we can detect this by calculating we can't calculate sd
             if (np.std(s1_unscaled) == 0 and np.std(u_s1_unscaled) != 0) or (
@@ -174,8 +185,10 @@ for donor in donor_list:
                     f"WARNING: Marker {marker}, donor {donor}, cell type {celltype}: has no variance either before or after integration. Automatic to case 3.",
                     flush=True,
                 )
-                n_case3 += 1
-                case_details["case3"].append((donor, celltype, marker))
+                n_case2 += 1
+                case_details["case2"].append(
+                    [donor, celltype, marker, np.nan, np.nan, np.nan, np.nan]
+                )
                 continue
 
             s1_scaled, s2_scaled = metric_helper.standardise_marker_expression(
@@ -200,24 +213,54 @@ for donor in donor_list:
                 flush=True,
             )
 
-            # case 1 or 3 where we have consistent peaks in unintegrated
+            # case 1 or 2 where we have consistent peaks in unintegrated
             if peaks_u_s1 == peaks_u_s2:
                 if peaks_s1 == peaks_u_s1 and peaks_u_s2 == peaks_s2:
                     n_case1 += 1
-                    case_details["case1"].append((donor, celltype, marker))
+                    case_details["case1"].append(
+                        [
+                            donor,
+                            celltype,
+                            marker,
+                            peaks_u_s1,
+                            peaks_u_s2,
+                            peaks_s1,
+                            peaks_s2,
+                        ]
+                    )
                 else:
-                    n_case3 += 1
-                    case_details["case3"].append((donor, celltype, marker))
+                    n_case2 += 1
+                    case_details["case2"].append(
+                        [
+                            donor,
+                            celltype,
+                            marker,
+                            peaks_u_s1,
+                            peaks_u_s2,
+                            peaks_s1,
+                            peaks_s2,
+                        ]
+                    )
             else:
                 print(
-                    "WARNING! Inconsistent peaks detected in unintegrated data (case 2 or 4). Skipping calculation",
+                    "WARNING! Inconsistent peaks detected in unintegrated data (case NGT). Skipping calculation",
                     flush=True,
                 )
                 print(
                     f"Number of peaks in unintegrated split 1: {peaks_u_s1}, split 2: {peaks_u_s2}",
                     flush=True,
                 )
-                case_details["case2or4"].append((donor, celltype, marker))
+                case_details["case_NGT"].append(
+                    [
+                        donor,
+                        celltype,
+                        marker,
+                        peaks_u_s1,
+                        peaks_u_s2,
+                        peaks_s1,
+                        peaks_s2,
+                    ]
+                )
 
             print("Done comparing peaks.", flush=True)
             print("\n", flush=True)
@@ -225,14 +268,14 @@ for donor in donor_list:
 print("Done processing all celltypes and donors", flush=True)
 print("Calculating ratio", flush=True)
 
-if n_case1 + n_case3 == 0:
+if n_case1 + n_case2 == 0:
     print(
-        "Only case 2 or 4 are found!. Cannot calculate metric.",
+        "Only case NGT are found!. Cannot calculate metric.",
         flush=True,
     )
     metric_val = np.nan
 else:
-    metric_val = n_case1 / (n_case1 + n_case3)
+    metric_val = n_case1 / (n_case1 + n_case2)
 
 
 print("Write output AnnData to file", flush=True)
@@ -244,12 +287,10 @@ output = ad.AnnData(
         "metric_values": [metric_val],
         "n_cases": {
             "case1": n_case1,
-            "case3": n_case3,
-            "case2or4": len(case_details["case2or4"]),
+            "case2": n_case2,
+            "case_NGT": len(case_details["case_NGT"]),
         },
         "case_details": dict(case_details),
     }
 )
 output.write_h5ad(par["output"], compression="gzip")
-
-# print(uns_metric_ids, uns_metric_values)
