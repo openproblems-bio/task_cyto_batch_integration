@@ -1,4 +1,4 @@
-name: "ratio_inconsistent_peaks"
+name: "ratio_consistent_peaks"
 namespace: "metrics"
 version: "build_setup_run_hpc"
 argument_groups:
@@ -247,8 +247,8 @@ test_resources:
   dest: "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset"
 info:
   metrics:
-  - name: "ratio_inconsistent_peaks"
-    label: "Ratio of inconsistent peaks"
+  - name: "ratio_consistent_peaks"
+    label: "Ratio of consistent peaks"
     summary: "Ratio of the number of cell‑type marker‑expression peaks between unintegrated\
       \ and batch-integrated data."
     description: "The metric compares the number of cell type specific marker expression\
@@ -260,29 +260,29 @@ info:
       \ is set to 0.1 and the `height` parameter is set to 0.05*max_density.\n\nCase\
       \ Definitions:\n- Case 1: Consistent peaks in both unintegrated AND integrated\
       \ data (ideal outcome).\n  Example: A marker shows 2 peaks for both splits in\
-      \ unintegrated AND integrated data.\n- Case 2: Inconsistent peaks in unintegrated\
-      \ data, consistent in integrated data (excluded from metric).\n  Example: A\
-      \ marker shows 1 peaks in unintegrated split 1 but 3 peaks in unintegrated split\
-      \ 2, \n  and the same for integrated (1 peak in split 1 and 3 peaks in split\
-      \ 2).\n  Excluded from calculation because there are differences in unintegrated\
-      \ that cannot be accounted for.\n- Case 3: Consistent peaks in unintegrated\
-      \ data but inconsistent in integrated data (problematic - batch integration\
-      \ introduced inconsistency).\n  Example: A marker shows 2 peaks in both unintegrated\
-      \ splits, but after integration shows 2 peaks in split 1 and 1 peak in split\
-      \ 2. \n  Batch correction broke the consistency. \n- Case 4: Inconsistent peaks\
-      \ in both unintegrated AND integrated data (excluded from metric).\n  Example:\
-      \ A marker is inconsistent in unintegrated data (2 and 3 peaks in split 1 and\
-      \ split 2) and \n  remains inconsistent after integration (1 and 2 peaks in\
-      \ split 1 and split 2). \n  Excluded from calculation because there are differences\
-      \ in unintegrated that cannot be accounted for.\n\nRatio of inconsistent peaks\
-      \ is defined as the number of Case 3 occurrences divided by the total of Case\
-      \ 1 and Case 3 occurrences.\nCases 2 and 4 (where unintegrated data has inconsistent\
-      \ peaks) are excluded from the denominator, but is reported\nin the final anndata\
-      \ output for diagnostic.\nA lower score indicates better performance, meaning\
-      \ there are fewer cases with inconsistent peaks after batch integration.\n\n\
-      For edge cases where methods return only zero values for a given marker/donor/cell\
+      \ unintegrated AND integrated data.\n- Case 2: Consistent peaks in unintegrated\
+      \ data but inconsistent between integrated data and unintegrated data\n  in\
+      \ each split (problematic - batch integration introduced inconsistency).\n \
+      \ Batch correction broke the consistency. \n  Example 1: A marker shows 2 peaks\
+      \ in both unintegrated splits, but after integration shows 2 peaks in split\
+      \ 1 \n  and 1 peak in split 2. \n  Example 2: A marker shows 2 peaks in both\
+      \ unintegrated splits, but after integration shows 1 peak in both splits\n-\
+      \ Case NGT: Inconsistent peaks in unintegrated data, consistent in integrated\
+      \ data (excluded from metric) \n  OR inconsistent peaks in both unintegrated\
+      \ AND integrated data (excluded from metric).\n  These cases are excluded from\
+      \ calculation because there are differences in unintegrated that cannot be accounted\
+      \ for.\n  Example: A marker is inconsistent in unintegrated data (2 and 3 peaks\
+      \ in split 1 and split 2) and \n  is either inconsistent after integration (1\
+      \ and 2 peaks in split 1 and split 2) or \n  consistent after integration (2\
+      \ peaks in both split 1 and split 2).\n\nRatio of consistent peaks is defined\
+      \ as the number of Case 1 occurrences divided by the total of Case 1 and Case\
+      \ 2 occurrences.\nCases NGT (where unintegrated data has inconsistent peaks)\
+      \ are excluded from the denominator, but is reported\nin the final anndata output\
+      \ for diagnostic.\nA higher score indicates better performance, meaning there\
+      \ are fewer cases with inconsistent peaks after batch integration.\n\nFor edge\
+      \ cases where methods return only zero values for a given marker/donor/cell\
       \ type, but is not the \ncase in the unintegrated data, it is automatically\
-      \ assigned as Case 3.\n"
+      \ assigned as Case 2.\n"
     references:
       doi:
       - "10.1038/s41592-019-0686-2"
@@ -290,8 +290,8 @@ info:
       documentation: "https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.find_peaks.html#scipy.signal.find_peaks"
       repository: "https://github.com/scipy/scipy/blob/v1.15.2/scipy/signal/_peak_finding.py#L0-L1"
     min: 0
-    max: "+.inf"
-    maximize: false
+    max: 1
+    maximize: true
   type: "metric"
   type_info:
     label: "Metric"
@@ -355,13 +355,13 @@ engines:
   entrypoint: []
   cmd: null
 build_info:
-  config: "src/metrics/ratio_inconsistent_peaks/config.vsh.yaml"
+  config: "src/metrics/ratio_consistent_peaks/config.vsh.yaml"
   runner: "nextflow"
   engine: "docker"
-  output: "target/nextflow/metrics/ratio_inconsistent_peaks"
-  executable: "target/nextflow/metrics/ratio_inconsistent_peaks/main.nf"
+  output: "target/nextflow/metrics/ratio_consistent_peaks"
+  executable: "target/nextflow/metrics/ratio_consistent_peaks/main.nf"
   viash_version: "0.9.4"
-  git_commit: "3e3af60f2a959864c3c5fb3d66a67f7e4524c0c2"
+  git_commit: "999ce87b1f5e0cc590e41a0a67a1b3b902c1f7db"
   git_remote: "https://github.com/openproblems-bio/task_cyto_batch_integration"
 package_config:
   name: "task_cyto_batch_integration"

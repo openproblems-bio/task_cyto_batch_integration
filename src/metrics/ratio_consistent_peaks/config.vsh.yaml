@@ -7,15 +7,15 @@ __merge__: ../../api/comp_metric.yaml
 
 # A unique identifier for your component (required).
 # Can contain only lowercase letters or underscores.
-name: ratio_inconsistent_peaks
+name: ratio_consistent_peaks
 
 # Metadata for your component
 info:
   metrics:
       # A unique identifier for your metric (required).
       # Can contain only lowercase letters or underscores.
-    - name: ratio_inconsistent_peaks
-      label: Ratio of inconsistent peaks
+    - name: ratio_consistent_peaks
+      label: Ratio of consistent peaks
       summary: "Ratio of the number of cell‑type marker‑expression peaks between unintegrated and batch-integrated data."
       description: |
         The metric compares the number of cell type specific marker expression peaks between unintegrated and batch integrated data.
@@ -27,25 +27,26 @@ info:
         Case Definitions:
         - Case 1: Consistent peaks in both unintegrated AND integrated data (ideal outcome).
           Example: A marker shows 2 peaks for both splits in unintegrated AND integrated data.
-        - Case 2: Inconsistent peaks in unintegrated data, consistent in integrated data (excluded from metric).
-          Example: A marker shows 1 peaks in unintegrated split 1 but 3 peaks in unintegrated split 2, 
-          and the same for integrated (1 peak in split 1 and 3 peaks in split 2).
-          Excluded from calculation because there are differences in unintegrated that cannot be accounted for.
-        - Case 3: Consistent peaks in unintegrated data but inconsistent in integrated data (problematic - batch integration introduced inconsistency).
-          Example: A marker shows 2 peaks in both unintegrated splits, but after integration shows 2 peaks in split 1 and 1 peak in split 2. 
+        - Case 2: Consistent peaks in unintegrated data but inconsistent between integrated data and unintegrated data
+          in each split (problematic - batch integration introduced inconsistency).
           Batch correction broke the consistency. 
-        - Case 4: Inconsistent peaks in both unintegrated AND integrated data (excluded from metric).
+          Example 1: A marker shows 2 peaks in both unintegrated splits, but after integration shows 2 peaks in split 1 
+          and 1 peak in split 2. 
+          Example 2: A marker shows 2 peaks in both unintegrated splits, but after integration shows 1 peak in both splits
+        - Case NGT: Inconsistent peaks in unintegrated data, consistent in integrated data (excluded from metric) 
+          OR inconsistent peaks in both unintegrated AND integrated data (excluded from metric).
+          These cases are excluded from calculation because there are differences in unintegrated that cannot be accounted for.
           Example: A marker is inconsistent in unintegrated data (2 and 3 peaks in split 1 and split 2) and 
-          remains inconsistent after integration (1 and 2 peaks in split 1 and split 2). 
-          Excluded from calculation because there are differences in unintegrated that cannot be accounted for.
+          is either inconsistent after integration (1 and 2 peaks in split 1 and split 2) or 
+          consistent after integration (2 peaks in both split 1 and split 2).
         
-        Ratio of inconsistent peaks is defined as the number of Case 3 occurrences divided by the total of Case 1 and Case 3 occurrences.
-        Cases 2 and 4 (where unintegrated data has inconsistent peaks) are excluded from the denominator, but is reported
+        Ratio of consistent peaks is defined as the number of Case 1 occurrences divided by the total of Case 1 and Case 2 occurrences.
+        Cases NGT (where unintegrated data has inconsistent peaks) are excluded from the denominator, but is reported
         in the final anndata output for diagnostic.
-        A lower score indicates better performance, meaning there are fewer cases with inconsistent peaks after batch integration.
+        A higher score indicates better performance, meaning there are fewer cases with inconsistent peaks after batch integration.
         
         For edge cases where methods return only zero values for a given marker/donor/cell type, but is not the 
-        case in the unintegrated data, it is automatically assigned as Case 3.
+        case in the unintegrated data, it is automatically assigned as Case 2.
       
       references:
         doi: 
@@ -58,9 +59,9 @@ info:
       # The minimum possible value for this metric (required)
       min: 0
       # The maximum possible value for this metric (required)
-      max: +.inf
+      max: 1
       # Whether a higher value represents a 'better' solution (required)
-      maximize: false
+      maximize: true
 
 # Resources required to run the component
 resources:

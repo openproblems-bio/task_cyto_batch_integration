@@ -3761,7 +3761,7 @@ meta = [
       }
     },
     {
-      "name" : "metrics/ratio_inconsistent_peaks",
+      "name" : "metrics/ratio_consistent_peaks",
       "repository" : {
         "type" : "local"
       }
@@ -3841,7 +3841,7 @@ meta = [
     "engine" : "native",
     "output" : "target/nextflow/workflows/run_benchmark",
     "viash_version" : "0.9.4",
-    "git_commit" : "3e3af60f2a959864c3c5fb3d66a67f7e4524c0c2",
+    "git_commit" : "999ce87b1f5e0cc590e41a0a67a1b3b902c1f7db",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3973,7 +3973,7 @@ include { batchadjust_all_controls } from "${meta.resources_dir}/../../../nextfl
 include { rpca_to_goal } from "${meta.resources_dir}/../../../nextflow/methods/rpca_to_goal/main.nf"
 include { rpca_to_mid } from "${meta.resources_dir}/../../../nextflow/methods/rpca_to_mid/main.nf"
 include { emd } from "${meta.resources_dir}/../../../nextflow/metrics/emd/main.nf"
-include { ratio_inconsistent_peaks } from "${meta.resources_dir}/../../../nextflow/metrics/ratio_inconsistent_peaks/main.nf"
+include { ratio_consistent_peaks } from "${meta.resources_dir}/../../../nextflow/metrics/ratio_consistent_peaks/main.nf"
 include { average_batch_r2 } from "${meta.resources_dir}/../../../nextflow/metrics/average_batch_r2/main.nf"
 include { flowsom_mapping_similarity } from "${meta.resources_dir}/../../../nextflow/metrics/flowsom_mapping_similarity/main.nf"
 include { lisi } from "${meta.resources_dir}/../../../nextflow/metrics/lisi/main.nf"
@@ -4022,7 +4022,7 @@ methods = [
 // construct list of metrics
 metrics = [
   emd,
-  ratio_inconsistent_peaks,
+  ratio_consistent_peaks,
   average_batch_r2,
   flowsom_mapping_similarity,
   lisi
