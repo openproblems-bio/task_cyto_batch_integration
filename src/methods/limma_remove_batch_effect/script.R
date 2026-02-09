@@ -47,3 +47,5 @@ output <- anndata::AnnData(
 output <- output[, input$var_names]
 
 output$write_h5ad(par[["output"]], compression = "gzip")
+
+cat("Written anndata of shape ", dim(output), " to file: ", par[["output"]], "\n")
