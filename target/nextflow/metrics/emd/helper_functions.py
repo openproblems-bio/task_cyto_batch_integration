@@ -147,10 +147,13 @@ def subset_nocontrols(adata) -> ad.AnnData:
         "The column 'is_control' is not present in the adata object."
     )
 
+    print("Subsetting to remove all control samples.")
+    print("Anndata shape before subsetting: ", adata.shape)
     # subset the adata to remove cells which is_control != 0
-    adata = adata[adata.obs["is_control"] == 0].copy()
-
-    return adata
+    adata_subset = adata[adata.obs["is_control"] == 0].copy()
+    print("Anndata shape after subsetting: ", adata_subset.shape)
+    print("Samples in the subsetted anndata: ", adata_subset.obs["sample"].unique())
+    return adata_subset
 
 
 def subset_markers_tocorrect(adata) -> ad.AnnData:

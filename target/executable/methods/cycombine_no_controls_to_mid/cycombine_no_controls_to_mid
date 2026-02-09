@@ -452,9 +452,9 @@ RUN Rscript -e 'options(warn = 2); if (!requireNamespace("remotes", quietly = TR
   Rscript -e 'options(warn = 2); remotes::install_github(c("biosurf/cyCombine"), repos = "https://cran.rstudio.com")'
 
 LABEL org.opencontainers.image.description="Companion container for running component methods cycombine_no_controls_to_mid"
-LABEL org.opencontainers.image.created="2026-02-09T23:24:51Z"
+LABEL org.opencontainers.image.created="2026-02-09T23:48:46Z"
 LABEL org.opencontainers.image.source="https://github.com/biosurf/cyCombine"
-LABEL org.opencontainers.image.revision="999ce87b1f5e0cc590e41a0a67a1b3b902c1f7db"
+LABEL org.opencontainers.image.revision="de15e28f01625fb4d10d03dabc9bba6fe1a19a08"
 LABEL org.opencontainers.image.version="build_setup_run_hpc"
 
 VIASHDOCKER
@@ -1249,6 +1249,8 @@ output <- anndata::AnnData(
 cat("Write output AnnData to file\\n")
 
 output\$write_h5ad(par[["output"]], compression = "gzip")
+
+cat("Written anndata of shape ", dim(output), " to file: ", par[["output"]], "\\n")
 VIASHMAIN
 Rscript "\$tempscript" &
 wait "\$!"

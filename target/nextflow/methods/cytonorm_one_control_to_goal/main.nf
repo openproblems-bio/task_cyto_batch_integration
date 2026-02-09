@@ -3415,7 +3415,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/methods/cytonorm_one_control_to_goal",
     "viash_version" : "0.9.4",
-    "git_commit" : "999ce87b1f5e0cc590e41a0a67a1b3b902c1f7db",
+    "git_commit" : "de15e28f01625fb4d10d03dabc9bba6fe1a19a08",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3686,6 +3686,8 @@ norm_mat <- anndata::AnnData(
 
 cat("Write output AnnData to file\\\\n")
 norm_mat\\$write_h5ad(par[["output"]], compression = "gzip")
+
+cat("Written anndata of shape ", dim(norm_mat), " to file: ", par[["output"]], "\\\\n")
 VIASHMAIN
 Rscript "$tempscript"
 '''
