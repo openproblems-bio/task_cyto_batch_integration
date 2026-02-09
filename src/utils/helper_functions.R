@@ -84,9 +84,13 @@ subset_nocontrols <- function(adata) {
     if (!"is_control" %in% colnames(adata$obs)) {
         stop("The column 'is_control' is not present in the adata object.")
     }
-
+    cat("Subsetting to remove all control samples.\n")
+    cat("Anndata shape before subsetting: ", dim(adata), "\n")
     # Subset the adata to remove cells where is_control != 0
-    adata[adata$obs$is_control == 0, ]$copy()
+    adata_subset = adata[adata$obs$is_control == 0, ]$copy()
+    cat("Anndata shape after subsetting: ", dim(adata_subset), "\n")
+    cat("Samples in the subsetted anndata: ", unique(adata_subset$obs$sample), "\n")
+    return(adata_subset)
 }
 
 
@@ -111,8 +115,13 @@ subset_onecontrol <- function(adata, which_control = 1) {
         stop("The column 'is_control' is not present in the adata object.")
     }
 
+    cat("Subsetting to keep only non-control samples and control sample", which_control, ".\n")
+    cat("Anndata shape before subsetting: ", dim(adata), "\n")
     # Subset the adata to keep cells where is_control == which_control
-    adata[adata$obs$is_control %in% c(which_control, 0), ]$copy()
+    adata_subset = adata[adata$obs$is_control %in% c(which_control, 0), ]$copy()
+    cat("Anndata shape after subsetting: ", dim(adata_subset), "\n")
+    cat("Samples in the subsetted anndata: ", unique(adata_subset$obs$sample), "\n")
+    return(adata_subset)
 }
 
 #' Subsets the anndata object to only include markers that need to be
