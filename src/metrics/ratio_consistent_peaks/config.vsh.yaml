@@ -15,7 +15,7 @@ info:
       # A unique identifier for your metric (required).
       # Can contain only lowercase letters or underscores.
     - name: ratio_consistent_peaks
-      label: Ratio of consistent peaks
+      label: Ratio Consistent Peaks
       summary: "Ratio of the number of cell‑type marker‑expression peaks between unintegrated and batch-integrated data."
       description: |
         The metric compares the number of cell type specific marker expression peaks between unintegrated and batch integrated data.
