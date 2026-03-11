@@ -26,12 +26,14 @@ unintegrated <- anndata::read_h5ad(par[["input_unintegrated"]])
 # read and filter split 1 data
 integrated_s1 <- anndata::read_h5ad(par[["input_integrated_split1"]]) |>
   get_obs_var_for_integrated(unintegrated, split_id = 1) |>
+  subset_markers_tocorrect() |>
   subset_nocontrols() |>
   remove_unlabelled()
 
 # read and filter split 2 data
 integrated_s2 <- anndata::read_h5ad(par[["input_integrated_split2"]]) |>
   get_obs_var_for_integrated(unintegrated, split_id = 2) |>
+  subset_markers_tocorrect() |>
   subset_nocontrols() |>
   remove_unlabelled()
 
