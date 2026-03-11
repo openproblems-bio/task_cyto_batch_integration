@@ -451,9 +451,9 @@ RUN Rscript -e 'options(warn = 2); if (!requireNamespace("remotes", quietly = TR
   Rscript -e 'options(warn = 2); remotes::install_cran(c("lifecycle", "vctrs", "dplyr", "rlang"), repos = "https://cran.rstudio.com")'
 
 LABEL org.opencontainers.image.description="Companion container for running component methods limma_remove_batch_effect"
-LABEL org.opencontainers.image.created="2026-02-09T23:48:45Z"
+LABEL org.opencontainers.image.created="2026-03-11T11:37:35Z"
 LABEL org.opencontainers.image.source="https://github.com/bioc/limma"
-LABEL org.opencontainers.image.revision="de15e28f01625fb4d10d03dabc9bba6fe1a19a08"
+LABEL org.opencontainers.image.revision="e8e133986437e37631cc6e69878d30bc619e23d9"
 LABEL org.opencontainers.image.version="build_setup_run_hpc"
 
 VIASHDOCKER

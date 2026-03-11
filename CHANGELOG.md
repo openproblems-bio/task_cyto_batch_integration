@@ -70,10 +70,8 @@
 * Added processing scripts for Lille dataset and remove ones for CLL dataset (PR #118).
 
 * Added config and run scripts for running the benchmark on WEHI HPC (PR #119). 
-  Refer to the pull request on Github to see what needs to be set up.
-  TLDR; Setup the compute environment and the caching directory, then run the warmup job
-  to pull and create the apptainer images (one job = one method + one metric).
-  After that, run the main benchmarking job with the config file for the HPC system.
+
+* Added utility scripts to pull intermediate files (PR #119). 
 
 ## MAJOR CHANGES
 
@@ -126,6 +124,8 @@
 * Change temp folder for methods which rely on writing out FCS files. 
   Temp folders are now created by a new helper function which will create a subdirectory under `meta[["temp_dir"]]`. 
   This will be used as the temp directory (PR #119).
+
+* Change inconsistent peaks metrics to consistent peaks (PR #119). 
 
 ## MINOR CHANGES
 

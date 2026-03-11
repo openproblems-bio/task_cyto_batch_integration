@@ -452,9 +452,9 @@ RUN Rscript -e 'options(warn = 2); if (!requireNamespace("remotes", quietly = TR
   Rscript -e 'options(warn = 2); remotes::install_cran(c("dplyr", "docstring", "rlang", "vctrs", "lifecycle"), repos = "https://cran.rstudio.com")'
 
 LABEL org.opencontainers.image.description="Companion container for running component metrics flowsom_mapping_similarity"
-LABEL org.opencontainers.image.created="2026-02-09T23:48:44Z"
+LABEL org.opencontainers.image.created="2026-03-11T11:37:36Z"
 LABEL org.opencontainers.image.source="https://github.com/openproblems-bio/task_cyto_batch_integration"
-LABEL org.opencontainers.image.revision="de15e28f01625fb4d10d03dabc9bba6fe1a19a08"
+LABEL org.opencontainers.image.revision="e8e133986437e37631cc6e69878d30bc619e23d9"
 LABEL org.opencontainers.image.version="build_setup_run_hpc"
 
 VIASHDOCKER
@@ -1136,12 +1136,14 @@ unintegrated <- anndata::read_h5ad(par[["input_unintegrated"]])
 # read and filter split 1 data
 integrated_s1 <- anndata::read_h5ad(par[["input_integrated_split1"]]) |>
   get_obs_var_for_integrated(unintegrated, split_id = 1) |>
+  subset_markers_tocorrect() |>
   subset_nocontrols() |>
   remove_unlabelled()
 
 # read and filter split 2 data
 integrated_s2 <- anndata::read_h5ad(par[["input_integrated_split2"]]) |>
   get_obs_var_for_integrated(unintegrated, split_id = 2) |>
+  subset_markers_tocorrect() |>
   subset_nocontrols() |>
   remove_unlabelled()
 

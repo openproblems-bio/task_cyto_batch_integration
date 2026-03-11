@@ -3314,7 +3314,7 @@ meta = [
       "path" : "/src/control_methods/utils.py"
     }
   ],
-  "label" : "Shuffle Integration — within cell type",
+  "label" : "Shuffle Integration Within Cell Type",
   "summary" : "Randomly reassign cells to any cell types",
   "description" : "This negative-control method randomly shuffles cells within each cell type.\nCells retain their cell type identity but lose their sample and batch identity. \n\nExample: A B cell remains a B cell but if may be reassigned from mouse 3 batch 1 to \nmouse 4 batch 1 or mouse 6 batch 2.\n",
   "test_resources" : [
@@ -3415,7 +3415,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/control_methods/shuffle_integration_within_cell_type",
     "viash_version" : "0.9.4",
-    "git_commit" : "de15e28f01625fb4d10d03dabc9bba6fe1a19a08",
+    "git_commit" : "e8e133986437e37631cc6e69878d30bc619e23d9",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {

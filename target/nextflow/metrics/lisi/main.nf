@@ -3531,7 +3531,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/metrics/lisi",
     "viash_version" : "0.9.4",
-    "git_commit" : "de15e28f01625fb4d10d03dabc9bba6fe1a19a08",
+    "git_commit" : "e8e133986437e37631cc6e69878d30bc619e23d9",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3686,7 +3686,9 @@ dep = {
 sys.path.append(meta["resources_dir"])
 from helper_functions import (
     get_obs_var_for_integrated,
+    remove_unlabelled,
     subset_markers_tocorrect,
+    subset_nocontrols,
 )
 
 # TODO: no idea why the new anndata >= 0.11 needs this even if we don't write anything to obs?
@@ -3702,7 +3704,12 @@ integrated_s1, integrated_s2 = get_obs_var_for_integrated(
     input_integrated_split1, input_integrated_split2, input_unintegrated
 )
 integrated_s1 = subset_markers_tocorrect(integrated_s1)
+integrated_s1 = subset_nocontrols(integrated_s1)
+integrated_s1 = remove_unlabelled(integrated_s1)
+
 integrated_s2 = subset_markers_tocorrect(integrated_s2)
+integrated_s2 = subset_nocontrols(integrated_s2)
+integrated_s2 = remove_unlabelled(integrated_s2)
 
 print("Compute metrics", flush=True)
 n_batches = len(integrated_s1.obs.batch.unique())

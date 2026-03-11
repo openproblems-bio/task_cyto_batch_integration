@@ -16,7 +16,7 @@ info:
       # Can contain only lowercase letters or underscores.
     - name: emd_mean_ct_horiz
       # A relatively short label, used when rendering visualisarions (required)
-      label: EMD Mean CT Horizontal
+      label: EMD Mean Horizontal
       # A one sentence summary of how this metric works (required). Used when 
       # rendering summary tables.
       summary: "Mean Earth Mover Distance calculated horizontally across donors for each cell type and marker."
@@ -60,7 +60,7 @@ info:
       # Can contain only lowercase letters or underscores.
     - name: emd_mean_ct_vert
       # A relatively short label, used when rendering visualisarions (required)
-      label: EMD Mean CT Vertical
+      label: EMD Mean Vertical
       # A one sentence summary of how this metric works (required). Used when 
       # rendering summary tables.
       summary: "Mean Earth Mover Distance across batch corrected samples, cell types, and markers."

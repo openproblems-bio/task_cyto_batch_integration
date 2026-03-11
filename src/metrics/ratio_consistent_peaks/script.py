@@ -53,12 +53,10 @@ integrated_s1, integrated_s2 = get_obs_var_for_integrated(
 
 integrated_s1 = subset_nocontrols(integrated_s1)
 integrated_s1 = subset_markers_tocorrect(integrated_s1)
-integrated_s1 = subset_nocontrols(integrated_s1)
 integrated_s1 = remove_unlabelled(integrated_s1)
 
 integrated_s2 = subset_nocontrols(integrated_s2)
 integrated_s2 = subset_markers_tocorrect(integrated_s2)
-integrated_s2 = subset_nocontrols(integrated_s2)
 integrated_s2 = remove_unlabelled(integrated_s2)
 
 donor_list = integrated_s1.obs["donor"].unique()

@@ -8,7 +8,7 @@ info:
   metrics:
     - name: average_batch_r2_ct
       # A relatively short label, used when rendering visualisarions (required)
-      label: Average Batch R-squared Cell Type
+      label: Average Batch R-squared
       # A one sentence summary of how this metric works (required). Used when 
       # rendering summary tables.
       summary: "Quantifies how strongly the batch covariate explains the variance in the data among technical replicates after correction (by taking into account cell type effect)."

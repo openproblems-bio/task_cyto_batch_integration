@@ -449,9 +449,9 @@ RUN pip install --upgrade pip && \
   pip install --upgrade --no-cache-dir "scikit-tda"
 
 LABEL org.opencontainers.image.description="Companion container for running component metrics ratio_consistent_peaks"
-LABEL org.opencontainers.image.created="2026-02-09T23:48:45Z"
+LABEL org.opencontainers.image.created="2026-03-11T11:37:36Z"
 LABEL org.opencontainers.image.source="https://github.com/openproblems-bio/task_cyto_batch_integration"
-LABEL org.opencontainers.image.revision="de15e28f01625fb4d10d03dabc9bba6fe1a19a08"
+LABEL org.opencontainers.image.revision="e8e133986437e37631cc6e69878d30bc619e23d9"
 LABEL org.opencontainers.image.version="build_setup_run_hpc"
 
 VIASHDOCKER
@@ -1143,12 +1143,10 @@ integrated_s1, integrated_s2 = get_obs_var_for_integrated(
 
 integrated_s1 = subset_nocontrols(integrated_s1)
 integrated_s1 = subset_markers_tocorrect(integrated_s1)
-integrated_s1 = subset_nocontrols(integrated_s1)
 integrated_s1 = remove_unlabelled(integrated_s1)
 
 integrated_s2 = subset_nocontrols(integrated_s2)
 integrated_s2 = subset_markers_tocorrect(integrated_s2)
-integrated_s2 = subset_nocontrols(integrated_s2)
 integrated_s2 = remove_unlabelled(integrated_s2)
 
 donor_list = integrated_s1.obs["donor"].unique()

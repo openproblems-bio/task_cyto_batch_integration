@@ -3387,7 +3387,7 @@ meta = [
     "metrics" : [
       {
         "name" : "emd_mean_ct_horiz",
-        "label" : "EMD Mean CT Horizontal",
+        "label" : "EMD Mean Horizontal",
         "summary" : "Mean Earth Mover Distance calculated horizontally across donors for each cell type and marker.",
         "description" : "Earth Mover Distance (EMD), also known as the Wasserstein metric, measures the difference \nbetween two probability distributions. \n\nHere, EMD is used to compare marker expression distributions between paired samples from the same donor \nquantified across two different batches. \nFor each paired sample, cell type, and marker, the marker expression values are first converted into \nprobability distributions. \nThis is done by binning the expression values into a range from -100 to 100 with a bin width of 0.1.\nThe `wasserstein_distance` function from SciPy is then used to calculate the EMD between the two \nprobability distributions belonging to the same cell type, marker, and a given paired samples.\nThis is then repeated for every cell type, marker, and paired sample.\nFinally, the average of all these EMD values is computed and reported as the metric score.\n\nA high score indicates large overall differences in the distributions of marker expressions \nbetween the paired samples, suggesting poor batch integration.\nA low score means the small differences in marker expression distributions between batches, \nindicating good batch integration.\n",
         "references" : {
@@ -3405,7 +3405,7 @@ meta = [
       },
       {
         "name" : "emd_mean_ct_vert",
-        "label" : "EMD Mean CT Vertical",
+        "label" : "EMD Mean Vertical",
         "summary" : "Mean Earth Mover Distance across batch corrected samples, cell types, and markers.",
         "description" : "Earth Mover Distance (EMD), also known as the Wasserstein metric, measures the difference \nbetween two probability distributions. \n\nHere, EMD is used to compare marker expression distributions between all integrated \nsamples from the same group.\nFor each pair of samples, cell type, and marker, the marker expression values are first converted into \nprobability distributions. \nThis is done by binning the expression values into a range from -100 to 100 with a bin width of 0.1.\nThe `wasserstein_distance` function from SciPy is then used to calculate the EMD between the two \nprobability distributions belonging to the same cell type, marker, and a given paired samples.\nThis is then repeated for every cell type, marker, and paired sample.\nFinally, the average of all these EMD values is computed and reported as the metric score.\n\nA high score indicates overall, there is a large difference in distribution of marker expression after batch integration.\nA low score means that overall, the samples are well integrated.\n",
         "references" : {
@@ -3502,7 +3502,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/metrics/emd",
     "viash_version" : "0.9.4",
-    "git_commit" : "de15e28f01625fb4d10d03dabc9bba6fe1a19a08",
+    "git_commit" : "e8e133986437e37631cc6e69878d30bc619e23d9",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {

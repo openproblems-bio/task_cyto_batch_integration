@@ -1,6 +1,6 @@
 __merge__: /src/api/comp_control_method.yaml
 name: shuffle_integration_within_cell_type
-label: Shuffle Integration — within cell type
+label: Shuffle Integration Within Cell Type
 summary: Randomly reassign cells to any cell types
 description: | 
   This negative-control method randomly shuffles cells within each cell type.

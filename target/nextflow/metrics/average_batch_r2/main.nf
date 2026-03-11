@@ -3387,7 +3387,7 @@ meta = [
     "metrics" : [
       {
         "name" : "average_batch_r2_ct",
-        "label" : "Average Batch R-squared Cell Type",
+        "label" : "Average Batch R-squared",
         "summary" : "Quantifies how strongly the batch covariate explains the variance in the data among technical replicates after correction (by taking into account cell type effect).",
         "description" : "First, a simple linear model is fitted for each paired sample and marker to determine the fraction of variance ($R^{2}$) explained by the batch covariate $B$.\nThe average batch R-squared is then computed as the average of the $R^{2}$ values across all paired samples, markers, cell types.\nAs a result, $\\\\overline{R^2_B}_{cell\\\\ type}$ quantifies how much of the total variability in the data is driven by batch effects. Consequently, lower values are desirable.\n\n$\\\\overline{R^2_B}_{cell\\\\ type} = \\\\frac{1}{N*C*M}\\\\sum_{\\\\substack{(x_{\\\\mathrm{split1}},\\\\,x_{\\\\mathrm{split2}})\\\\\\\\ \\\\textit{paired samples}}}^{N} \\\\sum_{j=1}^{C} \\\\sum_{i=1}^{M}\\\\,R^2\\\\!\\\\bigl(\\\\mathrm{marker}_i \\\\mid B\\\\bigr)$\n\nWhere:\n\n* $N$ is the number of paired samples, where $x_{\\\\mathrm{split1}}$ and $x_{\\\\mathrm{split2}}$ are the two technical replicates that have been batch-corrected. Technical replicates belong to different batches.\n* $M$ is the number of markers\n* $C$ is the number of cell types\n* $B$ is the batch covariate\n\n\nA high value of $\\\\overline{R^2_B}_{global}$ or $\\\\overline{R^2_B}_{cell\\\\ type}$ indicates that the batch variable explains a large portion of the variance in the data, which indicates a higher level of batch effects.\nA good performance on $\\\\overline{R^2_B}_{global}$ but not on $\\\\overline{R^2_B}_{cell\\\\ type}$ might indicate that the batch effect correction is not addressing cell type specific batch effects.\n",
         "references" : {
@@ -3484,7 +3484,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/metrics/average_batch_r2",
     "viash_version" : "0.9.4",
-    "git_commit" : "de15e28f01625fb4d10d03dabc9bba6fe1a19a08",
+    "git_commit" : "e8e133986437e37631cc6e69878d30bc619e23d9",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
