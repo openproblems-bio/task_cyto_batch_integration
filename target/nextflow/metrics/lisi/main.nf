@@ -3462,7 +3462,7 @@ meta = [
         "label" : [
           "midtime",
           "midmem",
-          "midcpu"
+          "highcpu"
         ],
         "tag" : "$id"
       },
@@ -3531,7 +3531,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/metrics/lisi",
     "viash_version" : "0.9.4",
-    "git_commit" : "37b439b00ddb7a664d632cff56b2c80c130ec647",
+    "git_commit" : "bc8e0af39b7e849f6bbeada8cdf18d31eb596c61",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3686,8 +3686,13 @@ dep = {
 sys.path.append(meta["resources_dir"])
 from helper_functions import (
     get_obs_var_for_integrated,
+    remove_unlabelled,
     subset_markers_tocorrect,
+    subset_nocontrols,
 )
+
+# TODO: no idea why the new anndata >= 0.11 needs this even if we don't write anything to obs?
+ad.settings.allow_write_nullable_strings = True
 
 print("Reading input files", flush=True)
 input_unintegrated = ad.read_h5ad(par["input_unintegrated"])
@@ -3699,7 +3704,12 @@ integrated_s1, integrated_s2 = get_obs_var_for_integrated(
     input_integrated_split1, input_integrated_split2, input_unintegrated
 )
 integrated_s1 = subset_markers_tocorrect(integrated_s1)
+integrated_s1 = subset_nocontrols(integrated_s1)
+integrated_s1 = remove_unlabelled(integrated_s1)
+
 integrated_s2 = subset_markers_tocorrect(integrated_s2)
+integrated_s2 = subset_nocontrols(integrated_s2)
+integrated_s2 = remove_unlabelled(integrated_s2)
 
 print("Compute metrics", flush=True)
 n_batches = len(integrated_s1.obs.batch.unique())
@@ -3730,6 +3740,15 @@ ilisi = np.mean([ilisi_s1, ilisi_s2])
 clisi = np.mean([clisi_s1, clisi_s2])
 uns_metric_ids = ["iLisi", "cLisi"]
 uns_metric_values = [ilisi, clisi]
+
+print("iLisi split 1:", ilisi_s1, flush=True)
+print("iLisi split 2:", ilisi_s2, flush=True)
+print("cLisi split 1:", clisi_s1, flush=True)
+print("cLisi split 2:", clisi_s2, flush=True)
+print("Mean iLisi:", ilisi, flush=True)
+print("Mean cLisi:", clisi, flush=True)
+print("Metric IDs:", uns_metric_ids, flush=True)
+print("Metric values:", uns_metric_values, flush=True)
 
 print("Write output AnnData to file", flush=True)
 output = ad.AnnData(
@@ -4132,7 +4151,7 @@ meta["defaults"] = [
   "label" : [
     "midtime",
     "midmem",
-    "midcpu"
+    "highcpu"
   ],
   "tag" : "$id"
 }'''),

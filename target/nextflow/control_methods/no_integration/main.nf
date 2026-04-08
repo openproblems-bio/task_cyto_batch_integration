@@ -3367,9 +3367,9 @@ meta = [
       "id" : "nextflow",
       "directives" : {
         "label" : [
-          "midtime",
-          "midmem",
-          "midcpu"
+          "lowtime",
+          "lowmem",
+          "lowcpu"
         ],
         "tag" : "$id"
       },
@@ -3411,7 +3411,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/control_methods/no_integration",
     "viash_version" : "0.9.4",
-    "git_commit" : "37b439b00ddb7a664d632cff56b2c80c130ec647",
+    "git_commit" : "bc8e0af39b7e849f6bbeada8cdf18d31eb596c61",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3980,9 +3980,9 @@ meta["defaults"] = [
     "tag" : "build_main"
   },
   "label" : [
-    "midtime",
-    "midmem",
-    "midcpu"
+    "lowtime",
+    "lowmem",
+    "lowcpu"
   ],
   "tag" : "$id"
 }'''),

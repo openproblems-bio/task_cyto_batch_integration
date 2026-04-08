@@ -3386,7 +3386,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/methods/cycombine_all_controls_to_goal",
     "viash_version" : "0.9.4",
-    "git_commit" : "37b439b00ddb7a664d632cff56b2c80c130ec647",
+    "git_commit" : "bc8e0af39b7e849f6bbeada8cdf18d31eb596c61",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3666,6 +3666,8 @@ output <- anndata::AnnData(
 cat("Write output AnnData to file\\\\n")
 
 output\\$write_h5ad(par[["output"]], compression = "gzip")
+
+cat("Written anndata of shape ", dim(output), " to file: ", par[["output"]], "\\\\n")
 VIASHMAIN
 Rscript "$tempscript"
 '''

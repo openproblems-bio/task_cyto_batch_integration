@@ -3386,26 +3386,8 @@ meta = [
   "info" : {
     "metrics" : [
       {
-        "name" : "average_batch_r2_global",
-        "label" : "Average Batch R-squared Global",
-        "summary" : "Quantifies how strongly the batch covariate explains the variance in the data among technical replicates after correction.",
-        "description" : "First, a simple linear model is fitted for each paired sample and marker to determine the fraction of variance ($R^{2}$) explained by the batch covariate $B$.\nThe average batch R-squared is then computed as the average of the $R^{2}$ values across all paired samples, markers.\nAs a result, $\\\\overline{R^2_B}_{global}$ quantifies how much of the total variability in the data is driven by batch effects. Consequently, lower values are desirable.\n\n$\\\\overline{R^2_B}_{global} = \\\\frac{1}{N*M}\\\\sum_{\\\\substack{(x_{\\\\mathrm{split1}},\\\\,x_{\\\\mathrm{split2}})\\\\\\\\ \\\\textit{paired samples}}}^{N} \\\\sum_{i=1}^{M} \\\\,R^2\\\\!\\\\bigl(\\\\mathrm{marker}_i \\\\mid B\\\\bigr)$ \n\nWhere:\n* $N$ is the number of paired samples, where $x_{\\\\mathrm{split1}}$ and $x_{\\\\mathrm{split2}}$ are the two technical replicates that have been batch-corrected. Technical replicates belong to different batches.\n* $M$ is the number of markers\n* $B$ is the batch covariate\n\nA higher value of $\\\\overline{R^2_B}_{global}$ indicates that the batch variable explains more of the variance in the data, which indicates a higher level of batch effects.\n",
-        "references" : {
-          "bibtex" : [
-            "@book{draper1998applied,\ntitle={Applied regression analysis},\nauthor={Draper, Norman R and Smith, Harry},\npublisher={John Wiley \\\\& Sons}\n}\n"
-          ]
-        },
-        "links" : {
-          "documentation" : "https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LinearRegression.html",
-          "repository" : "https://github.com/scikit-learn/scikit-learn"
-        },
-        "min" : -0.001,
-        "max" : 1,
-        "maximize" : false
-      },
-      {
         "name" : "average_batch_r2_ct",
-        "label" : "Average Batch R-squared Cell Type",
+        "label" : "Average Batch R-squared",
         "summary" : "Quantifies how strongly the batch covariate explains the variance in the data among technical replicates after correction (by taking into account cell type effect).",
         "description" : "First, a simple linear model is fitted for each paired sample and marker to determine the fraction of variance ($R^{2}$) explained by the batch covariate $B$.\nThe average batch R-squared is then computed as the average of the $R^{2}$ values across all paired samples, markers, cell types.\nAs a result, $\\\\overline{R^2_B}_{cell\\\\ type}$ quantifies how much of the total variability in the data is driven by batch effects. Consequently, lower values are desirable.\n\n$\\\\overline{R^2_B}_{cell\\\\ type} = \\\\frac{1}{N*C*M}\\\\sum_{\\\\substack{(x_{\\\\mathrm{split1}},\\\\,x_{\\\\mathrm{split2}})\\\\\\\\ \\\\textit{paired samples}}}^{N} \\\\sum_{j=1}^{C} \\\\sum_{i=1}^{M}\\\\,R^2\\\\!\\\\bigl(\\\\mathrm{marker}_i \\\\mid B\\\\bigr)$\n\nWhere:\n\n* $N$ is the number of paired samples, where $x_{\\\\mathrm{split1}}$ and $x_{\\\\mathrm{split2}}$ are the two technical replicates that have been batch-corrected. Technical replicates belong to different batches.\n* $M$ is the number of markers\n* $C$ is the number of cell types\n* $B$ is the batch covariate\n\n\nA high value of $\\\\overline{R^2_B}_{global}$ or $\\\\overline{R^2_B}_{cell\\\\ type}$ indicates that the batch variable explains a large portion of the variance in the data, which indicates a higher level of batch effects.\nA good performance on $\\\\overline{R^2_B}_{global}$ but not on $\\\\overline{R^2_B}_{cell\\\\ type}$ might indicate that the batch effect correction is not addressing cell type specific batch effects.\n",
         "references" : {
@@ -3502,7 +3484,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/metrics/average_batch_r2",
     "viash_version" : "0.9.4",
-    "git_commit" : "37b439b00ddb7a664d632cff56b2c80c130ec647",
+    "git_commit" : "bc8e0af39b7e849f6bbeada8cdf18d31eb596c61",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3678,71 +3660,53 @@ integrated_s1 = subset_markers_tocorrect(integrated_s1)
 integrated_s2 = subset_nocontrols(integrated_s2)
 integrated_s2 = subset_markers_tocorrect(integrated_s2)
 
-print(integrated_s1.obs, integrated_s2.obs, flush=True) ### Debugging line, can be removed later
+print(
+    integrated_s1.obs, integrated_s2.obs, flush=True
+)  ### Debugging line, can be removed later
 print("Computing average_batch_r2 global", flush=True)
 
-donor_list = integrated_s1.obs['donor'].unique()
+donor_list = integrated_s1.obs["donor"].unique()
 
 r2_values = []
 r2_info = []
 
 for donor in donor_list:
-
-    s1_view = integrated_s1[integrated_s1.obs['donor'] == donor] # split 1
-    s2_view = integrated_s2[integrated_s2.obs['donor'] == donor] # split 2
-
-    r2_list,marker_list = batch_r2(s1_view, s2_view)
-
-    marker_list =[donor+"_"+ x for x in marker_list]
-    r2_info = [*r2_info, *marker_list]
-    r2_values = [*r2_values, *r2_list]
-
-average_batch_r2_global = np.mean(r2_values)
-r2_collection = dict(zip(r2_info,r2_values)) #kept for debugging only
-print("average_batch_r2_global",average_batch_r2_global)
-
-r2_values = []
-r2_info = []
-
-for donor in donor_list:
-
-    s1_view = integrated_s1[integrated_s1.obs['donor'] == donor] # split 1
+    s1_view = integrated_s1[integrated_s1.obs["donor"] == donor]  # split 1
     s1_view = remove_unlabelled(s1_view)
-    s2_view = integrated_s2[integrated_s2.obs['donor'] == donor] # split 2
+    s2_view = integrated_s2[integrated_s2.obs["donor"] == donor]  # split 2
     s2_view = remove_unlabelled(s2_view)
 
-    ct_list = s1_view.obs['cell_type'].unique()
+    ct_list = s1_view.obs["cell_type"].unique()
 
     for ct in ct_list:
-        s1_view_ct = s1_view[s1_view.obs['cell_type'] == ct]
-        s2_view_ct = s2_view[s2_view.obs['cell_type'] == ct]
-        if s1_view_ct.shape[0] < 20 or s2_view_ct.shape[0] < 20: #Skip Rˆ2 calculation if there are less than 10 cells
-            print(f"Warning: Rˆ2 not computed for donor {donor} cell type {ct}. Too few cells were present: {s1_view_ct.shape[0]} for split 1 and {s2_view_ct.shape[0]} for split 2")
+        s1_view_ct = s1_view[s1_view.obs["cell_type"] == ct]
+        s2_view_ct = s2_view[s2_view.obs["cell_type"] == ct]
+        if (
+            s1_view_ct.shape[0] < 20 or s2_view_ct.shape[0] < 20
+        ):  # Skip Rˆ2 calculation if there are less than 10 cells
+            print(
+                f"Warning: Rˆ2 not computed for donor {donor} cell type {ct}. Too few cells were present: {s1_view_ct.shape[0]} for split 1 and {s2_view_ct.shape[0]} for split 2"
+            )
             continue
 
+        r2_list, marker_list = batch_r2(s1_view, s2_view)
 
-        r2_list,marker_list = batch_r2(s1_view, s2_view)
-
-        marker_list =[ct+"_"+donor+"_"+ x for x in marker_list]
+        marker_list = [ct + "_" + donor + "_" + x for x in marker_list]
         r2_info = [*r2_info, *marker_list]
         r2_values = [*r2_values, *r2_list]
 
 average_batch_r2_ct = np.mean(r2_values)
-r2_collection_ct = dict(zip(r2_info,r2_values)) #kept for debugging only
-print("average_batch_r2_ct",average_batch_r2_ct)
-
-uns_metric_ids = ["average_batch_r2_global", "average_batch_r2_ct"]
-uns_metric_values = [average_batch_r2_global, average_batch_r2_ct]
+r2_collection_ct = dict(zip(r2_info, r2_values))  # kept for debugging only
+print("average_batch_r2_ct", average_batch_r2_ct)
 
 print("Write output AnnData to file", flush=True)
 output = ad.AnnData(
     uns={
         "dataset_id": integrated_s1.uns["dataset_id"],
         "method_id": integrated_s1.uns["method_id"],
-        "metric_ids": uns_metric_ids,
-        "metric_values": uns_metric_values,
-        "r2_collection": r2_collection,
-        "r2_collection_ct": r2_collection_ct
+        "metric_ids": "average_batch_r2_ct",
+        "metric_values": average_batch_r2_ct,
+        "r2_collection_ct": r2_collection_ct,
     }
 )
 output.write_h5ad(par["output"], compression="gzip")

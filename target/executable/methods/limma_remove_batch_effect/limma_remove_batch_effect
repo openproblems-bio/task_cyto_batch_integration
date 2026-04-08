@@ -445,13 +445,15 @@ function ViashDockerfile {
     cat << 'VIASHDOCKER'
 FROM openproblems/base_r:1
 ENTRYPOINT []
-RUN Rscript -e 'options(warn = 2); if (!requireNamespace("BiocManager", quietly = TRUE)) install.packages("BiocManager")' && \
-  Rscript -e 'options(warn = 2); if (!requireNamespace("limma", quietly = TRUE)) BiocManager::install("limma")'
+RUN Rscript -e 'options(warn = 2); if (!requireNamespace("remotes", quietly = TRUE)) install.packages("remotes")' && \
+  Rscript -e 'options(warn = 2); if (!requireNamespace("BiocManager", quietly = TRUE)) install.packages("BiocManager")' && \
+  Rscript -e 'options(warn = 2); if (!requireNamespace("limma", quietly = TRUE)) BiocManager::install("limma")' && \
+  Rscript -e 'options(warn = 2); remotes::install_cran(c("lifecycle", "vctrs", "dplyr", "rlang"), repos = "https://cran.rstudio.com")'
 
 LABEL org.opencontainers.image.description="Companion container for running component methods limma_remove_batch_effect"
-LABEL org.opencontainers.image.created="2026-02-02T09:11:26Z"
+LABEL org.opencontainers.image.created="2026-04-08T02:03:43Z"
 LABEL org.opencontainers.image.source="https://github.com/bioc/limma"
-LABEL org.opencontainers.image.revision="37b439b00ddb7a664d632cff56b2c80c130ec647"
+LABEL org.opencontainers.image.revision="bc8e0af39b7e849f6bbeada8cdf18d31eb596c61"
 LABEL org.opencontainers.image.version="build_main"
 
 VIASHDOCKER
@@ -1078,8 +1080,11 @@ rm(.viash_orig_warn)
 
 ## VIASH END
 
+source(paste0(meta\$resources_dir, "/helper_functions.R"))
+
 cat("Reading input files\\n")
-input <- anndata::read_h5ad(par[["input"]])
+input <- anndata::read_h5ad(par[["input"]]) |>
+  subset_nocontrols()
 
 cat("Subset data\\n")
 data_not_correct <- input[, !input\$var\$to_correct]
@@ -1111,6 +1116,8 @@ output <- anndata::AnnData(
 output <- output[, input\$var_names]
 
 output\$write_h5ad(par[["output"]], compression = "gzip")
+
+cat("Written anndata of shape ", dim(output), " to file: ", par[["output"]], "\\n")
 VIASHMAIN
 Rscript "\$tempscript" &
 wait "\$!"

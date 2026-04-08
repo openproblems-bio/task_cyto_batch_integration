@@ -64,6 +64,8 @@ resources:
   # The script of your component (required)
   - type: r_script
     path: script.R
+  - type: r_script
+    path: /src/utils/helper_functions.R
 
 engines:
   # Specifications for the Docker image for this component.
@@ -84,4 +86,4 @@ runners:
   # Allows turning the component into a Nextflow module / pipeline.
   - type: nextflow
     directives:
-      label: [veryhightime,midmem,midcpu]
+      label: [veryhightime,highmem,highcpu]

@@ -2,20 +2,27 @@ library(anndata)
 library(flowCore)
 ## VIASH START
 par <- list(
-  input = "resources_test/debug/batchadjust/_viash_par/input_1/censored_split1.h5ad",
+  input = "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/censored_split1.h5ad",
   output = "resources_test/debug/batchadjust/output.h5ad",
   percentile = as.integer('80')
 )
 meta <- list(
-  name = "batchadjust_all_controls",
-  temp_dir = "resources_test/tmp",
-  resources_dir = 
+  name = "batchadjust_one_control",
+  temp_dir = "resources_test/tmp_batchadjust_one_control",
+  resources_dir = "src/methods/batchadjust_one_control"
 )
+source("src/utils/anndata_to_fcs.R")
+source("src/utils/helper_functions.R")
 ## VIASH END
 
 source(paste0(meta$resources_dir, "/utils.R"))
 source(paste0(meta$resources_dir, "/anndata_to_fcs.R"))
 source(paste0(meta$resources_dir, "/BatchAdjust.R"))
+source(paste0(meta$resources_dir, "/helper_functions.R"))
+
+tmp_dir <- get_temp_dir(meta)
+print(paste0("Using temp dir: ", tmp_dir))
+on.exit(clean_temp_dir(tmp_dir))
 
 # As it only works with FCS files, the method requires substantial I/O
 # the startegy used here is the following:
@@ -34,7 +41,9 @@ source(paste0(meta$resources_dir, "/BatchAdjust.R"))
 
 
 cat("Reading input files\n")
-input <- anndata::read_h5ad(par[["input"]])
+input <- anndata::read_h5ad(par[["input"]]) |> 
+  subset_onecontrol()
+
 #use Original_ID column to restore cell order after I/O operations
 # input$layers["preprocessed"][, "Original_ID"] <- seq(1, dim(input)[1])
 
@@ -53,35 +62,60 @@ print("Cells in non-control sample:")
 print(unique(input_no_controls$obs$sample))
 print(input_no_controls)
 
-#avoid NA due to invalid factor level
+# avoid NA due to invalid factor level
 input_controls$obs$sample <- as.character(input_controls$obs$sample)
-
-# make sure there is _ after the batch1 or batch2, otherwise batchadjust won't find the fcs files.
-input_no_controls$obs$sample <- sapply(input_no_controls$obs$sample, fix_batch_underscore_anynum)
 
 # Set sample names for batch-specific control files
 input_controls$obs$sample[input_controls$obs$batch == 1] <- "Batch1_anchor"
 input_controls$obs$sample[input_controls$obs$batch == 2] <- "Batch2_anchor"
 
-cat("Writing FCS files\n")
-anndata_to_fcs(input_controls, out_dir = meta[["temp_dir"]])
-anndata_to_fcs(input_no_controls, out_dir =  meta[["temp_dir"]])
+# process non control samples' sample names
+input_no_controls$obs$sample <- as.character(input_no_controls$obs$sample)
+
+# the non control sampels also need to have batch in the sample name.. Doh..
+non_control_has_batch <- any(grepl("Batch", input_no_controls$obs$sample))
+
+if (!non_control_has_batch) {
+  cat(
+    "Non control samples do not have batch info in sample names!\n",
+    "Sample names before modification: ", 
+    paste0(unique(input_no_controls$obs$sample), collapse = ", "), "\n",
+    "Modifying sample names to include batch info!\n"
+  )
+
+  input_no_controls$obs$sample <- paste0(input_no_controls$obs$sample, "_Batch", input_no_controls$obs$batch, "_")
+
+  cat(
+    "Sample names after modification:\n", 
+    paste0(unique(input_no_controls$obs$sample), collapse = ", "), 
+    "\n"
+  )
+}
+
+# make sure there is _ after the batch1 or batch2, otherwise batchadjust won't find the fcs files.
+input_no_controls$obs$sample <- sapply(input_no_controls$obs$sample, fix_batch_underscore_anynum)
+
+
+cat("Writing control FCS files\n")
+anndata_to_fcs(input_controls, out_dir = tmp_dir)
+cat("Writing non-control FCS files\n")
+anndata_to_fcs(input_no_controls, out_dir =  tmp_dir)
 
 cat("Writing channels to correct as a text file\n")
 markers_to_correct <- as.character(
   input$var$channel[input$var$to_correct == TRUE]
 )
 writeLines(markers_to_correct,
-           con = paste0(meta[["temp_dir"]], "/to_correct_list.txt"))
+           con = paste0(tmp_dir, "/to_correct_list.txt"))
 
 cat("Running BatchAdjust\n")
 perc <- paste0(as.character(par[["percentile"]]), "p")
-output_dir <- paste0(meta[["temp_dir"]], "/corrected")
+output_dir <- paste0(tmp_dir, "/corrected")
 
 BatchAdjust(
-  basedir = meta[["temp_dir"]],
+  basedir = tmp_dir,
   outdir = output_dir,
-  channelsFile = paste0(meta[["temp_dir"]], "/to_correct_list.txt"),
+  channelsFile = paste0(tmp_dir, "/to_correct_list.txt"),
   anchorKeyword = "anchor",
   batchKeyword = "Batch", #skip 'b' to make it robust to upper/lowercase
   method = perc,
@@ -128,3 +162,5 @@ output <- anndata::AnnData(
 
 print(output)
 output$write_h5ad(par[["output"]], compression = "gzip")
+
+cat("Written anndata of shape ", dim(output), " to file: ", par[["output"]], "\n")

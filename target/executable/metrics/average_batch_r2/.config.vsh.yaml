@@ -247,37 +247,8 @@ test_resources:
   dest: "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset"
 info:
   metrics:
-  - name: "average_batch_r2_global"
-    label: "Average Batch R-squared Global"
-    summary: "Quantifies how strongly the batch covariate explains the variance in\
-      \ the data among technical replicates after correction."
-    description: "First, a simple linear model is fitted for each paired sample and\
-      \ marker to determine the fraction of variance ($R^{2}$) explained by the batch\
-      \ covariate $B$.\nThe average batch R-squared is then computed as the average\
-      \ of the $R^{2}$ values across all paired samples, markers.\nAs a result, $\\\
-      overline{R^2_B}_{global}$ quantifies how much of the total variability in the\
-      \ data is driven by batch effects. Consequently, lower values are desirable.\n\
-      \n$\\overline{R^2_B}_{global} = \\frac{1}{N*M}\\sum_{\\substack{(x_{\\mathrm{split1}},\\\
-      ,x_{\\mathrm{split2}})\\\\ \\textit{paired samples}}}^{N} \\sum_{i=1}^{M} \\\
-      ,R^2\\!\\bigl(\\mathrm{marker}_i \\mid B\\bigr)$ \n\nWhere:\n* $N$ is the number\
-      \ of paired samples, where $x_{\\mathrm{split1}}$ and $x_{\\mathrm{split2}}$\
-      \ are the two technical replicates that have been batch-corrected. Technical\
-      \ replicates belong to different batches.\n* $M$ is the number of markers\n\
-      * $B$ is the batch covariate\n\nA higher value of $\\overline{R^2_B}_{global}$\
-      \ indicates that the batch variable explains more of the variance in the data,\
-      \ which indicates a higher level of batch effects.\n"
-    references:
-      bibtex:
-      - "@book{draper1998applied,\ntitle={Applied regression analysis},\nauthor={Draper,\
-        \ Norman R and Smith, Harry},\npublisher={John Wiley \\& Sons}\n}\n"
-    links:
-      documentation: "https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LinearRegression.html"
-      repository: "https://github.com/scikit-learn/scikit-learn"
-    min: -0.001
-    max: 1
-    maximize: false
   - name: "average_batch_r2_ct"
-    label: "Average Batch R-squared Cell Type"
+    label: "Average Batch R-squared"
     summary: "Quantifies how strongly the batch covariate explains the variance in\
       \ the data among technical replicates after correction (by taking into account\
       \ cell type effect)."
@@ -373,7 +344,7 @@ build_info:
   output: "target/executable/metrics/average_batch_r2"
   executable: "target/executable/metrics/average_batch_r2/average_batch_r2"
   viash_version: "0.9.4"
-  git_commit: "37b439b00ddb7a664d632cff56b2c80c130ec647"
+  git_commit: "bc8e0af39b7e849f6bbeada8cdf18d31eb596c61"
   git_remote: "https://github.com/openproblems-bio/task_cyto_batch_integration"
 package_config:
   name: "task_cyto_batch_integration"

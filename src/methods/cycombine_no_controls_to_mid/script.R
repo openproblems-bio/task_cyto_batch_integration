@@ -9,8 +9,11 @@ par <- list(
 meta <- list(name = "cycombine_no_controls")
 ## VIASH END
 
+source(paste0(meta$resources_dir, "/helper_functions.R"))
+
 cat("Reading input files\n")
-input_adata <- anndata::read_h5ad(par[["input"]])
+input_adata <- anndata::read_h5ad(par[["input"]]) |>
+  subset_nocontrols()
 
 cat("Preparing input Anndata and df\n")
 
@@ -109,3 +112,5 @@ output <- anndata::AnnData(
 cat("Write output AnnData to file\n")
 
 output$write_h5ad(par[["output"]], compression = "gzip")
+
+cat("Written anndata of shape ", dim(output), " to file: ", par[["output"]], "\n")

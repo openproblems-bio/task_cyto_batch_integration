@@ -3261,6 +3261,11 @@ meta = [
       "type" : "r_script",
       "path" : "script.R",
       "is_executable" : true
+    },
+    {
+      "type" : "r_script",
+      "path" : "/src/utils/helper_functions.R",
+      "is_executable" : true
     }
   ],
   "label" : "Seurat RPCA (to-middle)",
@@ -3330,8 +3335,8 @@ meta = [
       "directives" : {
         "label" : [
           "veryhightime",
-          "midmem",
-          "midcpu"
+          "highmem",
+          "highcpu"
         ],
         "tag" : "$id"
       },
@@ -3384,7 +3389,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/methods/rpca_to_mid",
     "viash_version" : "0.9.4",
-    "git_commit" : "37b439b00ddb7a664d632cff56b2c80c130ec647",
+    "git_commit" : "bc8e0af39b7e849f6bbeada8cdf18d31eb596c61",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3543,9 +3548,11 @@ rm(.viash_orig_warn)
 
 options(future.globals.maxSize = 25 * 1024^3)  # 25 GiB
 
-
+source(paste0(meta\\$resources_dir, "/helper_functions.R"))
+ 
 cat("Reading input files\\\\n")
-input_adata <- anndata::read_h5ad(par[["input"]])
+input_adata <- anndata::read_h5ad(par[["input"]]) |>
+  subset_nocontrols()
 
 cat("Preparing input Anndata\\\\n")
 input_adata\\$obs\\$batch <- as.factor(input_adata\\$obs\\$batch)
@@ -3674,6 +3681,8 @@ output <- anndata::AnnData(
     )
 )
 output\\$write_h5ad(par[["output"]], compression = "gzip")
+
+cat("Written anndata of shape ", dim(output), " to file: ", par[["output"]], "\\\\n")
 VIASHMAIN
 Rscript "$tempscript"
 '''
@@ -4060,8 +4069,8 @@ meta["defaults"] = [
   },
   "label" : [
     "veryhightime",
-    "midmem",
-    "midcpu"
+    "highmem",
+    "highcpu"
   ],
   "tag" : "$id"
 }'''),

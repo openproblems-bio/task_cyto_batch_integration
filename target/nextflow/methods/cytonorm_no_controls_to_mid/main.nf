@@ -3284,6 +3284,11 @@ meta = [
     {
       "type" : "file",
       "path" : "/src/utils/anndata_to_fcs.R"
+    },
+    {
+      "type" : "r_script",
+      "path" : "/src/utils/helper_functions.R",
+      "is_executable" : true
     }
   ],
   "label" : "CytoNorm (no-controls, to-middle)",
@@ -3411,7 +3416,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/methods/cytonorm_no_controls_to_mid",
     "viash_version" : "0.9.4",
-    "git_commit" : "37b439b00ddb7a664d632cff56b2c80c130ec647",
+    "git_commit" : "bc8e0af39b7e849f6bbeada8cdf18d31eb596c61",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3573,11 +3578,15 @@ rm(.viash_orig_warn)
 ## VIASH ENDs
 
 source(paste0(meta\\$resources_dir, "/anndata_to_fcs.R"))
+source(paste0(meta\\$resources_dir, "/helper_functions.R"))
 
-tmp_path <- meta[["temp_dir"]]
+tmp_path <- get_temp_dir(meta)
+print(paste0("Using temp dir: ", tmp_path))
+on.exit(clean_temp_dir(tmp_path))
 
 cat("Reading input files\\\\n")
-adata <- anndata::read_h5ad(par[["input"]])
+adata <- anndata::read_h5ad(par[["input"]]) |>
+  subset_nocontrols()
 
 cat("Creating aggregates per batch\\\\n")
 
@@ -3638,7 +3647,8 @@ model <- CytoNorm::CytoNorm.train(
     transformList = NULL,
     normParams = list(nQ = par[["n_quantiles"]], goal = "mean"),
     seed = 42,
-    verbose = FALSE
+    verbose = FALSE,
+    recompute = TRUE
 )
 
 cat("Normalising using Cytonorm model trained using aggregates\\\\n")
@@ -3686,6 +3696,8 @@ norm_mat <- anndata::AnnData(
 
 cat("Write output AnnData to file\\\\n")
 norm_mat\\$write_h5ad(par[["output"]], compression = "gzip")
+
+cat("Written anndata of shape ", dim(norm_mat), " to file: ", par[["output"]], "\\\\n")
 VIASHMAIN
 Rscript "$tempscript"
 '''

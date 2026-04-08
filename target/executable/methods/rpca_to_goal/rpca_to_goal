@@ -449,9 +449,9 @@ RUN Rscript -e 'options(warn = 2); if (!requireNamespace("remotes", quietly = TR
   Rscript -e 'options(warn = 2); remotes::install_url(c("https://cran.r-project.org/src/contrib/Archive/Seurat/Seurat_4.4.0.tar.gz", "https://cran.r-project.org/src/contrib/Archive/SeuratObject/SeuratObject_4.1.4.tar.gz"), repos = "https://cran.rstudio.com")'
 
 LABEL org.opencontainers.image.description="Companion container for running component methods rpca_to_goal"
-LABEL org.opencontainers.image.created="2026-02-02T09:11:26Z"
+LABEL org.opencontainers.image.created="2026-04-08T02:03:42Z"
 LABEL org.opencontainers.image.source="https://github.com/satijalab/seurat"
-LABEL org.opencontainers.image.revision="37b439b00ddb7a664d632cff56b2c80c130ec647"
+LABEL org.opencontainers.image.revision="bc8e0af39b7e849f6bbeada8cdf18d31eb596c61"
 LABEL org.opencontainers.image.version="build_main"
 
 VIASHDOCKER
@@ -1146,9 +1146,12 @@ rm(.viash_orig_warn)
 
 options(future.globals.maxSize = 25 * 1024^3)  # 25 GiB
 
+source(paste0(meta\$resources_dir, "/helper_functions.R"))
+ 
 cat("Reading input files\\n")
-input_adata <- anndata::read_h5ad(par[["input"]])
-
+input_adata <- anndata::read_h5ad(par[["input"]]) |>
+  subset_nocontrols()
+  
 cat("Preparing input Anndata\\n")
 input_adata\$obs\$batch <- as.factor(input_adata\$obs\$batch)
 
@@ -1278,6 +1281,8 @@ output <- anndata::AnnData(
     )
 )
 output\$write_h5ad(par[["output"]], compression = "gzip")
+
+cat("Written anndata of shape ", dim(output), " to file: ", par[["output"]], "\\n")
 VIASHMAIN
 Rscript "\$tempscript" &
 wait "\$!"

@@ -3362,7 +3362,7 @@ meta = [
       "path" : "helper.R"
     },
     {
-      "type" : "python_script",
+      "type" : "r_script",
       "path" : "/src/utils/helper_functions.R",
       "is_executable" : true
     }
@@ -3481,6 +3481,13 @@ meta = [
       "setup" : [
         {
           "type" : "r",
+          "packages" : [
+            "dplyr",
+            "docstring",
+            "rlang",
+            "vctrs",
+            "lifecycle"
+          ],
           "bioc" : [
             "FlowSOM",
             "flowCore"
@@ -3497,7 +3504,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/metrics/flowsom_mapping_similarity",
     "viash_version" : "0.9.4",
-    "git_commit" : "37b439b00ddb7a664d632cff56b2c80c130ec647",
+    "git_commit" : "bc8e0af39b7e849f6bbeada8cdf18d31eb596c61",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3663,12 +3670,14 @@ unintegrated <- anndata::read_h5ad(par[["input_unintegrated"]])
 # read and filter split 1 data
 integrated_s1 <- anndata::read_h5ad(par[["input_integrated_split1"]]) |>
   get_obs_var_for_integrated(unintegrated, split_id = 1) |>
+  subset_markers_tocorrect() |>
   subset_nocontrols() |>
   remove_unlabelled()
 
 # read and filter split 2 data
 integrated_s2 <- anndata::read_h5ad(par[["input_integrated_split2"]]) |>
   get_obs_var_for_integrated(unintegrated, split_id = 2) |>
+  subset_markers_tocorrect() |>
   subset_nocontrols() |>
   remove_unlabelled()
 
