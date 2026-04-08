@@ -77,6 +77,10 @@
 
 * Removed `methods/cytovi` from the benchmark. The implementation is preserved in the `add-cytovi-implementation` branch to be revisited in the near future (PR #124).
 
+* Updated `metrics/lisi`:
+  * iLISI is now computed per biological group. Groups where batch is fully confounded by group are skipped and return NaN.
+  * Added `helper.py` with `compute_ilisi_per_group` and `compute_clisi` functions.
+
 * Updated file schema (PR #18): 
   * Add is_control obs to indicate whether a cell should be used as control when correcting batch effect.
   * Removed donor_id obs from unintegrated censored.
