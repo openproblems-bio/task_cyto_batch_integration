@@ -1,17 +1,24 @@
 import anndata as ad
 import harmonypy
 import numpy as np
+import sys
 
 ## VIASH START
 par = {
-    "input": "/Users/putri.g/Documents/cytobenchmark/debug_general/_viash_par/input_1/censored_split1.h5ad",
-    "output": "/Users/putri.g/Documents/cytobenchmark/debug_general/_viash_par/output_1/output_harmony_split1.h5ad",
+    "input": "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/censored_split1.h5ad",
+    "output": "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/output_harmony_split1.h5ad",
 }
 meta = {"name": "harmonypy"}
 ## VIASH END
 
+sys.path.append(meta["resources_dir"])
+from helper_functions import subset_nocontrols
+
 print("Reading and preparing input files", flush=True)
 adata = ad.read_h5ad(par["input"])
+
+# Remove reference
+adata = subset_nocontrols(adata)
 
 # harmony can't handle integer batch labels
 adata.obs["batch_str"] = adata.obs["batch"].astype(str)
@@ -35,7 +42,7 @@ out = harmonypy.run_harmony(
 
 # have to add in the uncorrected markers as well
 uncorrected_data = adata[:, markers_not_correct].layers["preprocessed"]
-out_matrix = np.concatenate([out.Z_corr.transpose(), uncorrected_data], axis=1)
+out_matrix = np.concatenate([out.Z_corr, uncorrected_data], axis=1)
 out_var_idx = np.concatenate([markers_to_correct, markers_not_correct])
 
 # create new anndata
@@ -56,3 +63,7 @@ out_adata = out_adata[:, adata.var_names]
 print("Write output AnnData to file", flush=True)
 
 out_adata.write_h5ad(par["output"], compression="gzip")
+
+print(
+    "Written anndata of shape ", out_adata.shape, " to file: ", par["output"], flush=True
+)

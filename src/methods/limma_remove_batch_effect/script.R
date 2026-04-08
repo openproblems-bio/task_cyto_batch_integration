@@ -11,8 +11,11 @@ meta <- list(
 )
 ## VIASH END
 
+source(paste0(meta$resources_dir, "/helper_functions.R"))
+
 cat("Reading input files\n")
-input <- anndata::read_h5ad(par[["input"]])
+input <- anndata::read_h5ad(par[["input"]]) |>
+  subset_nocontrols()
 
 cat("Subset data\n")
 data_not_correct <- input[, !input$var$to_correct]
@@ -44,3 +47,5 @@ output <- anndata::AnnData(
 output <- output[, input$var_names]
 
 output$write_h5ad(par[["output"]], compression = "gzip")
+
+cat("Written anndata of shape ", dim(output), " to file: ", par[["output"]], "\n")

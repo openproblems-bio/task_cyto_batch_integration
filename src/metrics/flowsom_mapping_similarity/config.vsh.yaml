@@ -65,7 +65,7 @@ resources:
   - type: r_script
     path: script.R
   - path: helper.R
-  - type: python_script
+  - type: r_script
     path: /src/utils/helper_functions.R
 engines:
   # Specifications for the Docker image for this component.
@@ -74,6 +74,7 @@ engines:
     setup:
       - type: r
         bioc: [FlowSOM, flowCore]
+        packages: [ dplyr, docstring, rlang, vctrs, lifecycle ]
 runners:
   # This platform allows running the component natively
   - type: executable

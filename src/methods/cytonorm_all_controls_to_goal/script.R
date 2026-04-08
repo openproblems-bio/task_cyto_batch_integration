@@ -20,7 +20,9 @@ meta <- list(
 
 source(paste0(meta$resources_dir, "/anndata_to_fcs.R"))
 
-tmp_path <- meta[["temp_dir"]]
+tmp_path <- get_temp_dir(meta)
+print(paste0("Using temp dir: ", tmp_path))
+on.exit(clean_temp_dir(tmp_path))
 
 cat("Reading input files\n")
 adata <- anndata::read_h5ad(par[["input"]])
@@ -125,3 +127,5 @@ norm_mat <- anndata::AnnData(
 
 cat("Write output AnnData to file\n")
 norm_mat$write_h5ad(par[["output"]], compression = "gzip")
+
+cat("Written anndata of shape ", dim(norm_mat), " to file: ", par[["output"]], "\n")

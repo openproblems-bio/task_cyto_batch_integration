@@ -3,16 +3,22 @@ requireNamespace("cyCombine", quietly = TRUE)
 
 ## VIASH START
 par <- list(
-    input = "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/unintegrated_censored.h5ad",
-    output = "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/output.h5ad",
-    som_grid_size = 8,
+    input = "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/censored_split1.h5ad",
+    output = "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/output_split1.h5ad",
+    som_grid_size = 4,
     rlen = 10
 )
-meta <- list(name = "cycombine_no_controls")
+meta <- list(
+    name = "cycombine_no_controls_to_goal",
+    resources_dir = "src/utils"
+)
 ## VIASH END
 
+source(paste0(meta$resources_dir, "/helper_functions.R"))
+
 cat("Reading input files\n")
-input_adata <- anndata::read_h5ad(par[["input"]])
+input_adata <- anndata::read_h5ad(par[["input"]]) |>
+  subset_nocontrols()
 
 cat("Preparing input Anndata and df\n")
 
@@ -111,3 +117,5 @@ output <- anndata::AnnData(
 cat("Write output AnnData to file\n")
 
 output$write_h5ad(par[["output"]], compression = "gzip")
+
+cat("Written anndata of shape ", dim(output), " to file: ", par[["output"]], "\n")

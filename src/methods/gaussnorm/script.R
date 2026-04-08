@@ -13,12 +13,16 @@ meta <- list(
 )
 ## VIASH END
 
-
+source(paste0(meta$resources_dir, "/helper_functions.R"))
 source(paste0(meta$resources_dir, "/anndata_to_fcs.R"))
-tmp_path <- meta[["temp_dir"]]
+
+tmp_path <- get_temp_dir(meta)
+print(paste0("Using temp dir: ", tmp_path))
+on.exit(clean_temp_dir(tmp_path))
 
 cat("Reading input files\n")
-adata <- anndata::read_h5ad(par[["input"]])
+adata <- anndata::read_h5ad(par[["input"]]) |> 
+  subset_nocontrols()
 markers_to_correct <- as.vector(adata$var$channel[adata$var$to_correct])
 
 cat("Creating FlowSet from Anndata\n")
@@ -53,3 +57,5 @@ output <- anndata::AnnData(
 )
 
 output$write_h5ad(par[["output"]], compression = "gzip")
+
+cat("Written anndata of shape ", dim(output), " to file: ", par[["output"]], "\n")
