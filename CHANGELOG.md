@@ -210,3 +210,6 @@
 
 * Fix bug in get_obs_var_for_integrated to handle the cases where batch column in obs is str
   and thus can't be directly overriden (new values given by get_donor_batch_map is int) (PR #119).
+
+* Update flowsom mapping similarity so we subset to just markers to correct, and lisi to remove control samples
+  and unlabelled cells (PR #119).
