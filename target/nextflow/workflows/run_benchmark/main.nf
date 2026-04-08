@@ -3841,7 +3841,7 @@ meta = [
     "engine" : "native",
     "output" : "target/nextflow/workflows/run_benchmark",
     "viash_version" : "0.9.4",
-    "git_commit" : "bc8e0af39b7e849f6bbeada8cdf18d31eb596c61",
+    "git_commit" : "b9a3d3779a1ed71059a9e17079b998431475bfcd",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -4016,7 +4016,6 @@ methods = [
   limma_remove_batch_effect,
   rpca_to_goal,
   rpca_to_mid,
-  // cytovi
 ]
 
 // construct list of metrics

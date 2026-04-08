@@ -34,7 +34,6 @@ methods = [
   limma_remove_batch_effect,
   rpca_to_goal,
   rpca_to_mid,
-  // cytovi
 ]
 
 // construct list of metrics
