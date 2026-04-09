@@ -22,7 +22,7 @@ resources:
   
 engines:
   - type: docker
-    image: openproblems/base_pytorch_nvidia:1.0.0
+    image: openproblems/base_python:1
     setup:
       - type: python
         packages:
@@ -33,4 +33,4 @@ runners:
   - type: executable
   - type: nextflow
     directives:
-      label: [midtime,midmem,lowcpu,gpu]
+      label: [midtime,midmem,lowcpu]
