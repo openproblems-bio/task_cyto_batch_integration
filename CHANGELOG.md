@@ -81,6 +81,12 @@
   * iLISI is now computed per biological group. Groups where batch is fully confounded by group are skipped and return NaN.
   * Added `helper.py` with `compute_ilisi_per_group` and `compute_clisi` functions.
 
+* Updated `methods/harmonypy` to use the PyTorch GPU backend (harmonypy>=0.2.0):
+  * Switched Docker image to `openproblems/base_pytorch_nvidia:1.0.0`.
+  * Added `device=None` to `run_harmony` for automatic GPU detection (CUDA -> MPS -> CPU).
+  * Removed epsilon workaround as numerical stability is now handled internally by harmonypy.
+  * Updated Nextflow label to `lowcpu, gpu`.
+
 * Updated file schema (PR #18): 
   * Add is_control obs to indicate whether a cell should be used as control when correcting batch effect.
   * Removed donor_id obs from unintegrated censored.

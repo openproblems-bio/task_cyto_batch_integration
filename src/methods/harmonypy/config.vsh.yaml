@@ -22,14 +22,15 @@ resources:
   
 engines:
   - type: docker
-    image: openproblems/base_python:1
+    image: openproblems/base_pytorch_nvidia:1.0.0
     setup:
       - type: python
         packages:
-          - harmonypy
+          - harmonypy>=0.2.0
+          - torch
 
 runners:
   - type: executable
   - type: nextflow
     directives:
-      label: [midtime,midmem,midcpu]
+      label: [midtime,midmem,lowcpu,gpu]
