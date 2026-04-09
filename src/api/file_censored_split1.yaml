@@ -1,0 +1,93 @@
+#TODO: Change to the required and/or optional fields of the anndata
+type: file
+example: "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/censored_split1.h5ad"
+label: Censored (split 1)
+summary: |
+  An unintegrated dataset with certain columns (cells metadata), such as the donor information, hidden.
+  These columns are intentionally hidden to prevent bias.
+description: |
+  An unintegrated dataset with certain columns (cells metadata), such as the donor information, hidden.
+  These columns are intentionally hidden to prevent bias.
+  The batch correction algorithm should not have to rely on these information 
+  to properly integrate different batches.
+  This dataset is used as the input for the batch correction algorithm. 
+  The cells therein are identical to those in the unintegrated dataset.
+info:
+  format:
+    type: h5ad
+    layers:
+      - type: double
+        name: preprocessed
+        description: preprocessed data, e.g. already compensated, transformed and debris/doublets removed
+        required: true
+    obs:
+      - type: string
+        name: batch
+        description: Batch information
+        required: true
+      - type: string
+        name: sample
+        description: Sample ID
+        required: true
+      - type: integer
+        name: is_control
+        description: |
+          Whether the sample the cell came from can be used as a control for batch 
+          effect correction.
+          
+          * 0: cannot be used as a control.
+          * >= 1: can be used as a control.
+          * For cells with >= 1: cells with the same value come from the same donor.
+          
+          Different values indicate different donors.
+        required: true
+    var:
+      - type: integer
+        name: numeric_id
+        description: Numeric ID associated with each marker
+        required: true
+      - type: string
+        name: channel
+        description: The channel / detector of the instrument
+        required: true
+      - type: string
+        name: marker
+        description: The marker name associated with the channel
+        required: false
+      - type: string
+        name: marker_type
+        description: Whether the marker is a functional or lineage marker
+        required: true
+      - type: boolean
+        name: to_correct
+        description: Whether the marker will be batch corrected
+        required: true
+    uns:
+      - type: string
+        name: dataset_id
+        description: "A unique identifier for the dataset"
+        required: true
+      - name: dataset_name
+        type: string
+        description: Nicely formatted name.
+        required: true
+      - type: string
+        name: dataset_url
+        description: Link to the original source of the dataset.
+        required: false
+      - name: dataset_reference
+        type: string
+        description: Bibtex reference of the paper in which the dataset was published.
+        required: false
+      - name: dataset_summary
+        type: string
+        description: Short description of the dataset.
+        required: true
+      - name: dataset_description
+        type: string
+        description: Long description of the dataset.
+        required: true
+      - name: dataset_organism
+        type: string
+        description: The organism of the sample in the dataset.
+        required: false

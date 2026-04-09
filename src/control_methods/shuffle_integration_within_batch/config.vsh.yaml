@@ -1,0 +1,23 @@
+__merge__: /src/api/comp_control_method.yaml
+name: shuffle_integration_within_batch
+label: Shuffle Integration Within Batches
+summary: Randomly reassign cells to any samples within the same batch.
+description: | 
+  This negative-control method randomly shuffles cells within each batch.
+  Cells lose their sample and cell type identity but remain in their original batch. 
+  
+  Example: A cell from mouse 3 batch 1 may be reassigned to mouse 4 batch 1, 
+  but not to another batch (e.g., mouse 6 batch 2).
+# status: disabled
+resources:
+  - type: python_script
+    path: script.py
+  - path: /src/control_methods/utils.py
+engines:
+  - type: docker
+    image: openproblems/base_python:1
+runners:
+  - type: executable
+  - type: nextflow
+    directives:
+      label: [lowtime,lowmem,lowcpu]

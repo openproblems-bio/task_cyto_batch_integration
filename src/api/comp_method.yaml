@@ -1,0 +1,24 @@
+namespace: "methods"
+info:
+  type: method
+  type_info:
+    label: Method
+    summary: A method for integrating batch effects in cytometry data.
+    description: |
+      A method for integrating batch effects in cytometry data.
+arguments:
+  - name: --input
+    __merge__: file_censored_split1.yaml
+    required: true
+    direction: input
+  - name: --output
+    __merge__: file_integrated_split1.yaml
+    required: true
+    direction: output
+test_resources:
+  - type: python_script
+    path: /common/component_tests/run_and_check_output.py
+  - type: python_script
+    path: /common/component_tests/check_config.py
+  - path: /resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset
+    dest: resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset

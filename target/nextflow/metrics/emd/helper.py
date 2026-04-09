@@ -1,0 +1,395 @@
+import itertools
+
+import anndata as ad
+import numpy as np
+import pandas as pd
+from scipy.stats import wasserstein_distance
+
+KEY_MEAN_EMD_CT = "mean_emd_ct"
+KEY_EMD_VERT_MAT_split1 = "emd_vert_mat_split1"
+KEY_EMD_VERT_MAT_split2 = "emd_vert_mat_split2"
+KEY_EMD_HORZ_PER_DONOR = "emd_horz_per_donor"
+
+
+def calculate_vertical_emd(
+    i_split1_adata: ad.AnnData, i_split2_adata: ad.AnnData, markers_to_assess: list
+):
+    """
+    Compute vertical emd across every possible sample combination from the same biological group.
+
+    Args:
+        i_split1_adata (ad.AnnData): Left integrated adata.
+        i_split2_adata (ad.AnnData): Right integrated adata.
+        markers_to_assess (list): list of markers to compute EMD for.
+
+    Returns:
+        dict: a dictionary containing the following elements.
+            "mean_emd_ct": np.float32: mean emd value computed from a flattened data frame containing
+                mean emd computed for every marker and cell type across all pairing two samples from the same group.
+            "emd_split1_long": pd.DataFrame or np.nan: a long format dataframe where each row is a combination of
+                first_sample, second_sample, cell_type, and markers.
+                Value is the EMD computed for that combination.
+                If the input data does not have at least 2 samples per group, then return np.nan.
+            "emd_split2_long": pd.DataFrame or np.nan: a long format dataframe where each row is a combination of
+                first_sample, second_sample, cell_type, and markers.
+                Value is the EMD computed for that combination.
+                If the input data does not have at least 2 samples per group, then return np.nan.
+    """
+
+    print("Calculating vertical EMD for split 1", flush=True)
+    emd_split1_long = get_vert_emd_for_integrated_adata(
+        i_adata=i_split1_adata, markers_to_assess=markers_to_assess
+    )
+
+    print("Calculating vertical EMD for split 2", flush=True)
+    emd_split2_long = get_vert_emd_for_integrated_adata(
+        i_adata=i_split2_adata, markers_to_assess=markers_to_assess
+    )
+
+    # safeguard
+    mean_emd_ct = np.nan
+
+    print("Computing mean vertical EMD", flush=True)
+
+    # compute these only if we can.
+    emd_long = []
+    for df in [emd_split1_long, emd_split2_long]:
+        if isinstance(df, pd.DataFrame):
+            emd_long.append(df)
+
+    if len(emd_long) > 0:
+        emd_long = pd.concat(emd_long)
+
+        # note we did some marker name cleaning before. So the markers_to_assess
+        # parameter may not match exactly the column names in emd_long.
+        # so don't just subset to markers_to_assess!
+
+        # mean cell type emd across all sample combinations, markers, and splits
+        mean_emd_ct = np.nanmean(
+            emd_long.drop(columns=["cell_type", "first_sample", "second_sample"])
+            .to_numpy()
+            .flatten()
+        )
+
+    return {
+        KEY_MEAN_EMD_CT: mean_emd_ct,
+        KEY_EMD_VERT_MAT_split1: emd_split1_long,
+        KEY_EMD_VERT_MAT_split2: emd_split2_long,
+    }
+
+
+def get_vert_emd_for_integrated_adata(i_adata: ad.AnnData, markers_to_assess: list):
+    """
+    Compute vertical emd across every possible sample combination from the same biological group.
+
+    Args:
+        i_split1_adata (ad.AnnData): An integrated adata.
+        markers_to_assess (list): list of markers to compute EMD for.
+
+    Returns:
+        emd_vals (pd.DataFrame or np.nan): a long format dataframe where each row is a combination of
+            first_sample, second_sample, cell_type, and markers.
+            Value is the EMD computed for that combination.
+            If the input data does not have at least 2 samples per group, then return np.nan.
+    """
+
+    print("Determining samples per group", flush=True)
+    # comparing one sample against every other sample (one at a time).
+    # get all samples for each group first
+    sample_group_map = i_adata.obs.groupby("group", observed=True)["sample"].apply(
+        lambda x: list(set(x))
+    )
+
+    print(f"Sample groups found: {sample_group_map}", flush=True)
+    print("Getting sample combinations to compute EMD for", flush=True)
+
+    sample_combos = []
+    for sample_type in sample_group_map:
+        # sample_type = sample_group_map[1]
+        if len(sample_type) >= 2:
+            sample_combo = list(itertools.combinations(sample_type, 2))
+            sample_combos.extend(sample_combo)
+        else:
+            print(f"There are less than 2 samples for group {sample_type}. Skipping.")
+
+    if len(sample_combos) == 0:
+        # this means the data processed do not have at least 2 samples per group.
+        # thus it is impossible to compute this metric.
+
+        print(
+            f"{i_adata.uns['dataset_id']} from {i_adata.uns['method_id']} does not have"
+            f" at least 2 samples per group. Skipping EMD vertical calculation."
+        )
+
+        return np.nan
+
+    print("Sample combinations found:", flush=True)
+    print(sample_combos, flush=True)
+
+    print("Calculating EMD for each sample combination and cell type", flush=True)
+    cell_types = i_adata.obs["cell_type"].unique()
+
+    emd_vals = []
+
+    for sample_combo in sample_combos:
+        # sample_combo = sample_combos[0]
+
+        first_sample_adata = i_adata[i_adata.obs["sample"] == sample_combo[0]]
+        second_sample_adata = i_adata[i_adata.obs["sample"] == sample_combo[1]]
+
+        # emd per cell type
+        for cell_type in cell_types:
+            print(
+                f"Calculating EMD for sample combo: {sample_combo}, cell type: {cell_type}",
+                flush=True,
+            )
+
+            # cell_type = cell_types[0]
+            first_sample_adata_ct = first_sample_adata[
+                first_sample_adata.obs["cell_type"] == cell_type
+            ]
+            second_sample_adata_ct = second_sample_adata[
+                second_sample_adata.obs["cell_type"] == cell_type
+            ]
+
+            # Do not calculate if we have less than 50 cells as it does not make sense.
+            if first_sample_adata_ct.n_obs < 50 or second_sample_adata_ct.n_obs < 50:
+                print(
+                    f"There are less than 50 cells in either sample {sample_combo[0]} or"
+                    f" sample {sample_combo[1]} for cell type {cell_type}.\n"
+                    f"Sample {sample_combo[0]} {cell_type}: {first_sample_adata_ct.n_obs} cells.\n"
+                    f"Sample {sample_combo[1]} {cell_type}: {second_sample_adata_ct.n_obs} cells.\n"
+                    f"Skipping calculating vertical EMD for this sample combination and cell type.",
+                    flush=True,
+                )
+                continue
+
+            emd_df = compute_emd(
+                left_sample=first_sample_adata_ct,
+                right_sample=second_sample_adata_ct,
+                markers_to_assess=markers_to_assess,
+            )
+            emd_df["cell_type"] = cell_type
+            emd_df["first_sample"] = sample_combo[0]
+            emd_df["second_sample"] = sample_combo[1]
+
+            emd_vals.append(emd_df)
+
+    # concatenate EMD values
+    emd_vals = pd.concat(emd_vals)
+    # remove unparsable characters like "/"
+    print("Cleaning up column names", flush=True)
+    emd_vals.columns = emd_vals.columns.str.replace("/", "_")
+
+    print("Finished calculating vertical EMD", flush=True)
+
+    return emd_vals
+
+
+def calculate_horizontal_emd(
+    i_split1_adata: ad.AnnData,
+    i_split2_adata: ad.AnnData,
+    markers_to_assess: list,
+    donor_list: list,
+):
+    """
+    Compute horizontal emd across every pair samples from a given donor.
+
+    Args:
+        i_split1_adata (ad.AnnData): Left integrated adata.
+        i_split2_adata (ad.AnnData): Right integrated adata.
+        markers_to_assess (list): list of markers to compute EMD for.
+        donor_list (list): list of donors to compute EMD for.
+
+    Returns:
+        dict: a dictionary containing the following elements.
+            "mean_emd_ct": np.float32: mean emd value computed from a flattened data frame containing
+                mean emd computed for every marker and cell type across all pairs of samples from a given donor.
+            "max_emd_ct": np.float32: max emd value computed from a flattened data frame containing
+                max emd computed for every marker and cell type across all pairs of samples from a given donor.
+            "emd_wide_dfs": pd.Dataframe showing emd value for each pair of sample
+                and marker at either cell type level or global.
+    """
+
+    emd_per_donor_per_ct = []
+
+    for donor in donor_list:
+        print(f"Calculating horizontal EMD for donor: {donor}", flush=True)
+        # donor = donor_list[0]
+        i_split1_donor = i_split1_adata[i_split1_adata.obs["donor"] == donor]
+        i_split2_donor = i_split2_adata[i_split2_adata.obs["donor"] == donor]
+
+        # safe check
+        cell_type_not_in_both = np.setxor1d(
+            i_split1_donor.obs["cell_type"].unique(),
+            i_split2_donor.obs["cell_type"].unique(),
+        )
+        if len(cell_type_not_in_both) > 1:
+            print(
+                f"In donor {donor}: some cell types are in split 1"
+                f" but not in split 2.\n"
+                f"Cell types missing: {''.join(cell_type_not_in_both)}]n"
+                f"Computing cell type EMD using just cell types common in both."
+            )
+
+        # assuming each cell type is present in both validation and integrated
+        cell_types = np.intersect1d(
+            i_split1_donor.obs["cell_type"].unique(),
+            i_split2_donor.obs["cell_type"].unique(),
+        )
+
+        for cell_type in cell_types:
+            print(f"Calculating EMD for cell type: {cell_type}", flush=True)
+            # cell_type = cell_types[0]
+            i_split1_ct = i_split1_donor[i_split1_donor.obs["cell_type"] == cell_type]
+            i_split2_ct = i_split2_donor[i_split2_donor.obs["cell_type"] == cell_type]
+
+            # Do not calculate if we have less than 50 cells as it does not make sense.
+            if i_split1_ct.n_obs < 50 or i_split2_ct.n_obs < 50:
+                print(
+                    f"There are less than 50 cells in either split 1 or split 2"
+                    f" for donor {donor} and cell type {cell_type}.\n"
+                    f"Split 1 {cell_type}: {i_split1_ct.n_obs} cells.\n"
+                    f"Split 2 {cell_type}: {i_split2_ct.n_obs} cells.\n"
+                    f"Skipping calculating horizontal EMD for this donor and cell type."
+                )
+                continue
+
+            emd_df = compute_emd(
+                left_sample=i_split1_ct,
+                right_sample=i_split2_ct,
+                markers_to_assess=markers_to_assess,
+            )
+            emd_df["cell_type"] = cell_type
+            emd_df["donor"] = donor
+
+            emd_per_donor_per_ct.append(emd_df)
+
+    emd_per_donor_per_ct = pd.concat(emd_per_donor_per_ct)
+
+    # compute the mean and max per ct and for global.
+    print("Computing mean and max horizontal EMD", flush=True)
+    mean_emd_ct = np.nanmean(
+        emd_per_donor_per_ct.drop(columns=["cell_type", "donor"]).values
+    )
+
+    # concatenate the global and cell type emd
+    emd_per_donor_per_ct.columns = emd_per_donor_per_ct.columns.str.replace(
+        "/", "_", regex=False
+    )
+
+    return {
+        KEY_MEAN_EMD_CT: mean_emd_ct,
+        KEY_EMD_HORZ_PER_DONOR: emd_per_donor_per_ct,
+    }
+
+
+def compute_emd(
+    left_sample: ad.AnnData, right_sample: ad.AnnData, markers_to_assess: list
+) -> pd.DataFrame:
+    """
+    Calculate EMD metric
+
+    Args:
+        first_sample (ad.AnnData): data for the first sample to compute EMD for.
+            For both horizontal and vertical EMD, this can be the sample from one donor that has been batch corrected.
+        second_sample (ad.AnnData): data for the first sample to compute EMD for.
+            For horizontal EMD, this will be the sample from the SAME donor (as in first_sample)
+            that was not batch corrected, i.e., the one used in validation data.
+            For vertical EMD, this will be just another sample that has been batch corrected.
+        markers_to_assess (list): list of markers to compute EMD for.
+
+    Returns:
+        pd.DataFrame: 1 row data frame where a column is a marker. Value is the EMD.
+    """
+
+    emd_vals = {}
+
+    for marker in markers_to_assess:
+        # marker = markers_to_assess[0]
+
+        mexp_split1 = np.array(left_sample[:, marker].layers["integrated"]).flatten()
+        mexp_split2 = np.array(right_sample[:, marker].layers["integrated"]).flatten()
+
+        left_values, left_weights = bin_array(mexp_split1)
+        right_values, right_weights = bin_array(mexp_split2)
+
+        # left_values (and right_values) are the explicit support (set of all possible bin values)
+        # of the probability distribution left_weights (and right_weights).
+        emd = wasserstein_distance(
+            left_values, right_values, left_weights, right_weights
+        )
+        emd_vals[marker] = [emd]
+
+    emd_df = pd.DataFrame.from_dict(emd_vals)
+
+    return emd_df
+
+
+def bin_array(values):
+    """
+    Bin values into probability distribution.
+
+    Args:
+        values (list): values to bin
+
+    Returns:
+        list: Bin indices - centre of the bin.
+        list: Probability distribution of the input values.
+    """
+
+    # 2000 bins, the 0.0000001 is to avoid the left edge being included in the bin
+    # (Mainly impacting 0 values)
+    # range is set to -100 to 100 with the assumption that the range of values for each marker
+    # will not exceed this
+    bin_edges = np.arange(-100, 100.1, 0.1) + 0.0000001
+
+    # using histogram retains the physical meaning of distances between bins,
+    # such that moving mass from bin [-5.0, -4.9) to [-4.9, -4.8) has lower cost than
+    # moving it to [99.9, 100.0)
+    counts_per_bin, _ = np.histogram(values, bins=bin_edges)
+
+    # this converts distribution of absolute marker values to probability distribution.
+    # it allows subsequent EMD comparison between datasets of different sizes (number of cells).
+    bin_probabilities = counts_per_bin / np.sum(counts_per_bin)
+
+    # if bin_edges = [0,1,2,3,4,5]
+    # bin_edges[:-1] will give you [0,1,2,3,4]
+    # bin_edges[1:] will give you [1,2,3,4,5]
+    # sum will sum each element up and divide by 2 will give you the centre of the bin
+    # so for the 1st bin, (0+1)/2 = 0.5
+    bin_indices = (bin_edges[:-1] + bin_edges[1:]) / 2
+
+    # the 1st return value is the bin indices
+    return bin_indices, bin_probabilities
+
+
+def check_donor_batches(input_integrated_split1, input_integrated_split2):
+    """
+    Ensure each donor is present in exactly one batch per split,
+    and that the batch IDs differ between splits.
+    """
+
+    donor_list = input_integrated_split1.obs["donor"].unique()
+
+    for donor in donor_list:
+        batch_split1 = input_integrated_split1.obs[
+            input_integrated_split1.obs["donor"] == donor
+        ]["batch"].unique()
+        batch_split2 = input_integrated_split2.obs[
+            input_integrated_split2.obs["donor"] == donor
+        ]["batch"].unique()
+
+        if len(batch_split1) > 1 or len(batch_split2) > 1:
+            raise ValueError(
+                f"Donor {donor} has samples in {len(batch_split1)} batches in integrated left"
+                f" and {len(batch_split2)} batches in integrated right. It should only have"
+                f" samples in exactly ONE batch in each of integrated left and integrated right."
+            )
+
+        if batch_split1[0] == batch_split2[0]:
+            raise ValueError(
+                f"Donor {donor} has samples in the same batch for both integrated left and right.\n"
+                f"Integrated left batch id: {batch_split1[0]}.\n"
+                f"Integrated right batch id: {batch_split2[0]}."
+            )

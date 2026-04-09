@@ -1,0 +1,28 @@
+#!/bin/bash
+
+# get the root of the directory
+REPO_ROOT=$(git rev-parse --show-toplevel)
+
+# ensure that the command below is run from the root of the repository
+cd "$REPO_ROOT"
+
+set -e
+
+echo "Running benchmark on test data"
+echo "  Make sure to run 'scripts/project/build_all_docker_containers.sh'!"
+
+# generate a unique id
+RUN_ID="testrun_$(date +%Y-%m-%d_%H-%M-%S)"
+publish_dir="temp/results/${RUN_ID}"
+
+nextflow run . \
+  -main-script target/nextflow/workflows/run_benchmark/main.nf \
+  -profile docker \
+  -resume \
+  -c common/nextflow_helpers/labels_ci.config \
+  --id mouse_spleen_flow_cytometry_subset \
+  --input_unintegrated resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/unintegrated.h5ad \
+  --input_censored_split1 resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/censored_split1.h5ad \
+  --input_censored_split2 resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/censored_split2.h5ad \
+  --output_state state.yaml \
+  --publish_dir "$publish_dir"
