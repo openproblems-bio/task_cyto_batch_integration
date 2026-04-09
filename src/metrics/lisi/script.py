@@ -49,12 +49,12 @@ integrated_s2 = remove_unlabelled(integrated_s2)
 
 print("Compute metrics", flush=True)
 print("Compute iLisi per group for split 1", flush=True)
-ilisi_s1_per_group, ilisi_s1_per_cell_per_group = lisi_helper.compute_ilisi_per_group(
+ilisi_s1_per_group, ilisi_s1_per_cell_per_group, ilisi_s1_cell_ids_per_group = lisi_helper.compute_ilisi_per_group(
     integrated_s1, "split 1"
 )
 
 print("Compute iLisi per group for split 2", flush=True)
-ilisi_s2_per_group, ilisi_s2_per_cell_per_group = lisi_helper.compute_ilisi_per_group(
+ilisi_s2_per_group, ilisi_s2_per_cell_per_group, ilisi_s2_cell_ids_per_group = lisi_helper.compute_ilisi_per_group(
     integrated_s2, "split 2"
 )
 
@@ -87,7 +87,9 @@ print("Write output AnnData to file", flush=True)
 #     cLisi = mean cLISI across both splits.
 #   ilisi_per_split: {split_1, split_2} -> {group: iLISI score}.
 #     Groups where batch is fully confounded by group are skipped and absent.
-#   ilisi_per_cell_per_split: same structure, but values are raw per-cell iLISI score
+#   ilisi_per_cell_per_split: same structure, but values are raw per-cell iLISI arrays.
+#   ilisi_cell_ids_per_split: same structure, but values are cell ID arrays corresponding
+#     to the per-cell iLISI values in ilisi_per_cell_per_split.
 #   clisi_per_split: {split_1, split_2} -> cLISI score for that split.
 #   clisi_per_cell_per_split: {split_1, split_2} -> raw per-cell cLISI score for that split.
 uns = {
@@ -102,6 +104,10 @@ uns = {
     "ilisi_per_cell_per_split": {
         "split_1": ilisi_s1_per_cell_per_group,
         "split_2": ilisi_s2_per_cell_per_group,
+    },
+    "ilisi_cell_ids_per_split": {
+        "split_1": ilisi_s1_cell_ids_per_group,
+        "split_2": ilisi_s2_cell_ids_per_group,
     },
     "clisi_per_split": {
         "split_1": clisi_s1,
