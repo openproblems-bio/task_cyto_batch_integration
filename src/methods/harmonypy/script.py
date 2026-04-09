@@ -30,13 +30,11 @@ adata_to_correct = adata[:, markers_to_correct].copy()
 
 print("Run harmony", flush=True)
 
-# device=None lets harmonypy auto-detect the best available backend:
-# CUDA GPU -> Apple MPS -> CPU
 out = harmonypy.run_harmony(
     data_mat=adata_to_correct.layers["preprocessed"],
     meta_data=adata_to_correct.obs,
     vars_use="batch_str",
-    device=None,
+    device="cuda",
 )
 
 # have to add in the uncorrected markers as well
