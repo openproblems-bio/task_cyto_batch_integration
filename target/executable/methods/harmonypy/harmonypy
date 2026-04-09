@@ -449,9 +449,9 @@ RUN pip install --upgrade pip && \
   pip install --upgrade --no-cache-dir "harmonypy>=0.2.0" "torch"
 
 LABEL org.opencontainers.image.description="Companion container for running component methods harmonypy"
-LABEL org.opencontainers.image.created="2026-04-09T00:17:18Z"
+LABEL org.opencontainers.image.created="2026-04-09T09:45:00Z"
 LABEL org.opencontainers.image.source="https://github.com/slowkow/harmonypy"
-LABEL org.opencontainers.image.revision="fad21b46c4c05325645adf0e95a68193cb9c6874"
+LABEL org.opencontainers.image.revision="450674ac1f1b35bd0e6ccf7311e59d7faa017675"
 LABEL org.opencontainers.image.version="build_update_ilisi"
 
 VIASHDOCKER
@@ -1090,13 +1090,11 @@ adata_to_correct = adata[:, markers_to_correct].copy()
 
 print("Run harmony", flush=True)
 
-# device=None lets harmonypy auto-detect the best available backend:
-# CUDA GPU -> Apple MPS -> CPU
 out = harmonypy.run_harmony(
     data_mat=adata_to_correct.layers["preprocessed"],
     meta_data=adata_to_correct.obs,
     vars_use="batch_str",
-    device=None,
+    device="cuda",
 )
 
 # have to add in the uncorrected markers as well

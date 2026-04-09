@@ -449,9 +449,9 @@ RUN Rscript -e 'options(warn = 2); if (!requireNamespace("remotes", quietly = TR
   Rscript -e 'options(warn = 2); remotes::install_url(c("https://cran.r-project.org/src/contrib/Archive/Seurat/Seurat_4.4.0.tar.gz", "https://cran.r-project.org/src/contrib/Archive/SeuratObject/SeuratObject_4.1.4.tar.gz"), repos = "https://cran.rstudio.com")'
 
 LABEL org.opencontainers.image.description="Companion container for running component methods rpca_to_mid"
-LABEL org.opencontainers.image.created="2026-04-09T00:17:19Z"
+LABEL org.opencontainers.image.created="2026-04-09T09:45:01Z"
 LABEL org.opencontainers.image.source="https://github.com/satijalab/seurat"
-LABEL org.opencontainers.image.revision="fad21b46c4c05325645adf0e95a68193cb9c6874"
+LABEL org.opencontainers.image.revision="450674ac1f1b35bd0e6ccf7311e59d7faa017675"
 LABEL org.opencontainers.image.version="build_update_ilisi"
 
 VIASHDOCKER
