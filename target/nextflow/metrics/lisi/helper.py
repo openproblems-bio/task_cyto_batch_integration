@@ -16,10 +16,14 @@ def compute_ilisi_per_group(integrated: ad.AnnData, split_label: str):
             Empty dict if all groups are skipped due to batch-group confounding.
         ilisi_per_cell_per_group (dict): Per-group arrays of raw per-cell iLISI values.
             Empty dict if all groups are skipped due to batch-group confounding.
+        ilisi_cell_ids_per_group (dict): Per-group arrays of cell IDs corresponding to
+            the per-cell iLISI values in ilisi_per_cell_per_group.
+            Empty dict if all groups are skipped due to batch-group confounding.
     """
     groups = integrated.obs["group"].unique()
     ilisi_per_group = {}
     ilisi_per_cell_per_group = {}
+    ilisi_cell_ids_per_group = {}
 
     for group in groups:
         group_adata = integrated[integrated.obs["group"] == group]
@@ -41,6 +45,7 @@ def compute_ilisi_per_group(integrated: ad.AnnData, split_label: str):
 
         ilisi_per_group[group] = ilisi
         ilisi_per_cell_per_group[group] = ilisi_per_cell
+        ilisi_cell_ids_per_group[group] = np.array(group_adata.obs_names)
 
     if len(ilisi_per_group) == 0:
         print(
@@ -49,7 +54,7 @@ def compute_ilisi_per_group(integrated: ad.AnnData, split_label: str):
             flush=True,
         )
 
-    return ilisi_per_group, ilisi_per_cell_per_group
+    return ilisi_per_group, ilisi_per_cell_per_group, ilisi_cell_ids_per_group
 
 
 def compute_clisi(integrated: ad.AnnData):
