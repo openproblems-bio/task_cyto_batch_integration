@@ -344,7 +344,7 @@ build_info:
   output: "target/nextflow/metrics/average_batch_r2"
   executable: "target/nextflow/metrics/average_batch_r2/main.nf"
   viash_version: "0.9.4"
-  git_commit: "450674ac1f1b35bd0e6ccf7311e59d7faa017675"
+  git_commit: "2b4655582cc2f558c35a5f19dfb2de28c41f7a20"
   git_remote: "https://github.com/openproblems-bio/task_cyto_batch_integration"
 package_config:
   name: "task_cyto_batch_integration"
