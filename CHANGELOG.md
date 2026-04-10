@@ -73,6 +73,13 @@
 
 * Added utility scripts to pull intermediate files (PR #119). 
 
+* Added `scripts/fetch_intermediate_files.py`, a single script that consolidates the previous two-step process of parsing a Nextflow log and copying out intermediate files:
+  * Auto-detects whether the log is from a SLURM or AWS Batch run.
+  * For SLURM runs, copies `.h5ad` files directly from the local work directory.
+  * For AWS Batch runs, downloads files via `common/scripts/fetch_task_run` and skips files that are already present.
+  * Organises output under `<dataset>/method_out/` and `<dataset>/metric_out/`.
+  * Accepts the log file as a positional argument; output directory and optional CSV dump are configurable via flags.
+
 ## MAJOR CHANGES
 
 * Removed `methods/cytovi` from the benchmark. The implementation is preserved in the `add-cytovi-implementation` branch to be revisited in the near future (PR #124).
