@@ -3389,8 +3389,8 @@ meta = [
       {
         "name" : "flowsom_mean_mapping_similarity",
         "label" : "FlowSOM Mean Mapping Similarity",
-        "summary" : "Assess the similarity between FlowSOM trees of integrated and validation samples.",
-        "description" : "The metric is based on the FlowSOM algorithm, a popular method which uses self-organizing maps for the viasualization/interpretation/clustering of cytometry data. \nThe FlowSOM algorithm creates a tree structure that represents the relationships between different cell populations in the data.\n\nFor each paired sample of technical replicates (where 'split1' are integrated technical replicates from split 1 and 'split2' are integrated technical replicates from split 2)\n1. A FlowSOM tree is created using cells in the sample from split 1.\n2. Cells from the sample in split 2 are mapped onto the FlowSOM tree created in step 1.\n3. A similarity measure is computed by comparing cell type proportions of 'split2' and 'split1' in each flowsom cluster.\n\nIdeally, the proportions of cell types in the flowsom clusters of the paired samples should be similar, as they are technical replicates.\n\nThe FlowSOM mapping similarity measure can be expressed as follows:\n$\\\\text{FlowSOM mapping similarity} = 100 - \\\\text{FlowSOM mapping dissimilarity}$\n\nThe $\\\\text{FlowSOM mapping dissimilarity}$ is:\n\n$\\\\text{FlowSOM mapping dissimilarity} = \\\\sum_{k=1}^{K}w_{k}\\\\sum_{c=1}^{C}\\\\abs{P^{split1}_{k,c} - P^{split2}_{k,c}}$\n\nWhere:\n- $K$ is the number of flowsom clusters\n- $C$ is the number of cell types\n- $w_{k}$ is the weight of flowsom cluster $k$. It refers to the number of cells in flowsom cluster $k$, divided by the total number of cells in the flowsom tree. Note: the flowsom tree contains all the cells of a sample pair (both integrated and validation). \n- $P^{split1}_{k,c}$ is the percentage of cell type $c$ in flowsom cluster $k$ of the split 1 sample\n- $P^{split2}_{k,c}$ is the percentage of cell type $c$ in flowsom cluster $k$ of the split 2 sample\n\nThe average FlowSOM mapping similarity among all paired samples is computed and reported as the final metric value.\nUnlabelled cells are excluded from the analysis.\n",
+        "summary" : "Assess bidirectional FlowSOM tree similarity between splits.",
+        "description" : "The metric is based on the FlowSOM algorithm, a popular method which uses self-organizing maps for the viasualization/interpretation/clustering of cytometry data. \nThe FlowSOM algorithm creates a tree structure that represents the relationships between different cell populations in the data.\n\nFor each paired sample of technical replicates (where 'split1' are integrated technical replicates from split 1 and 'split2' are integrated technical replicates from split 2)\n1. A FlowSOM tree is created using cells in the sample from split 1 and cells from split 2 are mapped onto it.\n2. A FlowSOM tree is created using cells in the sample from split 2 and cells from split 1 are mapped onto it.\n3. For each direction, a similarity measure is computed by comparing cell type proportions of the two splits in each flowsom cluster.\n\nIdeally, the proportions of cell types in the flowsom clusters of the paired samples should be similar, as they are technical replicates.\n\nThe FlowSOM mapping similarity measure can be expressed as follows:\n$\\\\text{FlowSOM mapping similarity} = 100 - \\\\text{FlowSOM mapping dissimilarity}$\n\nThe $\\\\text{FlowSOM mapping dissimilarity}$ is:\n\n$\\\\text{FlowSOM mapping dissimilarity} = \\\\sum_{k=1}^{K}w_{k}\\\\sum_{c=1}^{C}\\\\abs{P^{split1}_{k,c} - P^{split2}_{k,c}}$\n\nWhere:\n- $K$ is the number of flowsom clusters\n- $C$ is the number of cell types\n- $w_{k}$ is the weight of flowsom cluster $k$. It refers to the number of cells in flowsom cluster $k$, divided by the total number of cells in the flowsom tree. Note: the flowsom tree contains all the cells of a sample pair (both integrated and validation). \n- $P^{split1}_{k,c}$ is the percentage of cell type $c$ in flowsom cluster $k$ of the split 1 sample\n- $P^{split2}_{k,c}$ is the percentage of cell type $c$ in flowsom cluster $k$ of the split 2 sample\n\nThe average FlowSOM mapping similarity among all donors and both mapping directions is computed and reported as the final metric value.\nUnlabelled cells are excluded from the analysis.\n\nAdditionally, for debugging and inspection, the component outputs the per-donor cluster-by-cell-type absolute difference matrices in the output AnnData `uns`.\n",
         "references" : {
           "doi" : [
             "10.18129/B9.bioc.FlowSOM",
@@ -3504,7 +3504,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/metrics/flowsom_mapping_similarity",
     "viash_version" : "0.9.4",
-    "git_commit" : "a3c6203ad53ea7a9b42bd03e40171de9695b1f2c",
+    "git_commit" : "0ffe89eb1bc6d4afb667c3c35d510714c08b30ce",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3692,6 +3692,7 @@ grid_ydim <- unintegrated\\$uns\\$parameter_som_ydim
 
 print("Computing mapping similarity\\\\n")
 fs_mapping_similarity_allres <- list()
+fsom_absdiff_by_donor_refsplit <- list()
 fs_mapping_similarity_all <- c()
 
 for (donor in donor_list) {
@@ -3708,8 +3709,9 @@ for (donor in donor_list) {
     layer_name = "integrated"
   )
   
+  # Direction A: build on split 1, map split 2 into it
   print("Building FlowSOM tree with split 1 cells")
-  fs_tree_s1 <- FlowSOM(
+  fs_tree_s1_ref <- FlowSOM(
     split1_data\\$flowframe,
     colsToUse = lineage_markers,
     nClus = n_clusters,
@@ -3719,24 +3721,61 @@ for (donor in donor_list) {
   )
   
   print("Mapping split 2 cells in the tree")
-  fs_tree_s2 <- NewData(
-    fs_tree_s1,
+  fs_tree_s2_mapped <- NewData(
+    fs_tree_s1_ref,
     split2_data\\$flowframe
   )
   
-  print("Computing mapping similarity")
-  FSOM_mapping <- compute_fs_mapping_similarity(
-    fs_tree_s1,
+  print("Computing mapping similarity (tree split 1; mapped split 2)")
+  FSOM_mapping_refsplit1 <- compute_fs_mapping_similarity(
+    fs_tree_s1_ref,
     split1_data\\$ct_annotations,
-    fs_tree_s2,
+    fs_tree_s2_mapped,
     split2_data\\$ct_annotations
   )
-  # add full results for a donor to a list
-  fs_mapping_similarity_allres[[donor]] <- FSOM_mapping
-  # add only similarity metric to a variable
+
+  # Direction B: build on split 2, map split 1 into it
+  print("Building FlowSOM tree with split 2 cells")
+  fs_tree_s2_ref <- FlowSOM(
+    split2_data\\$flowframe,
+    colsToUse = lineage_markers,
+    nClus = n_clusters,
+    xdim = grid_xdim,
+    ydim = grid_ydim,
+    seed = 42
+  )
+
+  print("Mapping split 1 cells in the tree")
+  fs_tree_s1_mapped <- NewData(
+    fs_tree_s2_ref,
+    split1_data\\$flowframe
+  )
+
+  print("Computing mapping similarity (tree split 2; mapped split 1)")
+  FSOM_mapping_refsplit2 <- compute_fs_mapping_similarity(
+    fs_tree_s2_ref,
+    split2_data\\$ct_annotations,
+    fs_tree_s1_mapped,
+    split1_data\\$ct_annotations
+  )
+
+  # add full results for a donor to a list (both directions)
+  fs_mapping_similarity_allres[[donor]] <- list(
+    split_1 = FSOM_mapping_refsplit1,
+    split_2 = FSOM_mapping_refsplit2
+  )
+
+  # store per-donor absdiff matrices, keyed by donor and reference split
+  fsom_absdiff_by_donor_refsplit[[paste(donor, "split_1", sep = "_")]] <-
+    FSOM_mapping_refsplit1\\$absdiff_matrix
+  fsom_absdiff_by_donor_refsplit[[paste(donor, "split_2", sep = "_")]] <-
+    FSOM_mapping_refsplit2\\$absdiff_matrix
+
+  # add both similarity scores
   fs_mapping_similarity_all <- c(
     fs_mapping_similarity_all,
-    FSOM_mapping\\$similarity
+    FSOM_mapping_refsplit1\\$similarity,
+    FSOM_mapping_refsplit2\\$similarity
   )
 }
 
@@ -3751,6 +3790,7 @@ output <- anndata::AnnData(
     method_id = integrated_s1\\$uns\\$method_id,
     metric_ids = "flowsom_mean_mapping_similarity",
     metric_values = fs_mapping_similarity_avg,
+    fsom_absdiff_by_donor_refsplit = fsom_absdiff_by_donor_refsplit,
     fsom_parameters = list(
       "xdim" = grid_xdim,
       "ydim" = grid_ydim,
