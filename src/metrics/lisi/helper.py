@@ -37,8 +37,14 @@ def compute_ilisi_per_group(integrated: ad.AnnData, split_label: str):
             )
             continue
 
+        # Shuffle cells deterministically before building the kNN graph.
+        # Keep `obs` aligned with `layers['integrated']` by shuffling the AnnData itself.
+        rng = np.random.default_rng(42)
+        perm = rng.permutation(group_adata.n_obs)
+        group_adata = group_adata[perm].copy()
+
         knn = sm.nearest_neighbors.pynndescent(
-            group_adata.layers["integrated"], n_neighbors=100, random_state=0
+            group_adata.layers["integrated"], n_neighbors=100, random_state=42
         )
         ilisi_per_cell = sm.lisi_knn(knn, group_adata.obs["batch"])
         ilisi = (np.nanmedian(ilisi_per_cell) - 1) / (n_batches_in_group - 1)
