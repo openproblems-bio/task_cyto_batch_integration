@@ -169,6 +169,8 @@
   * Split the metric into global and per cell type.
   * Refactored horizontal EMD.
 
+* Updated `metrics/flowsom_mapping_similarity` to compute mapping similarity bidirectionally (split1→split2 and split2→split1) and to export per-donor cluster×cell_type absolute-difference matrices in the output AnnData `uns`.
+
 * Schema defined in `src\api` has been modified to include dataset specific parameters (PR #71).
 
 * Disabled parallelization of `metrics/cms` + cms distributions are now kept in the output AnnData object (PR #83).
