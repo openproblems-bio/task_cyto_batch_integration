@@ -3535,7 +3535,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/metrics/lisi",
     "viash_version" : "0.9.4",
-    "git_commit" : "0ffe89eb1bc6d4afb667c3c35d510714c08b30ce",
+    "git_commit" : "eeab27bb68aaf2ec5073f3752b8b6f59bda251f4",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3717,19 +3717,25 @@ integrated_s2 = remove_unlabelled(integrated_s2)
 
 print("Compute metrics", flush=True)
 print("Compute iLisi per group for split 1", flush=True)
-ilisi_s1_per_group, ilisi_s1_per_cell_per_group, ilisi_s1_cell_ids_per_group = lisi_helper.compute_ilisi_per_group(
-    integrated_s1, "split 1"
+ilisi_s1_per_group, ilisi_s1_per_cell_per_group, ilisi_s1_cell_ids_per_group = (
+    lisi_helper.compute_ilisi_per_group(integrated_s1, "split 1")
 )
 
 print("Compute iLisi per group for split 2", flush=True)
-ilisi_s2_per_group, ilisi_s2_per_cell_per_group, ilisi_s2_cell_ids_per_group = lisi_helper.compute_ilisi_per_group(
-    integrated_s2, "split 2"
+ilisi_s2_per_group, ilisi_s2_per_cell_per_group, ilisi_s2_cell_ids_per_group = (
+    lisi_helper.compute_ilisi_per_group(integrated_s2, "split 2")
 )
 
 # Compute final iLISI as the mean across all groups from both splits.
 # If all groups across both splits were skipped (batch confounded by group), return NaN.
 all_ilisi_values = list(ilisi_s1_per_group.values()) + list(ilisi_s2_per_group.values())
 ilisi = np.nanmean(all_ilisi_values) if len(all_ilisi_values) > 0 else np.nan
+
+# This is ilisi not per group, similar to what Luca implemented
+n_batches = len(integrated_s1.obs.batch.unique())
+ilisi_s1, ilisi_s1_per_cell = lisi_helper.compute_ilisi(integrated_s1, n_batches)
+ilisi_s2, ilisi_s2_per_cell = lisi_helper.compute_ilisi(integrated_s2, n_batches)
+ilisi_normal = np.mean([ilisi_s1, ilisi_s2])
 
 print("Compute cLisi for split 1", flush=True)
 clisi_s1, clisi_s1_per_cell = lisi_helper.compute_clisi(integrated_s1)
@@ -3760,6 +3766,8 @@ print("Write output AnnData to file", flush=True)
 #     to the per-cell iLISI values in ilisi_per_cell_per_split.
 #   clisi_per_split: {split_1, split_2} -> cLISI score for that split.
 #   clisi_per_cell_per_split: {split_1, split_2} -> raw per-cell cLISI score for that split.
+#   ilisi_normal: {split_1, split_2} -> normal iLisi like how Luca implemented it.
+#     in each split, there will be dict with 3 keys, one ilisi score, ilisi per cell, and corresponding cell id.
 uns = {
     "dataset_id": integrated_s1.uns["dataset_id"],
     "method_id": integrated_s1.uns["method_id"],
@@ -3784,6 +3792,19 @@ uns = {
     "clisi_per_cell_per_split": {
         "split_1": clisi_s1_per_cell,
         "split_2": clisi_s2_per_cell,
+    },
+    "ilisi_normal": {
+        "ilisi_score": ilisi_normal,
+        "split_1": {
+            "ilisi_score": ilisi_s1,
+            "ilisi_per_cell": ilisi_s1_per_cell,
+            "ilisi_cell_id": np.array(integrated_s1.obs_names),
+        },
+        "split_2": {
+            "ilisi_score": ilisi_s2,
+            "ilisi_per_cell": ilisi_s2_per_cell,
+            "ilisi_cell_id": np.array(integrated_s2.obs_names),
+        },
     },
 }
 

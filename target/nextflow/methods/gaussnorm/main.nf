@@ -3354,7 +3354,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/methods/gaussnorm",
     "viash_version" : "0.9.4",
-    "git_commit" : "0ffe89eb1bc6d4afb667c3c35d510714c08b30ce",
+    "git_commit" : "eeab27bb68aaf2ec5073f3752b8b6f59bda251f4",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
