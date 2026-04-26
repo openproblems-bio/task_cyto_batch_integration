@@ -39,15 +39,12 @@ def compute_ilisi_per_group(integrated: ad.AnnData, split_label: str):
 
         # Shuffle cells deterministically before building the kNN graph.
         # Keep `obs` aligned with `layers['integrated']` by shuffling the AnnData itself.
-        rng = np.random.default_rng(42)
-        perm = rng.permutation(group_adata.n_obs)
-        group_adata = group_adata[perm].copy()
+        # TODO keep for now, but i don't think this makes any difference.
+        # rng = np.random.default_rng(42)
+        # perm = rng.permutation(group_adata.n_obs)
+        # group_adata = group_adata[perm].copy()
 
-        knn = sm.nearest_neighbors.pynndescent(
-            group_adata.layers["integrated"], n_neighbors=100, random_state=42
-        )
-        ilisi_per_cell = sm.lisi_knn(knn, group_adata.obs["batch"])
-        ilisi = (np.nanmedian(ilisi_per_cell) - 1) / (n_batches_in_group - 1)
+        ilisi, ilisi_per_cell = compute_ilisi(group_adata, n_batches_in_group)
 
         ilisi_per_group[group] = ilisi
         ilisi_per_cell_per_group[group] = ilisi_per_cell
@@ -61,6 +58,16 @@ def compute_ilisi_per_group(integrated: ad.AnnData, split_label: str):
         )
 
     return ilisi_per_group, ilisi_per_cell_per_group, ilisi_cell_ids_per_group
+
+
+def compute_ilisi(adata: ad.AnnData, n_batches: int):
+    knn = sm.nearest_neighbors.pynndescent(
+        adata.layers["integrated"], n_neighbors=100, random_state=42
+    )
+    ilisi_per_cell = sm.lisi_knn(knn, adata.obs["batch"])
+    ilisi = (np.nanmedian(ilisi_per_cell) - 1) / (n_batches - 1)
+
+    return ilisi, ilisi_per_cell
 
 
 def compute_clisi(integrated: ad.AnnData):
