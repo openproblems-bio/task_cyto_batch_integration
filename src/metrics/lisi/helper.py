@@ -3,68 +3,26 @@ import numpy as np
 import scib_metrics as sm
 
 
-def compute_ilisi_per_group(integrated: ad.AnnData, split_label: str):
+def compute_ilisi(adata: ad.AnnData, n_batches: int):
     """
-    Compute iLISI per biological group, skipping groups where batch is confounded.
+    Compute iLISI for an integrated AnnData object.
 
     Args:
-        integrated (ad.AnnData): Integrated AnnData with obs columns 'group' and 'batch'.
-        split_label (str): Label for the split (used in print statements).
+        adata (ad.AnnData): Integrated AnnData with obs column 'batch' and
+            layer 'integrated'.
+        n_batches (int): Total number of batches across the dataset.
 
     Returns:
-        ilisi_per_group (dict): Per-group normalised iLISI scalar values.
-            Empty dict if all groups are skipped due to batch-group confounding.
-        ilisi_per_cell_per_group (dict): Per-group arrays of raw per-cell iLISI values.
-            Empty dict if all groups are skipped due to batch-group confounding.
-        ilisi_cell_ids_per_group (dict): Per-group arrays of cell IDs corresponding to
-            the per-cell iLISI values in ilisi_per_cell_per_group.
-            Empty dict if all groups are skipped due to batch-group confounding.
+        ilisi (float): Normalised iLISI score in [0, 1].
+            0 = cells are surrounded by only one batch (no mixing).
+            1 = cells are perfectly mixed across all batches.
+        ilisi_per_cell (np.ndarray): Raw per-cell LISI values before normalisation.
     """
-    groups = integrated.obs["group"].unique()
-    ilisi_per_group = {}
-    ilisi_per_cell_per_group = {}
-    ilisi_cell_ids_per_group = {}
-
-    for group in groups:
-        group_adata = integrated[integrated.obs["group"] == group]
-        n_batches_in_group = len(group_adata.obs["batch"].unique())
-
-        if n_batches_in_group < 2:
-            print(
-                f"{split_label} - Group {group}: batch is confounded by group "
-                f"(only 1 batch present). Skipping.",
-                flush=True,
-            )
-            continue
-
-        # Shuffle cells deterministically before building the kNN graph.
-        # Keep `obs` aligned with `layers['integrated']` by shuffling the AnnData itself.
-        # TODO keep for now, but i don't think this makes any difference.
-        # rng = np.random.default_rng(42)
-        # perm = rng.permutation(group_adata.n_obs)
-        # group_adata = group_adata[perm].copy()
-
-        ilisi, ilisi_per_cell = compute_ilisi(group_adata, n_batches_in_group)
-
-        ilisi_per_group[group] = ilisi
-        ilisi_per_cell_per_group[group] = ilisi_per_cell
-        ilisi_cell_ids_per_group[group] = np.array(group_adata.obs_names)
-
-    if len(ilisi_per_group) == 0:
-        print(
-            f"{split_label}: batch is confounded by group in all groups. "
-            f"Returning NaN for iLISI.",
-            flush=True,
-        )
-
-    return ilisi_per_group, ilisi_per_cell_per_group, ilisi_cell_ids_per_group
-
-
-def compute_ilisi(adata: ad.AnnData, n_batches: int):
     knn = sm.nearest_neighbors.pynndescent(
         adata.layers["integrated"], n_neighbors=100, random_state=42
     )
     ilisi_per_cell = sm.lisi_knn(knn, adata.obs["batch"])
+
     ilisi = (np.nanmedian(ilisi_per_cell) - 1) / (n_batches - 1)
 
     return ilisi, ilisi_per_cell
@@ -75,16 +33,21 @@ def compute_clisi(integrated: ad.AnnData):
     Compute cLISI for an integrated AnnData object.
 
     Args:
-        integrated (ad.AnnData): Integrated AnnData with obs column 'cell_type'.
+        integrated (ad.AnnData): Integrated AnnData with obs column 'cell_type'
+            and layer 'integrated'.
 
     Returns:
-        clisi (float): Normalised cLISI score.
-        clisi_per_cell (np.ndarray): Raw per-cell cLISI values.
+        clisi (float): Normalised cLISI score in [0, 1].
+            0 = cell types are fully mixed in the neighbourhood (bad).
+            1 = each cell's neighbourhood contains only its own cell type (good).
+        clisi_per_cell (np.ndarray): Raw per-cell LISI values before normalisation.
     """
     n_celltypes = len(integrated.obs["cell_type"].unique())
     knn = sm.nearest_neighbors.pynndescent(
         integrated.layers["integrated"], n_neighbors=100, random_state=0
     )
     clisi_per_cell = sm.lisi_knn(knn, integrated.obs["cell_type"])
+
     clisi = (n_celltypes - np.nanmedian(clisi_per_cell)) / (n_celltypes - 1)
+
     return clisi, clisi_per_cell
