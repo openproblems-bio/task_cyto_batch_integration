@@ -112,6 +112,7 @@ dependencies:
   - name: metrics/average_batch_r2
   - name: metrics/flowsom_mapping_similarity
   - name: metrics/lisi
+  - name: metrics/functional_marker_preservation
   
 
 runners:

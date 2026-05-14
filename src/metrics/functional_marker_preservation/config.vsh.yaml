@@ -1,0 +1,96 @@
+__merge__: ../../api/comp_metric.yaml
+
+# A unique identifier for your component (required).
+# Can contain only lowercase letters or underscores.
+name: functional_marker_preservation
+
+# Metadata for your component
+info:
+  metrics:
+    - name: functional_marker_preservation_wilcoxon
+      label: Functional Marker Preservation (Wilcoxon)
+      summary: "Proportion of biologically significant functional marker group differences preserved after batch integration."
+      description: |
+        Assesses whether batch integration preserves biologically meaningful differences in
+        functional marker expression between biological groups (e.g. WT vs KO).
+
+        Per-sample mean expression is computed for each (functional marker, cell type) pair.
+        A two-sided Wilcoxon rank-sum test compares the two biological groups. Raw p-values
+        are used without FDR correction, as the minimum achievable p-value with n=3 samples
+        per group is 0.10, making FDR adjustment counterproductive.
+
+        Baseline (unintegrated data):
+        - Tests are run separately within each batch.
+        - A pair enters the baseline only if significant (p ≤ 0.1) in BOTH batches.
+
+        Preservation (integrated data):
+        - The same test is run per split, ignoring batch labels.
+        - A pair is counted as preserved if significant in BOTH split 1 and split 2.
+
+        Score = number of preserved pairs / number of baseline pairs.
+        A higher score indicates more biologically relevant group differences were maintained.
+
+      references:
+        doi:
+          - 10.1038/s41592-019-0686-2
+      links:
+        documentation: https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.mannwhitneyu.html
+        repository: https://github.com/scipy/scipy
+      min: 0
+      max: 1
+      maximize: true
+
+    - name: functional_marker_preservation_cohens_d
+      label: Functional Marker Preservation (Cohen's d)
+      summary: "Mean absolute change in effect size between unintegrated and integrated functional marker group differences."
+      description: |
+        Measures how much batch integration shifts the effect size of biological group
+        differences in functional marker expression.
+
+        Cohen's d = (mean_A − mean_B) / pooled SD is computed per (functional marker,
+        cell type) pair using per-sample mean expressions.
+
+        Ground truth (unintegrated):
+        - Cohen's d is computed per batch, then averaged across the two batches.
+
+        Integrated:
+        - Cohen's d is computed per split (batch-agnostic), then averaged across splits.
+
+        Score = mean |d_integrated − d_unintegrated| across all (marker, cell type) pairs.
+        A lower score indicates that integration better preserved the original effect sizes.
+
+      references:
+        doi:
+          - 10.1038/s41592-019-0686-2
+      links:
+        documentation: https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.mannwhitneyu.html
+        repository: https://github.com/scipy/scipy
+      min: 0
+      max: .inf
+      maximize: false
+
+# Resources required to run the component
+resources:
+  # The script of your component (required)
+  - type: python_script
+    path: script.py
+  - path: helper.py
+  - path: /src/utils/helper_functions.py
+
+engines:
+  # Specifications for the Docker image for this component.
+  - type: docker
+    image: openproblems/base_python:1
+    setup:
+      - type: python
+        packages:
+          - scipy
+      
+
+runners:
+  # This platform allows running the component natively
+  - type: executable
+  # Allows turning the component into a Nextflow module / pipeline.
+  - type: nextflow
+    directives:
+      label: [midtime,midmem,midcpu]
