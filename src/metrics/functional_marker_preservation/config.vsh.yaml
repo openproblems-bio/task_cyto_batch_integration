@@ -56,7 +56,7 @@ info:
         Integrated:
         - Cohen's d is computed per split (batch-agnostic), then averaged across splits.
 
-        Score = mean |d_integrated − d_unintegrated| across all (marker, cell type) pairs.
+        Score = mean(abs(d_s1 − d_unintegrated), abs(d_s2 − d_unintegrated)) across all (marker, cell type) pairs.
         A lower score indicates that integration better preserved the original effect sizes.
 
       references:

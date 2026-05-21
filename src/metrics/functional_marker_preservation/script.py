@@ -156,7 +156,7 @@ d_b2 = cohens_d_unintegrated[batches[1]][["marker", "cell_type", "cohens_d"]].re
     columns={"cohens_d": "cohens_d_b2"}
 )
 d_unintegrated_mean = d_b1.merge(d_b2, on=["marker", "cell_type"])
-d_unintegrated_mean["cohens_d"] = d_unintegrated_mean[
+d_unintegrated_mean["cohens_d_mean_unintegrated"] = d_unintegrated_mean[
     ["cohens_d_b1", "cohens_d_b2"]
 ].mean(axis=1)
 
@@ -171,28 +171,30 @@ d_split1 = d_s1[["marker", "cell_type", "cohens_d"]].rename(
 d_split2 = d_s2[["marker", "cell_type", "cohens_d"]].rename(
     columns={"cohens_d": "cohens_d_s2"}
 )
-d_integrated_mean = d_split1.merge(d_split2, on=["marker", "cell_type"])
-d_integrated_mean["cohens_d"] = d_integrated_mean[["cohens_d_s1", "cohens_d_s2"]].mean(
-    axis=1
-)
+d_s1_and_s2 = d_split1.merge(d_split2, on=["marker", "cell_type"])
 
 # Absolute difference between integrated and unintegrated ground truth, per pair.
-d_comparison = (
-    d_unintegrated_mean[["marker", "cell_type", "cohens_d"]]
-    .rename(columns={"cohens_d": "cohens_d_unintegrated"})
-    .merge(
-        d_integrated_mean[["marker", "cell_type", "cohens_d"]].rename(
-            columns={"cohens_d": "cohens_d_integrated"}
-        ),
-        on=["marker", "cell_type"],
-    )
+d_comparison = d_unintegrated_mean.merge(
+    d_s1_and_s2,
+    on=["marker", "cell_type"],
 )
-d_comparison["abs_diff"] = (
-    d_comparison["cohens_d_integrated"] - d_comparison["cohens_d_unintegrated"]
+d_comparison["abs_diff_s1"] = (
+    d_comparison["cohens_d_s1"] - d_comparison["cohens_d_mean_unintegrated"]
 ).abs()
+d_comparison["abs_diff_s2"] = (
+    d_comparison["cohens_d_s2"] - d_comparison["cohens_d_mean_unintegrated"]
+).abs()
+d_comparison["abs_mean"] = d_comparison[["abs_diff_s1", "abs_diff_s2"]].mean(axis=1)
 
-cohens_d_metric = d_comparison["abs_diff"].mean()
+cohens_d_metric = d_comparison["abs_mean"].mean()
 print(f"Cohen's d metric (mean abs diff): {cohens_d_metric}", flush=True)
+
+# TODO, not sure if this is better where instead of doing mean of mean
+# do mean of all abs_diff across s1 and s2 for all pairs
+cohens_d_metric_all = (
+    d_comparison[["abs_diff_s1", "abs_diff_s2"]].values.flatten().mean()
+)
+print(f"Cohen's d metric (mean of all abs diff): {cohens_d_metric_all}", flush=True)
 
 # ── Write output ─────────────────────────────────────────────────────────────
 print("Write output AnnData to file", flush=True)
@@ -206,9 +208,9 @@ print("Write output AnnData to file", flush=True)
 #       [marker, cell_type, group_a, group_b, u_statistic, pval].
 #
 #   cohens_d section:
-#     cohens_d_results.unintegrated: per-batch d tables and their mean.
-#     cohens_d_results.split_1 / split_2: per-split d tables and their mean.
-#     cohens_d_results.comparison: merged table with abs_diff per (marker, cell_type).
+#     cohen_d_results: merged table with content of unintegrated and split1 and split2 d values per (marker, cell_type).
+#     cohens_d_metric_all: mean of all abs_diff values across s1 and s2 for all pairs (not averaged per pair first).
+#
 uns = {
     "dataset_id": integrated_s1.uns["dataset_id"],
     "method_id": integrated_s1.uns["method_id"],
@@ -228,17 +230,8 @@ uns = {
         "split_2": wilcoxon_s2,
     },
     # Cohen's d
-    "cohens_d_results": {
-        "unintegrated": {
-            str(batches[0]): cohens_d_unintegrated[batches[0]].to_dict(orient="list"),
-            str(batches[1]): cohens_d_unintegrated[batches[1]].to_dict(orient="list"),
-            "mean": d_unintegrated_mean.to_dict(orient="list"),
-        },
-        "split_1": d_s1.to_dict(orient="list"),
-        "split_2": d_s2.to_dict(orient="list"),
-        "integrated_mean": d_integrated_mean.to_dict(orient="list"),
-        "comparison": d_comparison.to_dict(orient="list"),
-    },
+    "cohens_d_results": d_comparison.to_dict(orient="list"),
+    "cohens_d_metric_all": cohens_d_metric_all,
 }
 
 output = ad.AnnData(uns=uns)
