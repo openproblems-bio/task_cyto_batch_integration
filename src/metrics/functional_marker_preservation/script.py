@@ -191,13 +191,6 @@ d_comparison["abs_mean"] = d_comparison[["abs_diff_s1", "abs_diff_s2"]].mean(axi
 cohens_d_metric = d_comparison["abs_mean"].mean()
 print(f"Cohen's d metric (mean abs diff): {cohens_d_metric}", flush=True)
 
-# TODO, not sure if this is better where instead of doing mean of mean
-# do mean of all abs_diff across s1 and s2 for all pairs
-cohens_d_metric_all = (
-    d_comparison[["abs_diff_s1", "abs_diff_s2"]].values.flatten().mean()
-)
-print(f"Cohen's d metric (mean of all abs diff): {cohens_d_metric_all}", flush=True)
-
 # ── Write output ─────────────────────────────────────────────────────────────
 print("Write output AnnData to file", flush=True)
 # uns layout:
@@ -233,7 +226,6 @@ uns = {
     },
     # Cohen's d
     "cohens_d_results": d_comparison.to_dict(orient="list"),
-    "cohens_d_metric_all": cohens_d_metric_all,
 }
 
 output = ad.AnnData(uns=uns)
