@@ -14,3 +14,4 @@ trace-*
 /resources_raw
 /*.tar
 *.pyc
+CLAUDE.md

@@ -132,9 +132,11 @@ else:
 print(f"Wilcoxon metric: {wilcoxon_metric}", flush=True)
 
 # ── Cohen's d metric ─────────────────────────────────────────────────────────
-# Ground truth: Cohen's d computed per batch from unintegrated, then averaged.
-# Integrated: Cohen's d per split (batch-agnostic), then averaged.
-# Metric: mean absolute difference between integrated and unintegrated d values.
+# Ground truth: Cohen's d computed per batch from unintegrated, then averaged across batches.
+# Integrated: Cohen's d computed per split (batch-agnostic). Each split is compared
+# individually to the ground truth — abs() is taken before averaging so that opposite-
+# direction errors in split 1 and split 2 cannot cancel each other out.
+# Metric: mean( mean(|d_s1 - d_unintegrated|, |d_s2 - d_unintegrated|) ) across all pairs.
 print("Cohen's d — computing unintegrated ground truth", flush=True)
 
 cohens_d_unintegrated = {}
@@ -164,7 +166,7 @@ print("Cohen's d — computing integrated splits", flush=True)
 d_s1 = metric_helper.compute_cohens_d(mean_expr_s1)
 d_s2 = metric_helper.compute_cohens_d(mean_expr_s2)
 
-# Average Cohen's d across the two integrated splits.
+# Prepare per-split d tables for the comparison merge.
 d_split1 = d_s1[["marker", "cell_type", "cohens_d"]].rename(
     columns={"cohens_d": "cohens_d_s1"}
 )
@@ -173,7 +175,7 @@ d_split2 = d_s2[["marker", "cell_type", "cohens_d"]].rename(
 )
 d_s1_and_s2 = d_split1.merge(d_split2, on=["marker", "cell_type"])
 
-# Absolute difference between integrated and unintegrated ground truth, per pair.
+# Per pair: |d_s1 - d_unintegrated| and |d_s2 - d_unintegrated|, then average the two.
 d_comparison = d_unintegrated_mean.merge(
     d_s1_and_s2,
     on=["marker", "cell_type"],
