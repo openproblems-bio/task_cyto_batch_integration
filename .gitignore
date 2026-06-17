@@ -13,3 +13,4 @@ trace-*
 *_iterative_test.*
 /resources_raw
 /*.tar
+*.pyc

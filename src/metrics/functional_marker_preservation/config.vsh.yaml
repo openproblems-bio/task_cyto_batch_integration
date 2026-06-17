@@ -54,9 +54,13 @@ info:
         - Cohen's d is computed per batch, then averaged across the two batches.
 
         Integrated:
-        - Cohen's d is computed per split (batch-agnostic), then averaged across splits.
+        - Cohen's d is computed separately for split 1 and split 2 (batch-agnostic).
+        - The absolute deviation from the unintegrated ground truth is computed per split,
+          then averaged: mean(|d_s1 − d_unintegrated|, |d_s2 − d_unintegrated|).
+        - Taking abs() before averaging prevents opposite-direction errors in the two splits
+          from cancelling each other out.
 
-        Score = mean(abs(d_s1 − d_unintegrated), abs(d_s2 − d_unintegrated)) across all (marker, cell type) pairs.
+        Score = mean of the above across all (marker, cell type) pairs.
         A lower score indicates that integration better preserved the original effect sizes.
 
       references:
