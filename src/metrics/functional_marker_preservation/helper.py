@@ -3,6 +3,31 @@ import pandas as pd
 from scipy.stats import mannwhitneyu
 
 
+def infer_groups(adata):
+    """
+    Determine the two biological group labels (e.g. WT/KO) from adata.obs["group"].
+
+    Sorting makes group_a/group_b deterministic across runs and datasets — calling
+    this once on the unintegrated data and threading the result through every
+    run_wilcoxon_group_tests()/compute_cohens_d() call (rather than letting each
+    call infer groups from its own subset via .unique(), which reflects row
+    order and isn't guaranteed to agree across batches/splits) keeps "group A"
+    and "group B" meaning the same thing everywhere, so a positive Cohen's d
+    always means the same direction no matter which batch, split, or method run
+    it came from.
+
+    Args:
+        adata: AnnData with an obs column 'group' containing exactly 2 unique values.
+
+    Returns:
+        tuple: (group_a, group_b), sorted alphabetically.
+    """
+    groups = sorted(adata.obs["group"].unique())
+    if len(groups) != 2:
+        raise ValueError(f"Expected exactly 2 biological groups, found: {groups}")
+    return groups[0], groups[1]
+
+
 def compute_mean_expression_per_sample(adata, layer, min_cells=5):
     """
     Compute mean expression of each functional marker per (cell_type, sample) pair.
@@ -47,7 +72,7 @@ def compute_mean_expression_per_sample(adata, layer, min_cells=5):
     )
 
 
-def run_wilcoxon_group_tests(mean_expr_df):
+def run_wilcoxon_group_tests(mean_expr_df, group_a, group_b):
     """
     For each (marker, cell_type) pair, run a two-sided Wilcoxon rank-sum test
     comparing the two biological groups (e.g. WT vs KO) on per-sample mean
@@ -55,24 +80,34 @@ def run_wilcoxon_group_tests(mean_expr_df):
     number of samples per group (typically 2-3) makes the minimum achievable
     p-value ~0.1, rendering FDR adjustment counterproductive.
 
-    The two groups are inferred from the unique values of the 'group' column.
-    Use get_significant_pairs() to threshold results.
+    group_a and group_b must be determined once by the caller (see
+    infer_groups()) and passed to every call, rather than re-inferred per
+    batch/split — inferring locally from each subset's own unique() order can
+    silently assign "group A" and "group B" to opposite biological groups
+    across different calls. Use get_significant_pairs() to threshold results.
 
     Args:
         mean_expr_df (pd.DataFrame): Output of compute_mean_expression_per_sample.
             Must contain columns ['marker', 'cell_type', 'group', 'mean_expr'].
+        group_a (str): Label of the first biological group.
+        group_b (str): Label of the second biological group.
 
     Returns:
         pd.DataFrame: Columns ['marker', 'cell_type', 'group_a', 'group_b',
             'u_statistic', 'pval']. Pairs with fewer than 2 samples in either
             group are excluded.
     """
-    groups = mean_expr_df["group"].unique()
-    if len(groups) != 2:
+    # group_a/group_b are trusted as given (see infer_groups()), so this isn't
+    # re-deriving them — it's a guard against mean_expr_df itself being wrong,
+    # e.g. a third group label from a data bug, or group_a/group_b having been
+    # computed from the wrong column upstream. Fails loudly here rather than
+    # silently dropping the offending rows further down in the groupby loop.
+    unexpected_groups = set(mean_expr_df["group"].unique()) - {group_a, group_b}
+    if unexpected_groups:
         raise ValueError(
-            f"Expected exactly 2 biological groups for Wilcoxon test, found: {groups}"
+            f"mean_expr_df contains group(s) other than {group_a!r}/{group_b!r}: "
+            f"{unexpected_groups}"
         )
-    group_a, group_b = groups[0], groups[1]
 
     results = []
     # grp is the subset of rows for one (marker, cell_type) combination.
@@ -128,18 +163,20 @@ def _cohens_d(vals_a, vals_b):
         float: Cohen's d, or NaN if undefined.
     """
     n_a, n_b = len(vals_a), len(vals_b)
-    dof = n_a + n_b - 2
+    denom = n_a + n_b - 2
+    # setting ddof to 1 to get unbiased sample variance using Bessel’s correction
+    # (dividing by n-1)
     s_a, s_b = vals_a.var(ddof=1), vals_b.var(ddof=1)
-    pooled_sd = np.sqrt(((n_a - 1) * s_a + (n_b - 1) * s_b) / dof)
+    pooled_sd = np.sqrt(((n_a - 1) * s_a + (n_b - 1) * s_b) / denom)
 
     if pooled_sd == 0:
         return np.nan
 
-    u_a, u_b = vals_a.mean(), vals_b.mean()
-    return (u_a - u_b) / pooled_sd
+    mean_a, mean_b = vals_a.mean(), vals_b.mean()
+    return (mean_a - mean_b) / pooled_sd
 
 
-def compute_cohens_d(mean_expr_df):
+def compute_cohens_d(mean_expr_df, group_a, group_b):
     """
     For each (marker, cell_type) pair, compute Cohen's d between the two
     biological groups on per-sample mean expressions.
@@ -152,23 +189,34 @@ def compute_cohens_d(mean_expr_df):
     Returns NaN for a pair when pooled_SD is zero (all samples have identical
     expression) or when either group has fewer than 2 samples.
 
-    The two groups are inferred from the unique values of the 'group' column.
+    group_a and group_b must be determined once by the caller (see
+    infer_groups()) and passed to every call, rather than re-inferred per
+    batch/split. Cohen's d is signed, so if "group A" silently swapped
+    between calls, the sign of d would flip along with it — corrupting any
+    average or comparison taken across batches/splits.
 
     Args:
         mean_expr_df (pd.DataFrame): Output of compute_mean_expression_per_sample.
             Must contain columns ['marker', 'cell_type', 'group', 'mean_expr'].
+        group_a (str): Label of the first biological group.
+        group_b (str): Label of the second biological group.
 
     Returns:
         pd.DataFrame: Columns ['marker', 'cell_type', 'group_a', 'group_b',
             'cohens_d']. Pairs with fewer than 2 samples in either group are
             excluded.
     """
-    groups = mean_expr_df["group"].unique()
-    if len(groups) != 2:
+    # group_a/group_b are trusted as given (see infer_groups()), so this isn't
+    # re-deriving them — it's a guard against mean_expr_df itself being wrong,
+    # e.g. a third group label from a data bug, or group_a/group_b having been
+    # computed from the wrong column upstream. Fails loudly here rather than
+    # silently dropping the offending rows further down in the groupby loop.
+    unexpected_groups = set(mean_expr_df["group"].unique()) - {group_a, group_b}
+    if unexpected_groups:
         raise ValueError(
-            f"Expected exactly 2 biological groups for Cohen's d, found: {groups}"
+            f"mean_expr_df contains group(s) other than {group_a!r}/{group_b!r}: "
+            f"{unexpected_groups}"
         )
-    group_a, group_b = groups[0], groups[1]
 
     results = []
     # grp is the subset of rows for one (marker, cell_type) combination.
@@ -200,6 +248,24 @@ def compute_cohens_d(mean_expr_df):
     df["group_b"] = group_b
 
     return df
+
+
+def filter_to_sig_pairs(mean_expr_df, sig_pairs):
+    """
+    Keep only rows whose (marker, cell_type) combination is in sig_pairs.
+
+    Args:
+        mean_expr_df (pd.DataFrame): Must contain columns ['marker', 'cell_type'].
+        sig_pairs (set): Set of significant (marker, cell_type) tuples to keep.
+
+    Returns:
+        pd.DataFrame: Filtered mean_expr_df.
+    """
+    is_kept = [
+        (marker, cell_type) in sig_pairs
+        for marker, cell_type in zip(mean_expr_df["marker"], mean_expr_df["cell_type"])
+    ]
+    return mean_expr_df[is_kept]
 
 
 def get_significant_pairs(test_results_df, pval_threshold=0.1):

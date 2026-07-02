@@ -19,6 +19,11 @@ info:
         are used without FDR correction, as the minimum achievable p-value with n=3 samples
         per group is 0.10, making FDR adjustment counterproductive.
 
+        Group A and group B are determined once from the unintegrated data's obs["group"]
+        values, sorted alphabetically, and reused for every batch and split. This keeps
+        "group A" and "group B" referring to the same biological group throughout, rather
+        than being re-derived independently per batch/split.
+
         Baseline (unintegrated data):
         - Tests are run separately within each batch.
         - A pair enters the baseline only if significant (p ≤ 0.1) in BOTH batches.
@@ -48,7 +53,16 @@ info:
         differences in functional marker expression.
 
         Cohen's d = (mean_A − mean_B) / pooled SD is computed per (functional marker,
-        cell type) pair using per-sample mean expressions.
+        cell type) pair using per-sample mean expressions, restricted to the pairs in
+        sig_integrated (i.e. those found significant in both integrated splits by the
+        Wilcoxon metric above). Effect size drift is not meaningful for pairs where the
+        group difference didn't survive integration.
+
+        Group A and group B are determined once from the unintegrated data's obs["group"]
+        values, sorted alphabetically, and reused for every batch and split. Since Cohen's
+        d is signed, this is what keeps a positive value meaning "group A higher than group
+        B" consistently across batches and splits, rather than the sign flipping depending
+        on which group happened to be labelled A in a given batch or split.
 
         Ground truth (unintegrated):
         - Cohen's d is computed per batch, then averaged across the two batches.
