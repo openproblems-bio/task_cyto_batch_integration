@@ -147,15 +147,17 @@ print(f"Wilcoxon metric: {wilcoxon_metric}", flush=True)
 # direction errors in split 1 and split 2 cannot cancel each other out.
 # Metric: mean( mean(|d_s1 - d_unintegrated|, |d_s2 - d_unintegrated|) ) across all pairs.
 #
-# Only (marker, cell_type) pairs in sig_integrated — those the Wilcoxon test found
-# significant in both integrated splits — are considered. Effect size drift is not
-# meaningful for pairs where the group difference didn't survive integration.
+# Only (marker, cell_type) pairs in sig_unintegrated — those the Wilcoxon test found
+# significant in both unintegrated batches — are considered. This is broader than
+# sig_integrated: effect size drift is tracked for every pair with a genuine baseline
+# group difference, even if that difference no longer reached significance after
+# integration, since that's exactly the kind of degradation this metric should catch.
 print("Cohen's d — computing unintegrated ground truth", flush=True)
 
-if len(sig_integrated) == 0:
+if len(sig_unintegrated) == 0:
     print(
-        "WARNING: No (marker, cell_type) pairs are significant in both integrated "
-        "splits. Cohen's d metric will be NaN.",
+        "WARNING: No (marker, cell_type) pairs are significant in the unintegrated "
+        "baseline. Cohen's d metric will be NaN.",
         flush=True,
     )
     cohens_d_metric = np.nan
@@ -175,11 +177,11 @@ if len(sig_integrated) == 0:
     )
 else:
     mean_expr_unintegrated_sig = {
-        batch: metric_helper.filter_to_sig_pairs(mean_expr_unintegrated[batch], sig_integrated)
+        batch: metric_helper.filter_to_sig_pairs(mean_expr_unintegrated[batch], sig_unintegrated)
         for batch in batches
     }
-    mean_expr_s1_sig = metric_helper.filter_to_sig_pairs(mean_expr_s1, sig_integrated)
-    mean_expr_s2_sig = metric_helper.filter_to_sig_pairs(mean_expr_s2, sig_integrated)
+    mean_expr_s1_sig = metric_helper.filter_to_sig_pairs(mean_expr_s1, sig_unintegrated)
+    mean_expr_s2_sig = metric_helper.filter_to_sig_pairs(mean_expr_s2, sig_unintegrated)
 
     cohens_d_unintegrated = {}
     for batch in batches:
@@ -249,9 +251,8 @@ print("Write output AnnData to file", flush=True)
 #       [marker, cell_type, group_a, group_b, u_statistic, pval].
 #
 #   cohens_d section:
-#     cohen_d_results: merged table with content of unintegrated and split1 and split2 d values,
-#       restricted to (marker, cell_type) pairs in sig_integrated.
-#     cohens_d_metric_all: mean of all abs_diff values across s1 and s2 for all pairs (not averaged per pair first).
+#     cohens_d_results: merged table with content of unintegrated and split1 and split2 d values,
+#       restricted to (marker, cell_type) pairs in sig_unintegrated.
 #
 uns = {
     "dataset_id": integrated_s1.uns["dataset_id"],

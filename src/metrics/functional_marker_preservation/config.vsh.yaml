@@ -54,9 +54,11 @@ info:
 
         Cohen's d = (mean_A − mean_B) / pooled SD is computed per (functional marker,
         cell type) pair using per-sample mean expressions, restricted to the pairs in
-        sig_integrated (i.e. those found significant in both integrated splits by the
-        Wilcoxon metric above). Effect size drift is not meaningful for pairs where the
-        group difference didn't survive integration.
+        sig_unintegrated (i.e. those found significant in both unintegrated batches by
+        the Wilcoxon metric above). This covers every pair with a genuine baseline group
+        difference, including ones where that difference no longer reached significance
+        after integration — that loss of significance is itself a form of effect size
+        drift this metric is meant to capture.
 
         Group A and group B are determined once from the unintegrated data's obs["group"]
         values, sorted alphabetically, and reused for every batch and split. Since Cohen's
