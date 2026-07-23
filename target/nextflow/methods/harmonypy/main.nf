@@ -3289,7 +3289,7 @@ meta = [
         "label" : [
           "midtime",
           "midmem",
-          "midcpu"
+          "lowcpu"
         ],
         "tag" : "$id"
       },
@@ -3328,7 +3328,8 @@ meta = [
           "type" : "python",
           "user" : false,
           "packages" : [
-            "harmonypy"
+            "harmonypy>=0.2.0",
+            "torch"
           ],
           "upgrade" : true
         }
@@ -3341,7 +3342,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/methods/harmonypy",
     "viash_version" : "0.9.4",
-    "git_commit" : "b9a3d3779a1ed71059a9e17079b998431475bfcd",
+    "git_commit" : "79a262f342afacee030b613f651b12e2fbb578d4",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3509,12 +3510,8 @@ adata_to_correct = adata[:, markers_to_correct].copy()
 
 print("Run harmony", flush=True)
 
-# TODO numerical instability in kmeans causing problem with harmony.
-# so adding a very small value to all entries to make sure there are no zeros
-epsilon = 1e-20
-
 out = harmonypy.run_harmony(
-    data_mat=adata_to_correct.layers["preprocessed"] + epsilon,
+    data_mat=adata_to_correct.layers["preprocessed"],
     meta_data=adata_to_correct.obs,
     vars_use="batch_str",
 )
@@ -3933,7 +3930,7 @@ meta["defaults"] = [
   "label" : [
     "midtime",
     "midmem",
-    "midcpu"
+    "lowcpu"
   ],
   "tag" : "$id"
 }'''),

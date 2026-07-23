@@ -446,12 +446,12 @@ function ViashDockerfile {
 FROM openproblems/base_python:1
 ENTRYPOINT []
 RUN pip install --upgrade pip && \
-  pip install --upgrade --no-cache-dir "harmonypy"
+  pip install --upgrade --no-cache-dir "harmonypy>=0.2.0" "torch"
 
 LABEL org.opencontainers.image.description="Companion container for running component methods harmonypy"
-LABEL org.opencontainers.image.created="2026-04-08T02:53:10Z"
+LABEL org.opencontainers.image.created="2026-07-23T02:43:07Z"
 LABEL org.opencontainers.image.source="https://github.com/slowkow/harmonypy"
-LABEL org.opencontainers.image.revision="b9a3d3779a1ed71059a9e17079b998431475bfcd"
+LABEL org.opencontainers.image.revision="79a262f342afacee030b613f651b12e2fbb578d4"
 LABEL org.opencontainers.image.version="build_main"
 
 VIASHDOCKER
@@ -1090,12 +1090,8 @@ adata_to_correct = adata[:, markers_to_correct].copy()
 
 print("Run harmony", flush=True)
 
-# TODO numerical instability in kmeans causing problem with harmony.
-# so adding a very small value to all entries to make sure there are no zeros
-epsilon = 1e-20
-
 out = harmonypy.run_harmony(
-    data_mat=adata_to_correct.layers["preprocessed"] + epsilon,
+    data_mat=adata_to_correct.layers["preprocessed"],
     meta_data=adata_to_correct.obs,
     vars_use="batch_str",
 )

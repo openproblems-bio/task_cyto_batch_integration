@@ -26,10 +26,11 @@ engines:
     setup:
       - type: python
         packages:
-          - harmonypy
+          - harmonypy>=0.2.0
+          - torch
 
 runners:
   - type: executable
   - type: nextflow
     directives:
-      label: [midtime,midmem,midcpu]
+      label: [midtime,midmem,lowcpu]

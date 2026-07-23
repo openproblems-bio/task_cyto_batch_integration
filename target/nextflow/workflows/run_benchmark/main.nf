@@ -3783,6 +3783,12 @@ meta = [
       "repository" : {
         "type" : "local"
       }
+    },
+    {
+      "name" : "metrics/functional_marker_preservation",
+      "repository" : {
+        "type" : "local"
+      }
     }
   ],
   "repositories" : [
@@ -3841,7 +3847,7 @@ meta = [
     "engine" : "native",
     "output" : "target/nextflow/workflows/run_benchmark",
     "viash_version" : "0.9.4",
-    "git_commit" : "b9a3d3779a1ed71059a9e17079b998431475bfcd",
+    "git_commit" : "79a262f342afacee030b613f651b12e2fbb578d4",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3977,6 +3983,7 @@ include { ratio_consistent_peaks } from "${meta.resources_dir}/../../../nextflow
 include { average_batch_r2 } from "${meta.resources_dir}/../../../nextflow/metrics/average_batch_r2/main.nf"
 include { flowsom_mapping_similarity } from "${meta.resources_dir}/../../../nextflow/metrics/flowsom_mapping_similarity/main.nf"
 include { lisi } from "${meta.resources_dir}/../../../nextflow/metrics/lisi/main.nf"
+include { functional_marker_preservation } from "${meta.resources_dir}/../../../nextflow/metrics/functional_marker_preservation/main.nf"
 
 // inner workflow
 // user-provided Nextflow code
@@ -4024,7 +4031,8 @@ metrics = [
   ratio_consistent_peaks,
   average_batch_r2,
   flowsom_mapping_similarity,
-  lisi
+  lisi,
+  functional_marker_preservation
 ]
 
 workflow run_wf {

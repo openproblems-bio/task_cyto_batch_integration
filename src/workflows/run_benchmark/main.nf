@@ -42,7 +42,8 @@ metrics = [
   ratio_consistent_peaks,
   average_batch_r2,
   flowsom_mapping_similarity,
-  lisi
+  lisi,
+  functional_marker_preservation
 ]
 
 workflow run_wf {
