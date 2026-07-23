@@ -95,6 +95,7 @@ resources:
   # The script of your component (required)
   - type: python_script
     path: script.py
+  - path: helper.py
   - path: /src/utils/helper_functions.py
 
 engines:

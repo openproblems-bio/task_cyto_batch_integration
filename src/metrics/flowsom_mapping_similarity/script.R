@@ -48,6 +48,7 @@ grid_ydim <- unintegrated$uns$parameter_som_ydim
 
 print("Computing mapping similarity\n")
 fs_mapping_similarity_allres <- list()
+fsom_absdiff_by_donor_refsplit <- list()
 fs_mapping_similarity_all <- c()
 
 for (donor in donor_list) {
@@ -64,8 +65,9 @@ for (donor in donor_list) {
     layer_name = "integrated"
   )
   
+  # Direction A: build on split 1, map split 2 into it
   print("Building FlowSOM tree with split 1 cells")
-  fs_tree_s1 <- FlowSOM(
+  fs_tree_s1_ref <- FlowSOM(
     split1_data$flowframe,
     colsToUse = lineage_markers,
     nClus = n_clusters,
@@ -75,24 +77,61 @@ for (donor in donor_list) {
   )
   
   print("Mapping split 2 cells in the tree")
-  fs_tree_s2 <- NewData(
-    fs_tree_s1,
+  fs_tree_s2_mapped <- NewData(
+    fs_tree_s1_ref,
     split2_data$flowframe
   )
   
-  print("Computing mapping similarity")
-  FSOM_mapping <- compute_fs_mapping_similarity(
-    fs_tree_s1,
+  print("Computing mapping similarity (tree split 1; mapped split 2)")
+  FSOM_mapping_refsplit1 <- compute_fs_mapping_similarity(
+    fs_tree_s1_ref,
     split1_data$ct_annotations,
-    fs_tree_s2,
+    fs_tree_s2_mapped,
     split2_data$ct_annotations
   )
-  # add full results for a donor to a list
-  fs_mapping_similarity_allres[[donor]] <- FSOM_mapping
-  # add only similarity metric to a variable
+
+  # Direction B: build on split 2, map split 1 into it
+  print("Building FlowSOM tree with split 2 cells")
+  fs_tree_s2_ref <- FlowSOM(
+    split2_data$flowframe,
+    colsToUse = lineage_markers,
+    nClus = n_clusters,
+    xdim = grid_xdim,
+    ydim = grid_ydim,
+    seed = 42
+  )
+
+  print("Mapping split 1 cells in the tree")
+  fs_tree_s1_mapped <- NewData(
+    fs_tree_s2_ref,
+    split1_data$flowframe
+  )
+
+  print("Computing mapping similarity (tree split 2; mapped split 1)")
+  FSOM_mapping_refsplit2 <- compute_fs_mapping_similarity(
+    fs_tree_s2_ref,
+    split2_data$ct_annotations,
+    fs_tree_s1_mapped,
+    split1_data$ct_annotations
+  )
+
+  # add full results for a donor to a list (both directions)
+  fs_mapping_similarity_allres[[donor]] <- list(
+    split_1 = FSOM_mapping_refsplit1,
+    split_2 = FSOM_mapping_refsplit2
+  )
+
+  # store per-donor absdiff matrices, keyed by donor and reference split
+  fsom_absdiff_by_donor_refsplit[[paste(donor, "split_1", sep = "_")]] <-
+    FSOM_mapping_refsplit1$absdiff_matrix
+  fsom_absdiff_by_donor_refsplit[[paste(donor, "split_2", sep = "_")]] <-
+    FSOM_mapping_refsplit2$absdiff_matrix
+
+  # add both similarity scores
   fs_mapping_similarity_all <- c(
     fs_mapping_similarity_all,
-    FSOM_mapping$similarity
+    FSOM_mapping_refsplit1$similarity,
+    FSOM_mapping_refsplit2$similarity
   )
 }
 
@@ -107,6 +146,7 @@ output <- anndata::AnnData(
     method_id = integrated_s1$uns$method_id,
     metric_ids = "flowsom_mean_mapping_similarity",
     metric_values = fs_mapping_similarity_avg,
+    fsom_absdiff_by_donor_refsplit = fsom_absdiff_by_donor_refsplit,
     fsom_parameters = list(
       "xdim" = grid_xdim,
       "ydim" = grid_ydim,
