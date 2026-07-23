@@ -73,22 +73,28 @@
 
 * Added utility scripts to pull intermediate files (PR #119). 
 
-* Added `scripts/fetch_intermediate_files.py`, a single script that consolidates the previous two-step process of parsing a Nextflow log and copying out intermediate files:
+* Added `scripts/fetch_intermediate_files.py`, a single script that consolidates the previous two-step process of parsing a Nextflow log and copying out intermediate files (PR #126):
   * Auto-detects whether the log is from a SLURM or AWS Batch run.
   * For SLURM runs, copies `.h5ad` files directly from the local work directory.
   * For AWS Batch runs, downloads files via `common/scripts/fetch_task_run` and skips files that are already present.
   * Organises output under `<dataset>/method_out/` and `<dataset>/metric_out/`.
   * Accepts the log file as a positional argument; output directory and optional CSV dump are configurable via flags.
 
+* Added `metrics/functional_marker_preservation` component (PR #126):
+  * `functional_marker_preservation_wilcoxon`: proportion of biologically significant functional marker group differences (e.g. WT vs KO) preserved after batch integration. A two-sided Wilcoxon rank-sum test compares the two biological groups on per-sample mean expression for each (marker, cell type) pair. A pair enters the unintegrated baseline if significant (p ≤ 0.1) in both batches, and is counted as preserved if significant in both integrated splits.
+  * `functional_marker_preservation_cohens_d`: mean absolute change in Cohen's d effect size for every (marker, cell type) pair significant in the unintegrated baseline. Cohen's d is computed per batch on the unintegrated data and averaged, then computed separately per integrated split; the metric is the mean absolute deviation of each split's Cohen's d from the unintegrated ground truth, so drift is tracked even for pairs that lost significance after integration.
+
+* Added `scripts/adhoc_runs/run_metric_adhoc.py` and `run_metric_adhoc.sh` for re-running a single metric against existing pipeline output during development, without re-running the full Nextflow pipeline. Patches the metric script's VIASH block with the given input/output paths and runs it as a subprocess; discovers `(dataset, method)` pairs from `<input-dir>/<dataset>/method_out/<method>_split1.h5ad` and supports skipping datasets/methods already processed (PR #126).
+
 ## MAJOR CHANGES
 
 * Removed `methods/cytovi` from the benchmark. The implementation is preserved in the `add-cytovi-implementation` branch to be revisited in the near future (PR #124).
 
-* Updated `metrics/lisi`:
+* Updated `metrics/lisi` (PR #126):
   * iLISI is now computed per biological group. Groups where batch is fully confounded by group are skipped and return NaN.
   * Added `helper.py` with `compute_ilisi_per_group` and `compute_clisi` functions.
 
-* Updated `methods/harmonypy` to use the PyTorch GPU backend (harmonypy>=0.2.0):
+* Updated `methods/harmonypy` to use the PyTorch GPU backend (harmonypy>=0.2.0) (PR #126):
   * Switched Docker image to `openproblems/base_pytorch_nvidia:1.0.0`.
   * Added `device=None` to `run_harmony` for automatic GPU detection (CUDA -> MPS -> CPU).
   * Removed epsilon workaround as numerical stability is now handled internally by harmonypy.
@@ -169,7 +175,7 @@
   * Split the metric into global and per cell type.
   * Refactored horizontal EMD.
 
-* Updated `metrics/flowsom_mapping_similarity` to compute mapping similarity bidirectionally (split1→split2 and split2→split1) and to export per-donor cluster×cell_type absolute-difference matrices in the output AnnData `uns`.
+* Updated `metrics/flowsom_mapping_similarity` to compute mapping similarity bidirectionally (split1→split2 and split2→split1) and to export per-donor cluster×cell_type absolute-difference matrices in the output AnnData `uns` (PR #126).
 
 * Schema defined in `src\api` has been modified to include dataset specific parameters (PR #71).
 
