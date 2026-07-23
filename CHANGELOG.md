@@ -91,8 +91,8 @@
 * Removed `methods/cytovi` from the benchmark. The implementation is preserved in the `add-cytovi-implementation` branch to be revisited in the near future (PR #124).
 
 * Updated `metrics/lisi` (PR #126):
-  * iLISI is now computed per biological group. Groups where batch is fully confounded by group are skipped and return NaN.
-  * Added `helper.py` with `compute_ilisi_per_group` and `compute_clisi` functions.
+  * iLISI is still computed globally across all cells per split (not per group), but is now skipped and returns NaN for a split if batch is confounded by group in any group (i.e. a group whose cells all come from a single batch, so cross-batch mixing can't be assessed).
+  * Moved the iLISI/cLISI computation out of `script.py` into a new `helper.py` (`compute_ilisi`, `compute_clisi`, `_check_batch_group_confounding`), and expanded the output `uns` to include per-cell iLISI/cLISI values and cell IDs for each split.
 
 * Updated `methods/harmonypy` to use the PyTorch GPU backend (harmonypy>=0.2.0) (PR #126):
   * Switched Docker image to `openproblems/base_pytorch_nvidia:1.0.0`.
