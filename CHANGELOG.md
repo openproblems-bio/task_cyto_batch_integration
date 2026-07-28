@@ -240,6 +240,7 @@
 
 * Update flowsom mapping similarity so we subset to just markers to correct, and lisi to remove control samples
   and unlabelled cells (PR #119).
+
 * Fix bug in `gaussnorm` and the `cytonorm_*` methods where the batch corrected matrix was
   attached to the obs of the input anndata while still being ordered per sample (PR #128).
   Added `fcs_cell_order()` to `src/utils/anndata_to_fcs.R` to restore the original cell order.
