@@ -240,3 +240,5 @@
 
 * Update flowsom mapping similarity so we subset to just markers to correct, and lisi to remove control samples
   and unlabelled cells (PR #119).
+* Fix bug in `average_batch_r2` where the R2 was computed on all cell types of a donor at once
+  instead of on each cell type separately (PR #127).
