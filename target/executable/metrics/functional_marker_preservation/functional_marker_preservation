@@ -449,9 +449,9 @@ RUN pip install --upgrade pip && \
   pip install --upgrade --no-cache-dir "scipy"
 
 LABEL org.opencontainers.image.description="Companion container for running component metrics functional_marker_preservation"
-LABEL org.opencontainers.image.created="2026-07-28T11:28:36Z"
+LABEL org.opencontainers.image.created="2026-07-28T11:53:33Z"
 LABEL org.opencontainers.image.source="https://github.com/openproblems-bio/task_cyto_batch_integration"
-LABEL org.opencontainers.image.revision="97e43aeec462ff24be664f6d585acbd9ea8d5814"
+LABEL org.opencontainers.image.revision="aaf33dbf3f35e1ea3c55cf31388f836c018c7d10"
 LABEL org.opencontainers.image.version="build_main"
 
 VIASHDOCKER

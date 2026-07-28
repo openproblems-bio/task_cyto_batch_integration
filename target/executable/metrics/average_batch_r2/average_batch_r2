@@ -446,9 +446,9 @@ function ViashDockerfile {
 FROM openproblems/base_python:1
 ENTRYPOINT []
 LABEL org.opencontainers.image.description="Companion container for running component metrics average_batch_r2"
-LABEL org.opencontainers.image.created="2026-07-28T11:28:36Z"
+LABEL org.opencontainers.image.created="2026-07-28T11:53:32Z"
 LABEL org.opencontainers.image.source="https://github.com/openproblems-bio/task_cyto_batch_integration"
-LABEL org.opencontainers.image.revision="97e43aeec462ff24be664f6d585acbd9ea8d5814"
+LABEL org.opencontainers.image.revision="aaf33dbf3f35e1ea3c55cf31388f836c018c7d10"
 LABEL org.opencontainers.image.version="build_main"
 
 VIASHDOCKER
@@ -1116,7 +1116,7 @@ dep = {
 ## VIASH END
 
 sys.path.append(meta["resources_dir"])
-from helper import batch_r2, concat_paired_samples, fit_r2
+from helper import batch_r2
 from helper_functions import (
     get_obs_var_for_integrated,
     remove_unlabelled,
@@ -1140,10 +1140,7 @@ integrated_s1 = subset_markers_tocorrect(integrated_s1)
 integrated_s2 = subset_nocontrols(integrated_s2)
 integrated_s2 = subset_markers_tocorrect(integrated_s2)
 
-print(
-    integrated_s1.obs, integrated_s2.obs, flush=True
-)  ### Debugging line, can be removed later
-print("Computing average_batch_r2 global", flush=True)
+print("Computing average_batch_r2 per cell type", flush=True)
 
 donor_list = integrated_s1.obs["donor"].unique()
 

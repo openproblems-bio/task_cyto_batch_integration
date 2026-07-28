@@ -246,3 +246,5 @@
 
 * Fix `average_batch_r2` and `flowsom_mapping_similarity` writing `metric_ids` and `metric_values`
   as scalars instead of lists, as required by `file_score.yaml` (PR #130).
+
+* Clean up stale mock parameters and dead code (PR #133).

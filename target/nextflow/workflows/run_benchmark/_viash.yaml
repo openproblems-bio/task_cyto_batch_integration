@@ -18,7 +18,7 @@ description: "Cytometry is a non-sequencing single cell profiling technique comm
 # A list of references to relevant literature. Each reference should be a DOI or a bibtex entry
 references: {}
 info:
-  image: The name of the image file to use for the component on the website.
+  image: thumbnail.svg
   test_resources:
     - type: s3
       path: s3://openproblems-data/resources_test/task_cyto_batch_integration/

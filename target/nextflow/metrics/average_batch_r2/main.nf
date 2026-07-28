@@ -3484,7 +3484,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/metrics/average_batch_r2",
     "viash_version" : "0.9.4",
-    "git_commit" : "97e43aeec462ff24be664f6d585acbd9ea8d5814",
+    "git_commit" : "aaf33dbf3f35e1ea3c55cf31388f836c018c7d10",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3494,7 +3494,7 @@ meta = [
     "summary" : "Benchmarking of batch integration algorithms for cytometry data.",
     "description" : "Cytometry is a non-sequencing single cell profiling technique commonly used in clinical studies. \nIt is very sensitive to batch effects, which can lead to biases in the interpretation of the result. \nBatch integration algorithms are often used to mitigate this effect.\n\nIn this project, we are building a pipeline for reproducible and continuous benchmarking \nof batch integration algorithms for cytometry data.\nAs input, methods require cleaned and normalised (using arc-sinh or logicle transformation)\ndata with multiple batches, cell type labels, and biological subjects, with paired samples\nfrom a subject profiled across multiple batches.\nThe batch integrated output must be an integrated marker by cell matrix stored in \nAnndata format.\nAll markers in the input data must be returned, regardless of whether they were integrated or not.\nThis output is then evaluated using metrics that assess how well the batch effects\nwere removed and how much biological signals were preserved. \n",
     "info" : {
-      "image" : "The name of the image file to use for the component on the website.",
+      "image" : "thumbnail.svg",
       "test_resources" : [
         {
           "type" : "s3",
@@ -3636,7 +3636,7 @@ dep = {
 ## VIASH END
 
 sys.path.append(meta["resources_dir"])
-from helper import batch_r2, concat_paired_samples, fit_r2
+from helper import batch_r2
 from helper_functions import (
     get_obs_var_for_integrated,
     remove_unlabelled,
@@ -3660,10 +3660,7 @@ integrated_s1 = subset_markers_tocorrect(integrated_s1)
 integrated_s2 = subset_nocontrols(integrated_s2)
 integrated_s2 = subset_markers_tocorrect(integrated_s2)
 
-print(
-    integrated_s1.obs, integrated_s2.obs, flush=True
-)  ### Debugging line, can be removed later
-print("Computing average_batch_r2 global", flush=True)
+print("Computing average_batch_r2 per cell type", flush=True)
 
 donor_list = integrated_s1.obs["donor"].unique()
 
