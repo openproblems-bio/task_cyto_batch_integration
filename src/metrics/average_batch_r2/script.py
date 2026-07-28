@@ -16,7 +16,7 @@ meta = {"name": "average_batch_r2"}
 ## VIASH END
 
 sys.path.append(meta["resources_dir"])
-from helper import batch_r2, concat_paired_samples, fit_r2
+from helper import batch_r2
 from helper_functions import (
     get_obs_var_for_integrated,
     remove_unlabelled,
@@ -40,10 +40,7 @@ integrated_s1 = subset_markers_tocorrect(integrated_s1)
 integrated_s2 = subset_nocontrols(integrated_s2)
 integrated_s2 = subset_markers_tocorrect(integrated_s2)
 
-print(
-    integrated_s1.obs, integrated_s2.obs, flush=True
-)  ### Debugging line, can be removed later
-print("Computing average_batch_r2 global", flush=True)
+print("Computing average_batch_r2 per cell type", flush=True)
 
 donor_list = integrated_s1.obs["donor"].unique()
 
