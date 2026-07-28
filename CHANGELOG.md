@@ -241,8 +241,10 @@
 * Update flowsom mapping similarity so we subset to just markers to correct, and lisi to remove control samples
   and unlabelled cells (PR #119).
 
-* Clean up stale mock parameters and dead code (PR #133):
-  * Point `info.image` in `_viash.yaml` at `thumbnail.svg` instead of the template placeholder.
-  * Fix the `VIASH START` blocks of `process_dataset`, `gaussnorm` and `shuffle_integration_within_batch`.
-  * Remove the unused `subset_by_celltype()` helper, and the unused imports and debugging print
-    in `average_batch_r2`.
+* Point `scripts/run_benchmark/wehi_hpc/run_full_hpc.sh` at `build/main` instead of
+  `build/update_ilisi`, and label the seqera full run as `full` instead of `test_subset` (PR #129).
+
+* Fix `average_batch_r2` and `flowsom_mapping_similarity` writing `metric_ids` and `metric_values`
+  as scalars instead of lists, as required by `file_score.yaml` (PR #130).
+
+* Clean up stale mock parameters and dead code (PR #133).

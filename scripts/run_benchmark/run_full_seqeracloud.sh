@@ -28,4 +28,4 @@ tw launch https://github.com/openproblems-bio/task_cyto_batch_integration.git \
   --params-file /tmp/params.yaml \
   --entry-name auto \
   --config common/nextflow_helpers/labels_tw.config \
-  --labels task_cyto_batch_integration,test_subset
+  --labels task_cyto_batch_integration,full

@@ -81,8 +81,8 @@ output = ad.AnnData(
     uns={
         "dataset_id": integrated_s1.uns["dataset_id"],
         "method_id": integrated_s1.uns["method_id"],
-        "metric_ids": "average_batch_r2_ct",
-        "metric_values": average_batch_r2_ct,
+        "metric_ids": ["average_batch_r2_ct"],
+        "metric_values": [average_batch_r2_ct],
         "r2_collection_ct": r2_collection_ct,
     }
 )
