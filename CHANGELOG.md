@@ -240,3 +240,7 @@
 
 * Update flowsom mapping similarity so we subset to just markers to correct, and lisi to remove control samples
   and unlabelled cells (PR #119).
+
+* Update the `ratio_consistent_peaks` description to match the implemented peak calling
+  (standardisation step, `height` 0.1 and `prominence` 0.01), and remove the unused
+  `persistent_peak_count()` helper together with the `scikit-tda` dependency (PR #132).
