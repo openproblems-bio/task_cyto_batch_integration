@@ -243,3 +243,6 @@
 
 * Point `scripts/run_benchmark/wehi_hpc/run_full_hpc.sh` at `build/main` instead of
   `build/update_ilisi`, and label the seqera full run as `full` instead of `test_subset` (PR #129).
+
+* Fix `average_batch_r2` and `flowsom_mapping_similarity` writing `metric_ids` and `metric_values`
+  as scalars instead of lists, as required by `file_score.yaml` (PR #130).

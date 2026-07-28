@@ -3504,7 +3504,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/metrics/flowsom_mapping_similarity",
     "viash_version" : "0.9.4",
-    "git_commit" : "23c43b99b1b2b9b6fee18bb71da2d7e4fd519bfa",
+    "git_commit" : "97e43aeec462ff24be664f6d585acbd9ea8d5814",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3788,8 +3788,8 @@ output <- anndata::AnnData(
   uns = list(
     dataset_id = integrated_s1\\$uns\\$dataset_id,
     method_id = integrated_s1\\$uns\\$method_id,
-    metric_ids = "flowsom_mean_mapping_similarity",
-    metric_values = fs_mapping_similarity_avg,
+    metric_ids = list("flowsom_mean_mapping_similarity"),
+    metric_values = list(fs_mapping_similarity_avg),
     fsom_absdiff_by_donor_refsplit = fsom_absdiff_by_donor_refsplit,
     fsom_parameters = list(
       "xdim" = grid_xdim,

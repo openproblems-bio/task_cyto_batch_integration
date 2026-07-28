@@ -452,9 +452,9 @@ RUN Rscript -e 'options(warn = 2); if (!requireNamespace("remotes", quietly = TR
   Rscript -e 'options(warn = 2); remotes::install_cran(c("dplyr", "docstring", "rlang", "vctrs", "lifecycle"), repos = "https://cran.rstudio.com")'
 
 LABEL org.opencontainers.image.description="Companion container for running component metrics flowsom_mapping_similarity"
-LABEL org.opencontainers.image.created="2026-07-28T11:26:42Z"
+LABEL org.opencontainers.image.created="2026-07-28T11:28:36Z"
 LABEL org.opencontainers.image.source="https://github.com/openproblems-bio/task_cyto_batch_integration"
-LABEL org.opencontainers.image.revision="23c43b99b1b2b9b6fee18bb71da2d7e4fd519bfa"
+LABEL org.opencontainers.image.revision="97e43aeec462ff24be664f6d585acbd9ea8d5814"
 LABEL org.opencontainers.image.version="build_main"
 
 VIASHDOCKER
@@ -1254,8 +1254,8 @@ output <- anndata::AnnData(
   uns = list(
     dataset_id = integrated_s1\$uns\$dataset_id,
     method_id = integrated_s1\$uns\$method_id,
-    metric_ids = "flowsom_mean_mapping_similarity",
-    metric_values = fs_mapping_similarity_avg,
+    metric_ids = list("flowsom_mean_mapping_similarity"),
+    metric_values = list(fs_mapping_similarity_avg),
     fsom_absdiff_by_donor_refsplit = fsom_absdiff_by_donor_refsplit,
     fsom_parameters = list(
       "xdim" = grid_xdim,

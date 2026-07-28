@@ -3484,7 +3484,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/metrics/average_batch_r2",
     "viash_version" : "0.9.4",
-    "git_commit" : "23c43b99b1b2b9b6fee18bb71da2d7e4fd519bfa",
+    "git_commit" : "97e43aeec462ff24be664f6d585acbd9ea8d5814",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3704,8 +3704,8 @@ output = ad.AnnData(
     uns={
         "dataset_id": integrated_s1.uns["dataset_id"],
         "method_id": integrated_s1.uns["method_id"],
-        "metric_ids": "average_batch_r2_ct",
-        "metric_values": average_batch_r2_ct,
+        "metric_ids": ["average_batch_r2_ct"],
+        "metric_values": [average_batch_r2_ct],
         "r2_collection_ct": r2_collection_ct,
     }
 )
