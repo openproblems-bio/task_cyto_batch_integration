@@ -240,3 +240,9 @@
 
 * Update flowsom mapping similarity so we subset to just markers to correct, and lisi to remove control samples
   and unlabelled cells (PR #119).
+
+* Clean up stale mock parameters and dead code (PR #133):
+  * Point `info.image` in `_viash.yaml` at `thumbnail.svg` instead of the template placeholder.
+  * Fix the `VIASH START` blocks of `process_dataset`, `gaussnorm` and `shuffle_integration_within_batch`.
+  * Remove the unused `subset_by_celltype()` helper, and the unused imports and debugging print
+    in `average_batch_r2`.
