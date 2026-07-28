@@ -63,13 +63,13 @@ for donor in donor_list:
         s2_view_ct = s2_view[s2_view.obs["cell_type"] == ct]
         if (
             s1_view_ct.shape[0] < 20 or s2_view_ct.shape[0] < 20
-        ):  # Skip Rˆ2 calculation if there are less than 10 cells
+        ):  # Skip Rˆ2 calculation if there are less than 20 cells
             print(
                 f"Warning: Rˆ2 not computed for donor {donor} cell type {ct}. Too few cells were present: {s1_view_ct.shape[0]} for split 1 and {s2_view_ct.shape[0]} for split 2"
             )
             continue
 
-        r2_list, marker_list = batch_r2(s1_view, s2_view)
+        r2_list, marker_list = batch_r2(s1_view_ct, s2_view_ct)
 
         marker_list = [ct + "_" + donor + "_" + x for x in marker_list]
         r2_info = [*r2_info, *marker_list]
