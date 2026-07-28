@@ -128,6 +128,17 @@ cat("Preparing output anndata\n")
 norm_mat <- flowCore::fsApply(norm_fset_all, exprs)
 colnames(norm_mat) <- adata$var_names
 
+# cytonorm returns the flowframes in the same order as it received them
+cells_per_sample <- flowCore::fsApply(fset_all, function(ff) nrow(exprs(ff)))
+cells_per_norm_sample <- flowCore::fsApply(norm_fset_all, function(ff) nrow(exprs(ff)))
+if (!identical(as.integer(cells_per_sample), as.integer(cells_per_norm_sample))) {
+    stop("Cytonorm returned a different number of cells per sample than it was given.")
+}
+
+# fsApply returns the cells grouped per sample, so restore the original
+# cell order before attaching the obs of the input anndata
+norm_mat <- norm_mat[order(fcs_cell_order(adata, fset_all)), ]
+
 norm_mat <- anndata::AnnData(
     obs = adata$obs[, integer(0)],
     var = adata$var[colnames(norm_mat), integer(0)],

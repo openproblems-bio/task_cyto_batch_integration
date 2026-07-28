@@ -44,6 +44,10 @@ for(marker in markers_to_correct){
 # Concatenate all flowFrames in a FlowSet
 integrated_matrix <- fsApply(fset,exprs)
 
+# fsApply returns the cells grouped per sample, so restore the original
+# cell order before attaching the obs of the input anndata
+integrated_matrix <- integrated_matrix[order(fcs_cell_order(adata, fset)), ]
+
 cat("Write output AnnData to file\n")
 output <- anndata::AnnData(
   obs = adata$obs[,integer(0)],

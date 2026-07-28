@@ -112,3 +112,34 @@ anndata_to_fcs <- function(adata, out_dir= NULL, layer_name = 'preprocessed') {
     return(fcs_files)
   }
 }
+
+#' @title Cell order of a FlowSet relative to the AnnData object it came from
+#'
+#' @description `anndata_to_fcs()` creates one flowFrame per sample, so
+#' `flowCore::fsApply(fset, exprs)` returns the cells grouped per sample rather
+#' than in the original cell order of the AnnData object. This function returns
+#' the AnnData row indices in the order in which they appear in the concatenated
+#' matrix, so `mat[order(fcs_cell_order(adata, fset)), ]` restores the original
+#' cell order. If the cells were already grouped per sample, this is a no-op.
+#'
+#' @param adata AnnData object the FlowSet was created from.
+#' @param fset FlowSet whose sample names determine the concatenation order.
+#' @return An integer vector with one entry per cell in `adata`.
+fcs_cell_order <- function(adata, fset) {
+  samples <- as.character(adata$obs$sample)
+
+  cell_order <- unlist(lapply(
+    flowCore::sampleNames(fset),
+    function(sample) which(samples == sample)
+  ))
+
+  if (length(cell_order) != length(samples)) {
+    stop(
+      "The FlowSet does not contain the same cells as the AnnData object: ",
+      length(cell_order), " cells in the FlowSet, ",
+      length(samples), " cells in the AnnData object."
+    )
+  }
+
+  cell_order
+}
