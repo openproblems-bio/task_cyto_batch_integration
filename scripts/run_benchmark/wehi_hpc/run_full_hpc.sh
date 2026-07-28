@@ -21,7 +21,7 @@ publish_dir: "$publish_dir"
 HERE
 
 tw launch https://github.com/openproblems-bio/task_cyto_batch_integration.git \
-  --revision build/update_ilisi \
+  --revision build/main \
   --pull-latest \
   --main-script target/nextflow/workflows/run_benchmark/main.nf \
   --workspace 80689470953249 \
