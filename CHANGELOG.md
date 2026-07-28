@@ -240,3 +240,6 @@
 
 * Update flowsom mapping similarity so we subset to just markers to correct, and lisi to remove control samples
   and unlabelled cells (PR #119).
+
+* Fix `emd` crashing on `pd.concat()` when every donor/sample combination and cell type falls
+  below the 50 cell threshold. Both the horizontal and vertical path now return NaN (PR #131).
