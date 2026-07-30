@@ -445,13 +445,10 @@ function ViashDockerfile {
     cat << 'VIASHDOCKER'
 FROM openproblems/base_python:1
 ENTRYPOINT []
-RUN pip install --upgrade pip && \
-  pip install --upgrade --no-cache-dir "scikit-tda"
-
 LABEL org.opencontainers.image.description="Companion container for running component metrics ratio_consistent_peaks"
-LABEL org.opencontainers.image.created="2026-07-30T11:39:39Z"
+LABEL org.opencontainers.image.created="2026-07-30T11:45:06Z"
 LABEL org.opencontainers.image.source="https://github.com/openproblems-bio/task_cyto_batch_integration"
-LABEL org.opencontainers.image.revision="d803136ae634421d4bc128ddb9c10e2f12e2d2b9"
+LABEL org.opencontainers.image.revision="0bedc4122ee8d444e3a7e42531fe751108e2a879"
 LABEL org.opencontainers.image.version="build_main"
 
 VIASHDOCKER
@@ -1154,8 +1151,8 @@ donor_list = integrated_s1.obs["donor"].unique()
 print("Compute metric (per cell type)", flush=True)
 
 # case 1 = consistent peaks in unintegrated and also in integrated
-# case 3 = consistent peaks in unintegrated but inconsistent in integrated
-# not recording case 2 or 4 where unintegrated is inconsistent
+# case 2 = consistent peaks in unintegrated but inconsistent in integrated
+# case NGT = unintegrated is inconsistent, recorded but excluded from the ratio
 n_case1 = 0
 n_case2 = 0
 
@@ -1270,7 +1267,7 @@ for donor in donor_list:
                 np.std(s2_unscaled) == 0 and np.std(u_s2_unscaled) != 0
             ):
                 print(
-                    f"WARNING: Marker {marker}, donor {donor}, cell type {celltype}: has no variance either before or after integration. Automatic to case 3.",
+                    f"WARNING: Marker {marker}, donor {donor}, cell type {celltype}: has no variance after integration, but does before. Automatic to case 2.",
                     flush=True,
                 )
                 n_case2 += 1

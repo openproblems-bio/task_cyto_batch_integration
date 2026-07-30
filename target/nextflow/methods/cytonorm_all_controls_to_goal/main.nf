@@ -3411,7 +3411,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/methods/cytonorm_all_controls_to_goal",
     "viash_version" : "0.9.4",
-    "git_commit" : "d803136ae634421d4bc128ddb9c10e2f12e2d2b9",
+    "git_commit" : "0bedc4122ee8d444e3a7e42531fe751108e2a879",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {

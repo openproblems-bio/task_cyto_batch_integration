@@ -20,9 +20,13 @@ info:
       description: |
         The metric compares the number of cell type specific marker expression peaks between unintegrated and batch integrated data.
         The number of peaks is calculated using the `scipy.signal.find_peaks` function.
-        The (cell type) marker expression profiles are first smoothed using kernel density estimation (KDE) (`scipy.stats.gaussian_kde`),
-        and then peaks are identified using the `scipy.signal.find_peaks` function.
-        For peak calling, the `prominence` parameter is set to 0.1 and the `height` parameter is set to 0.05*max_density.
+        The (cell type) marker expression values of the two splits are first standardised together,
+        using the pooled mean and standard deviation of the two splits, so that the peak calling
+        thresholds mean the same thing for every marker.
+        They are then smoothed using kernel density estimation (KDE) (`scipy.stats.gaussian_kde`,
+        evaluated on a grid of 100 points), and peaks are identified using the
+        `scipy.signal.find_peaks` function.
+        For peak calling, the `height` parameter is set to 0.1 and the `prominence` parameter is set to 0.01.
         
         Case Definitions:
         - Case 1: Consistent peaks in both unintegrated AND integrated data (ideal outcome).
@@ -75,10 +79,6 @@ engines:
   # Specifications for the Docker image for this component.
   - type: docker
     image: openproblems/base_python:1
-    setup:
-      - type: python
-        packages:
-          - scikit-tda
 
 runners:
   # This platform allows running the component natively

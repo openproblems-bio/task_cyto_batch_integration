@@ -3389,7 +3389,7 @@ meta = [
         "name" : "ratio_consistent_peaks",
         "label" : "Ratio Consistent Peaks",
         "summary" : "Ratio of the number of cell‑type marker‑expression peaks between unintegrated and batch-integrated data.",
-        "description" : "The metric compares the number of cell type specific marker expression peaks between unintegrated and batch integrated data.\nThe number of peaks is calculated using the `scipy.signal.find_peaks` function.\nThe (cell type) marker expression profiles are first smoothed using kernel density estimation (KDE) (`scipy.stats.gaussian_kde`),\nand then peaks are identified using the `scipy.signal.find_peaks` function.\nFor peak calling, the `prominence` parameter is set to 0.1 and the `height` parameter is set to 0.05*max_density.\n\nCase Definitions:\n- Case 1: Consistent peaks in both unintegrated AND integrated data (ideal outcome).\n  Example: A marker shows 2 peaks for both splits in unintegrated AND integrated data.\n- Case 2: Consistent peaks in unintegrated data but inconsistent between integrated data and unintegrated data\n  in each split (problematic - batch integration introduced inconsistency).\n  Batch correction broke the consistency. \n  Example 1: A marker shows 2 peaks in both unintegrated splits, but after integration shows 2 peaks in split 1 \n  and 1 peak in split 2. \n  Example 2: A marker shows 2 peaks in both unintegrated splits, but after integration shows 1 peak in both splits\n- Case NGT: Inconsistent peaks in unintegrated data, consistent in integrated data (excluded from metric) \n  OR inconsistent peaks in both unintegrated AND integrated data (excluded from metric).\n  These cases are excluded from calculation because there are differences in unintegrated that cannot be accounted for.\n  Example: A marker is inconsistent in unintegrated data (2 and 3 peaks in split 1 and split 2) and \n  is either inconsistent after integration (1 and 2 peaks in split 1 and split 2) or \n  consistent after integration (2 peaks in both split 1 and split 2).\n\nRatio of consistent peaks is defined as the number of Case 1 occurrences divided by the total of Case 1 and Case 2 occurrences.\nCases NGT (where unintegrated data has inconsistent peaks) are excluded from the denominator, but is reported\nin the final anndata output for diagnostic.\nA higher score indicates better performance, meaning there are fewer cases with inconsistent peaks after batch integration.\n\nFor edge cases where methods return only zero values for a given marker/donor/cell type, but is not the \ncase in the unintegrated data, it is automatically assigned as Case 2.\n",
+        "description" : "The metric compares the number of cell type specific marker expression peaks between unintegrated and batch integrated data.\nThe number of peaks is calculated using the `scipy.signal.find_peaks` function.\nThe (cell type) marker expression values of the two splits are first standardised together,\nusing the pooled mean and standard deviation of the two splits, so that the peak calling\nthresholds mean the same thing for every marker.\nThey are then smoothed using kernel density estimation (KDE) (`scipy.stats.gaussian_kde`,\nevaluated on a grid of 100 points), and peaks are identified using the\n`scipy.signal.find_peaks` function.\nFor peak calling, the `height` parameter is set to 0.1 and the `prominence` parameter is set to 0.01.\n\nCase Definitions:\n- Case 1: Consistent peaks in both unintegrated AND integrated data (ideal outcome).\n  Example: A marker shows 2 peaks for both splits in unintegrated AND integrated data.\n- Case 2: Consistent peaks in unintegrated data but inconsistent between integrated data and unintegrated data\n  in each split (problematic - batch integration introduced inconsistency).\n  Batch correction broke the consistency. \n  Example 1: A marker shows 2 peaks in both unintegrated splits, but after integration shows 2 peaks in split 1 \n  and 1 peak in split 2. \n  Example 2: A marker shows 2 peaks in both unintegrated splits, but after integration shows 1 peak in both splits\n- Case NGT: Inconsistent peaks in unintegrated data, consistent in integrated data (excluded from metric) \n  OR inconsistent peaks in both unintegrated AND integrated data (excluded from metric).\n  These cases are excluded from calculation because there are differences in unintegrated that cannot be accounted for.\n  Example: A marker is inconsistent in unintegrated data (2 and 3 peaks in split 1 and split 2) and \n  is either inconsistent after integration (1 and 2 peaks in split 1 and split 2) or \n  consistent after integration (2 peaks in both split 1 and split 2).\n\nRatio of consistent peaks is defined as the number of Case 1 occurrences divided by the total of Case 1 and Case 2 occurrences.\nCases NGT (where unintegrated data has inconsistent peaks) are excluded from the denominator, but is reported\nin the final anndata output for diagnostic.\nA higher score indicates better performance, meaning there are fewer cases with inconsistent peaks after batch integration.\n\nFor edge cases where methods return only zero values for a given marker/donor/cell type, but is not the \ncase in the unintegrated data, it is automatically assigned as Case 2.\n",
         "references" : {
           "doi" : [
             "10.1038/s41592-019-0686-2"
@@ -3475,17 +3475,7 @@ meta = [
       "type" : "docker",
       "id" : "docker",
       "image" : "openproblems/base_python:1",
-      "namespace_separator" : "/",
-      "setup" : [
-        {
-          "type" : "python",
-          "user" : false,
-          "packages" : [
-            "scikit-tda"
-          ],
-          "upgrade" : true
-        }
-      ]
+      "namespace_separator" : "/"
     }
   ],
   "build_info" : {
@@ -3494,7 +3484,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/metrics/ratio_consistent_peaks",
     "viash_version" : "0.9.4",
-    "git_commit" : "d803136ae634421d4bc128ddb9c10e2f12e2d2b9",
+    "git_commit" : "0bedc4122ee8d444e3a7e42531fe751108e2a879",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3681,8 +3671,8 @@ donor_list = integrated_s1.obs["donor"].unique()
 print("Compute metric (per cell type)", flush=True)
 
 # case 1 = consistent peaks in unintegrated and also in integrated
-# case 3 = consistent peaks in unintegrated but inconsistent in integrated
-# not recording case 2 or 4 where unintegrated is inconsistent
+# case 2 = consistent peaks in unintegrated but inconsistent in integrated
+# case NGT = unintegrated is inconsistent, recorded but excluded from the ratio
 n_case1 = 0
 n_case2 = 0
 
@@ -3797,7 +3787,7 @@ for donor in donor_list:
                 np.std(s2_unscaled) == 0 and np.std(u_s2_unscaled) != 0
             ):
                 print(
-                    f"WARNING: Marker {marker}, donor {donor}, cell type {celltype}: has no variance either before or after integration. Automatic to case 3.",
+                    f"WARNING: Marker {marker}, donor {donor}, cell type {celltype}: has no variance after integration, but does before. Automatic to case 2.",
                     flush=True,
                 )
                 n_case2 += 1
