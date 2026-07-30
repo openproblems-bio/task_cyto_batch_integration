@@ -226,14 +226,11 @@ process_integrated_split <- function(
   group_b,
   significance_threshold
 ) {
-  # FlowSOM (and the MEM scores computed on its metaclusters) only ever sees
-  # labelled cells. Unlabelled cells are added back afterward purely so they
-  # count toward each sample's total; they never get a metacluster/cell type
-  # of their own and are never tested (see run_wilcoxon_per_celltype).
-  adata_labelled <- adata_full |> remove_unlabelled()
-
-  expression_matrix <- adata_labelled$layers[["integrated"]]
-  colnames(expression_matrix) <- rownames(adata_labelled$var)
+  # FlowSOM clusters every cell in the split, unlabelled ones included: they
+  # get a metacluster (and therefore a mapped cell type) just like any other
+  # cell.
+  expression_matrix <- adata_full$layers[["integrated"]]
+  colnames(expression_matrix) <- rownames(adata_full$var)
   flowframe <- flowCore::flowFrame(expression_matrix)
 
   fsom <- FlowSOM(
@@ -247,7 +244,7 @@ process_integrated_split <- function(
   metaclusters <- paste0("meta_", GetMetaclusters(fsom))
 
   mem_metacluster <- compute_mem_matrix(
-    get_layer_expression(adata_labelled, "integrated", lineage_markers),
+    get_layer_expression(adata_full, "integrated", lineage_markers),
     metaclusters,
     unique(metaclusters)
   )
@@ -259,16 +256,8 @@ process_integrated_split <- function(
   metacluster_to_celltype <- mapping_result$mapping
   mapped_cell_type <- metacluster_to_celltype[metaclusters]
 
-  # We want to keep unlabeled cells, unlabelled.
-  # So best thing to do is first load up the the true cell type label for each cell,
-  # then overwrite those that are unlabelled with the label derived from
-  # MEM RMSD between FlowSOM metaclusters and the reference cell types. 
-  final_cell_type <- adata_full$obs$cell_type
-  names(final_cell_type) <- rownames(adata_full$obs)
-  final_cell_type[rownames(adata_labelled$obs)] <- mapped_cell_type
-
   proportions <- compute_sample_proportions(
-    cell_type = final_cell_type,
+    cell_type = mapped_cell_type,
     sample = adata_full$obs$sample,
     group = adata_full$obs$group
   )

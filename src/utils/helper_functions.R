@@ -19,8 +19,8 @@ requireNamespace("anndataR", quietly = TRUE)
 #'
 get_obs_var_for_integrated <- function(i_adata, u_adata, split_id) {
 
-    i_adata$obs <- u_adata$obs[i_adata$obs_names, ]
-    i_adata$var <- u_adata$var[i_adata$var_names, ]
+    i_adata$obs <- u_adata$obs[rownames(i_adata$obs), ]
+    i_adata$var <- u_adata$var[rownames(i_adata$var), ]
 
     # if integrated data came from perfect integration, change the batch labels of the samples
     # everything is from batch 1, but some samples need to be labelled to come from batch 2
