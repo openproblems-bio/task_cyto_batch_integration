@@ -241,5 +241,7 @@
 * Update flowsom mapping similarity so we subset to just markers to correct, and lisi to remove control samples
   and unlabelled cells (PR #119).
 
-* Fix `emd` crashing on `pd.concat()` when every donor/sample combination and cell type falls
-  below the 50 cell threshold. Both the horizontal and vertical path now return NaN (PR #131).
+* Fix check cell type in both to > 0 (instead of 1) and some spelling mistakes in print. 
+Not fixing the `emd` crashing on `pd.concat()` when every donor/sample combination and cell type falls
+  below the 50 cell threshold, because we would have detected this prior to running any methods or metrics,
+  and we would not have included the dataset if this is the case (PR #131).

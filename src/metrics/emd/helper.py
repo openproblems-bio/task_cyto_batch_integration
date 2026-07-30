@@ -175,18 +175,6 @@ def get_vert_emd_for_integrated_adata(i_adata: ad.AnnData, markers_to_assess: li
 
             emd_vals.append(emd_df)
 
-    if len(emd_vals) == 0:
-        # every sample combination and cell type fell below the 50 cell floor,
-        # so there is nothing to concatenate.
-
-        print(
-            f"{i_adata.uns['dataset_id']} from {i_adata.uns['method_id']} does not have"
-            f" at least 50 cells for any sample combination and cell type."
-            f" Skipping EMD vertical calculation."
-        )
-
-        return np.nan
-
     # concatenate EMD values
     emd_vals = pd.concat(emd_vals)
     # remove unparsable characters like "/"
@@ -276,21 +264,6 @@ def calculate_horizontal_emd(
             emd_df["donor"] = donor
 
             emd_per_donor_per_ct.append(emd_df)
-
-    if len(emd_per_donor_per_ct) == 0:
-        # every donor and cell type fell below the 50 cell floor,
-        # so there is nothing to concatenate.
-
-        print(
-            f"{i_split1_adata.uns['dataset_id']} from {i_split1_adata.uns['method_id']}"
-            f" does not have at least 50 cells for any donor and cell type."
-            f" Skipping EMD horizontal calculation."
-        )
-
-        return {
-            KEY_MEAN_EMD_CT: np.nan,
-            KEY_EMD_HORZ_PER_DONOR: np.nan,
-        }
 
     emd_per_donor_per_ct = pd.concat(emd_per_donor_per_ct)
 
