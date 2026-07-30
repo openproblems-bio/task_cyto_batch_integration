@@ -144,8 +144,8 @@ output <- anndata::AnnData(
   uns = list(
     dataset_id = integrated_s1$uns$dataset_id,
     method_id = integrated_s1$uns$method_id,
-    metric_ids = "flowsom_mean_mapping_similarity",
-    metric_values = fs_mapping_similarity_avg,
+    metric_ids = list("flowsom_mean_mapping_similarity"),
+    metric_values = list(fs_mapping_similarity_avg),
     fsom_absdiff_by_donor_refsplit = fsom_absdiff_by_donor_refsplit,
     fsom_parameters = list(
       "xdim" = grid_xdim,
