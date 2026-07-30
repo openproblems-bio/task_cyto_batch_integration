@@ -254,3 +254,6 @@
 
 * Fix bug in `average_batch_r2` where the R2 was computed on all cell types of a donor at once
   instead of on each cell type separately (PR #127).
+
+
+* Fix check cell_type_in_both to > 0 (instead of 1) and some spelling mistakes in print.
