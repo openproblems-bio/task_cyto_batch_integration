@@ -244,3 +244,13 @@
 * Update the `ratio_consistent_peaks` description to match the implemented peak calling
   (standardisation step, `height` 0.1 and `prominence` 0.01), and remove the unused
   `persistent_peak_count()` helper together with the `scikit-tda` dependency (PR #132).
+* Point `scripts/run_benchmark/wehi_hpc/run_full_hpc.sh` at `build/main` instead of
+  `build/update_ilisi`, and label the seqera full run as `full` instead of `test_subset` (PR #129).
+
+* Fix `average_batch_r2` and `flowsom_mapping_similarity` writing `metric_ids` and `metric_values`
+  as scalars instead of lists, as required by `file_score.yaml` (PR #130).
+
+* Clean up stale mock parameters and dead code (PR #133).
+
+* Fix bug in `average_batch_r2` where the R2 was computed on all cell types of a donor at once
+  instead of on each cell type separately (PR #127).
