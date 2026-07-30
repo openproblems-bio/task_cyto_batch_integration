@@ -3484,7 +3484,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/metrics/average_batch_r2",
     "viash_version" : "0.9.4",
-    "git_commit" : "aaf33dbf3f35e1ea3c55cf31388f836c018c7d10",
+    "git_commit" : "ae68ce34e4c3b95cb86b0df413c52215c474337c",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3680,13 +3680,13 @@ for donor in donor_list:
         s2_view_ct = s2_view[s2_view.obs["cell_type"] == ct]
         if (
             s1_view_ct.shape[0] < 20 or s2_view_ct.shape[0] < 20
-        ):  # Skip Rˆ2 calculation if there are less than 10 cells
+        ):  # Skip Rˆ2 calculation if there are less than 20 cells
             print(
                 f"Warning: Rˆ2 not computed for donor {donor} cell type {ct}. Too few cells were present: {s1_view_ct.shape[0]} for split 1 and {s2_view_ct.shape[0]} for split 2"
             )
             continue
 
-        r2_list, marker_list = batch_r2(s1_view, s2_view)
+        r2_list, marker_list = batch_r2(s1_view_ct, s2_view_ct)
 
         marker_list = [ct + "_" + donor + "_" + x for x in marker_list]
         r2_info = [*r2_info, *marker_list]

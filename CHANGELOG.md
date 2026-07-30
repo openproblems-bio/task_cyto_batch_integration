@@ -248,3 +248,7 @@
   as scalars instead of lists, as required by `file_score.yaml` (PR #130).
 
 * Clean up stale mock parameters and dead code (PR #133).
+
+
+* Fix bug in `average_batch_r2` where the R2 was computed on all cell types of a donor at once
+  instead of on each cell type separately (PR #127).
