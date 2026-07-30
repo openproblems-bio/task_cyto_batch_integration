@@ -1,0 +1,101 @@
+__merge__: ../../api/comp_metric.yaml
+
+name: abundance_preservation
+
+# Metadata for your component
+info:
+  metrics:
+    # A unique identifier for your metric (required).
+    # Can contain only lowercase letters or underscores.
+    - name: abundance_preservation
+      # A relatively short label, used when rendering visualisarions (required)
+      label: Abundance Preservation
+      # A one sentence summary of how this metric works (required). Used when
+      # rendering summary tables.
+      summary: "Assesses whether differences in cell type abundance between groups are preserved after batch integration."
+      # A multi-line description of how this component works (required). Used
+      # when rendering reference documentation.
+      description: |
+        This metric checks whether differences in cell type
+        abundance between two groups (e.g. WT vs KO) survive batch integration.
+
+        On the unintegrated data:
+        1. For each cell type and sample, the proportion of cells of that cell type (out of
+           all labelled cells in that sample) is computed. Proportion calculation include unlabelled 
+           cells in the denominator.
+        2. For each batch separately, a Wilcoxon rank-sum test compares these
+           proportions between the two groups, for every cell type.
+        3. A cell type is treated as differentially abundant if this test is
+           significant in both batches.
+        4. MEM (Marker Enrichment Modeling) score
+           (Diggins et al. 2017, Nature Methods; https://github.com/cytolab/cytoMEM) is
+           computed for every cell type, using lineage markers only, per batch, and then
+           averaged across batches. This gives each cell type a reference MEM vector.
+
+        On the integrated data (per split):
+        1. All cells are clustered using FlowSOM using lineage markers only.
+        2. A MEM score is computed for each metacluster (lineage markers only).
+        3. Each metacluster is mapped to the reference cell type with the highest MEM
+           RMSD similarity: the root-mean-square deviation between MEM vectors is
+           rescaled to a percentage of the maximum possible RMSD (given MEM scores are
+           bounded to [-10, 10]), where 100 means identical MEM vectors and 0 means
+           opposite extremes on every marker. Several metaclusters can map to the same
+           cell type, in which case their cells are pooled.
+        4. For every cell type that were differentially abundant in unintegrated, we run Wilcoxon
+           rank-sum test to compare the (metacluster-derived) proportions of that cell type between the two
+           groups.
+
+        The final score is the proportion of cell types which are differentially
+        abundant in unintegrated and remain so in both splits after integration:
+
+        Because sample sizes per group/batch are small, the smallest achievable
+        two-sided Wilcoxon p-value is around 0.1, so p <= 0.1 is used as the
+        significance threshold (no multiple-testing correction is applied), the same
+        convention used by the functional_marker_preservation metric.
+
+        The MEM score and MEM RMSD are reimplemented directly in helper.R rather than
+        depending on the cytoMEM package, because most cytoMEM functions are built for 
+        interactive, file-based analysis rather than being integrated into a pipeline
+        as a headless component. The reimplementation is tested against cytoMEM's 
+        own MEM()/MEM_RMSD() on the benchmark's test data. See in tests/test_mem_against_reference.R.
+        This test should be run periodically to ensure that the reimplementation remains consistent 
+        with cytoMEM's own implementation.
+
+      references:
+        doi:
+          - 10.1038/nmeth.4149
+      links:
+        # URL to the documentation for this metric (required).
+        documentation: https://github.com/cytolab/cytoMEM
+        # URL to the code repository for this metric (required).
+        repository: https://github.com/cytolab/MEM-examples
+      # The minimum possible value for this metric (required)
+      min: -0.0001
+      # The maximum possible value for this metric (required)
+      max: 1.0001
+      # Whether a higher value represents a 'better' solution (required)
+      maximize: true
+
+# Resources required to run the component
+resources:
+  # The script of your component (required)
+  - type: r_script
+    path: script.R
+  - path: helper.R
+  - type: r_script
+    path: /src/utils/helper_functions.R
+engines:
+  # Specifications for the Docker image for this component.
+  - type: docker
+    image: openproblems/base_r:1
+    setup:
+      - type: r
+        bioc: [FlowSOM, flowCore]
+        packages: [ dplyr, docstring, rlang, vctrs, lifecycle ]
+runners:
+  # This platform allows running the component natively
+  - type: executable
+  # Allows turning the component into a Nextflow module / pipeline.
+  - type: nextflow
+    directives:
+      label: [midtime, midmem, midcpu]
