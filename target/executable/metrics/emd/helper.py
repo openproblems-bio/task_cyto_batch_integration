@@ -224,11 +224,11 @@ def calculate_horizontal_emd(
             i_split1_donor.obs["cell_type"].unique(),
             i_split2_donor.obs["cell_type"].unique(),
         )
-        if len(cell_type_not_in_both) > 1:
+        if len(cell_type_not_in_both) > 0:
             print(
                 f"In donor {donor}: some cell types are in split 1"
                 f" but not in split 2.\n"
-                f"Cell types missing: {''.join(cell_type_not_in_both)}]n"
+                f"Cell types missing: {', '.join(cell_type_not_in_both)}\n"
                 f"Computing cell type EMD using just cell types common in both."
             )
 
