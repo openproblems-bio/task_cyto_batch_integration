@@ -248,14 +248,20 @@ workflow run_wf {
       metric_configs_file.write(metric_configs_yaml_blob)
 
       // store the task info in a file
-      def viash_file = meta.resources_dir.resolve("_viash.yaml")
+      def task_info = readYaml(meta.resources_dir.resolve("_viash.yaml"))
+      if (workflow.commitId) {
+        task_info.commit = workflow.commitId
+      }
+      task_info.timestamp = workflow.start.toInstant().truncatedTo(java.time.temporal.ChronoUnit.SECONDS).toString()
+      def task_info_file = tempFile("task_info.yaml")
+      task_info_file.write(toYamlBlob(task_info))
 
       // create output state
       def new_state = [
         output_dataset_info: dataset_uns_file,
         output_method_configs: method_configs_file,
         output_metric_configs: metric_configs_file,
-        output_task_info: viash_file,
+        output_task_info: task_info_file,
         _meta: states[0]._meta
       ]
 
