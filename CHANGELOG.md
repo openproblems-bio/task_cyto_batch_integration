@@ -190,6 +190,9 @@
   * Mid time, mem, cpu for most methods, except below.
   * High (or very high) time, mem, cpu for computationally expensive methods like rPCA.
 
+* `run_benchmark`: write the commit the workflow ran from and the launch time into
+  `task_info.yaml`, instead of publishing `_viash.yaml` verbatim (PR #136).
+
 
 ## BUG FIXES
 
