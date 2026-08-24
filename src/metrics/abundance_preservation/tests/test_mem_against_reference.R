@@ -39,10 +39,18 @@ subsampled_indices <- unlist(lapply(POPULATIONS, function(pop) {
   sample(which(is_candidate & adata$obs$cell_type == pop), N_CELLS_PER_POP)
 }))
 
-expr_matrix <- get_layer_expression(adata, "preprocessed", MARKERS, cell_mask = subsampled_indices)
-population_labels <- as.character(adata$obs$cell_type[subsampled_indices])
+expr_matrix <- adata$layers[["preprocessed"]]
+colnames(expr_matrix) <- rownames(adata$var)
+expr_matrix <- expr_matrix[subsampled_indices, MARKERS]
+# compute_mem_matrix() scores whatever grouping it is handed, so the cell type
+# of each subsampled cell stands in for a cluster id here.
+cell_type_per_cell <- as.character(adata$obs$cell_type[subsampled_indices])
 
-my_mem <- compute_mem_matrix(expr_matrix, population_labels, POPULATIONS, iqr_thresh = 0.5)
+my_mem <- compute_mem_matrix(
+  expr_matrix = expr_matrix,
+  cluster_id_per_cell = cell_type_per_cell,
+  iqr_thresh = 0.5
+)
 
 # cytoMEM::MEM() requires the population label to be a numeric "cluster"
 # column: apply() converts the whole data.frame to a matrix first, so a
@@ -52,7 +60,7 @@ my_mem <- compute_mem_matrix(expr_matrix, population_labels, POPULATIONS, iqr_th
 # for comparison.
 cluster_ids <- setNames(seq_along(POPULATIONS), POPULATIONS)
 ref_df <- as.data.frame(expr_matrix)
-ref_df$cluster <- cluster_ids[population_labels]
+ref_df$cluster <- cluster_ids[cell_type_per_cell]
 
 mem_result <- MEM(
   ref_df, transform = FALSE, choose.markers = FALSE, markers = "all",
@@ -75,7 +83,10 @@ for (target_pop in POPULATIONS) {
 pairs <- combn(POPULATIONS, 2, simplify = FALSE)
 for (pair in pairs) {
 
-  my_similarity <- compute_mem_rmsd(my_mem[pair[1], , drop = FALSE], my_mem[pair[2], , drop = FALSE])
+  my_similarity <- compute_mem_rmsd(
+    mem_a = my_mem[pair[1], , drop = FALSE],
+    mem_b = my_mem[pair[2], , drop = FALSE]
+  )
 
   pdf_path <- tempfile(fileext = ".pdf")
   grDevices::pdf(pdf_path)

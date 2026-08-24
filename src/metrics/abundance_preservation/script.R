@@ -27,81 +27,136 @@ SIGNIFICANCE_THRESHOLD <- 0.1
 print("Reading input files\n")
 # Keep a raw, untouched copy of the unintegrated data: get_obs_var_for_integrated
 # matches cells by name against it, so it must still contain every cell that
-# is present in the freshly-read integrated splits (controls and unlabelled
-# cells included).
+# is present in the freshly-read integrated splits (controls included).
 unintegrated_raw <- anndata::read_h5ad(par[["input_unintegrated"]])
 
 integrated_s1 <- anndata::read_h5ad(par[["input_integrated_split1"]]) |>
-  get_obs_var_for_integrated(unintegrated_raw, split_id = 1) |>
+  get_obs_var_for_integrated(u_adata = unintegrated_raw, split_id = 1) |>
   subset_markers_tocorrect() |>
   subset_nocontrols()
 
 integrated_s2 <- anndata::read_h5ad(par[["input_integrated_split2"]]) |>
-  get_obs_var_for_integrated(unintegrated_raw, split_id = 2) |>
+  get_obs_var_for_integrated(u_adata = unintegrated_raw, split_id = 2) |>
   subset_markers_tocorrect() |>
   subset_nocontrols()
 
 unintegrated <- unintegrated_raw |> subset_nocontrols()
 
 print("Setting parameters\n")
-lineage_markers <- rownames(unintegrated_raw$var)[unintegrated_raw$var$marker_type == "lineage"]
-n_clusters <- unintegrated_raw$uns$parameter_num_clusters
-grid_xdim <- unintegrated_raw$uns$parameter_som_xdim
-grid_ydim <- unintegrated_raw$uns$parameter_som_ydim
-real_cell_types <- unique(unintegrated$obs$cell_type)
-real_cell_types <- real_cell_types[!tolower(real_cell_types) %in% c("unlabelled", "unlabeled")]
-groups <- sort(as.character(unique(unintegrated$obs$group)))
-group_a <- groups[1]
-group_b <- groups[2]
-batches <- sort(unique(unintegrated$obs$batch))
 
-print("Testing baseline (unintegrated) abundance differences, per batch\n")
-# Unlabelled cells count toward each sample's total (so real cell types'
-# proportions reflect the true unannotated fraction) but are never tested
-# themselves - run_wilcoxon_per_celltype skips them.
-sig_per_batch <- lapply(batches, function(current_batch) {
-  in_batch <- unintegrated$obs$batch == current_batch
-  proportions <- compute_sample_proportions(
-    cell_type = unintegrated$obs$cell_type[in_batch],
-    sample = unintegrated$obs$sample[in_batch],
-    group = unintegrated$obs$group[in_batch]
+# flowsom parameters
+fsom_param <- get_flowsom_parameters(unintegrated_raw)
+
+# dataset specific parameters
+dataset_param <- get_dataset_parameters(unintegrated)
+
+print("Cluster each unintegrated batch separately and compute MEM scores\n")
+# Each batch is clustered on its own, so it is split off into its own AnnData
+# first - a cluster's MEM score is relative to the other cells it was
+# clustered alongside, which here should only ever be cells from the same batch.
+unintegrated_b1 <- unintegrated[unintegrated$obs$batch == dataset_param$batch_1, ]$copy()
+unintegrated_b2 <- unintegrated[unintegrated$obs$batch == dataset_param$batch_2, ]$copy()
+
+clustering_b1 <- cluster_and_calculate_mem(
+  adata = unintegrated_b1,
+  layer_name = "preprocessed",
+  lineage_markers = dataset_param$lineage_markers,
+  fsom_param = fsom_param,
+  label_prefix = paste0("batch", dataset_param$batch_1, "_c")
+)
+clustering_b2 <- cluster_and_calculate_mem(
+  adata = unintegrated_b2,
+  layer_name = "preprocessed",
+  lineage_markers = dataset_param$lineage_markers,
+  fsom_param = fsom_param,
+  label_prefix = paste0("batch", dataset_param$batch_2, "_c")
+)
+
+print("Test which clusters are differentially abundant within each batch\n")
+abundance_b1 <- test_differential_abundance(
+  cluster_id_per_cell = clustering_b1$cluster_id_per_cell,
+  sample_id_per_cell = unintegrated_b1$obs$sample,
+  group_id_per_cell = unintegrated_b1$obs$group,
+  group_a = dataset_param$group_a,
+  group_b = dataset_param$group_b,
+  significance_threshold = SIGNIFICANCE_THRESHOLD
+)
+
+abundance_b2 <- test_differential_abundance(
+  cluster_id_per_cell = clustering_b2$cluster_id_per_cell,
+  sample_id_per_cell = unintegrated_b2$obs$sample,
+  group_id_per_cell = unintegrated_b2$obs$group,
+  group_a = dataset_param$group_a,
+  group_b = dataset_param$group_b,
+  significance_threshold = SIGNIFICANCE_THRESHOLD
+)
+
+# keep just clusters which are DA
+DA_clusters_b1 <- abundance_b1$significant
+DA_clusters_b2 <- abundance_b2$significant
+
+
+print("Finding best matches for batch 1 clusters\n")
+batch_matches <- find_cluster_match(
+  mem_a = clustering_b1$mem,
+  mem_b = clustering_b2$mem
+)
+cluster_b1_best_matches <- batch_matches$cluster_a_matches
+# keep only clusters which are we found "mutual" matches,
+# i.e., if b1 cluster 1 best match in b2 is cluster 2,
+# and b2 cluster 2 best match in b1 is cluster 1,
+# then this is mutual matches. Otherwise, there were some discrepancies in 
+# the matching that is hard to resolve (which one is the right one?)
+# in that case, we just drop them.
+cluster_b1_best_matches_filtered <- cluster_b1_best_matches[cluster_b1_best_matches$is_mutual, , drop = FALSE]
+
+# now we check which of the mutually matched clusters are differentially 
+# abundant in both batches
+cluster_b1_best_matches_filtered <- cluster_b1_best_matches_filtered[
+  cluster_b1_best_matches_filtered$cluster_a %in% DA_clusters_b1 &
+    cluster_b1_best_matches_filtered$best_match_b %in% DA_clusters_b2,
+  ,
+  drop = FALSE
+]
+
+# Nothing survived both filters, so there is nothing to score against. This
+# should not happen on a real dataset, so stop rather than report NaN.
+if (nrow(cluster_b1_best_matches_filtered) == 0) {
+  stop(
+    "No batch 1 cluster was both mutually matched to a batch 2 cluster and ",
+    "differentially abundant in both batches, so there is nothing to score."
   )
-  pvals <- run_wilcoxon_per_celltype(proportions, group_a, group_b)
-  names(pvals)[pvals <= SIGNIFICANCE_THRESHOLD]
-})
-names(sig_per_batch) <- as.character(batches)
-# A cell type only counts as a real baseline difference if it shows up in both batches.
-sig_unintegrated <- Reduce(intersect, sig_per_batch)
+}
 
-print("Computing reference MEM scores for each cell type, averaged over batches\n")
-mem_per_batch <- lapply(batches, function(current_batch) {
-  in_batch <- unintegrated$obs$batch == current_batch
-  expr <- get_layer_expression(unintegrated, "preprocessed", lineage_markers, cell_mask = in_batch)
-  compute_mem_matrix(expr, unintegrated$obs$cell_type[in_batch], real_cell_types)
-})
-mem_celltype_reference <- Reduce(`+`, mem_per_batch) / length(mem_per_batch)
-
-print("Clustering and testing each integrated split\n")
+print("Clustering and running DA for each integrated split\n")
 result_s1 <- process_integrated_split(
-  integrated_s1, lineage_markers, n_clusters, grid_xdim, grid_ydim,
-  mem_celltype_reference, group_a, group_b, SIGNIFICANCE_THRESHOLD
+  adata = integrated_s1,
+  dataset_param = dataset_param,
+  fsom_param = fsom_param,
+  b1_mem = clustering_b1$mem,
+  retained_cluster_b1 = cluster_b1_best_matches_filtered$cluster_a,
+  significance_threshold = SIGNIFICANCE_THRESHOLD,
+  label_prefix = "split1_c"
 )
 result_s2 <- process_integrated_split(
-  integrated_s2, lineage_markers, n_clusters, grid_xdim, grid_ydim,
-  mem_celltype_reference, group_a, group_b, SIGNIFICANCE_THRESHOLD
+  adata = integrated_s2,
+  dataset_param = dataset_param,
+  fsom_param = fsom_param,
+  b1_mem = clustering_b1$mem,
+  retained_cluster_b1 = cluster_b1_best_matches_filtered$cluster_a,
+  significance_threshold = SIGNIFICANCE_THRESHOLD,
+  label_prefix = "split2_c"
 )
 
-# A cell type only counts as "still significant post-integration" if it
-# remains significant in both splits.
-sig_integrated <- intersect(result_s1$sig, result_s2$sig)
-sig_remaining <- intersect(sig_unintegrated, sig_integrated)
-
 print("Computing final score\n")
-score <- if (length(sig_unintegrated) == 0) {
-  NA_real_
-} else {
-  length(sig_remaining) / length(sig_unintegrated)
-}
+# The retained b1 clusters are the ones carried into the splits, so they are
+# what each split is scored against: a method that kept every one of them
+# differentially abundant scores 1.
+retained_clusters_b1 <- cluster_b1_best_matches_filtered$cluster_a
+
+prop_still_da_s1 <- length(result_s1$da_results$significant) / length(retained_clusters_b1)
+prop_still_da_s2 <- length(result_s2$da_results$significant) / length(retained_clusters_b1)
+score <- mean(c(prop_still_da_s1, prop_still_da_s2))
 
 print("Write output AnnData to file\n")
 output <- anndata::AnnData(
@@ -111,21 +166,24 @@ output <- anndata::AnnData(
     method_id = integrated_s1$uns$method_id,
     metric_ids = list("abundance_preservation"),
     metric_values = list(score),
-    group_a = group_a,
-    group_b = group_b,
-    sig_unintegrated = as.list(sig_unintegrated),
-    sig_split1 = as.list(result_s1$sig),
-    sig_split2 = as.list(result_s2$sig),
-    sig_remaining = as.list(sig_remaining),
-    metacluster_mapping_split1 = as.list(result_s1$mapping),
-    metacluster_mapping_split2 = as.list(result_s2$mapping),
-    metacluster_similarity_split1 = result_s1$similarity,
-    metacluster_similarity_split2 = result_s2$similarity,
-    fsom_parameters = list(
-      "xdim" = grid_xdim,
-      "ydim" = grid_ydim,
-      "n_clusters" = n_clusters
-    )
+    group_a = dataset_param$group_a,
+    group_b = dataset_param$group_b,
+    da_clusters_batch1 = as.list(DA_clusters_b1),
+    da_clusters_batch2 = as.list(DA_clusters_b2),
+    pvals_batch1 = as.list(abundance_b1$pvals),
+    pvals_batch2 = as.list(abundance_b2$pvals),
+    retained_clusters_batch1 = as.list(retained_clusters_b1),
+    retained_clusters_batch2 = as.list(cluster_b1_best_matches_filtered$best_match_b),
+    batch_cluster_similarity = batch_matches$similarity,
+    cluster_similarity_split1 = result_s1$similarity_to_batch1,
+    cluster_similarity_split2 = result_s2$similarity_to_batch1,
+    pvals_split1 = as.list(result_s1$da_results$pvals),
+    pvals_split2 = as.list(result_s2$da_results$pvals),
+    da_clusters_split1 = as.list(result_s1$da_results$significant),
+    da_clusters_split2 = as.list(result_s2$da_results$significant),
+    proportion_split1 = prop_still_da_s1,
+    proportion_split2 = prop_still_da_s2,
+    fsom_parameters = fsom_param
   )
 )
 
