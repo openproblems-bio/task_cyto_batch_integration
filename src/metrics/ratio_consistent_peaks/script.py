@@ -64,8 +64,8 @@ donor_list = integrated_s1.obs["donor"].unique()
 print("Compute metric (per cell type)", flush=True)
 
 # case 1 = consistent peaks in unintegrated and also in integrated
-# case 3 = consistent peaks in unintegrated but inconsistent in integrated
-# not recording case 2 or 4 where unintegrated is inconsistent
+# case 2 = consistent peaks in unintegrated but inconsistent in integrated
+# case NGT = unintegrated is inconsistent, recorded but excluded from the ratio
 n_case1 = 0
 n_case2 = 0
 
@@ -180,7 +180,7 @@ for donor in donor_list:
                 np.std(s2_unscaled) == 0 and np.std(u_s2_unscaled) != 0
             ):
                 print(
-                    f"WARNING: Marker {marker}, donor {donor}, cell type {celltype}: has no variance either before or after integration. Automatic to case 3.",
+                    f"WARNING: Marker {marker}, donor {donor}, cell type {celltype}: has no variance after integration, but does before. Automatic to case 2.",
                     flush=True,
                 )
                 n_case2 += 1
