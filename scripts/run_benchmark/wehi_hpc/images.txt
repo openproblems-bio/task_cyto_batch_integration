@@ -2,8 +2,6 @@ docker://ghcr.io/openproblems-bio/openproblems/utils/extract_uns_metadata:build_
 docker://ghcr.io/openproblems-bio/task_cyto_batch_integration/control_methods/no_integration:build_setup_run_hpc
 docker://ghcr.io/openproblems-bio/task_cyto_batch_integration/control_methods/perfect_integration:build_setup_run_hpc
 docker://ghcr.io/openproblems-bio/task_cyto_batch_integration/control_methods/shuffle_integration_globally:build_setup_run_hpc
-docker://ghcr.io/openproblems-bio/task_cyto_batch_integration/control_methods/shuffle_integration_within_batch:build_setup_run_hpc
-docker://ghcr.io/openproblems-bio/task_cyto_batch_integration/control_methods/shuffle_integration_within_cell_type:build_setup_run_hpc
 docker://ghcr.io/openproblems-bio/task_cyto_batch_integration/methods/batchadjust_all_controls:build_setup_run_hpc
 docker://ghcr.io/openproblems-bio/task_cyto_batch_integration/methods/batchadjust_one_control:build_setup_run_hpc
 docker://ghcr.io/openproblems-bio/task_cyto_batch_integration/methods/combat:build_setup_run_hpc
