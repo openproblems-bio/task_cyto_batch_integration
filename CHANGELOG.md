@@ -193,6 +193,7 @@
 * `run_benchmark`: write the commit the workflow ran from and the launch time into
   `task_info.yaml`, instead of publishing `_viash.yaml` verbatim (PR #136).
 
+* Remove `metrics/bras` , `metrics/n_inconsitent_peaks` and `control_methods/shuffle_by_cell_type` and `control_methods/batch`
 
 ## BUG FIXES
 
@@ -260,3 +261,5 @@
 
 
 * Fix check cell_type_in_both to > 0 (instead of 1) and some spelling mistakes in print.
+
+* Updated anndata version to 0.12 in lisi metric to support NULL writing (PR #139)
