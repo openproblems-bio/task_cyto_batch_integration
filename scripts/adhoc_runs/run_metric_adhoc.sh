@@ -15,10 +15,6 @@ Rscript "$SCRIPT_DIR/run_metric_adhoc.R" \
     --metric abundance_preservation \
     --input-dir /Users/putri.g/Documents/cytobenchmark/analysis/runs/run_2026-04-26_21-34-33 \
     --datasets-dir /Users/putri.g/Documents/cytobenchmark/datasets \
-    --output-dir /Users/putri.g/Documents/cytobenchmark/analysis/data/abundance_preservation/2026-07-30 \
+    --output-dir /Users/putri.g/Documents/cytobenchmark/analysis/data/abundance_preservation/2026-08-25 \
     --skip-existing \
-    --datasets mouse_spleen_flow_cytometry lille_spectral_flow_cytometry \
-    --methods cycombine_all_controls_to_goal cycombine_all_controls_to_mid \
-        cycombine_no_controls_to_goal cycombine_no_controls_to_mid \
-        cycombine_one_control_to_goal cycombine_one_control_to_mid \
-        cytonorm_all_controls_to_mid cytonorm_no_controls_to_mid cytonorm_one_control_to_mid
+    --datasets mouse_spleen_flow_cytometry lille_spectral_flow_cytometry 

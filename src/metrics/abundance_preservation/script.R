@@ -3,11 +3,12 @@ library(FlowSOM, quietly = TRUE)
 library(flowCore, quietly = TRUE)
 
 ## VIASH START
+home_path <- file.path("/Users/putri.g/Documents/GitHub/task_cyto_batch_integration/resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset")
 par <- list(
-  "input_unintegrated" = 'resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/unintegrated.h5ad',
-  "input_integrated_split1" = 'resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/integrated_split1.h5ad',
-  "input_integrated_split2" = 'resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/integrated_split2.h5ad',
-  "output" = 'resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/score.h5ad'
+  "input_unintegrated" = file.path(home_path, "unintegrated.h5ad"),
+  "input_integrated_split1" = file.path(home_path, "integrated_split1.h5ad"),
+  "input_integrated_split2" = file.path(home_path, "integrated_split2.h5ad"),
+  "output" = file.path(home_path, "score.h5ad")
 )
 meta <- list(
   "name" = 'abundance_preservation',
@@ -97,11 +98,11 @@ DA_clusters_b2 <- abundance_b2$significant
 
 
 print("Finding best matches for batch 1 clusters\n")
-batch_matches <- find_cluster_match(
+b1_cluster_matches <- find_cluster_match(
   mem_a = clustering_b1$mem,
   mem_b = clustering_b2$mem
 )
-cluster_b1_best_matches <- batch_matches$cluster_a_matches
+cluster_b1_best_matches <- b1_cluster_matches$cluster_a_matches
 # keep only clusters which are we found "mutual" matches,
 # i.e., if b1 cluster 1 best match in b2 is cluster 2,
 # and b2 cluster 2 best match in b1 is cluster 1,
@@ -149,9 +150,8 @@ result_s2 <- process_integrated_split(
 )
 
 print("Computing final score\n")
-# The retained b1 clusters are the ones carried into the splits, so they are
-# what each split is scored against: a method that kept every one of them
-# differentially abundant scores 1.
+# Clusters in integrated are mapped to retained clusters in b1.
+# So it only makes sense for the final proportion to be calculated over the retained clusters in b1, not all clusters in b1.
 retained_clusters_b1 <- cluster_b1_best_matches_filtered$cluster_a
 
 prop_still_da_s1 <- length(result_s1$da_results$significant) / length(retained_clusters_b1)
@@ -159,6 +159,53 @@ prop_still_da_s2 <- length(result_s2$da_results$significant) / length(retained_c
 score <- mean(c(prop_still_da_s1, prop_still_da_s2))
 
 print("Write output AnnData to file\n")
+# Everything below is grouped by the stage it came from, so a diagnosis never
+# needs to stitch loose vectors back together. Similarity matrices are written
+# as data frames because a plain matrix loses its dimnames in h5ad, which makes
+# the cluster labels unrecoverable.
+
+# One row per unintegrated cluster, saying whether it was differentially abundant.
+da_status_for_clusters_in_unintegrated <- rbind(
+  data.frame(
+    cluster_id = abundance_b1$clusters_tested,
+    batch = as.character(dataset_param$batch_1),
+    is_da = abundance_b1$clusters_tested %in% DA_clusters_b1,
+    stringsAsFactors = FALSE
+  ),
+  data.frame(
+    cluster_id = abundance_b2$clusters_tested,
+    batch = as.character(dataset_param$batch_2),
+    is_da = abundance_b2$clusters_tested %in% DA_clusters_b2,
+    stringsAsFactors = FALSE
+  )
+)
+
+# What each batch 1 cluster matched to in batch 2, and whether that was mutual.
+unintegrated_cluster_match_table <- data.frame(
+  cluster_b1 = cluster_b1_best_matches$cluster_a,
+  best_match_b2 = cluster_b1_best_matches$best_match_b,
+  b2_best_match_back_in_b1 = cluster_b1_best_matches$best_match_b_matching_a,
+  is_mutual = cluster_b1_best_matches$is_mutual,
+  row.names = NULL,
+  stringsAsFactors = FALSE
+)
+
+# One row per retained batch 1 cluster per split. A retained cluster that no
+# split cluster mapped onto is never tested, and counts as not differentially
+# abundant.
+cluster_da_split1 <- data.frame(
+  cluster_b1 = retained_clusters_b1,
+  was_tested = retained_clusters_b1 %in% result_s1$da_results$clusters_tested,
+  is_da = retained_clusters_b1 %in% result_s1$da_results$significant,
+  stringsAsFactors = FALSE
+)
+cluster_da_split2 <- data.frame(
+  cluster_b1 = retained_clusters_b1,
+  was_tested = retained_clusters_b1 %in% result_s2$da_results$clusters_tested,
+  is_da = retained_clusters_b1 %in% result_s2$da_results$significant,
+  stringsAsFactors = FALSE
+)
+
 output <- anndata::AnnData(
   shape = c(0L, 0L),
   uns = list(
@@ -166,24 +213,52 @@ output <- anndata::AnnData(
     method_id = integrated_s1$uns$method_id,
     metric_ids = list("abundance_preservation"),
     metric_values = list(score),
-    group_a = dataset_param$group_a,
-    group_b = dataset_param$group_b,
-    da_clusters_batch1 = as.list(DA_clusters_b1),
-    da_clusters_batch2 = as.list(DA_clusters_b2),
-    pvals_batch1 = as.list(abundance_b1$pvals),
-    pvals_batch2 = as.list(abundance_b2$pvals),
-    retained_clusters_batch1 = as.list(retained_clusters_b1),
-    retained_clusters_batch2 = as.list(cluster_b1_best_matches_filtered$best_match_b),
-    batch_cluster_similarity = batch_matches$similarity,
-    cluster_similarity_split1 = result_s1$similarity_to_batch1,
-    cluster_similarity_split2 = result_s2$similarity_to_batch1,
-    pvals_split1 = as.list(result_s1$da_results$pvals),
-    pvals_split2 = as.list(result_s2$da_results$pvals),
-    da_clusters_split1 = as.list(result_s1$da_results$significant),
-    da_clusters_split2 = as.list(result_s2$da_results$significant),
-    proportion_split1 = prop_still_da_s1,
-    proportion_split2 = prop_still_da_s2,
-    fsom_parameters = fsom_param
+
+    parameters = list(
+      group_a = dataset_param$group_a,
+      group_b = dataset_param$group_b,
+      batch_1 = as.character(dataset_param$batch_1),
+      batch_2 = as.character(dataset_param$batch_2),
+      significance_threshold = SIGNIFICANCE_THRESHOLD,
+      som_xdim = fsom_param$xdim,
+      som_ydim = fsom_param$ydim,
+      n_clusters = fsom_param$n_clusters
+    ),
+
+    unintegrated = list(
+      # cell_id and cluster_id indices are matching: cluster_id at index i belongs to cell_id at index i.
+      batch1_cell_id = rownames(unintegrated_b1$obs),
+      batch1_cluster_id = clustering_b1$cluster_id_per_cell,
+      batch2_cell_id = rownames(unintegrated_b2$obs),
+      batch2_cluster_id = clustering_b2$cluster_id_per_cell,
+      # which clusters in b1 and b2 are DA? or not DA?
+      which_clusters_are_da = da_status_for_clusters_in_unintegrated,
+      # rows are batch 1 clusters, columns are batch 2 clusters
+      b1_b2_cluster_similarity = as.data.frame(b1_cluster_matches$similarity),
+      cluster_match_table = unintegrated_cluster_match_table,
+      retained_cluster_b1 = retained_clusters_b1
+    ),
+
+    split1 = list(
+      cell_id = rownames(integrated_s1$obs),
+      cluster_id = result_s1$cluster_id_per_cell,
+      mapped_b1_cluster_id = result_s1$mapped_b1_cluster,
+      # rows are this split's clusters, columns are batch 1 clusters
+      similarity_to_b1 = as.data.frame(result_s1$similarity_to_batch1),
+      # note the cluster id is the mapped b1 clusters
+      which_clusters_are_da = cluster_da_split1,
+      proportion_still_da = prop_still_da_s1
+    ),
+
+    split2 = list(
+      cell_id = rownames(integrated_s2$obs),
+      cluster_id = result_s2$cluster_id_per_cell,
+      mapped_b1_cluster_id = result_s2$mapped_b1_cluster,
+      similarity_to_b1 = as.data.frame(result_s2$similarity_to_batch1),
+      # note the cluster id is the mapped b1 clusters
+      which_clusters_are_da = cluster_da_split2,
+      proportion_still_da = prop_still_da_s2
+    )
   )
 )
 

@@ -257,7 +257,8 @@ test_differential_abundance <- function(
     vals_a <- sample_prop_per_cluster$proportion[sample_prop_per_cluster$cluster == cluster & is_group_a]
     vals_b <- sample_prop_per_cluster$proportion[sample_prop_per_cluster$cluster == cluster & is_group_b]
 
-    suppressWarnings(wilcox.test(vals_a, vals_b, alternative = "two.sided")$p.value)
+    wilcox_test_res <- suppressWarnings(wilcox.test(vals_a, vals_b, alternative = "two.sided"))
+    wilcox_test_res$p.value
   })
 
   list(
@@ -421,16 +422,16 @@ process_integrated_split <- function(
   # even if cluster 10 in integrated nearest in b1 is cluster 1, it may not necessarily
   # mean that its nearest cluster in b2 is cluster 2. 
   # so keep it simple, just compare with b1.
-  # note, nearest_cluster_in_b1 is a list. 
+  # note, mem_rmsd_for_clusters is a list. 
   # nearest slot is the one that store the name of the nearest cluster in b1.
-  # similarity lot is the similarity matrix between integrated split clusters and b1 clusters.
-  nearest_cluster_in_b1 <- find_nearest_by_mem(
+  # similarity slot is the similarity matrix between integrated split clusters and b1 clusters.
+  mem_rmsd_for_clusters <- find_nearest_by_mem(
     mem_query = clustering$mem, 
     mem_reference = b1_mem
   )
 
   # keep only those which b1 clusters are found to be DA and are mutually matched
-  nearest_clusters_in_b1 <- nearest_cluster_in_b1$nearest
+  nearest_clusters_in_b1 <- mem_rmsd_for_clusters$nearest
   # note, names are the integrated split clusters, and values are the nearest b1 clusters.
   nearest_clusters_in_b1 <- nearest_clusters_in_b1[nearest_clusters_in_b1 %in% retained_cluster_b1]
  
@@ -463,7 +464,7 @@ process_integrated_split <- function(
   list(
     da_results = abundance,
     cluster_id_per_cell = clustering$cluster_id_per_cell,
-    mapped_b1_cluster_per_cell = cell_df_for_da$mapped_b1_cluster,
-    similarity_to_batch1 = nearest_cluster_in_b1$similarity
+    mapped_b1_cluster = mem_rmsd_for_clusters$nearest,
+    similarity_to_batch1 = mem_rmsd_for_clusters$similarity
   )
 }
