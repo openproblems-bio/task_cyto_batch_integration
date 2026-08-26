@@ -3621,18 +3621,6 @@ meta = [
       }
     },
     {
-      "name" : "control_methods/shuffle_integration_within_batch",
-      "repository" : {
-        "type" : "local"
-      }
-    },
-    {
-      "name" : "control_methods/shuffle_integration_within_cell_type",
-      "repository" : {
-        "type" : "local"
-      }
-    },
-    {
       "name" : "control_methods/no_integration",
       "repository" : {
         "type" : "local"
@@ -3857,7 +3845,7 @@ meta = [
     "engine" : "native",
     "output" : "target/nextflow/workflows/run_benchmark",
     "viash_version" : "0.9.7",
-    "git_commit" : "d9be010a954e7321eb26bac587b29d5bae3ee3ac",
+    "git_commit" : "3321360501b960b4dd82c013d3dfd00e470a15b1",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3964,8 +3952,6 @@ meta = [
 meta["root_dir"] = getRootDir()
 include { extract_uns_metadata } from "${meta.root_dir}/dependencies/github/openproblems-bio/openproblems/build/main/nextflow/utils/extract_uns_metadata/main.nf"
 include { shuffle_integration_globally } from "${meta.resources_dir}/../../../nextflow/control_methods/shuffle_integration_globally/main.nf"
-include { shuffle_integration_within_batch } from "${meta.resources_dir}/../../../nextflow/control_methods/shuffle_integration_within_batch/main.nf"
-include { shuffle_integration_within_cell_type } from "${meta.resources_dir}/../../../nextflow/control_methods/shuffle_integration_within_cell_type/main.nf"
 include { no_integration } from "${meta.resources_dir}/../../../nextflow/control_methods/no_integration/main.nf"
 include { perfect_integration } from "${meta.resources_dir}/../../../nextflow/control_methods/perfect_integration/main.nf"
 include { harmonypy } from "${meta.resources_dir}/../../../nextflow/methods/harmonypy/main.nf"
@@ -4009,8 +3995,6 @@ workflow auto {
 // construct list of methods and control methods
 methods = [
   shuffle_integration_globally,
-  shuffle_integration_within_batch,
-  shuffle_integration_within_cell_type,
   no_integration,
   perfect_integration,
   combat,

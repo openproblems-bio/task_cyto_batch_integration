@@ -10,8 +10,6 @@ workflow auto {
 // construct list of methods and control methods
 methods = [
   shuffle_integration_globally,
-  shuffle_integration_within_batch,
-  shuffle_integration_within_cell_type,
   no_integration,
   perfect_integration,
   combat,
