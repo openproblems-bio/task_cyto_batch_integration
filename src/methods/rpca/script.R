@@ -3,24 +3,25 @@ requireNamespace("Seurat", quietly = TRUE)
 
 ## VIASH START
 par <- list(
-    input = "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/unintegrated_censored.h5ad",
+    input = "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/censored_split1.h5ad",
     output = "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/output.h5ad",
+    target = "mid",
     npcs = 10,
     n_neighbours = 50
 )
 meta <- list(
-    name = "rpca_to_goal"
+    name = "rpca"
 )
 ## VIASH END
 
 options(future.globals.maxSize = 25 * 1024^3)  # 25 GiB
 
 source(paste0(meta$resources_dir, "/helper_functions.R"))
- 
+
 cat("Reading input files\n")
 input_adata <- anndata::read_h5ad(par[["input"]]) |>
   subset_nocontrols()
-  
+
 cat("Preparing input Anndata\n")
 input_adata$obs$batch <- as.factor(input_adata$obs$batch)
 
@@ -93,6 +94,15 @@ cat("Finding anchors\n")
 # hence we can't just use par[["npcs"]] below.
 npcs_computed <- dim(seurat_objs[[1]][["pca"]])[2]
 
+# integrate into batch 1 (goal) or towards a midpoint (mid)
+# TODO check: reference = NULL uses batch 1 internally?
+# The output is the same as if i set the reference as 1.
+reference <- if (par[["target"]] == "goal") {
+    which(names(seurat_objs) == "1")
+} else {
+    NULL
+}
+
 anchors <- Seurat::FindIntegrationAnchors(
     object.list = seurat_objs,
     anchor.features = markers_to_correct,
@@ -100,7 +110,7 @@ anchors <- Seurat::FindIntegrationAnchors(
     k.anchor = par[["n_neighbours"]],
     reduction = "rpca",
     verbose = TRUE,
-    reference = which(names(seurat_objs) == "1")
+    reference = reference
 )
 
 cat("Batch correct\n")
@@ -108,13 +118,16 @@ cat("Batch correct\n")
 # Warning will say Layer counts isn't present in the assay object; returning NULL
 # Even though the original assay has counts layer.
 # Not sure why. But the object has data layer.
-batch_corrected_seurat_obj <- Seurat::IntegrateData(
+integrate_args <- list(
     anchorset = anchors,
-    features = markers_to_correct,
     features.to.integrate = markers_to_correct,
     dims = seq(npcs_computed),
     verbose = TRUE
 )
+if (par[["target"]] == "goal") {
+    integrate_args$features <- markers_to_correct
+}
+batch_corrected_seurat_obj <- do.call(Seurat::IntegrateData, integrate_args)
 # just to be sure!
 Seurat::DefaultAssay(batch_corrected_seurat_obj) <- "integrated"
 
@@ -144,6 +157,7 @@ output <- anndata::AnnData(
         dataset_id = input_adata$uns$dataset_id,
         method_id = meta$name,
         parameters = list(
+            "target" = par[["target"]],
             "npcs" = par[["npcs"]],
             "n_neighbours" = par[["n_neighbours"]]
         )
