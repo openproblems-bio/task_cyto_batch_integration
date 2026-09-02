@@ -449,9 +449,9 @@ RUN pip install --upgrade pip && \
   pip install --upgrade --no-cache-dir "harmonypy>=0.2.0" "torch"
 
 LABEL org.opencontainers.image.description="Companion container for running component methods harmonypy"
-LABEL org.opencontainers.image.created="2026-08-26T10:04:10Z"
+LABEL org.opencontainers.image.created="2026-09-02T08:48:41Z"
 LABEL org.opencontainers.image.source="https://github.com/slowkow/harmonypy"
-LABEL org.opencontainers.image.revision="3321360501b960b4dd82c013d3dfd00e470a15b1"
+LABEL org.opencontainers.image.revision="37151479aaa89edf37ae23068de8fbb41a1b7bb4"
 LABEL org.opencontainers.image.version="build_main"
 
 VIASHDOCKER

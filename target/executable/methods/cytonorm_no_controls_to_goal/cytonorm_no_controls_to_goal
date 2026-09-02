@@ -453,9 +453,9 @@ RUN Rscript -e 'options(warn = 2); if (!requireNamespace("remotes", quietly = TR
   Rscript -e 'options(warn = 2); remotes::install_github(c("saeyslab/cytoNorm", "saeyslab/FlowSOM"), repos = "https://cran.rstudio.com")'
 
 LABEL org.opencontainers.image.description="Companion container for running component methods cytonorm_no_controls_to_goal"
-LABEL org.opencontainers.image.created="2026-08-26T10:04:10Z"
+LABEL org.opencontainers.image.created="2026-09-02T08:48:41Z"
 LABEL org.opencontainers.image.source="https://github.com/saeyslab/CytoNorm"
-LABEL org.opencontainers.image.revision="3321360501b960b4dd82c013d3dfd00e470a15b1"
+LABEL org.opencontainers.image.revision="37151479aaa89edf37ae23068de8fbb41a1b7bb4"
 LABEL org.opencontainers.image.version="build_main"
 
 VIASHDOCKER
