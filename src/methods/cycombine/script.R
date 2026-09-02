@@ -3,16 +3,30 @@ requireNamespace("anndata", quietly = TRUE)
 
 ## VIASH START
 par <- list(
-    input = "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/unintegrated_censored.h5ad",
+    input = "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/censored_split1.h5ad",
     output = "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/output.h5ad",
+    controls = "all",
+    target = "mid",
     som_grid_size = 8,
     rlen = 10
 )
-meta <- list(name = "cycombine_all_controls_to_goal")
+meta <- list(
+    name = "cycombine",
+    resources_dir = "src/utils"
+)
 ## VIASH END
+
+source(paste0(meta$resources_dir, "/helper_functions.R"))
 
 cat("Reading input files\n")
 input_adata <- anndata::read_h5ad(par[["input"]])
+
+# subset the input depending on which controls are used
+if (par[["controls"]] == "none") {
+    input_adata <- subset_nocontrols(input_adata)
+} else if (par[["controls"]] == "one") {
+    input_adata <- subset_onecontrol(input_adata)
+}
 
 cat("Preparing input Anndata and df\n")
 
@@ -39,12 +53,19 @@ df_to_correct$sample <- as.factor(adata_to_correct$obs$sample)
 # cycombine can identify which samples are technical replicates of each other.
 # the as.character function is needed as otherwise we will get NAs for those controls..
 
-df_to_correct$anchor <- ifelse(
-    adata_to_correct$obs$is_control == 0,
-    as.character(adata_to_correct$obs$sample),
-    paste0("control_", adata_to_correct$obs$is_control)
-)
-df_to_correct$anchor <- as.factor(df_to_correct$anchor)
+anchor <- NULL
+if (par[["controls"]] != "none") {
+    df_to_correct$anchor <- ifelse(
+        adata_to_correct$obs$is_control == 0,
+        as.character(adata_to_correct$obs$sample),
+        paste0("control_", adata_to_correct$obs$is_control)
+    )
+    df_to_correct$anchor <- as.factor(df_to_correct$anchor)
+    anchor <- "anchor"
+}
+
+# correct towards batch 1 (goal) or towards a midpoint across batches (mid)
+ref_batch <- if (par[["target"]] == "goal") "1" else NULL
 
 lineage_markers <- as.vector(input_adata$var_names[
     input_adata$var$marker_type == "lineage"
@@ -81,8 +102,8 @@ df_corrected <- cyCombine::correct_data(
     markers = markers_to_correct,
     method = "ComBat",
     covar = NULL,
-    anchor = "anchor",
-    ref.batch = "1",
+    anchor = anchor,
+    ref.batch = ref_batch,
     parametric = TRUE
 )
 
@@ -107,6 +128,8 @@ output <- anndata::AnnData(
         dataset_id = input_adata$uns$dataset_id,
         method_id = meta$name,
         parameters = list(
+            "controls" = par[["controls"]],
+            "target" = par[["target"]],
             "normalize" = list(
                 "markers" = markers_to_correct,
                 "norm_method" = "scale",
@@ -123,8 +146,8 @@ output <- anndata::AnnData(
                 "markers" = markers_to_correct,
                 "method" = "ComBat",
                 "covar" = NULL,
-                "anchor" = "anchor",
-                "ref.batch" = "1",
+                "anchor" = anchor,
+                "ref.batch" = ref_batch,
                 "parametric" = TRUE
             )
         )
