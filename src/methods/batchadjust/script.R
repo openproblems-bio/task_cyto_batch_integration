@@ -2,23 +2,24 @@ library(anndata)
 library(flowCore)
 ## VIASH START
 par <- list(
-  input = "/Users/putri.g/Documents/cytobenchmark/dataset/lille_spectral_flow_cytometry/censored_split1.h5ad",
+  input = "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/censored_split1.h5ad",
   output = "resources_test/debug/batchadjust/output.h5ad",
+  controls = "all",
   percentile = as.integer('80')
 )
 meta <- list(
-  name = "batchadjust_all_controls",
-  temp_dir = "resources_test/tmp",
-  resources_dir = "src/methods/batchadjust_all_controls"
+  name = "batchadjust",
+  temp_dir = "resources_test/tmp_batchadjust",
+  resources_dir = "src/methods/batchadjust"
 )
 source("src/utils/anndata_to_fcs.R")
+source("src/utils/helper_functions.R")
 ## VIASH END
-
-print(list.files(meta$resources_dir))
 
 source(paste0(meta$resources_dir, "/utils.R"))
 source(paste0(meta$resources_dir, "/anndata_to_fcs.R"))
 source(paste0(meta$resources_dir, "/BatchAdjust.R"))
+source(paste0(meta$resources_dir, "/helper_functions.R"))
 
 tmp_dir <- get_temp_dir(meta)
 print(paste0("Using temp dir: ", tmp_dir))
@@ -42,6 +43,12 @@ on.exit(clean_temp_dir(tmp_dir))
 
 cat("Reading input files\n")
 input <- anndata::read_h5ad(par[["input"]])
+
+# keep only the first control group when using one control
+if (par[["controls"]] == "one") {
+  input <- subset_onecontrol(input)
+}
+
 #use Original_ID column to restore cell order after I/O operations
 # input$layers["preprocessed"][, "Original_ID"] <- seq(1, dim(input)[1])
 
@@ -76,7 +83,7 @@ non_control_has_batch <- any(grepl("Batch", input_no_controls$obs$sample))
 if (!non_control_has_batch) {
   cat(
     "Non control samples do not have batch info in sample names!\n",
-    "Sample names before modification: ", 
+    "Sample names before modification: ",
     paste0(unique(input_no_controls$obs$sample), collapse = ", "), "\n",
     "Modifying sample names to include batch info!\n"
   )
@@ -84,8 +91,8 @@ if (!non_control_has_batch) {
   input_no_controls$obs$sample <- paste0(input_no_controls$obs$sample, "_Batch", input_no_controls$obs$batch, "_")
 
   cat(
-    "Sample names after modification:\n", 
-    paste0(unique(input_no_controls$obs$sample), collapse = ", "), 
+    "Sample names after modification:\n",
+    paste0(unique(input_no_controls$obs$sample), collapse = ", "),
     "\n"
   )
 }
@@ -93,8 +100,9 @@ if (!non_control_has_batch) {
 # make sure there is _ after the batch1 or batch2, otherwise batchadjust won't find the fcs files.
 input_no_controls$obs$sample <- sapply(input_no_controls$obs$sample, fix_batch_underscore_anynum)
 
-cat("Writing FCS files\n")
+cat("Writing control FCS files\n")
 anndata_to_fcs(input_controls, out_dir = tmp_dir)
+cat("Writing non-control FCS files\n")
 anndata_to_fcs(input_no_controls, out_dir =  tmp_dir)
 
 cat("Writing channels to correct as a text file\n")
@@ -153,6 +161,7 @@ output <- anndata::AnnData(
     dataset_id = input$uns$dataset_id,
     method_id = meta$name,
     parameters = list(
+      controls = par[["controls"]],
       percentile = par[["percentile"]]
     )
   )

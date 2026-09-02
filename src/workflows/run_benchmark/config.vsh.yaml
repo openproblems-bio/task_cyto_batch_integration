@@ -48,16 +48,38 @@ argument_groups:
         default: task_info.yaml
   - name: Methods
     arguments:
+      - name: "--paramsets"
+        type: file
+        direction: input
+        required: false
+        description: |
+          A yaml file mapping method ids to named parameter sets, e.g.:
+
+            cycombine:
+              all_controls_to_goal:
+                controls: all
+                target: goal
+            rpca:
+              to_goal:
+                target: goal
+
+          Each listed method is run once per parameter set, with the given arguments
+          and with `paramset_name`/`paramset` attached to its scores.
+          If not provided, the parameter sets default to the `info.variants`
+          defined in the method components' configs. A method without
+          `info.variants` is run once with its default parameter set.
       - name: "--methods_include"
         type: string
         multiple: true
         description: |
           A list of method ids to include. If specified, only these methods will be run.
+          For parameterised methods, a single paramset can be targeted as `<method_id>.<paramset_name>`, e.g. `cycombine.all_controls_to_goal`.
       - name: "--methods_exclude"
         type: string
         multiple: true
         description: |
           A list of method ids to exclude. If specified, all methods except the ones listed will be run.
+          For parameterised methods, a single paramset can be excluded as `<method_id>.<paramset_name>`, e.g. `cycombine.all_controls_to_goal`.
   - name: Metrics
     arguments:
       - name: "--metrics_include"
@@ -78,6 +100,7 @@ resources:
   - type: file
     path: /_viash.yaml
   - path: /common/nextflow_helpers/helper.nf
+  - path: paramset_helper.nf
 
 dependencies:
   - name: utils/extract_uns_metadata
@@ -88,23 +111,11 @@ dependencies:
   - name: methods/harmonypy
   - name: methods/limma_remove_batch_effect
   - name: methods/combat
-  - name: methods/cycombine_no_controls_to_mid
-  - name: methods/cycombine_no_controls_to_goal
-  - name: methods/cycombine_one_control_to_mid
-  - name: methods/cycombine_one_control_to_goal
-  - name: methods/cycombine_all_controls_to_mid
-  - name: methods/cycombine_all_controls_to_goal
+  - name: methods/cycombine
   - name: methods/gaussnorm
-  - name: methods/cytonorm_no_controls_to_mid
-  - name: methods/cytonorm_all_controls_to_mid
-  - name: methods/cytonorm_one_control_to_mid
-  - name: methods/cytonorm_no_controls_to_goal
-  - name: methods/cytonorm_all_controls_to_goal
-  - name: methods/cytonorm_one_control_to_goal
-  - name: methods/batchadjust_one_control
-  - name: methods/batchadjust_all_controls
-  - name: methods/rpca_to_goal
-  - name: methods/rpca_to_mid
+  - name: methods/cytonorm
+  - name: methods/batchadjust
+  - name: methods/rpca
   - name: metrics/emd
   - name: metrics/ratio_consistent_peaks
   - name: metrics/average_batch_r2
