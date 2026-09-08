@@ -11,6 +11,8 @@ name: emd
 
 # Metadata for your component
 info:
+  # EXAMPLE of tag-based preprocessing
+  precompute_type: "foo"
   metrics:
       # A unique identifier for your metric (required).
       # Can contain only lowercase letters or underscores.

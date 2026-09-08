@@ -69,6 +69,17 @@ workflow run_wf {
       }
     )
 
+    // EXAMPLE of a precompute step some data structures on unintegrated data
+    // that are used by multiple metrics.
+    | precompute.run(
+      fromState: [
+        input: "input_unintegrated"
+      ],
+      toState: [
+        metric_precompute: "output"
+      ]
+    )
+
   /***************************
    * RUN METHODS AND METRICS *
    ***************************/
@@ -165,6 +176,21 @@ workflow run_wf {
   score_ch = method_outputs_ch
     | mix(control_method_outputs_ch)
 
+    // EXAMPLE of a precompute step after the method outputs are generated,
+    // which adds additional data to the method outputs inside the h5ad
+    | precompute_with_dataset_and_method.run(
+      fromState: [
+        input_unintegrated: "input_unintegrated",
+        input_integrated_split1: "integrated_split1", 
+        input_integrated_split2: "integrated_split2",
+        input_precompute: "metric_precompute"
+      ],
+      toState: [
+        integrated_split1: "output_integrated_split1",
+        integrated_split2: "output_integrated_split2"
+      ]
+    )
+
     // run all metrics
     | runEach(
       components: metrics,
@@ -183,12 +209,34 @@ workflow run_wf {
         // filter by method_id
         metric_check
       },
+      // EXAMPLE of how to pass information to the metrics
       // use 'fromState' to fetch the arguments the component requires from the overall state
       fromState: [
         input_unintegrated: "input_unintegrated",
         input_integrated_split1: "integrated_split1", 
-        input_integrated_split2: "integrated_split2"
+        input_integrated_split2: "integrated_split2",
+        input_precompute: "metric_precompute"
       ],
+      // EXAMPLE on how to pass precompute depending on the metric name
+      /*
+      fromState: {id, state, comp ->
+
+        def out = [
+          input_unintegrated: state.input_unintegrated,
+          input_integrated_split1: state.integrated_split1, 
+          input_integrated_split2: state.integrated_split2
+        ]
+
+        if (comp.config.info.precompute_type == "foo") {
+          out["input_precompute"] = state.metric_precompute
+        }
+        if (comp.name == "functional_marker_preservation") {
+          out["input_precompute"] = state.metric_precompute
+        }
+        out
+
+      },
+      */
       // use 'toState' to publish that component's outputs to the overall state
       toState: { id, output, state, comp ->
         state + [
