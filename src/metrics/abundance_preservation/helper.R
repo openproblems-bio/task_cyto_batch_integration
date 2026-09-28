@@ -142,6 +142,7 @@ compute_mem_matrix <- function(expr_matrix, cluster_id_per_cell, iqr_thresh = 0.
 #' @param label_prefix string prepended to the metacluster number, so cluster
 #'   names stay distinguishable once clusters from different batches/splits
 #'   are compared side by side
+#' @param return_fsom_object whether to return the FlowSOM object as well (default FALSE)
 #' @return list with `cluster_id_per_cell` (cluster id of each cell, in the order
 #'   the cells appear in `adata`) and `mem` (cluster x marker MEM score matrix)
 #' 
@@ -150,7 +151,8 @@ cluster_and_calculate_mem <- function(
   layer_name,
   lineage_markers,
   fsom_param,
-  label_prefix
+  label_prefix,
+  return_fsom_object = FALSE
 ) {
   # The layer comes out of AnnData without column names, so the markers have to
   # be named from var before they can be picked out.
@@ -168,13 +170,17 @@ cluster_and_calculate_mem <- function(
   )
   cluster_id_per_cell <- paste0(label_prefix, GetMetaclusters(fsom))
 
-  list(
+  res <- list(
     cluster_id_per_cell = cluster_id_per_cell,
     mem = compute_mem_matrix(
       expr_matrix = expr,
       cluster_id_per_cell = cluster_id_per_cell
     )
   )
+  if (return_fsom_object) {
+    res$fsom_obj <- fsom
+  }
+  res
 }
 
 
