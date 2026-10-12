@@ -11,6 +11,8 @@ name: ratio_consistent_peaks
 
 # Metadata for your component
 info:
+  # Reads its unintegrated results from the precompute_python_metric output
+  precompute_type: python
   metrics:
       # A unique identifier for your metric (required).
       # Can contain only lowercase letters or underscores.

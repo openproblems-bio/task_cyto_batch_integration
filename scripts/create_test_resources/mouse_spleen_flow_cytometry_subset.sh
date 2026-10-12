@@ -60,6 +60,10 @@ viash run src/data_processors/precompute_python_metric/config.vsh.yaml -- \
   --input_unintegrated $DATASET_DIR/unintegrated.h5ad \
   --output $DATASET_DIR/precomputed_python_metric.h5ad
 
+viash run src/data_processors/precompute_r_metric/config.vsh.yaml -- \
+  --input_unintegrated $DATASET_DIR/unintegrated.h5ad \
+  --output $DATASET_DIR/precomputed_r_metric.h5ad
+
 # run one method
 viash run src/methods/harmonypy/config.vsh.yaml -- \
   --input $DATASET_DIR/censored_split1.h5ad \
@@ -75,6 +79,8 @@ viash run src/metrics/emd/config.vsh.yaml -- \
     --input_unintegrated $DATASET_DIR/unintegrated.h5ad \
     --input_integrated_split1 $DATASET_DIR/integrated_split1.h5ad \
     --input_integrated_split2 $DATASET_DIR/integrated_split2.h5ad \
+    --input_precomputed_python_metric $DATASET_DIR/precomputed_python_metric.h5ad \
+    --input_precomputed_r_metric $DATASET_DIR/precomputed_r_metric.h5ad \
     --output $DATASET_DIR/score.h5ad
 
 # write manual state.yaml
@@ -84,6 +90,7 @@ unintegrated: !file unintegrated.h5ad
 censored_split1: !file censored_split1.h5ad
 censored_split2: !file censored_split2.h5ad
 precomputed_python_metric: !file precomputed_python_metric.h5ad
+precomputed_r_metric: !file precomputed_r_metric.h5ad
 integrated_split1: !file integrated_split1.h5ad
 integrated_split2: !file integrated_split2.h5ad
 score: !file score.h5ad
