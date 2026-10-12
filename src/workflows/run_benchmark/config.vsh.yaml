@@ -111,6 +111,7 @@ dependencies:
   - name: metrics/flowsom_mapping_similarity
   - name: metrics/lisi
   - name: metrics/functional_marker_preservation
+  - name: metrics/abundance_preservation
   
 
 runners:
