@@ -41,7 +41,8 @@ metrics = [
   average_batch_r2,
   flowsom_mapping_similarity,
   lisi,
-  functional_marker_preservation
+  functional_marker_preservation,
+  abundance_preservation
 ]
 
 workflow run_wf {
