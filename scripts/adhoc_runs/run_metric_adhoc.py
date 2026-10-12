@@ -271,9 +271,9 @@ def main():
                     "input_unintegrated": str(unintegrated),
                     "output": str(precomputed_python_metric),
                 },
-                # precompute_python_metric imports helper.py from each metric it
-                # precomputes for.
-                import_dirs=[REPO_ROOT / "src" / "metrics" / "functional_marker_preservation"],
+                # The per-metric precompute modules import each metric's helper
+                # as <metric_name>.helper, so src/metrics needs to be importable.
+                import_dirs=[REPO_ROOT / "src" / "metrics"],
             )
 
         # --methods restricts to an explicit list; otherwise discover every

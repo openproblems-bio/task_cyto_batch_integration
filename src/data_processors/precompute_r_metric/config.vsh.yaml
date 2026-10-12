@@ -9,11 +9,13 @@ description: |
   computes them once per dataset for the R metrics, which read them back in.
 
   Currently precomputed:
-  - abundance_preservation: clusters each batch separately with FlowSOM
-    (lineage markers only) and computes MEM scores per cluster, tests which
-    clusters are differentially abundant between the two groups within each
-    batch, matches batch 1 clusters to batch 2 clusters by MEM RMSD similarity,
-    and keeps the batch 1 clusters that are mutually matched and differentially
+  - abundance_preservation: 
+    1. clusters each batch separately with FlowSOM(lineage markers only)
+    2. computes MEM scores per cluster
+    3. tests which clusters are differentially abundant between the two groups 
+    within each batch
+    4. matches batch 1 clusters to batch 2 clusters by MEM RMSD similarity
+    5. keeps the batch 1 clusters that are mutually matched and differentially
     abundant in both batches.
 
 arguments:

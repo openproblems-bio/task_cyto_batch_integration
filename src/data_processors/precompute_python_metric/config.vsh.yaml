@@ -12,6 +12,8 @@ description: |
   - functional_marker_preservation: biological groups, the (marker, cell_type)
     pairs significant in both batches, and the per-batch Wilcoxon and Cohen's d
     results on the unintegrated data.
+  - ratio_consistent_peaks: the number of peaks of every marker per donor and
+    cell type in split 1 and split 2 of the unintegrated data.
 
 arguments:
   - name: "--output"
@@ -21,7 +23,15 @@ arguments:
 resources:
   - type: python_script
     path: script.py
+  # one precompute module per metric
+  - path: precompute_functional_marker_preservation.py
+  - path: precompute_ratio_consistent_peaks.py
+  # each metric's helper.py goes in a folder named after the metric, so the
+  # modules can import it as <metric_name>.helper without the names clashing
   - path: /src/metrics/functional_marker_preservation/helper.py
+    dest: functional_marker_preservation/helper.py
+  - path: /src/metrics/ratio_consistent_peaks/helper.py
+    dest: ratio_consistent_peaks/helper.py
   - path: /src/utils/helper_functions.py
 engines:
   - type: docker

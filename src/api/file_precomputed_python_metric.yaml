@@ -8,6 +8,9 @@ description: |
     - functional_marker_preservation: biological groups, the (marker, cell_type)
       pairs significant in both batches, and the per-batch Wilcoxon and Cohen's d
       results on the unintegrated data.
+    - ratio_consistent_peaks: `unintegrated_peaks`, the number of peaks of every
+      marker per donor and cell type in split 1 and split 2 of the unintegrated
+      data, plus the standard deviation of each split's expression.
 
 info:
   format:
@@ -16,4 +19,8 @@ info:
       - type: object
         name: functional_marker_preservation
         description: "For computing the functional marker preservation metric."
+        required: true
+      - type: object
+        name: ratio_consistent_peaks
+        description: "For computing the ratio consistent peaks metric."
         required: true
