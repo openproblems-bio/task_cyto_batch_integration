@@ -1,11 +1,12 @@
-name: precompute_metrics_info
-namespace: data_processors
-label: Precompute metrics information
-summary: Precompute results on the unintegrated data that metrics reuse.
+__merge__: ../../api/comp_precompute.yaml
+
+name: precompute_python_metric
+label: Precompute Python metric
+summary: Precompute results on the unintegrated data that Python metrics reuse.
 description: |
   Some metrics compare each integrated output against results computed on the
   unintegrated data. Those results don't depend on the method, so this component
-  computes them once per dataset and the metrics read them back in.
+  computes them once per dataset for the Python metrics, which read them back in.
 
   Currently precomputed:
   - functional_marker_preservation: biological groups, the (marker, cell_type)
@@ -13,12 +14,8 @@ description: |
     results on the unintegrated data.
 
 arguments:
-  - name: "--input_unintegrated"
-    __merge__: /src/api/file_unintegrated.yaml
-    direction: input
-    required: true
   - name: "--output"
-    __merge__: /src/api/file_precomputed_metric_info.yaml
+    __merge__: /src/api/file_precomputed_python_metric.yaml
     direction: output
     required: true
 resources:
@@ -26,11 +23,6 @@ resources:
     path: script.py
   - path: /src/metrics/functional_marker_preservation/helper.py
   - path: /src/utils/helper_functions.py
-test_resources:
-  - type: python_script
-    path: /common/component_tests/run_and_check_output.py
-  - path: /resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset
-    dest: resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset
 engines:
   - type: docker
     image: openproblems/base_python:1

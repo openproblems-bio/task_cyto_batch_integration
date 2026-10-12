@@ -1,10 +1,10 @@
 type: file
-example: "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/precomputed_metric_info.h5ad"
-label: Precomputed metric info
-summary: Some precomputed results from unintegrated data that some metrics can reuse.
+example: "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/precomputed_python_metric.h5ad"
+label: Precomputed Python metric
+summary: Some precomputed results from unintegrated data that some Python metrics can reuse.
 description: |
   An AnnData containing precomputed results from unintegrated data that
-  are used by some metrics. They are stored in the `uns` slot:
+  are used by some Python metrics. They are stored in the `uns` slot:
     - functional_marker_preservation: biological groups, the (marker, cell_type)
       pairs significant in both batches, and the per-batch Wilcoxon and Cohen's d
       results on the unintegrated data.

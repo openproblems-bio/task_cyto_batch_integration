@@ -10,9 +10,9 @@ The script discovers method outputs under:
 and writes metric outputs to:
     <output-dir>/<dataset>/<metric>_<method>.h5ad
 
-Before running the metric for a dataset, it runs precompute_metrics_info on the
+Before running the metric for a dataset, it runs precompute_python_metric on the
 unintegrated data and writes the result to:
-    <output-dir>/<dataset>/precomputed_metric_info.h5ad
+    <output-dir>/<dataset>/precomputed_python_metric.h5ad
 
 It works by replacing the ## VIASH START...END block in each script with
 the correct par/meta values and running the result in a subprocess. This means
@@ -59,7 +59,7 @@ def find_repo_root(start: Path) -> Path:
 
 
 REPO_ROOT = find_repo_root(Path(__file__).resolve().parent)
-PRECOMPUTE_SCRIPT = REPO_ROOT / "src" / "data_processors" / "precompute_metrics_info" / "script.py"
+PRECOMPUTE_SCRIPT = REPO_ROOT / "src" / "data_processors" / "precompute_python_metric" / "script.py"
 
 
 def find_method_splits(input_dir: Path, dataset: str, method: str):
@@ -257,21 +257,21 @@ def main():
             continue
 
         # Some metrics read results precomputed on the unintegrated data. In the
-        # pipeline the precompute_metrics_info component makes this file once per
+        # pipeline the precompute_python_metric component makes this file once per
         # dataset, so do the same here before looping over methods.
-        precomputed_metric_info = output_dir / dataset / "precomputed_metric_info.h5ad"
-        if args.skip_existing and precomputed_metric_info.exists():
-            print(f"  Precomputed metric info exists: {precomputed_metric_info}", flush=True)
+        precomputed_python_metric = output_dir / dataset / "precomputed_python_metric.h5ad"
+        if args.skip_existing and precomputed_python_metric.exists():
+            print(f"  Precomputed Python metric exists: {precomputed_python_metric}", flush=True)
         else:
-            print(f"  Precomputing metric info: {precomputed_metric_info}", flush=True)
-            precomputed_metric_info.parent.mkdir(parents=True, exist_ok=True)
+            print(f"  Precomputing Python metric: {precomputed_python_metric}", flush=True)
+            precomputed_python_metric.parent.mkdir(parents=True, exist_ok=True)
             run_script(
                 PRECOMPUTE_SCRIPT,
                 par={
                     "input_unintegrated": str(unintegrated),
-                    "output": str(precomputed_metric_info),
+                    "output": str(precomputed_python_metric),
                 },
-                # precompute_metrics_info imports helper.py from each metric it
+                # precompute_python_metric imports helper.py from each metric it
                 # precomputes for.
                 import_dirs=[REPO_ROOT / "src" / "metrics" / "functional_marker_preservation"],
             )
@@ -313,7 +313,7 @@ def main():
                 "input_unintegrated": str(unintegrated),
                 "input_integrated_split1": str(split1),
                 "input_integrated_split2": str(split2),
-                "input_precomputed_metric_info": str(precomputed_metric_info),
+                "input_precomputed_python_metric": str(precomputed_python_metric),
                 "output": str(output_path),
             }
 

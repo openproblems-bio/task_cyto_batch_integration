@@ -5,10 +5,10 @@ import anndata as ad
 ## VIASH START
 par = {
     "input_unintegrated": "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/unintegrated.h5ad",
-    "output": "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/precomputed_metric_info.h5ad",
+    "output": "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/precomputed_python_metric.h5ad",
 }
 meta = {
-    "name": "precompute_metrics_info",
+    "name": "precompute_python_metric",
     "resources_dir": "src/utils",
 }
 sys.path.append("src/metrics/functional_marker_preservation")

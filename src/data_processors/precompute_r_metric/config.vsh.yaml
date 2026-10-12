@@ -1,0 +1,40 @@
+__merge__: ../../api/comp_precompute.yaml
+
+name: precompute_r_metric
+label: Precompute R metric
+summary: Precompute results on the unintegrated data that R metrics reuse.
+description: |
+  Some metrics compare each integrated output against results computed on the
+  unintegrated data. Those results don't depend on the method, so this component
+  computes them once per dataset for the R metrics, which read them back in.
+
+  Currently precomputed:
+  - abundance_preservation: clusters each batch separately with FlowSOM
+    (lineage markers only) and computes MEM scores per cluster, tests which
+    clusters are differentially abundant between the two groups within each
+    batch, matches batch 1 clusters to batch 2 clusters by MEM RMSD similarity,
+    and keeps the batch 1 clusters that are mutually matched and differentially
+    abundant in both batches.
+
+arguments:
+  - name: "--output"
+    __merge__: /src/api/file_precomputed_r_metric.yaml
+    direction: output
+    required: true
+resources:
+  - type: r_script
+    path: script.R
+  - path: /src/metrics/abundance_preservation/helper.R
+  - path: /src/utils/helper_functions.R
+engines:
+  - type: docker
+    image: openproblems/base_r:1
+    setup:
+      - type: r
+        bioc: [FlowSOM, flowCore]
+        packages: [ dplyr, docstring, rlang, vctrs, lifecycle ]
+runners:
+  - type: executable
+  - type: nextflow
+    directives:
+      label: [midtime, midmem, midcpu]

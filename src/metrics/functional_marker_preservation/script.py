@@ -11,7 +11,7 @@ par = {
     "input_unintegrated": "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/unintegrated.h5ad",
     "input_integrated_split1": "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/integrated_split1.h5ad",
     "input_integrated_split2": "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/integrated_split2.h5ad",
-    "input_precomputed_metric_info": "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/precomputed_metric_info.h5ad",
+    "input_precomputed_python_metric": "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/precomputed_python_metric.h5ad",
     "output": "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/functional_marker_preservation.h5ad",
 }
 meta = {
@@ -54,7 +54,7 @@ integrated_s2 = integrated_s2[
     :, integrated_s2.var["marker_type"] == "functional"
 ].copy()
 
-precomputed = ad.read_h5ad(par["input_precomputed_metric_info"]).uns[
+precomputed = ad.read_h5ad(par["input_precomputed_python_metric"]).uns[
     "functional_marker_preservation"
 ]
 
@@ -121,7 +121,7 @@ print(f"Wilcoxon metric: {wilcoxon_metric}", flush=True)
 
 # ── Cohen's d metric ─────────────────────────────────────────────────────────
 # Ground truth: Cohen's d computed per batch from unintegrated, then averaged across
-# batches (precomputed by precompute_metrics_info).
+# batches (precomputed by precompute_python_metric).
 # Integrated: Cohen's d computed per split (batch-agnostic). Each split is compared
 # individually to the ground truth — abs() is taken before averaging so that opposite-
 # direction errors in split 1 and split 2 cannot cancel each other out.

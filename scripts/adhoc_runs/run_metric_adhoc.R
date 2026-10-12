@@ -10,7 +10,11 @@
 # and writes metric outputs to:
 #     <output-dir>/<dataset>/<metric>_<method>.h5ad
 #
-# It works by replacing the ## VIASH START...END block in the metric script
+# Before running the metric for a dataset, it runs precompute_r_metric on the
+# unintegrated data and writes the result to:
+#     <output-dir>/<dataset>/precomputed_r_metric.h5ad
+#
+# It works by replacing the ## VIASH START...END block in each script
 # with the correct par/meta values and running the result in a subprocess.
 # This means any R metric in src/metrics/ can be run ad-hoc with this script.
 # (This is the R counterpart to run_metric_adhoc.py, for Python metrics.)
@@ -61,6 +65,7 @@ find_repo_root <- function(start_dir) {
 }
 
 REPO_ROOT <- find_repo_root(get_script_dir())
+PRECOMPUTE_SCRIPT <- file.path(REPO_ROOT, "src", "data_processors", "precompute_r_metric", "script.R")
 
 
 #' Locate the split1 and split2 output files for a (dataset, method) pair.
@@ -101,27 +106,23 @@ r_list_literal <- function(named_list) {
 }
 
 
-#' Inject par/meta into the metric script and execute it in a subprocess.
+#' Inject par/meta into a Viash script and execute it in a subprocess.
 #'
-#' The ## VIASH START...END block in script.R is replaced with the provided
-#' par and meta values. meta$resources_dir is set to the metric's own source
-#' directory (src/metrics/<metric>/): this is where helper.R already lives,
-#' and it's where a real viash build would also place the shared
-#' helper_functions.R (viash copies every declared resource into one flat
-#' directory). Since this script runs script.R directly rather than through a
-#' real build, the shared helper is temporarily copied in next to helper.R
-#' for the duration of the run, then removed again.
-run_metric <- function(metric_name, par) {
-  script_path <- file.path(REPO_ROOT, "src", "metrics", metric_name, "script.R")
-  if (!file.exists(script_path)) {
-    stop(sprintf(
-      "Metric script not found: %s\nCheck that '%s' is a valid metric under src/metrics/.",
-      script_path, metric_name
-    ))
-  }
-  metric_dir <- dirname(script_path)
+#' The ## VIASH START...END block in the script is replaced with the provided
+#' par and meta values. meta$resources_dir is set to resources_dir: the
+#' directory holding the helper.R the script sources. A real viash build
+#' copies every declared resource into one flat directory, including the
+#' shared helper_functions.R. Since this script runs the script directly
+#' rather than through a real build, the shared helper is temporarily copied
+#' in next to helper.R for the duration of the run, then removed again.
+#'
+#' @param script_path path to the script.R to run
+#' @param par named list of arguments for the script
+#' @param resources_dir directory containing the helper.R the script sources
+run_script <- function(script_path, par, resources_dir) {
+  script_dir <- dirname(script_path)
 
-  meta <- list(name = metric_name, resources_dir = metric_dir)
+  meta <- list(name = basename(script_dir), resources_dir = resources_dir)
   injected_block <- paste0(
     "## VIASH START\n",
     "par <- ", r_list_literal(par), "\n",
@@ -142,13 +143,13 @@ run_metric <- function(metric_name, par) {
   )
 
   shared_helper_src <- file.path(REPO_ROOT, "src", "utils", "helper_functions.R")
-  shared_helper_dst <- file.path(metric_dir, "helper_functions.R")
+  shared_helper_dst <- file.path(resources_dir, "helper_functions.R")
   shared_helper_existed <- file.exists(shared_helper_dst)
   if (!shared_helper_existed && file.exists(shared_helper_src)) {
     file.copy(shared_helper_src, shared_helper_dst)
   }
 
-  temp_script <- tempfile(pattern = "adhoc_", tmpdir = metric_dir, fileext = ".R")
+  temp_script <- tempfile(pattern = "adhoc_", tmpdir = script_dir, fileext = ".R")
   writeLines(patched, temp_script)
 
   on.exit({
@@ -158,7 +159,7 @@ run_metric <- function(metric_name, par) {
 
   exit_code <- system2("Rscript", shQuote(temp_script))
   if (exit_code != 0) {
-    stop(sprintf("Metric run failed (exit code %s): %s", exit_code, metric_name))
+    stop(sprintf("Run failed (exit code %s): %s", exit_code, script_path))
   }
 }
 
@@ -224,6 +225,14 @@ main <- function() {
   datasets_dir <- normalizePath(args$datasets_dir, mustWork = TRUE)
   output_dir <- normalizePath(args$output_dir, mustWork = FALSE)
 
+  metric_script <- file.path(REPO_ROOT, "src", "metrics", args$metric, "script.R")
+  if (!file.exists(metric_script)) {
+    stop(sprintf(
+      "Metric script not found: %s\nCheck that '%s' is a valid metric under src/metrics/.",
+      metric_script, args$metric
+    ))
+  }
+
   # --datasets restricts the run to an explicit list; otherwise fall back to
   # every subdirectory of input_dir, since each dataset is expected to have
   # its own top-level folder there (<input-dir>/<dataset>/method_out/...).
@@ -245,6 +254,26 @@ main <- function() {
     if (!file.exists(unintegrated)) {
       cat(sprintf("  Unintegrated file not found: %s, skipping.\n", unintegrated))
       next
+    }
+
+    # Some metrics read results precomputed on the unintegrated data. In the
+    # pipeline the precompute_r_metric component makes this file once per
+    # dataset, so do the same here before looping over methods.
+    precomputed_r_metric <- file.path(output_dir, dataset, "precomputed_r_metric.h5ad")
+    if (args$skip_existing && file.exists(precomputed_r_metric)) {
+      cat(sprintf("  Precomputed R metric exists: %s\n", precomputed_r_metric))
+    } else {
+      cat(sprintf("  Precomputing R metric: %s\n", precomputed_r_metric))
+      dir.create(dirname(precomputed_r_metric), recursive = TRUE, showWarnings = FALSE)
+      run_script(
+        PRECOMPUTE_SCRIPT,
+        par = list(
+          input_unintegrated = unintegrated,
+          output = precomputed_r_metric
+        ),
+        # precompute_r_metric sources helper.R from each metric it precomputes for.
+        resources_dir = file.path(REPO_ROOT, "src", "metrics", "abundance_preservation")
+      )
     }
 
     # --methods restricts to an explicit list; otherwise discover every
@@ -275,17 +304,18 @@ main <- function() {
 
       dir.create(dirname(output_path), recursive = TRUE, showWarnings = FALSE)
 
-      # These four keys are exactly what every metric's VIASH par block
-      # expects (see any src/metrics/*/script.R).
+      # These keys are the metric API arguments the R metrics use (see
+      # src/api/comp_metric.yaml).
       par <- list(
         input_unintegrated = unintegrated,
         input_integrated_split1 = splits$split1,
         input_integrated_split2 = splits$split2,
+        input_precomputed_r_metric = precomputed_r_metric,
         output = output_path
       )
 
       cat(sprintf("    Output: %s\n", output_path))
-      run_metric(args$metric, par)
+      run_script(metric_script, par, resources_dir = dirname(metric_script))
       cat("    Done.\n")
     }
   }
