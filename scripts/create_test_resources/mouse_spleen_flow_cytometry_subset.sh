@@ -55,6 +55,11 @@ viash run src/data_processors/process_dataset/config.vsh.yaml -- \
   --output_censored_split1 $DATASET_DIR/censored_split1.h5ad \
   --output_censored_split2 $DATASET_DIR/censored_split2.h5ad
 
+# precompute the unintegrated results that metrics reuse
+viash run src/data_processors/precompute_metrics_info/config.vsh.yaml -- \
+  --input_unintegrated $DATASET_DIR/unintegrated.h5ad \
+  --output $DATASET_DIR/precomputed_metric_info.h5ad
+
 # run one method
 viash run src/methods/harmonypy/config.vsh.yaml -- \
   --input $DATASET_DIR/censored_split1.h5ad \
@@ -78,6 +83,7 @@ id: $DATASET_ID
 unintegrated: !file unintegrated.h5ad
 censored_split1: !file censored_split1.h5ad
 censored_split2: !file censored_split2.h5ad
+precomputed_metric_info: !file precomputed_metric_info.h5ad
 integrated_split1: !file integrated_split1.h5ad
 integrated_split2: !file integrated_split2.h5ad
 score: !file score.h5ad

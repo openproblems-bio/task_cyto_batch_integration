@@ -82,6 +82,7 @@ resources:
 dependencies:
   - name: utils/extract_uns_metadata
     repository: op
+  - name: data_processors/precompute_metrics_info
   - name: control_methods/shuffle_integration_globally
   - name: control_methods/no_integration
   - name: control_methods/perfect_integration

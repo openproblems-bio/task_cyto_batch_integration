@@ -70,6 +70,12 @@ workflow run_wf {
       }
     )
 
+    // precompute metric inputs that only depend on the unintegrated data, once per dataset
+    | precompute_metrics_info.run(
+      fromState: [input_unintegrated: "input_unintegrated"],
+      toState: [precomputed_metric_info: "output"]
+    )
+
   /***************************
    * RUN METHODS AND METRICS *
    ***************************/
@@ -188,7 +194,8 @@ workflow run_wf {
       fromState: [
         input_unintegrated: "input_unintegrated",
         input_integrated_split1: "integrated_split1", 
-        input_integrated_split2: "integrated_split2"
+        input_integrated_split2: "integrated_split2",
+        input_precomputed_metric_info: "precomputed_metric_info"
       ],
       // use 'toState' to publish that component's outputs to the overall state
       toState: { id, output, state, comp ->
