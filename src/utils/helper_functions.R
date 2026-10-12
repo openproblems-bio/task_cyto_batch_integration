@@ -150,3 +150,25 @@ remove_unlabelled <- function(adata) {
         c("unlabelled", "unlabeled")
     adata[!is_unlabelled, ]
 }
+
+#' Read the FlowSOM parameters stored in the unintegrated dataset.
+#'
+#' @param adata AnnData object
+#' @return list with `n_clusters` and the SOM grid size `xdim`, `ydim`
+#' 
+get_flowsom_parameters <- function(adata) {
+  list(
+    n_clusters = adata$uns$parameter_num_clusters,
+    xdim = adata$uns$parameter_som_xdim,
+    ydim = adata$uns$parameter_som_ydim
+  )
+}
+
+#' Get the lineage markers from the anndata object.
+#' 
+#' @param adata AnnData object
+#' @return character vector of lineage marker names
+#' 
+get_lineage_markers <- function(adata) {
+    return(rownames(adata$var)[adata$var$marker_type == "lineage"])
+}

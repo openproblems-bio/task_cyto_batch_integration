@@ -16,48 +16,42 @@ meta <- list(
 )
 ## VIASH END
 
-source(paste0(meta$resources_dir, "/helper.R"))
 source(paste0(meta$resources_dir, "/helper_functions.R"))
+source(paste0(meta$resources_dir, "/helper.R"))
 
-# With only a handful of samples per group per batch, the smallest two-sided
-# Wilcoxon p-value that can ever be reached is around 0.1, so that is the
-# threshold used to call a difference "significant" (same rationale as the
-# functional_marker_preservation metric).
 SIGNIFICANCE_THRESHOLD <- 0.1
 
 print("Reading input files\n")
-# Keep a raw, untouched copy of the unintegrated data: get_obs_var_for_integrated
-# matches cells by name against it, so it must still contain every cell that
-# is present in the freshly-read integrated splits (controls included).
-unintegrated_raw <- anndata::read_h5ad(par[["input_unintegrated"]])
+
+unintegrated <- anndata::read_h5ad(par[["input_unintegrated"]])
 
 integrated_s1 <- anndata::read_h5ad(par[["input_integrated_split1"]]) |>
-  get_obs_var_for_integrated(u_adata = unintegrated_raw, split_id = 1) |>
+  get_obs_var_for_integrated(u_adata = unintegrated, split_id = 1) |>
   subset_markers_tocorrect() |>
   subset_nocontrols()
 
 integrated_s2 <- anndata::read_h5ad(par[["input_integrated_split2"]]) |>
-  get_obs_var_for_integrated(u_adata = unintegrated_raw, split_id = 2) |>
+  get_obs_var_for_integrated(u_adata = unintegrated, split_id = 2) |>
   subset_markers_tocorrect() |>
   subset_nocontrols()
 
-unintegrated <- unintegrated_raw |> subset_nocontrols()
+print("Subsetting unintegrated data to remove control samples\n")
+unintegrated <- unintegrated |> subset_nocontrols()
 
 print("Setting parameters\n")
 
-# flowsom parameters
-fsom_param <- get_flowsom_parameters(unintegrated_raw)
+fsom_param <- get_flowsom_parameters(unintegrated)
 
 # dataset specific parameters
 dataset_param <- get_dataset_parameters(unintegrated)
 
 print("Cluster each unintegrated batch separately and compute MEM scores\n")
-# Each batch is clustered on its own, so it is split off into its own AnnData
-# first - a cluster's MEM score is relative to the other cells it was
-# clustered alongside, which here should only ever be cells from the same batch.
+# cluster each batch separately and compute MEM scores
+
 unintegrated_b1 <- unintegrated[unintegrated$obs$batch == dataset_param$batch_1, ]$copy()
 unintegrated_b2 <- unintegrated[unintegrated$obs$batch == dataset_param$batch_2, ]$copy()
 
+print("Clustering and computing MEM scores for batch 1\n")
 clustering_b1 <- cluster_and_calculate_mem(
   adata = unintegrated_b1,
   layer_name = "preprocessed",

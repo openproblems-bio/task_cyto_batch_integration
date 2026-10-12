@@ -1,35 +1,10 @@
 library(FlowSOM)
 library(flowCore)
 
-# Functions are declared in the order script.R reaches them. Where a function
-# is only ever called by another one in here, it sits directly above its caller.
-
-
-#' Read the FlowSOM settings the dataset was published with.
+#' Read the dataset-specific parameters used by the metric:
+#' lineage markers, groups, and batches.
 #'
-#' Every component clusters with the same grid size and metacluster count, so
-#' the numbers live in the dataset's uns rather than being hardcoded here.
-#'
-#' @param adata AnnData object, the unintegrated dataset
-#' @return list with `n_clusters` and the SOM grid size `xdim`, `ydim`
-#' 
-get_flowsom_parameters <- function(adata) {
-  list(
-    n_clusters = adata$uns$parameter_num_clusters,
-    xdim = adata$uns$parameter_som_xdim,
-    ydim = adata$uns$parameter_som_ydim
-  )
-}
-
-
-#' Read the dataset-specific settings the metric is run with: the markers to
-#' cluster on, the two biological groups being compared, and the two batches.
-#'
-#' Batch 1 is the batch that supplies the reference clusters and batch 2 is the
-#' one used to confirm them; which is which is just the sort order of the batch
-#' labels, so the choice is at least stable across runs.
-#'
-#' @param adata AnnData object, the unintegrated dataset with controls removed
+#' @param adata AnnData object storing unintegrated data.
 #' @return list with `lineage_markers`, `group_a`, `group_b`, `batch_1` and `batch_2`
 #' 
 get_dataset_parameters <- function(adata) {
@@ -37,7 +12,7 @@ get_dataset_parameters <- function(adata) {
   batches <- sort(unique(adata$obs$batch))
 
   list(
-    lineage_markers = rownames(adata$var)[adata$var$marker_type == "lineage"],
+    lineage_markers = get_lineage_markers(adata),
     group_a = groups[1],
     group_b = groups[2],
     batch_1 = batches[1],
@@ -48,67 +23,88 @@ get_dataset_parameters <- function(adata) {
 
 #' Compute MEM scores for a set of clusters.
 #'
-#' Reimplements the MEM algorithm (Diggins et al. 2017, Nature Methods; see
-#' https://github.com/cytolab/cytoMEM, MEM_function.R) as the original R
-#' code is too rigid in what it produces and how it is called..
+#' Reimplementation of MEM_function.R in https://github.com/cytolab/cytoMEM.
+#' The original implementation is not modular enough to extract what just
+#' what we need. 
+#' See the test scripts in `tests` folder to verify that this implementation 
+#' produces the same results as the original.
+#' The implementation here assumes that the "reference" used to compute MEM
+#' for a given cluster is EVERY CELLS that are not in the cluster.
+#' For example, for cluster 1, the reference is every cell that is NOT in cluster 1.
 #' 
-#'
+#' There are different ways of specifying the reference. It can either be cells
+#' that are not in the cluster, it can be a specific set of cells, or 0 
+#' (zero.ref in original mem implementation).
+#' Using the default of "not in the cluster" probably makes the most sense for us
+#' because the score then reflects the score of a marker relative to others
+#' not in the cluster (i.e., how much higher or lower it is compared to others).
+#' If using zero.ref, the score is then the absolute median expression of the cluster
+#' which may look good on the surface, but is more prone to be impacted by
+#' batch effects if differences in batches are mainly shifting in marker expression.
+#' However, this is not saying the default is not impacted by batch effects, especially
+#' the complex one, but we at least eliminate one simpler case.
+#' 
 #' @param expr_matrix matrix of cell by marker expression
-#' @param cluster_id_per_cell character vector giving the cluster id of each row of
-#'   `expr_matrix`, so it has one entry per cell and is in the same order as the
-#'   rows. Every cluster it names gets a MEM score row.
+#' @param cluster_id_per_cell character vector indicating the cluster id of 
+#'   each row of `expr_matrix`
 #' @param iqr_thresh numeric floor applied to per-cluster IQRs to avoid
-#'   divide-by-zero (default 0.5, matching the reference implementation).
-#' @return mem score matrix of clusters x markers where each row is a cluster
-#' and each column is a marker. Values are the MEM score of that marker in that cluster.
+#'   divide-by-zero (default 0.5, matching the original MEM implementation).
+#'   The way this is used is, any cluster (or reference) with IQR < iqr_thresh 
+#'   is floored to iqr_thresh before being used in the MEM calculation.
 #' 
-compute_mem_matrix <- function(expr_matrix, cluster_id_per_cell, iqr_thresh = 0.5) {
+#' @return mem score matrix of clusters x markers where each row is a cluster
+#' and each column is a marker.
+#' 
+compute_mem_matrix <- function(
+  expr_matrix, 
+  cluster_id_per_cell, 
+  iqr_thresh = 0.5
+) {
   cluster_id_per_cell <- as.character(cluster_id_per_cell)
   clusters <- sort(unique(cluster_id_per_cell))
   markers <- colnames(expr_matrix)
 
-  # note, MAG stands for the marker's magnitude, which is the absolute median expression 
-  # of a marker in the cluster or reference.
-  # for this implementation, ref is essentially anything else that is not in the cluster.
-  # so if you have 0-10 clusters, for cluster 1, ref will be whatever that is
-  # NOT in cluster 1.
-  # these variables below, are just for storing the absolute median (mag) and IQR values, 
-  # not for any calculations.
+  # initialise the matrix for storing intermediate calculations we need.
+  # mag stands for "magnitude", which in this case is the absolute median 
+  # expression of a marker for a cluster or reference (all other cells not in the cluster).
   mag_cluster <- matrix(
     nrow = length(clusters), ncol = length(markers),
     dimnames = list(clusters, markers)
   )
-  mag_ref <- mag_cluster
   iqr_cluster <- mag_cluster
+  
+  # here, each row stores mag of a marker computed using all cells that are 
+  # NOT in the cluster (the reference).
+  mag_ref <- mag_cluster
   iqr_ref <- mag_cluster
 
-  # MEM calls this the marker's "magnitude": the absolute median expression,
-  # measured once within the cluster and once over every other cell.
   for (cluster in clusters) {
-    # to get expr matrix for each cluster.
-    in_cluster_mask <- cluster_id_per_cell == cluster
+    cell_in_cluster <- cluster_id_per_cell == cluster
 
-    mag_cluster[cluster, ] <- abs(apply(expr_matrix[in_cluster_mask, ], 2, median, na.rm = TRUE))
-    iqr_cluster[cluster, ] <- apply(expr_matrix[in_cluster_mask, ], 2, IQR, na.rm = TRUE)
+    # IQR here is the difference the third and the first quartile.
+    mag_cluster[cluster, ] <- abs(apply(expr_matrix[cell_in_cluster, ], 2, median, na.rm = TRUE))
+    iqr_cluster[cluster, ] <- apply(expr_matrix[cell_in_cluster, ], 2, IQR, na.rm = TRUE)
 
-    mag_ref[cluster, ] <- abs(apply(expr_matrix[!in_cluster_mask, ], 2, median, na.rm = TRUE))
-    iqr_ref[cluster, ] <- apply(expr_matrix[!in_cluster_mask, ], 2, IQR, na.rm = TRUE)
+    mag_ref[cluster, ] <- abs(apply(expr_matrix[!cell_in_cluster, ], 2, median, na.rm = TRUE))
+    iqr_ref[cluster, ] <- apply(expr_matrix[!cell_in_cluster, ], 2, IQR, na.rm = TRUE)
   }
 
-  # Floor the IQRs so a cluster with (near-)zero spread doesn't blow up the ratio below.
+  # Floor the IQRs so a cluster with zero IQR does not result in error when we
+  # when we use it as a denominator in the MEM calculation. 
+  # Note, the flooring is in mem implementation, see line 157 of 
+  # https://github.com/cytolab/MEM-examples/blob/master/R/MEM_function.R.
+
   iqr_cluster[iqr_cluster < iqr_thresh] <- iqr_thresh
   iqr_ref[iqr_ref < iqr_thresh] <- iqr_thresh
 
-  # MEM original implementation has this iqr_ratio term which i think
-  # act like a penalty for how spread out the IQR of the cluster is.
-  # This iqr_ratio is added after calculation the difference in MAG beftween
-  # cluster and reference.
-  # I think, if the cluster is very tight, the term will be large and positive.
-  # Why positive? Because the iqr_ref / iqr_cluster will be > 1, so subtracting 1 will remain positive.
-  # If the cluster is very spread out, ratio will be small, and if the spread in
-  # cluster is larger than the spread in the reference, the ratio will be < 1, and 
-  # subtracting 1 will make it negative.
-  # Note, the flooring is in mem implementation, see line 157 of https://github.com/cytolab/MEM-examples/blob/master/R/MEM_function.R.
+  # MEM original implementation has this iqr_ratio term 
+  # (stored as IQRcomp in line 155-157 of https://github.com/cytolab/MEM-examples/blob/master/R/MEM_function.R)
+  # which i think act like a penalty for how spread out the IQR of the cluster is.
+  # I think, if the cluster is tighter than the reference, 
+  # the term will be positive because the ratio will be > 1 and subtracting by 1
+  # will make the ratio remain positive. 
+  # If the cluster is more spread out than the reference, the ratio will be
+  # negative because the ratio will be < 1 and subtracting by 1 will make it negative.
 
   iqr_ratio <- (iqr_ref / iqr_cluster) - 1
   iqr_ratio[iqr_ratio < 0] <- 0
@@ -133,18 +129,23 @@ compute_mem_matrix <- function(expr_matrix, cluster_id_per_cell, iqr_thresh = 0.
 
 #' Cluster and compute MEM scores
 #' 
-#' Cluster data with FlowSOM and find the MEM scores of each cluster.
+#' Cluster data with FlowSOM and calculate the MEM scores of each cluster.
 #'
-#' @param adata AnnData object storing just the cells to cluster.
-#' @param layer_name layer to cluster and score on ("preprocessed" or "integrated")
+#' @param adata AnnData object
+#' @param layer_name layer to cluster and score on
 #' @param lineage_markers markers to cluster and score the clusters on
 #' @param fsom_param list of FlowSOM settings, see get_flowsom_parameters()
-#' @param label_prefix string prepended to the metacluster number, so cluster
-#'   names stay distinguishable once clusters from different batches/splits
-#'   are compared side by side
+#' @param label_prefix string prepended to the metacluster number.
+#'   Set this to a label such that clusters from different batches or splits
+#'   can be distinguished from one another. For example, if the clusters are 
+#'   from batch 1, set label_prefix = "batch1_c". 
 #' @param return_fsom_object whether to return the FlowSOM object as well (default FALSE)
-#' @return list with `cluster_id_per_cell` (cluster id of each cell, in the order
-#'   the cells appear in `adata`) and `mem` (cluster x marker MEM score matrix)
+#' @return list with:
+#'  `cluster_id_per_cell` (cluster id of each cell, in the order
+#'   the cells appear in `adata`),
+#'  `mem` (cluster x marker MEM score matrix),
+#'  and optionally `fsom_obj` (the FlowSOM object, if `return_fsom_object` is TRUE)
+#' 
 #' 
 cluster_and_calculate_mem <- function(
   adata,
@@ -154,28 +155,33 @@ cluster_and_calculate_mem <- function(
   label_prefix,
   return_fsom_object = FALSE
 ) {
-  # The layer comes out of AnnData without column names, so the markers have to
-  # be named from var before they can be picked out.
+  
   expr <- adata$layers[[layer_name]]
   colnames(expr) <- rownames(adata$var)
   expr <- expr[, lineage_markers]
 
-  fsom <- FlowSOM(
-    flowCore::flowFrame(expr),
+  print("Clustering with FlowSOM\n")
+
+  fsom <- FlowSOM::FlowSOM(
+    expr,
     colsToUse = colnames(expr),
     nClus = fsom_param$n_clusters,
     xdim = fsom_param$xdim,
     ydim = fsom_param$ydim,
-    seed = 42
+    seed = 42,
+    silent = FALSE
   )
-  cluster_id_per_cell <- paste0(label_prefix, GetMetaclusters(fsom))
+  cluster_id_per_cell <- paste0(label_prefix, FlowSOM::GetMetaclusters(fsom))
+
+  print("Calculating MEM scores\n")
+  mem_score <- compute_mem_matrix(
+    expr_matrix = expr,
+    cluster_id_per_cell = cluster_id_per_cell
+  )
 
   res <- list(
     cluster_id_per_cell = cluster_id_per_cell,
-    mem = compute_mem_matrix(
-      expr_matrix = expr,
-      cluster_id_per_cell = cluster_id_per_cell
-    )
+    mem = mem_score
   )
   if (return_fsom_object) {
     res$fsom_obj <- fsom
@@ -250,18 +256,22 @@ test_differential_abundance <- function(
     group = as.character(group_id_per_cell),
     stringsAsFactors = FALSE
   ))
+
+  # this is just so we can get the group label for each sample
   sample_prop_per_cluster <- merge(
     sample_prop_per_cluster, 
     sample_group_map, 
     by = "sample"
   )
 
+  print("Testing differential abundance with Wilcoxon rank-sum test\n")
   pvals <- sapply(clusters_to_test, function(cluster) {
-    is_group_a <- sample_prop_per_cluster$group == group_a
-    is_group_b <- sample_prop_per_cluster$group == group_b
-
-    vals_a <- sample_prop_per_cluster$proportion[sample_prop_per_cluster$cluster == cluster & is_group_a]
-    vals_b <- sample_prop_per_cluster$proportion[sample_prop_per_cluster$cluster == cluster & is_group_b]
+    vals_a <- sample_prop_per_cluster$proportion[
+      sample_prop_per_cluster$cluster == cluster & sample_prop_per_cluster$group == group_a
+    ]
+    vals_b <- sample_prop_per_cluster$proportion[
+      sample_prop_per_cluster$cluster == cluster & sample_prop_per_cluster$group == group_b
+    ]
 
     wilcox_test_res <- suppressWarnings(wilcox.test(vals_a, vals_b, alternative = "two.sided"))
     wilcox_test_res$p.value
@@ -311,7 +321,8 @@ compute_mem_rmsd <- function(mem_a, mem_b) {
 #' 
 #' The best match here is defined as the cluster with the highest MEM RMSD similarity score.
 #' 
-#' @param mem_a,mem_b cluster x marker MEM matrices for two clusterings.
+#' @param mem_a cluster x marker MEM matrix for a clustering.
+#' @param mem_b cluster x marker MEM matrix for a clustering
 #' 
 #' @return list with `pairs` (data frame with one row per cluster in mem_a:
 #'   cluster_a, best_match_b, best_match_b_matching_a, is_mutual) and
@@ -332,8 +343,8 @@ find_cluster_match <- function(mem_a, mem_b) {
     clusters_a[which.max(similarity_matrix[, cluster_b])]
   })
 
-  is_cluster_a_best_match_mutual <- sapply(seq_len(length(clusters_a)), function(cluster_a_idx) {
-    cluster_a <- clusters_a[cluster_a_idx]
+  # checking whether for each cluster in A, its best match in B is also best matched back to it in A.
+  is_cluster_a_best_match_mutual <- sapply(clusters_a, function(cluster_a) {
     matching_cluster_b <- clusters_a_best_match[cluster_a]
 
     # what is the best matching cluster A for that cluster B (matching_cluster_b)?
@@ -429,42 +440,41 @@ process_integrated_split <- function(
   # mean that its nearest cluster in b2 is cluster 2. 
   # so keep it simple, just compare with b1.
   # note, mem_rmsd_for_clusters is a list. 
-  # nearest slot is the one that store the name of the nearest cluster in b1.
-  # similarity slot is the similarity matrix between integrated split clusters and b1 clusters.
+  
   mem_rmsd_for_clusters <- find_nearest_by_mem(
     mem_query = clustering$mem, 
     mem_reference = b1_mem
   )
 
   # keep only those which b1 clusters are found to be DA and are mutually matched
-  nearest_clusters_in_b1 <- mem_rmsd_for_clusters$nearest
+  nearest_b1_clusters <- mem_rmsd_for_clusters$nearest
   # note, names are the integrated split clusters, and values are the nearest b1 clusters.
-  nearest_clusters_in_b1 <- nearest_clusters_in_b1[nearest_clusters_in_b1 %in% retained_cluster_b1]
+  nearest_b1_clusters <- nearest_b1_clusters[nearest_b1_clusters %in% retained_cluster_b1]
  
   # prepare the dataframe for DA
-  cell_df_for_da <- data.frame(
+  cell_metadata_for_da <- data.frame(
     cluster_id_per_cell = clustering$cluster_id_per_cell,
     sample_id_per_cell = adata$obs$sample,
     group_id_per_cell = adata$obs$group,
     stringsAsFactors = FALSE
   )
   # add the mapped b1
-  cell_df_for_da$mapped_b1_cluster <- nearest_clusters_in_b1[cell_df_for_da$cluster_id_per_cell]
+  cell_metadata_for_da$mapped_b1_cluster <- nearest_b1_clusters[cell_metadata_for_da$cluster_id_per_cell]
   # Cells in a cluster that did not map to a retained b1 cluster are not tested,
   # but they still belong to their sample, so they need a label. Left as NA they
   # would be dropped by table(). Hence call them "unmatched".
-  cell_df_for_da$mapped_b1_cluster[is.na(cell_df_for_da$mapped_b1_cluster)] <- "unmatched"
+  cell_metadata_for_da$mapped_b1_cluster[is.na(cell_metadata_for_da$mapped_b1_cluster)] <- "unmatched"
 
   # Cells are pooled by the b1 cluster they mapped to, so that is what gets
   # tested - one test per retained b1 cluster, not one per split cluster.
   abundance <- test_differential_abundance(
-    cluster_id_per_cell = cell_df_for_da$mapped_b1_cluster,
-    sample_id_per_cell = cell_df_for_da$sample_id_per_cell,
-    group_id_per_cell = cell_df_for_da$group_id_per_cell,
+    cluster_id_per_cell = cell_metadata_for_da$mapped_b1_cluster,
+    sample_id_per_cell = cell_metadata_for_da$sample_id_per_cell,
+    group_id_per_cell = cell_metadata_for_da$group_id_per_cell,
     group_a = dataset_param$group_a,
     group_b = dataset_param$group_b,
     significance_threshold = significance_threshold,
-    clusters_to_test = setdiff(unique(cell_df_for_da$mapped_b1_cluster), "unmatched")
+    clusters_to_test = setdiff(unique(cell_metadata_for_da$mapped_b1_cluster), "unmatched")
   )
 
   list(
