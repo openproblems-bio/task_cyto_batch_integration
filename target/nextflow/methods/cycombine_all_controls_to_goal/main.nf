@@ -3396,7 +3396,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/methods/cycombine_all_controls_to_goal",
     "viash_version" : "0.9.7",
-    "git_commit" : "209b51560b8293f92d8ad7047620ef4ffb018c65",
+    "git_commit" : "d993de15553a0054cbfcfdeb555d2d2cc3f63a6a",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
