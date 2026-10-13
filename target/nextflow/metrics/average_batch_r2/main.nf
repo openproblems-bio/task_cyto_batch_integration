@@ -3494,7 +3494,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/metrics/average_batch_r2",
     "viash_version" : "0.9.7",
-    "git_commit" : "f0739ab098027151dc3670dc6ba21acfe8726e65",
+    "git_commit" : "cbd814a37df8541da2ad12db932d0b88f843aec8",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {

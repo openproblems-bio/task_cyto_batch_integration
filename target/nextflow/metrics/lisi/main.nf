@@ -3415,6 +3415,27 @@ meta = [
         "min" : -0.0001,
         "max" : 1.0001,
         "maximize" : true
+      },
+      {
+        "name" : "cLisi",
+        "label" : "cLisi",
+        "summary" : "Cell type Lisi score.",
+        "description" : "Compute the cell type local inverse simpson index (cLISI) for each cell, then return the median \nas the final score. \n",
+        "references" : {
+          "doi" : [
+            "10.1038/s41592-019-0619-0"
+          ],
+          "bibtex" : [
+            "@article{korsunsky2019fast,\ntitle={Fast, sensitive and accurate integration of single-cell data with Harmony},\nauthor={Korsunsky, Ilya and Millard, Nghia and Fan, Jean and Slowikowski, Kamil and Zhang, Fan and Wei, Kevin and Baglaenko, Yuriy and Brenner, Michael and Loh, Po-ru and Raychaudhuri, Soumya},\njournal={Nature methods},\nvolume={16},\nnumber={12},\npages={1289--1296},\nyear={2019},\npublisher={Nature Publishing Group US New York}\n}\n"
+          ]
+        },
+        "links" : {
+          "documentation" : "https://scib-metrics.readthedocs.io/en/latest/api.html",
+          "repository" : "https://github.com/YosefLab/scib-metrics"
+        },
+        "min" : -0.0001,
+        "max" : 1.0001,
+        "maximize" : true
       }
     ],
     "type" : "metric",
@@ -3524,7 +3545,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/metrics/lisi",
     "viash_version" : "0.9.7",
-    "git_commit" : "f0739ab098027151dc3670dc6ba21acfe8726e65",
+    "git_commit" : "cbd814a37df8541da2ad12db932d0b88f843aec8",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3718,9 +3739,20 @@ ilisi_s2, ilisi_s2_per_cell = lisi_helper.compute_ilisi(integrated_s2, n_batches
 
 ilisi = np.mean([ilisi_s1, ilisi_s2])
 
+print("Compute cLisi for split 1", flush=True)
+clisi_s1, clisi_s1_per_cell = lisi_helper.compute_clisi(integrated_s1)
+
+print("Compute cLisi for split 2", flush=True)
+clisi_s2, clisi_s2_per_cell = lisi_helper.compute_clisi(integrated_s2)
+
+clisi = np.mean([clisi_s1, clisi_s2])
+
 print(f"iLisi split 1: {ilisi_s1}", flush=True)
 print(f"iLisi split 2: {ilisi_s2}", flush=True)
 print(f"Mean iLisi: {ilisi}", flush=True)
+print(f"cLisi split 1: {clisi_s1}", flush=True)
+print(f"cLisi split 2: {clisi_s2}", flush=True)
+print(f"Mean cLisi: {clisi}", flush=True)
 
 print("Write output AnnData to file", flush=True)
 # uns layout:
@@ -3731,8 +3763,8 @@ print("Write output AnnData to file", flush=True)
 uns = {
     "dataset_id": integrated_s1.uns["dataset_id"],
     "method_id": integrated_s1.uns["method_id"],
-    "metric_ids": ["iLisi"],
-    "metric_values": [ilisi],
+    "metric_ids": ["iLisi", "cLisi"],
+    "metric_values": [ilisi, clisi],
     "ilisi_per_split": {
         "split_1": {
             "score": ilisi_s1,
@@ -3742,6 +3774,18 @@ uns = {
         "split_2": {
             "score": ilisi_s2,
             "per_cell": ilisi_s2_per_cell,
+            "cell_ids": np.array(integrated_s2.obs_names),
+        },
+    },
+    "clisi_per_split": {
+        "split_1": {
+            "score": clisi_s1,
+            "per_cell": clisi_s1_per_cell,
+            "cell_ids": np.array(integrated_s1.obs_names),
+        },
+        "split_2": {
+            "score": clisi_s2,
+            "per_cell": clisi_s2_per_cell,
             "cell_ids": np.array(integrated_s2.obs_names),
         },
     },
