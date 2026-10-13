@@ -77,6 +77,9 @@ def compute_ilisi(adata: ad.AnnData, n_batches: int):
 
 def compute_clisi(integrated: ad.AnnData):
     """
+    No longer used in the current version of the script, but kept in case
+    it is needed in the future.
+
     Compute cLISI for an integrated AnnData object.
 
     Args:

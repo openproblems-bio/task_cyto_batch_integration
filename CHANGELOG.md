@@ -152,6 +152,8 @@
 
 * Change inconsistent peaks metrics to consistent peaks (PR #119). 
 
+* Removed cLisi metric as it is not informative (PR #145).
+
 ## MINOR CHANGES
 
 * Enabled unit tests (PR #2).
