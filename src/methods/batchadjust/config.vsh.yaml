@@ -7,23 +7,24 @@ __merge__: ../../api/comp_method.yaml
 
 # A unique identifier for your component (required).
 # Can contain only lowercase letters or underscores.
-name: batchadjust_one_control
+name: batchadjust
 # A relatively short label, used when rendering visualisations (required)
-label: Batchadjust with one control
-# A one sentence summary of how this method works (required). Used when 
+label: Batchadjust
+# A one sentence summary of how this method works (required). Used when
 # rendering summary tables.
-summary: "Batchadjust with all control sample."
+summary: "CytofBatchAdjust batch correction using control samples as anchors, parameterised by control usage."
 # A multi-line description of how this component works (required). Used
 # when rendering reference documentation.
 description: |
   CytofBatchadjust corrects batch effects across cytometry data by aligning signal intensity peaks for each channel across batches.
-  The algorithm uses technical replicates included in each barcode set as reference points to anchor each batch. 
-  Adjustments factors are calibrated using anchor samples representing each barcode set, then applied to all samples composing a batch. 
+  The algorithm uses technical replicates included in each barcode set as reference points to anchor each batch.
+  Adjustments factors are calibrated using anchor samples representing each barcode set, then applied to all samples composing a batch.
 
-  This implementation uses samples only from one group as control samples.
+  This component is parameterised by `--controls`: `all` uses control samples from every
+  group as anchors, `one` uses control samples from a single group only.
 
 references:
-  doi: 
+  doi:
     - 10.3389/fimmu.2019.02367
   bibtex:
     - |
@@ -42,10 +43,22 @@ links:
   # URL to the code repository for this method (required).
   repository: https://github.com/CUHIMSR/CytofBatchAdjust
 
-
+info:
+  variants:
+    all_controls:
+      controls: all
+    one_control:
+      controls: one
 
 # Component-specific parameters (optional)
 argument_groups:
+  - name: "Parameter set"
+    arguments:
+      - type: string
+        name: --controls
+        choices: [all, one]
+        default: all
+        description: Which control samples to use as anchors. `all` uses control samples from every group, `one` keeps only the first control group.
   - name: "Parameters"
     arguments:
       - name: "--percentile"

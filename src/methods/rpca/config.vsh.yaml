@@ -1,14 +1,17 @@
 __merge__: ../../api/comp_method.yaml
-name: rpca_to_goal
-# status: disabled
-label: Seurat RPCA (to-goal)
-summary: "Batch integrate data to a goal batch using mutual nearest neighbors identified via Seurat reciprocal PCA."
+name: rpca
+label: Seurat RPCA
+summary: "Batch integrate data using mutual nearest neighbors identified via Seurat reciprocal PCA, parameterised by correction target."
 description: |
-  Seurat RPCA performs batch integration by projecting each query dataset into the PCA space 
-  of a goal batch, and identifying anchors using reciprocal PCA (RPCA). 
-  RPCA identifies mutual nearest neighbors between the goal batch and the remaining batches 
-  in their shared low-dimensional space (PCA), which are used to align 
-  and integrate the batches into the goal batch. 
+  Seurat RPCA performs batch integration by projecting each query dataset into the PCA space
+  of a reference, and identifying anchors using reciprocal PCA (RPCA).
+  RPCA identifies mutual nearest neighbors between batches
+  in their shared low-dimensional space (PCA), which are used to align
+  and integrate the batches.
+
+  This component is parameterised by `--target`: with `goal`, anchors are computed against
+  batch 1 as the reference and the remaining batches are integrated into it; with `mid`,
+  no reference is set and batches are integrated towards a midpoint.
 
   We ran Seurat RPCA implemented in Seurat v4.4.0, available on their github.
   This is because subsequent version (>= v5) does not support getting corrected
@@ -18,7 +21,7 @@ description: |
   We varied the number of PCs and nearest neighbours considered when running RPCA.
 
 references:
-  doi: 
+  doi:
     - 10.1016/j.cell.2021.04.048
   bibtex:
     - |
@@ -37,7 +40,21 @@ links:
   documentation: https://satijalab.org/seurat/articles/integration_rpca.html
   repository: https://github.com/satijalab/seurat
 
+info:
+  variants:
+    to_goal:
+      target: goal
+    to_mid:
+      target: mid
+
 argument_groups:
+  - name: Parameter set
+    arguments:
+      - type: string
+        name: --target
+        choices: [goal, mid]
+        default: mid
+        description: Whether to integrate the batches into reference batch 1 (`goal`) or towards a midpoint across batches (`mid`).
   - name: Parameters
     arguments:
       - type: integer

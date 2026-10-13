@@ -2,6 +2,11 @@
 
 ## BREAKING CHANGES
 
+* Merged the method variant components into parameterised components (PR #142):
+  - `methods/cycombine`, `methods/cytonorm` (with `--controls` and `--target` arguments), `methods/batchadjust` (with `--controls`) and `methods/rpca` (with `--target`) replace the 16 `*_all_controls*`/`*_no_controls*`/`*_one_control*`/`*_to_goal`/`*_to_mid` variant components.
+  - `workflows/run_benchmark` now runs each parameterised method once per named paramset and tags every score with `paramset_name` and `paramset` (`null` for non-parameterised methods), matching the results_v4 schema. The paramsets default to the `info.variants` in the method configs and can be overridden with the new `--paramsets` yaml file argument.
+  - `--methods_include`/`--methods_exclude` can target a single paramset as `<method_id>.<paramset_name>`.
+
 * Updated the file schemas (PR #94):
   - `src/api`: The common dataset is now split into two censored datasets: `censored_split1` and `censored_split2`. The method component should now be run twice, once for each split. The control methods return both splits at once. The metrics now receive both splits as input.
   - `src/control_methods`: Control methods now need to return both `integrated_split1` and `integrated_split2`.
