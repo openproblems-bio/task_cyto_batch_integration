@@ -10,7 +10,11 @@ The script discovers method outputs under:
 and writes metric outputs to:
     <output-dir>/<dataset>/<metric>_<method>.h5ad
 
-It works by replacing the ## VIASH START...END block in the metric script with
+Before running the metric for a dataset, it runs precompute_python_metric on the
+unintegrated data and writes the result to:
+    <output-dir>/<dataset>/precomputed_python_metric.h5ad
+
+It works by replacing the ## VIASH START...END block in each script with
 the correct par/meta values and running the result in a subprocess. This means
 any Python metric in src/metrics/ can be run ad-hoc with this script.
 
@@ -55,6 +59,7 @@ def find_repo_root(start: Path) -> Path:
 
 
 REPO_ROOT = find_repo_root(Path(__file__).resolve().parent)
+PRECOMPUTE_SCRIPT = REPO_ROOT / "src" / "data_processors" / "precompute_python_metric" / "script.py"
 
 
 def find_method_splits(input_dir: Path, dataset: str, method: str):
@@ -79,41 +84,37 @@ def find_method_splits(input_dir: Path, dataset: str, method: str):
     return split1, split2
 
 
-def run_metric(metric_name: str, par: dict) -> None:
+def run_script(script_path: Path, par: dict, import_dirs: list[Path]) -> None:
     """
-    Inject par/meta into the metric script and execute it in a subprocess.
+    Inject par/meta into a Viash script and execute it in a subprocess.
 
     The ## VIASH START...END block in the script is replaced with the provided
-    par and meta values. The metric's own directory is added to sys.path inside
-    the injected block so that `import helper` resolves correctly regardless of
+    par and meta values. import_dirs are added to sys.path inside the injected
+    block so that imports like `import helper` resolve correctly regardless of
     where this runner is called from.
     """
-    script_path = REPO_ROOT / "src" / "metrics" / metric_name / "script.py"
-    if not script_path.exists():
-        raise FileNotFoundError(
-            f"Metric script not found: {script_path}\n"
-            f"Check that '{metric_name}' is a valid metric under src/metrics/."
-        )
-
-    metric_dir = script_path.parent
+    script_dir = script_path.parent
     meta = {
-        "name": metric_name,
+        "name": script_dir.name,
         "resources_dir": str(REPO_ROOT / "src" / "utils"),
     }
 
-    # The injected block sets par/meta and ensures the metric's helper.py is
-    # importable. sys is already imported at the top of every metric script, so
-    # we can call sys.path.insert directly without re-importing it.
+    # The injected block sets par/meta and makes the script's helpers
+    # importable. sys is already imported at the top of every script, so we
+    # can call sys.path.insert directly without re-importing it.
     #
     # `!r` applies repr() to par/meta, turning the dicts into literal Python
     # source (e.g. {'input_unintegrated': '/a/b.h5ad'}) instead of their
     # printed form. That literal is what gets pasted into the script, so it
     # has to parse as valid Python once it lands there.
+    path_inserts = "".join(
+        f"sys.path.insert(0, {str(directory)!r})\n" for directory in import_dirs
+    )
     injected_block = (
         f"## VIASH START\n"
         f"par = {par!r}\n"
         f"meta = {meta!r}\n"
-        f"sys.path.insert(0, {str(metric_dir)!r})\n"
+        f"{path_inserts}"
         f"## VIASH END"
     )
 
@@ -132,11 +133,11 @@ def run_metric(metric_name: str, par: dict) -> None:
     # Write the patched script to a temp file and run it as a subprocess.
     # Using a temp file (rather than exec/runpy) gives clean isolation: each
     # metric run gets its own interpreter state and import namespace. It's
-    # created inside metric_dir, not the system temp dir, so relative imports
-    # and file lookups in the metric's own script behave the same as they
-    # would for the original, unpatched script.
+    # created inside script_dir, not the system temp dir, so relative imports
+    # and file lookups in the script behave the same as they would for the
+    # original, unpatched script.
     with tempfile.NamedTemporaryFile(
-        suffix=".py", mode="w", delete=False, dir=metric_dir
+        suffix=".py", mode="w", delete=False, dir=script_dir
     ) as f:
         f.write(patched)
         temp_path = Path(f.name)
@@ -144,8 +145,8 @@ def run_metric(metric_name: str, par: dict) -> None:
     # sys.executable ensures the subprocess uses the same Python interpreter
     # (and therefore the same installed packages/environment) as this runner,
     # rather than whatever `python` resolves to on the shell's PATH.
-    # check=True propagates a failed metric run as a CalledProcessError, so a
-    # broken metric script stops the whole batch instead of failing silently.
+    # check=True propagates a failed run as a CalledProcessError, so a broken
+    # script stops the whole batch instead of failing silently.
     try:
         subprocess.run([sys.executable, str(temp_path)], check=True)
     finally:
@@ -226,6 +227,13 @@ def main():
     datasets_dir = args.datasets_dir.resolve()
     output_dir = args.output_dir.resolve()
 
+    metric_script = REPO_ROOT / "src" / "metrics" / args.metric / "script.py"
+    if not metric_script.exists():
+        raise FileNotFoundError(
+            f"Metric script not found: {metric_script}\n"
+            f"Check that '{args.metric}' is a valid metric under src/metrics/."
+        )
+
     # --datasets restricts the run to an explicit list; otherwise fall back to
     # every subdirectory of input_dir, since each dataset is expected to have
     # its own top-level folder there (<input-dir>/<dataset>/method_out/...).
@@ -247,6 +255,26 @@ def main():
                 f"  Unintegrated file not found: {unintegrated}, skipping.", flush=True
             )
             continue
+
+        # Some metrics read results precomputed on the unintegrated data. In the
+        # pipeline the precompute_python_metric component makes this file once per
+        # dataset, so do the same here before looping over methods.
+        precomputed_python_metric = output_dir / dataset / "precomputed_python_metric.h5ad"
+        if args.skip_existing and precomputed_python_metric.exists():
+            print(f"  Precomputed Python metric exists: {precomputed_python_metric}", flush=True)
+        else:
+            print(f"  Precomputing Python metric: {precomputed_python_metric}", flush=True)
+            precomputed_python_metric.parent.mkdir(parents=True, exist_ok=True)
+            run_script(
+                PRECOMPUTE_SCRIPT,
+                par={
+                    "input_unintegrated": str(unintegrated),
+                    "output": str(precomputed_python_metric),
+                },
+                # The per-metric precompute modules import each metric's helper
+                # as <metric_name>.helper, so src/metrics needs to be importable.
+                import_dirs=[REPO_ROOT / "src" / "metrics"],
+            )
 
         # --methods restricts to an explicit list; otherwise discover every
         # method that produced output for this dataset.
@@ -278,18 +306,19 @@ def main():
             # exists before handing the path off.
             output_path.parent.mkdir(parents=True, exist_ok=True)
 
-            # These four keys are exactly what every metric's VIASH par block
-            # expects (see any src/metrics/*/script.py). run_metric() splices
-            # this dict straight into the script as `par = {...}`.
+            # These keys are exactly the metric API arguments (see
+            # src/api/comp_metric.yaml). run_script() splices this dict
+            # straight into the script as `par = {...}`.
             par = {
                 "input_unintegrated": str(unintegrated),
                 "input_integrated_split1": str(split1),
                 "input_integrated_split2": str(split2),
+                "input_precomputed_python_metric": str(precomputed_python_metric),
                 "output": str(output_path),
             }
 
             print(f"    Output: {output_path}", flush=True)
-            run_metric(args.metric, par)
+            run_script(metric_script, par, import_dirs=[metric_script.parent])
             print("    Done.", flush=True)
 
     print("\nAll done.", flush=True)

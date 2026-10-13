@@ -4,6 +4,8 @@ name: abundance_preservation
 
 # Metadata for your component
 info:
+  # Reads its unintegrated results from the precompute_r_metric output
+  precompute_type: r
   metrics:
     # A unique identifier for your metric (required).
     # Can contain only lowercase letters or underscores.

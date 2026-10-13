@@ -70,6 +70,17 @@ workflow run_wf {
       }
     )
 
+    // Precompute metric inputs that only depend on the unintegrated data, once
+    // per dataset: one component for the Python metrics, one for the R metrics.
+    | precompute_python_metric.run(
+      fromState: [input_unintegrated: "input_unintegrated"],
+      toState: [precomputed_python_metric: "output"]
+    )
+    | precompute_r_metric.run(
+      fromState: [input_unintegrated: "input_unintegrated"],
+      toState: [precomputed_r_metric: "output"]
+    )
+
   /***************************
    * RUN METHODS AND METRICS *
    ***************************/
@@ -187,8 +198,10 @@ workflow run_wf {
       // use 'fromState' to fetch the arguments the component requires from the overall state
       fromState: [
         input_unintegrated: "input_unintegrated",
-        input_integrated_split1: "integrated_split1", 
-        input_integrated_split2: "integrated_split2"
+        input_integrated_split1: "integrated_split1",
+        input_integrated_split2: "integrated_split2",
+        input_precomputed_python_metric: "precomputed_python_metric",
+        input_precomputed_r_metric: "precomputed_r_metric"
       ],
       // use 'toState' to publish that component's outputs to the overall state
       toState: { id, output, state, comp ->
