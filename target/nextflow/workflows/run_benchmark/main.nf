@@ -3541,9 +3541,20 @@ meta = [
       "name" : "Methods",
       "arguments" : [
         {
+          "type" : "file",
+          "name" : "--paramsets",
+          "description" : "A yaml file mapping method ids to named parameter sets, e.g.:\n\n  cycombine:\n    all_controls_to_goal:\n      controls: all\n      target: goal\n  rpca:\n    to_goal:\n      target: goal\n\nEach listed method is run once per parameter set, with the given arguments\nand with `paramset_name`/`paramset` attached to its scores.\nIf not provided, the parameter sets default to the `info.variants`\ndefined in the method components' configs. A method without\n`info.variants` is run once with its default parameter set.\n",
+          "must_exist" : true,
+          "create_parent" : true,
+          "required" : false,
+          "direction" : "input",
+          "multiple" : false,
+          "multiple_sep" : ";"
+        },
+        {
           "type" : "string",
           "name" : "--methods_include",
-          "description" : "A list of method ids to include. If specified, only these methods will be run.\n",
+          "description" : "A list of method ids to include. If specified, only these methods will be run.\nFor parameterised methods, a single paramset can be targeted as `<method_id>.<paramset_name>`, e.g. `cycombine.all_controls_to_goal`.\n",
           "required" : false,
           "direction" : "input",
           "multiple" : true,
@@ -3552,7 +3563,7 @@ meta = [
         {
           "type" : "string",
           "name" : "--methods_exclude",
-          "description" : "A list of method ids to exclude. If specified, all methods except the ones listed will be run.\n",
+          "description" : "A list of method ids to exclude. If specified, all methods except the ones listed will be run.\nFor parameterised methods, a single paramset can be excluded as `<method_id>.<paramset_name>`, e.g. `cycombine.all_controls_to_goal`.\n",
           "required" : false,
           "direction" : "input",
           "multiple" : true,
@@ -3598,6 +3609,10 @@ meta = [
     {
       "type" : "file",
       "path" : "/common/nextflow_helpers/helper.nf"
+    },
+    {
+      "type" : "file",
+      "path" : "paramset_helper.nf"
     }
   ],
   "status" : "enabled",
@@ -3651,37 +3666,7 @@ meta = [
       }
     },
     {
-      "name" : "methods/cycombine_no_controls_to_mid",
-      "repository" : {
-        "type" : "local"
-      }
-    },
-    {
-      "name" : "methods/cycombine_no_controls_to_goal",
-      "repository" : {
-        "type" : "local"
-      }
-    },
-    {
-      "name" : "methods/cycombine_one_control_to_mid",
-      "repository" : {
-        "type" : "local"
-      }
-    },
-    {
-      "name" : "methods/cycombine_one_control_to_goal",
-      "repository" : {
-        "type" : "local"
-      }
-    },
-    {
-      "name" : "methods/cycombine_all_controls_to_mid",
-      "repository" : {
-        "type" : "local"
-      }
-    },
-    {
-      "name" : "methods/cycombine_all_controls_to_goal",
+      "name" : "methods/cycombine",
       "repository" : {
         "type" : "local"
       }
@@ -3693,61 +3678,19 @@ meta = [
       }
     },
     {
-      "name" : "methods/cytonorm_no_controls_to_mid",
+      "name" : "methods/cytonorm",
       "repository" : {
         "type" : "local"
       }
     },
     {
-      "name" : "methods/cytonorm_all_controls_to_mid",
+      "name" : "methods/batchadjust",
       "repository" : {
         "type" : "local"
       }
     },
     {
-      "name" : "methods/cytonorm_one_control_to_mid",
-      "repository" : {
-        "type" : "local"
-      }
-    },
-    {
-      "name" : "methods/cytonorm_no_controls_to_goal",
-      "repository" : {
-        "type" : "local"
-      }
-    },
-    {
-      "name" : "methods/cytonorm_all_controls_to_goal",
-      "repository" : {
-        "type" : "local"
-      }
-    },
-    {
-      "name" : "methods/cytonorm_one_control_to_goal",
-      "repository" : {
-        "type" : "local"
-      }
-    },
-    {
-      "name" : "methods/batchadjust_one_control",
-      "repository" : {
-        "type" : "local"
-      }
-    },
-    {
-      "name" : "methods/batchadjust_all_controls",
-      "repository" : {
-        "type" : "local"
-      }
-    },
-    {
-      "name" : "methods/rpca_to_goal",
-      "repository" : {
-        "type" : "local"
-      }
-    },
-    {
-      "name" : "methods/rpca_to_mid",
+      "name" : "methods/rpca",
       "repository" : {
         "type" : "local"
       }
@@ -3851,7 +3794,7 @@ meta = [
     "engine" : "native",
     "output" : "target/nextflow/workflows/run_benchmark",
     "viash_version" : "0.9.7",
-    "git_commit" : "d993de15553a0054cbfcfdeb555d2d2cc3f63a6a",
+    "git_commit" : "f0739ab098027151dc3670dc6ba21acfe8726e65",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3963,23 +3906,11 @@ include { perfect_integration } from "${meta.resources_dir}/../../../nextflow/co
 include { harmonypy } from "${meta.resources_dir}/../../../nextflow/methods/harmonypy/main.nf"
 include { limma_remove_batch_effect } from "${meta.resources_dir}/../../../nextflow/methods/limma_remove_batch_effect/main.nf"
 include { combat } from "${meta.resources_dir}/../../../nextflow/methods/combat/main.nf"
-include { cycombine_no_controls_to_mid } from "${meta.resources_dir}/../../../nextflow/methods/cycombine_no_controls_to_mid/main.nf"
-include { cycombine_no_controls_to_goal } from "${meta.resources_dir}/../../../nextflow/methods/cycombine_no_controls_to_goal/main.nf"
-include { cycombine_one_control_to_mid } from "${meta.resources_dir}/../../../nextflow/methods/cycombine_one_control_to_mid/main.nf"
-include { cycombine_one_control_to_goal } from "${meta.resources_dir}/../../../nextflow/methods/cycombine_one_control_to_goal/main.nf"
-include { cycombine_all_controls_to_mid } from "${meta.resources_dir}/../../../nextflow/methods/cycombine_all_controls_to_mid/main.nf"
-include { cycombine_all_controls_to_goal } from "${meta.resources_dir}/../../../nextflow/methods/cycombine_all_controls_to_goal/main.nf"
+include { cycombine } from "${meta.resources_dir}/../../../nextflow/methods/cycombine/main.nf"
 include { gaussnorm } from "${meta.resources_dir}/../../../nextflow/methods/gaussnorm/main.nf"
-include { cytonorm_no_controls_to_mid } from "${meta.resources_dir}/../../../nextflow/methods/cytonorm_no_controls_to_mid/main.nf"
-include { cytonorm_all_controls_to_mid } from "${meta.resources_dir}/../../../nextflow/methods/cytonorm_all_controls_to_mid/main.nf"
-include { cytonorm_one_control_to_mid } from "${meta.resources_dir}/../../../nextflow/methods/cytonorm_one_control_to_mid/main.nf"
-include { cytonorm_no_controls_to_goal } from "${meta.resources_dir}/../../../nextflow/methods/cytonorm_no_controls_to_goal/main.nf"
-include { cytonorm_all_controls_to_goal } from "${meta.resources_dir}/../../../nextflow/methods/cytonorm_all_controls_to_goal/main.nf"
-include { cytonorm_one_control_to_goal } from "${meta.resources_dir}/../../../nextflow/methods/cytonorm_one_control_to_goal/main.nf"
-include { batchadjust_one_control } from "${meta.resources_dir}/../../../nextflow/methods/batchadjust_one_control/main.nf"
-include { batchadjust_all_controls } from "${meta.resources_dir}/../../../nextflow/methods/batchadjust_all_controls/main.nf"
-include { rpca_to_goal } from "${meta.resources_dir}/../../../nextflow/methods/rpca_to_goal/main.nf"
-include { rpca_to_mid } from "${meta.resources_dir}/../../../nextflow/methods/rpca_to_mid/main.nf"
+include { cytonorm } from "${meta.resources_dir}/../../../nextflow/methods/cytonorm/main.nf"
+include { batchadjust } from "${meta.resources_dir}/../../../nextflow/methods/batchadjust/main.nf"
+include { rpca } from "${meta.resources_dir}/../../../nextflow/methods/rpca/main.nf"
 include { emd } from "${meta.resources_dir}/../../../nextflow/metrics/emd/main.nf"
 include { ratio_consistent_peaks } from "${meta.resources_dir}/../../../nextflow/metrics/ratio_consistent_peaks/main.nf"
 include { average_batch_r2 } from "${meta.resources_dir}/../../../nextflow/metrics/average_batch_r2/main.nf"
@@ -3991,6 +3922,7 @@ include { abundance_preservation } from "${meta.resources_dir}/../../../nextflow
 // inner workflow
 // user-provided Nextflow code
 include { checkItemAllowed } from "${meta.resources_dir}/helper.nf"
+include { paramsetsFromVariants; expandParamsets; methodMatchesParamset; checkMethodAllowed } from "${meta.resources_dir}/paramset_helper.nf"
 
 workflow auto {
   findStates(params, meta.config)
@@ -4005,25 +3937,13 @@ methods = [
   no_integration,
   perfect_integration,
   combat,
-  cycombine_no_controls_to_mid,
-  cycombine_no_controls_to_goal,
-  cycombine_one_control_to_mid,
-  cycombine_one_control_to_goal,
-  cycombine_all_controls_to_mid,
-  cycombine_all_controls_to_goal,
+  cycombine,
   gaussnorm,
-  batchadjust_one_control,
-  batchadjust_all_controls,
-  cytonorm_no_controls_to_mid,
-  cytonorm_all_controls_to_mid,
-  cytonorm_one_control_to_mid,
-  cytonorm_no_controls_to_goal,
-  cytonorm_all_controls_to_goal,
-  cytonorm_one_control_to_goal,
+  batchadjust,
+  cytonorm,
   harmonypy,
   limma_remove_batch_effect,
-  rpca_to_goal,
-  rpca_to_mid,
+  rpca,
 ]
 
 // construct list of metrics
@@ -4037,6 +3957,13 @@ metrics = [
   abundance_preservation
 ]
 
+// serialise data to a yaml file in the temp dir
+def writeYamlFile(data, String filename) {
+  def file = tempFile(filename)
+  file.write(toYamlBlob(data))
+  file
+}
+
 workflow run_wf {
   take:
   input_ch
@@ -4048,7 +3975,7 @@ workflow run_wf {
    ****************************/
   dataset_ch = input_ch
     // store join id
-    | map{ id, state -> 
+    | map{ id, state ->
       [id, state + ["_meta": [join_id: id]]]
     }
 
@@ -4067,30 +3994,37 @@ workflow run_wf {
    ***************************/
   method_outputs_ch = dataset_ch
 
+    // expand the channel so parameterised methods run once per paramset.
+    // the paramsets are read from the --paramsets file if provided, and
+    // default to the method components' info.variants.
+    | flatMap { id, state ->
+      def method_paramsets = state.paramsets
+        ? readYaml(state.paramsets)
+        : paramsetsFromVariants(methods)
+      expandParamsets(id, state, method_paramsets)
+    }
+
     // run methods on censored split1
     | runEach(
       components: methods,
 
-      // run only non-control methods & filter by method_ids
+      // run only non-control methods, match paramset-tagged states to their
+      // method & filter by method_ids
       filter: { id, state, comp ->
-        def method_check = checkItemAllowed(
-          comp.config.name,
-          state.methods_include,
-          state.methods_exclude,
-          "methods_include",
-          "methods_exclude"
-        )
-        def method_filter = comp.config.info.type == "method"
-        method_check && method_filter
+        comp.config.info.type == "method" &&
+          methodMatchesParamset(state, comp.config.name) &&
+          checkMethodAllowed(comp.config.name, state.paramset_name, state.methods_include, state.methods_exclude)
       },
 
-      // define a new 'id' by appending the method name to the dataset id
+      // define a new 'id' by appending the method name and paramset name to the dataset id
       id: { id, state, comp ->
-        id + "." + comp.config.name
+        id + "." + comp.config.name + (state.paramset_name ? "." + state.paramset_name : "")
       },
 
-      // use 'fromState' to fetch the arguments the component requires from the overall state
-      fromState: [ input: "input_censored_split1" ],
+      // pass the paramset arguments (if any) along with the input
+      fromState: { id, state, comp ->
+        [ input: state.input_censored_split1 ] + (state.paramset ?: [:])
+      },
 
       // use 'toState' to publish that component's outputs to the overall state
       toState: { id, output, state, comp ->
@@ -4101,19 +4035,18 @@ workflow run_wf {
       }
     )
 
-    // run methods on censored split2
+    // run the same method with the same paramset on censored split2
     | runEach(
       components: methods,
 
-      // use the 'filter' argument to only run a method on the normalisation the component is asking for
       filter: { id, state, comp ->
         state.method_id == comp.config.name
       },
 
-      // use 'fromState' to fetch the arguments the component requires from the overall state
-      fromState: [ input: "input_censored_split2" ],
+      fromState: { id, state, comp ->
+        [ input: state.input_censored_split2 ] + (state.paramset ?: [:])
+      },
 
-      // use 'toState' to publish that component's outputs to the overall state
       toState: [ integrated_split2: "output" ]
     )
 
@@ -4125,15 +4058,8 @@ workflow run_wf {
 
       // run only control methods & filter by method_ids
       filter: { id, state, comp ->
-        def method_check = checkItemAllowed(
-          comp.config.name,
-          state.methods_include,
-          state.methods_exclude,
-          "methods_include",
-          "methods_exclude"
-        )
-        def method_filter = comp.config.info.type == "control_method"
-        method_check && method_filter
+        comp.config.info.type == "control_method" &&
+          checkItemAllowed(comp.config.name, state.methods_include, state.methods_exclude, "methods_include", "methods_exclude")
       },
 
       // define a new 'id' by appending the method name to the dataset id
@@ -4141,10 +4067,8 @@ workflow run_wf {
         id + "." + comp.config.name
       },
 
-      // use 'fromState' to fetch the arguments the component requires from the overall state
       fromState: [ input_unintegrated: "input_unintegrated" ],
 
-      // use 'toState' to publish that component's outputs to the overall state
       toState: { id, output, state, comp ->
         state + [
           method_id: comp.config.name,
@@ -4153,7 +4077,6 @@ workflow run_wf {
         ]
       }
     )
-
 
   score_ch = method_outputs_ch
     | mix(control_method_outputs_ch)
@@ -4164,25 +4087,15 @@ workflow run_wf {
       id: { id, state, comp ->
         id + "." + comp.config.name
       },
+      // filter by metric_ids
       filter: { id, state, comp ->
-        // filter by metric_ids
-        def metric_check = checkItemAllowed(
-          comp.config.name,
-          state.metrics_include,
-          state.metrics_exclude,
-          "metrics_include",
-          "metrics_exclude"
-        )
-        // filter by method_id
-        metric_check
+        checkItemAllowed(comp.config.name, state.metrics_include, state.metrics_exclude, "metrics_include", "metrics_exclude")
       },
-      // use 'fromState' to fetch the arguments the component requires from the overall state
       fromState: [
         input_unintegrated: "input_unintegrated",
-        input_integrated_split1: "integrated_split1", 
+        input_integrated_split1: "integrated_split1",
         input_integrated_split2: "integrated_split2"
       ],
-      // use 'toState' to publish that component's outputs to the overall state
       toState: { id, output, state, comp ->
         state + [
           metric_id: comp.config.name,
@@ -4191,68 +4104,44 @@ workflow run_wf {
       }
     )
 
-    // extract the scores
+    // extract the scores, tagged with the paramset used for the method
+    // (null for control methods and methods without paramsets)
     | extract_uns_metadata.run(
       key: "extract_scores",
       fromState: [input: "metric_output"],
       toState: { id, output, state ->
+        def uns = readYaml(output.output).uns
+        uns.paramset_name = state.paramset_name
+        uns.paramset = state.paramset
         state + [
-          score_uns: readYaml(output.output).uns
+          score_uns: uns
         ]
       }
     )
 
+    // store the scores in a file
     | joinStates { ids, states ->
-      // store the scores in a file
-      def score_uns = states.collect{it.score_uns}
-      def score_uns_yaml_blob = toYamlBlob(score_uns)
-      def score_uns_file = tempFile("score_uns.yaml")
-      score_uns_file.write(score_uns_yaml_blob)
-
-      ["output", [output_scores: score_uns_file]]
+      ["output", [output_scores: writeYamlFile(states.collect{it.score_uns}, "score_uns.yaml")]]
     }
 
   /******************************
    * GENERATE OUTPUT YAML FILES *
    ******************************/
-  // TODO: can we store everything below in a separate helper function?
-
-  // extract the dataset metadata
   meta_ch = dataset_ch
     | joinStates { ids, states ->
-      // store the dataset metadata in a file
-      def dataset_uns = states.collect{it.dataset_uns}
-      def dataset_uns_yaml_blob = toYamlBlob(dataset_uns)
-      def dataset_uns_file = tempFile("dataset_uns.yaml")
-      dataset_uns_file.write(dataset_uns_yaml_blob)
-
-      // store the method configs in a file
-      def method_configs = methods.collect{it.config}
-      def method_configs_yaml_blob = toYamlBlob(method_configs)
-      def method_configs_file = tempFile("method_configs.yaml")
-      method_configs_file.write(method_configs_yaml_blob)
-
-      // store the metric configs in a file
-      def metric_configs = metrics.collect{it.config}
-      def metric_configs_yaml_blob = toYamlBlob(metric_configs)
-      def metric_configs_file = tempFile("metric_configs.yaml")
-      metric_configs_file.write(metric_configs_yaml_blob)
-
-      // store the task info in a file
+      // gather the task info and annotate it with the commit and timestamp
       def task_info = readYaml(meta.resources_dir.resolve("_viash.yaml"))
       if (workflow.commitId) {
         task_info.commit = workflow.commitId
       }
       task_info.timestamp = workflow.start.toInstant().truncatedTo(java.time.temporal.ChronoUnit.SECONDS).toString()
-      def task_info_file = tempFile("task_info.yaml")
-      task_info_file.write(toYamlBlob(task_info))
 
-      // create output state
+      // store the dataset metadata, component configs and task info in files
       def new_state = [
-        output_dataset_info: dataset_uns_file,
-        output_method_configs: method_configs_file,
-        output_metric_configs: metric_configs_file,
-        output_task_info: task_info_file,
+        output_dataset_info: writeYamlFile(states.collect{it.dataset_uns}, "dataset_uns.yaml"),
+        output_method_configs: writeYamlFile(methods.collect{it.config}, "method_configs.yaml"),
+        output_metric_configs: writeYamlFile(metrics.collect{it.config}, "metric_configs.yaml"),
+        output_task_info: writeYamlFile(task_info, "task_info.yaml"),
         _meta: states[0]._meta
       ]
 

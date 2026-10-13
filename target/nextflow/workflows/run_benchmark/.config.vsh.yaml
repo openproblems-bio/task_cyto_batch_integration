@@ -379,10 +379,27 @@ argument_groups:
     multiple_sep: ";"
 - name: "Methods"
   arguments:
+  - type: "file"
+    name: "--paramsets"
+    description: "A yaml file mapping method ids to named parameter sets, e.g.:\n\n\
+      \  cycombine:\n    all_controls_to_goal:\n      controls: all\n      target:\
+      \ goal\n  rpca:\n    to_goal:\n      target: goal\n\nEach listed method is run\
+      \ once per parameter set, with the given arguments\nand with `paramset_name`/`paramset`\
+      \ attached to its scores.\nIf not provided, the parameter sets default to the\
+      \ `info.variants`\ndefined in the method components' configs. A method without\n\
+      `info.variants` is run once with its default parameter set.\n"
+    info: null
+    must_exist: true
+    create_parent: true
+    required: false
+    direction: "input"
+    multiple: false
+    multiple_sep: ";"
   - type: "string"
     name: "--methods_include"
     description: "A list of method ids to include. If specified, only these methods\
-      \ will be run.\n"
+      \ will be run.\nFor parameterised methods, a single paramset can be targeted\
+      \ as `<method_id>.<paramset_name>`, e.g. `cycombine.all_controls_to_goal`.\n"
     info: null
     required: false
     direction: "input"
@@ -391,7 +408,8 @@ argument_groups:
   - type: "string"
     name: "--methods_exclude"
     description: "A list of method ids to exclude. If specified, all methods except\
-      \ the ones listed will be run.\n"
+      \ the ones listed will be run.\nFor parameterised methods, a single paramset\
+      \ can be excluded as `<method_id>.<paramset_name>`, e.g. `cycombine.all_controls_to_goal`.\n"
     info: null
     required: false
     direction: "input"
@@ -426,6 +444,8 @@ resources:
   path: "_viash.yaml"
 - type: "file"
   path: "helper.nf"
+- type: "file"
+  path: "paramset_helper.nf"
 info: null
 status: "enabled"
 scope:
@@ -455,55 +475,19 @@ dependencies:
 - name: "methods/combat"
   repository:
     type: "local"
-- name: "methods/cycombine_no_controls_to_mid"
-  repository:
-    type: "local"
-- name: "methods/cycombine_no_controls_to_goal"
-  repository:
-    type: "local"
-- name: "methods/cycombine_one_control_to_mid"
-  repository:
-    type: "local"
-- name: "methods/cycombine_one_control_to_goal"
-  repository:
-    type: "local"
-- name: "methods/cycombine_all_controls_to_mid"
-  repository:
-    type: "local"
-- name: "methods/cycombine_all_controls_to_goal"
+- name: "methods/cycombine"
   repository:
     type: "local"
 - name: "methods/gaussnorm"
   repository:
     type: "local"
-- name: "methods/cytonorm_no_controls_to_mid"
+- name: "methods/cytonorm"
   repository:
     type: "local"
-- name: "methods/cytonorm_all_controls_to_mid"
+- name: "methods/batchadjust"
   repository:
     type: "local"
-- name: "methods/cytonorm_one_control_to_mid"
-  repository:
-    type: "local"
-- name: "methods/cytonorm_no_controls_to_goal"
-  repository:
-    type: "local"
-- name: "methods/cytonorm_all_controls_to_goal"
-  repository:
-    type: "local"
-- name: "methods/cytonorm_one_control_to_goal"
-  repository:
-    type: "local"
-- name: "methods/batchadjust_one_control"
-  repository:
-    type: "local"
-- name: "methods/batchadjust_all_controls"
-  repository:
-    type: "local"
-- name: "methods/rpca_to_goal"
-  repository:
-    type: "local"
-- name: "methods/rpca_to_mid"
+- name: "methods/rpca"
   repository:
     type: "local"
 - name: "metrics/emd"
@@ -567,7 +551,7 @@ build_info:
   output: "target/nextflow/workflows/run_benchmark"
   executable: "target/nextflow/workflows/run_benchmark/main.nf"
   viash_version: "0.9.7"
-  git_commit: "d993de15553a0054cbfcfdeb555d2d2cc3f63a6a"
+  git_commit: "f0739ab098027151dc3670dc6ba21acfe8726e65"
   git_remote: "https://github.com/openproblems-bio/task_cyto_batch_integration"
   dependencies:
   - "target/dependencies/github/openproblems-bio/openproblems/build/main/nextflow/utils/extract_uns_metadata"
@@ -577,23 +561,11 @@ build_info:
   - "target/nextflow/methods/harmonypy"
   - "target/nextflow/methods/limma_remove_batch_effect"
   - "target/nextflow/methods/combat"
-  - "target/nextflow/methods/cycombine_no_controls_to_mid"
-  - "target/nextflow/methods/cycombine_no_controls_to_goal"
-  - "target/nextflow/methods/cycombine_one_control_to_mid"
-  - "target/nextflow/methods/cycombine_one_control_to_goal"
-  - "target/nextflow/methods/cycombine_all_controls_to_mid"
-  - "target/nextflow/methods/cycombine_all_controls_to_goal"
+  - "target/nextflow/methods/cycombine"
   - "target/nextflow/methods/gaussnorm"
-  - "target/nextflow/methods/cytonorm_no_controls_to_mid"
-  - "target/nextflow/methods/cytonorm_all_controls_to_mid"
-  - "target/nextflow/methods/cytonorm_one_control_to_mid"
-  - "target/nextflow/methods/cytonorm_no_controls_to_goal"
-  - "target/nextflow/methods/cytonorm_all_controls_to_goal"
-  - "target/nextflow/methods/cytonorm_one_control_to_goal"
-  - "target/nextflow/methods/batchadjust_one_control"
-  - "target/nextflow/methods/batchadjust_all_controls"
-  - "target/nextflow/methods/rpca_to_goal"
-  - "target/nextflow/methods/rpca_to_mid"
+  - "target/nextflow/methods/cytonorm"
+  - "target/nextflow/methods/batchadjust"
+  - "target/nextflow/methods/rpca"
   - "target/nextflow/metrics/emd"
   - "target/nextflow/metrics/ratio_consistent_peaks"
   - "target/nextflow/metrics/average_batch_r2"
