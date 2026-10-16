@@ -2,6 +2,11 @@
 
 ## BREAKING CHANGES
 
+* Merged the method variant components into parameterised components (PR #142):
+  - `methods/cycombine`, `methods/cytonorm` (with `--controls` and `--target` arguments), `methods/batchadjust` (with `--controls`) and `methods/rpca` (with `--target`) replace the 16 `*_all_controls*`/`*_no_controls*`/`*_one_control*`/`*_to_goal`/`*_to_mid` variant components.
+  - `workflows/run_benchmark` now runs each parameterised method once per named paramset and tags every score with `paramset_name` and `paramset` (`null` for non-parameterised methods), matching the results_v4 schema. The paramsets default to the `info.variants` in the method configs and can be overridden with the new `--paramsets` yaml file argument.
+  - `--methods_include`/`--methods_exclude` can target a single paramset as `<method_id>.<paramset_name>`.
+
 * Updated the file schemas (PR #94):
   - `src/api`: The common dataset is now split into two censored datasets: `censored_split1` and `censored_split2`. The method component should now be run twice, once for each split. The control methods return both splits at once. The metrics now receive both splits as input.
   - `src/control_methods`: Control methods now need to return both `integrated_split1` and `integrated_split2`.
@@ -73,9 +78,32 @@
 
 * Added utility scripts to pull intermediate files (PR #119). 
 
+* Added `scripts/fetch_intermediate_files.py`, a single script that consolidates the previous two-step process of parsing a Nextflow log and copying out intermediate files (PR #126):
+  * Auto-detects whether the log is from a SLURM or AWS Batch run.
+  * For SLURM runs, copies `.h5ad` files directly from the local work directory.
+  * For AWS Batch runs, downloads files via `common/scripts/fetch_task_run` and skips files that are already present.
+  * Organises output under `<dataset>/method_out/` and `<dataset>/metric_out/`.
+  * Accepts the log file as a positional argument; output directory and optional CSV dump are configurable via flags.
+
+* Added `metrics/functional_marker_preservation` component (PR #126):
+  * `functional_marker_preservation_wilcoxon`: proportion of biologically significant functional marker group differences (e.g. WT vs KO) preserved after batch integration. A two-sided Wilcoxon rank-sum test compares the two biological groups on per-sample mean expression for each (marker, cell type) pair. A pair enters the unintegrated baseline if significant (p ≤ 0.1) in both batches, and is counted as preserved if significant in both integrated splits.
+  * `functional_marker_preservation_cohens_d`: mean absolute change in Cohen's d effect size for every (marker, cell type) pair significant in the unintegrated baseline. Cohen's d is computed per batch on the unintegrated data and averaged, then computed separately per integrated split; the metric is the mean absolute deviation of each split's Cohen's d from the unintegrated ground truth, so drift is tracked even for pairs that lost significance after integration.
+
+* Added `scripts/adhoc_runs/run_metric_adhoc.py` and `run_metric_adhoc.sh` for re-running a single metric against existing pipeline output during development, without re-running the full Nextflow pipeline. Patches the metric script's VIASH block with the given input/output paths and runs it as a subprocess; discovers `(dataset, method)` pairs from `<input-dir>/<dataset>/method_out/<method>_split1.h5ad` and supports skipping datasets/methods already processed (PR #126).
+
 ## MAJOR CHANGES
 
 * Removed `methods/cytovi` from the benchmark. The implementation is preserved in the `add-cytovi-implementation` branch to be revisited in the near future (PR #124).
+
+* Updated `metrics/lisi` (PR #126):
+  * iLISI is still computed globally across all cells per split (not per group), but is now skipped and returns NaN for a split if batch is confounded by group in any group (i.e. a group whose cells all come from a single batch, so cross-batch mixing can't be assessed).
+  * Moved the iLISI/cLISI computation out of `script.py` into a new `helper.py` (`compute_ilisi`, `compute_clisi`, `_check_batch_group_confounding`), and expanded the output `uns` to include per-cell iLISI/cLISI values and cell IDs for each split.
+
+* Updated `methods/harmonypy` to use the PyTorch GPU backend (harmonypy>=0.2.0) (PR #126):
+  * Switched Docker image to `openproblems/base_pytorch_nvidia:1.0.0`.
+  * Added `device=None` to `run_harmony` for automatic GPU detection (CUDA -> MPS -> CPU).
+  * Removed epsilon workaround as numerical stability is now handled internally by harmonypy.
+  * Updated Nextflow label to `lowcpu, gpu`.
 
 * Updated file schema (PR #18): 
   * Add is_control obs to indicate whether a cell should be used as control when correcting batch effect.
@@ -152,6 +180,8 @@
   * Split the metric into global and per cell type.
   * Refactored horizontal EMD.
 
+* Updated `metrics/flowsom_mapping_similarity` to compute mapping similarity bidirectionally (split1→split2 and split2→split1) and to export per-donor cluster×cell_type absolute-difference matrices in the output AnnData `uns` (PR #126).
+
 * Schema defined in `src\api` has been modified to include dataset specific parameters (PR #71).
 
 * Disabled parallelization of `metrics/cms` + cms distributions are now kept in the output AnnData object (PR #83).
@@ -165,6 +195,10 @@
   * Mid time, mem, cpu for most methods, except below.
   * High (or very high) time, mem, cpu for computationally expensive methods like rPCA.
 
+* `run_benchmark`: write the commit the workflow ran from and the launch time into
+  `task_info.yaml`, instead of publishing `_viash.yaml` verbatim (PR #136).
+
+* Remove `metrics/bras` , `metrics/n_inconsitent_peaks` and `control_methods/shuffle_by_cell_type` and `control_methods/batch`
 
 ## BUG FIXES
 
@@ -215,3 +249,22 @@
 
 * Update flowsom mapping similarity so we subset to just markers to correct, and lisi to remove control samples
   and unlabelled cells (PR #119).
+
+* Update the `ratio_consistent_peaks` description to match the implemented peak calling
+  (standardisation step, `height` 0.1 and `prominence` 0.01), and remove the unused
+  `persistent_peak_count()` helper together with the `scikit-tda` dependency (PR #132).
+* Point `scripts/run_benchmark/wehi_hpc/run_full_hpc.sh` at `build/main` instead of
+  `build/update_ilisi`, and label the seqera full run as `full` instead of `test_subset` (PR #129).
+
+* Fix `average_batch_r2` and `flowsom_mapping_similarity` writing `metric_ids` and `metric_values`
+  as scalars instead of lists, as required by `file_score.yaml` (PR #130).
+
+* Clean up stale mock parameters and dead code (PR #133).
+
+* Fix bug in `average_batch_r2` where the R2 was computed on all cell types of a donor at once
+  instead of on each cell type separately (PR #127).
+
+
+* Fix check cell_type_in_both to > 0 (instead of 1) and some spelling mistakes in print.
+
+* Updated anndata version to 0.12 in lisi metric to support NULL writing (PR #139)

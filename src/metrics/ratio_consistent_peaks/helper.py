@@ -1,7 +1,4 @@
-import matplotlib.pyplot as plt
 import numpy as np
-import seaborn as sns
-from ripser import ripser
 from scipy.signal import find_peaks
 from scipy.stats import gaussian_kde
 
@@ -65,6 +62,10 @@ def get_kde_density(expression_array, return_xgrid=False, plot=False):
         x_grid = np.concatenate([[min_val - step], x_grid])
 
     if plot:
+        # only needed when debugging locally, so don't import at module level
+        import matplotlib.pyplot as plt
+        import seaborn as sns
+
         fig, ax = plt.subplots()
         sns.scatterplot(x=x_grid, y=density, ax=ax)
         ax.set_title("KDE Density Estimation")
@@ -98,40 +99,3 @@ def call_peaks(density):
     num_peaks = len(peaks)
 
     return num_peaks
-
-
-def persistent_peak_count(ys, persistence_cutoff=0.08):
-    """
-    Counts robust peaks in a 1D dataset using persistent homology.
-
-    Args:
-        ys (np.ndarray): KDE of a marker expression (1D array)
-        persistence_cutoff (float): a threshold that decides which peaks are “significant enough” to count.
-            A large persistence peak survives over many levels of smoothing (i.e. a strong, real peak).
-            A small persistence peak quickly merges into a neighbor — likely noise.
-            0.01: very low threshold counts even weak bumps as peaks
-            0.05: moderate (default) counts clearly separated peaks
-            0.1–0.2: high threshold counts only strong, dominant peaks
-            Default to 0.08 to biased towards strong peaks but not overly.
-
-    Returns:
-        int: number of significant peaks
-    """
-
-    y = np.asarray(ys)
-    if y.size == 0:
-        return 0
-
-    # Shift if max is at the first bin
-    if y.size > 1 and np.argmax(y) == 0:
-        y = np.concatenate([[0.0], y[:-1]])
-
-    # Invert to turn peaks into "holes" for 0D persistence
-    Y = -ys.reshape(-1, 1)
-    diagram = ripser(Y, maxdim=0)["dgms"][0]
-    persistence = diagram[:, 1] - diagram[:, 0]
-
-    # Define significance threshold relative to data range
-    threshold = persistence_cutoff * np.ptp(ys)
-    n_peaks = np.sum(persistence > threshold)
-    return n_peaks

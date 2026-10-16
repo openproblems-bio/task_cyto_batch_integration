@@ -19,16 +19,16 @@ cat > /tmp/params.yaml << HERE
 input_states: /vast/scratch/users/putri.g/cytobenchmark/benchmark_out_hpc/datasets/**/state.yaml
 rename_keys: 'input_censored_split1:output_censored_split1;input_censored_split2:output_censored_split2;input_unintegrated:output_unintegrated'
 output_state: "state.yaml"
-settings: '{"metrics_include": ["emd"], "methods_include": ["combat"]}'
+settings: '{"metrics_include": ["flowsom_mapping_similarity"], "methods_include": ["combat"]}'
 publish_dir: "$publish_dir"
 HERE
 
 tw launch https://github.com/openproblems-bio/task_cyto_batch_integration.git \
-  --revision build/setup_run_hpc \
+  --revision build/update_ilisi \
   --pull-latest \
   --main-script target/nextflow/workflows/run_benchmark/main.nf \
   --workspace 80689470953249 \
   --params-file /tmp/params.yaml \
   --entry-name auto \
   --config scripts/labels_tw_wehi.config \
-  --labels task_cyto_batch_integration,combat,test
+  --labels task_cyto_batch_integration,test

@@ -4,12 +4,13 @@ library(flowStats)
 
 ## VIASH START
 par <- list(
-  input = "resources_test/task_cyto_batch_integration/cyto_spleen_subset/unintegrated_censored.h5ad",
+  input = "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/censored_split1.h5ad",
   output = "output.h5ad"
 )
 meta <- list(
-  name = "gaussNorm",
-  temp_dir: '/tmp'
+  name = "gaussnorm",
+  temp_dir = "/tmp",
+  resources_dir = "src/utils"
 )
 ## VIASH END
 

@@ -118,6 +118,7 @@ compute_fs_mapping_similarity <- function(
     dissimilarity = FSOM_dissimilarity,
     tree_split1 = fs_tree_s1,
     tree_split2 = fs_tree_s2,
+    absdiff_matrix = table_clustxcell_absdiff,
     differences = clust_differences,
     weights = clust_weights
   )

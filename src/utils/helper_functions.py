@@ -189,3 +189,26 @@ def remove_unlabelled(adata) -> ad.AnnData:
     is_unlabelled = adata.obs["cell_type"].str.lower().isin(["unlabelled", "unlabeled"])
 
     return adata[~is_unlabelled].copy()
+
+
+def preprocess_adata_for_evaluation(adata: ad.AnnData) -> ad.AnnData:
+    """
+    Prepare an AnnData object for metric evaluation by applying all standard
+    cell and marker filters in one step.
+
+    Specifically, this function:
+      1. Removes control samples (obs where is_control != 0).
+      2. Removes unlabelled cells (obs where cell_type is 'unlabelled' or 'unlabeled').
+      3. Subsets to markers flagged for correction (var where to_correct == True).
+
+    Inputs:
+    adata: AnnData object with obs columns 'is_control' and 'cell_type', and var
+        column 'to_correct'.
+
+    Outputs:
+    adata: Filtered AnnData object.
+    """
+    adata = subset_nocontrols(adata)
+    adata = remove_unlabelled(adata)
+    adata = subset_markers_tocorrect(adata)
+    return adata

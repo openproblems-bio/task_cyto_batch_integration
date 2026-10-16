@@ -16,7 +16,7 @@ meta = {"name": "average_batch_r2"}
 ## VIASH END
 
 sys.path.append(meta["resources_dir"])
-from helper import batch_r2, concat_paired_samples, fit_r2
+from helper import batch_r2
 from helper_functions import (
     get_obs_var_for_integrated,
     remove_unlabelled,
@@ -40,10 +40,7 @@ integrated_s1 = subset_markers_tocorrect(integrated_s1)
 integrated_s2 = subset_nocontrols(integrated_s2)
 integrated_s2 = subset_markers_tocorrect(integrated_s2)
 
-print(
-    integrated_s1.obs, integrated_s2.obs, flush=True
-)  ### Debugging line, can be removed later
-print("Computing average_batch_r2 global", flush=True)
+print("Computing average_batch_r2 per cell type", flush=True)
 
 donor_list = integrated_s1.obs["donor"].unique()
 
@@ -63,13 +60,13 @@ for donor in donor_list:
         s2_view_ct = s2_view[s2_view.obs["cell_type"] == ct]
         if (
             s1_view_ct.shape[0] < 20 or s2_view_ct.shape[0] < 20
-        ):  # Skip Rˆ2 calculation if there are less than 10 cells
+        ):  # Skip Rˆ2 calculation if there are less than 20 cells
             print(
                 f"Warning: Rˆ2 not computed for donor {donor} cell type {ct}. Too few cells were present: {s1_view_ct.shape[0]} for split 1 and {s2_view_ct.shape[0]} for split 2"
             )
             continue
 
-        r2_list, marker_list = batch_r2(s1_view, s2_view)
+        r2_list, marker_list = batch_r2(s1_view_ct, s2_view_ct)
 
         marker_list = [ct + "_" + donor + "_" + x for x in marker_list]
         r2_info = [*r2_info, *marker_list]
@@ -84,8 +81,8 @@ output = ad.AnnData(
     uns={
         "dataset_id": integrated_s1.uns["dataset_id"],
         "method_id": integrated_s1.uns["method_id"],
-        "metric_ids": "average_batch_r2_ct",
-        "metric_values": average_batch_r2_ct,
+        "metric_ids": ["average_batch_r2_ct"],
+        "metric_values": [average_batch_r2_ct],
         "r2_collection_ct": r2_collection_ct,
     }
 )

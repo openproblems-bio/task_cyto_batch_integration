@@ -19,8 +19,8 @@ requireNamespace("anndataR", quietly = TRUE)
 #'
 get_obs_var_for_integrated <- function(i_adata, u_adata, split_id) {
 
-    i_adata$obs <- u_adata$obs[i_adata$obs_names, ]
-    i_adata$var <- u_adata$var[i_adata$var_names, ]
+    i_adata$obs <- u_adata$obs[rownames(i_adata$obs), ]
+    i_adata$var <- u_adata$var[rownames(i_adata$var), ]
 
     # if integrated data came from perfect integration, change the batch labels of the samples
     # everything is from batch 1, but some samples need to be labelled to come from batch 2
@@ -151,42 +151,24 @@ remove_unlabelled <- function(adata) {
     adata[!is_unlabelled, ]
 }
 
-#' Subsets the anndata object in a stratified manner
-#' with 'cell type' and 'sample' as strata.
+#' Read the FlowSOM parameters stored in the unintegrated dataset.
 #'
 #' @param adata AnnData object
-#' @param frac numeric, fraction of cells to keep for each cell type
-#' @param seed numeric, seed for reproducibility
-#' @param anndatar logical, whether the input is anndataR object or not
-#' @return AnnData object with only the markers to correct
-subset_by_celltype <- function(adata, frac = 0.5, seed = 1, anndatar = TRUE) {
-  set.seed(seed)
-  
-  obs <- adata$obs
-  obs$cell_id <- rownames(obs)
-  obs$.row <- seq_len(nrow(obs))   # original order
-  
-  keep_ids <- obs %>%
-    group_by(cell_type, sample) %>%
-    slice_sample(prop = frac) %>%
-    ungroup() %>%
-    arrange(.row) %>%     # restore original order
-    pull(cell_id)
-  
-  if (anndatar == TRUE){
-    keep_idx <- match(keep_ids, adata$obs_names)
-    
-    adata_sub <- anndataR::AnnData(
-      X   = NULL,
-      obs = adata$obs[keep_idx, , drop = FALSE],
-      var = adata$var,
-      uns = adata$uns,
-      layers = list(
-        "integrated" = adata$layers$integrated[keep_idx, , drop = FALSE]
-      )
-    )
-  } else{
-    adata_sub <- adata[keep_ids, ]
-  }
+#' @return list with `n_clusters` and the SOM grid size `xdim`, `ydim`
+#' 
+get_flowsom_parameters <- function(adata) {
+  list(
+    n_clusters = adata$uns$parameter_num_clusters,
+    xdim = adata$uns$parameter_som_xdim,
+    ydim = adata$uns$parameter_som_ydim
+  )
 }
 
+#' Get the lineage markers from the anndata object.
+#' 
+#' @param adata AnnData object
+#' @return character vector of lineage marker names
+#' 
+get_lineage_markers <- function(adata) {
+    return(rownames(adata$var)[adata$var$marker_type == "lineage"])
+}

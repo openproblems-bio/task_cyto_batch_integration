@@ -7,7 +7,7 @@ par = {
     'input': 'resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/common_dataset.h5ad',
     'output_censored_split1': 'resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/censored_split1.h5ad',
     'output_censored_split2': 'resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/censored_split2.h5ad',
-    'output_validation': 'resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/validation.h5ad'
+    'output_unintegrated': 'resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/unintegrated.h5ad'
 }
 meta = {
     'resources_dir': 'target/executable/data_processors/process_dataset',

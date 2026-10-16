@@ -1,0 +1,103 @@
+__merge__: ../../api/comp_metric.yaml
+
+name: abundance_preservation
+
+# Metadata for your component
+info:
+  metrics:
+    # A unique identifier for your metric (required).
+    # Can contain only lowercase letters or underscores.
+    - name: abundance_preservation
+      # A relatively short label, used when rendering visualisarions (required)
+      label: Abundance Preservation
+      # A one sentence summary of how this metric works (required). Used when
+      # rendering summary tables.
+      summary: "Assesses whether differences in cell abundance between groups are preserved after batch integration."
+      # A multi-line description of how this component works (required). Used
+      # when rendering reference documentation.
+      description: |
+        This metric checks whether differences in cell abundance between two
+        groups (e.g. WT vs KO) survive batch integration. 
+
+        On the unintegrated data:
+        1. Each batch is clustered separately with FlowSOM, using lineage markers
+           only. 
+        2. Compute MEM (Marker Enrichment Modeling) score
+           for each cluster (Diggins et al. 2017, Nature Methods;
+           https://github.com/cytolab/cytoMEM).
+        3. Within each batch, find which clusters are differentially abundant
+           between the two groups in the dataset using Wilcoxon
+           rank-sum test. Pvalue threshold is set at <= 0.1. 
+        4. Using MEM RMSD similarity, for each batch 1 cluster find its best match
+           in batch 2. MEM RMSD similarity is defined as the root-mean-square
+           difference between two MEM vectors, rescaled to a percentage of the maximum
+           possible RMSD (note, MEM scores are bounded to [-10, 10]), where 100
+           means identical MEM vectors and 0 means opposite extremes on every
+           marker. Repeat but reverse the pairing - for each cluster in batch 2,
+           find the best matching cluster in batch 1.
+        5. Retain clusters that are mutually matched pairs and also
+           differentially abundant in both batches. 
+           If none survive, the metric stops with an error rather than reporting
+           a score.
+
+        On each integrated split:
+        6. Cluster cells using FlowSOM (lineage marker only) and compute
+           MEM score for each cluster.
+        7. For each cluster, find its closest cluster in *filtered* batch 1 clusters
+           calculated from step 5 above.
+        8. Run Wilcoxon rank-sum test to check whether those clusters are still 
+           differentially abundant between the two groups in the dataset. 
+        9. Compute the proportion of clusters which remain differentially abundant
+           in the split.
+        10. Repeat steps 6-9 for the second split.
+
+        The final metric score is the mean of the two splits' proportions of clusters 
+        that remain differentially abundant.
+
+        The MEM score and MEM RMSD are reimplemented directly in helper.R rather than
+        using the implementation provided by the cytoMEM package, because the package
+        is not modular enough. 
+        See in tests/test_mem_against_reference.R for unit tests which compare
+        the result of the reimplementation against cytoMEM's
+        own MEM()/MEM_RMSD() functions using the test data in the benchmark repo.
+        Note, this test should be run periodically to ensure that the reimplementation remains consistent
+        with cytoMEM's own implementation.
+
+      references:
+        doi:
+          - 10.1038/nmeth.4149
+      links:
+        # URL to the documentation for this metric (required).
+        documentation: https://github.com/cytolab/cytoMEM
+        # URL to the code repository for this metric (required).
+        repository: https://github.com/cytolab/MEM-examples
+      # The minimum possible value for this metric (required)
+      min: -0.0001
+      # The maximum possible value for this metric (required)
+      max: 1.0001
+      # Whether a higher value represents a 'better' solution (required)
+      maximize: true
+
+# Resources required to run the component
+resources:
+  # The script of your component (required)
+  - type: r_script
+    path: script.R
+  - path: helper.R
+  - type: r_script
+    path: /src/utils/helper_functions.R
+engines:
+  # Specifications for the Docker image for this component.
+  - type: docker
+    image: openproblems/base_r:1
+    setup:
+      - type: r
+        bioc: [FlowSOM, flowCore]
+        packages: [ dplyr, docstring, rlang, vctrs, lifecycle ]
+runners:
+  # This platform allows running the component natively
+  - type: executable
+  # Allows turning the component into a Nextflow module / pipeline.
+  - type: nextflow
+    directives:
+      label: [midtime, midmem, midcpu]
