@@ -457,6 +457,12 @@ dependencies:
     type: "github"
     repo: "openproblems-bio/openproblems"
     tag: "build/main"
+- name: "data_processors/precompute_python_metric"
+  repository:
+    type: "local"
+- name: "data_processors/precompute_r_metric"
+  repository:
+    type: "local"
 - name: "control_methods/shuffle_integration_globally"
   repository:
     type: "local"
@@ -551,10 +557,12 @@ build_info:
   output: "target/nextflow/workflows/run_benchmark"
   executable: "target/nextflow/workflows/run_benchmark/main.nf"
   viash_version: "0.9.7"
-  git_commit: "cbd814a37df8541da2ad12db932d0b88f843aec8"
+  git_commit: "132e9e2f2205dc5dddafd77260779f6ae628ee35"
   git_remote: "https://github.com/openproblems-bio/task_cyto_batch_integration"
   dependencies:
   - "target/dependencies/github/openproblems-bio/openproblems/build/main/nextflow/utils/extract_uns_metadata"
+  - "target/nextflow/data_processors/precompute_python_metric"
+  - "target/nextflow/data_processors/precompute_r_metric"
   - "target/nextflow/control_methods/shuffle_integration_globally"
   - "target/nextflow/control_methods/no_integration"
   - "target/nextflow/control_methods/perfect_integration"

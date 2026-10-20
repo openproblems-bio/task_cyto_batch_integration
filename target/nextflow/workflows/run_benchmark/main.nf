@@ -3630,6 +3630,18 @@ meta = [
       }
     },
     {
+      "name" : "data_processors/precompute_python_metric",
+      "repository" : {
+        "type" : "local"
+      }
+    },
+    {
+      "name" : "data_processors/precompute_r_metric",
+      "repository" : {
+        "type" : "local"
+      }
+    },
+    {
       "name" : "control_methods/shuffle_integration_globally",
       "repository" : {
         "type" : "local"
@@ -3794,7 +3806,7 @@ meta = [
     "engine" : "native",
     "output" : "target/nextflow/workflows/run_benchmark",
     "viash_version" : "0.9.7",
-    "git_commit" : "cbd814a37df8541da2ad12db932d0b88f843aec8",
+    "git_commit" : "132e9e2f2205dc5dddafd77260779f6ae628ee35",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3900,6 +3912,8 @@ meta = [
 // resolve dependencies dependencies (if any)
 meta["root_dir"] = getRootDir()
 include { extract_uns_metadata } from "${meta.root_dir}/dependencies/github/openproblems-bio/openproblems/build/main/nextflow/utils/extract_uns_metadata/main.nf"
+include { precompute_python_metric } from "${meta.resources_dir}/../../../nextflow/data_processors/precompute_python_metric/main.nf"
+include { precompute_r_metric } from "${meta.resources_dir}/../../../nextflow/data_processors/precompute_r_metric/main.nf"
 include { shuffle_integration_globally } from "${meta.resources_dir}/../../../nextflow/control_methods/shuffle_integration_globally/main.nf"
 include { no_integration } from "${meta.resources_dir}/../../../nextflow/control_methods/no_integration/main.nf"
 include { perfect_integration } from "${meta.resources_dir}/../../../nextflow/control_methods/perfect_integration/main.nf"
@@ -3987,6 +4001,17 @@ workflow run_wf {
           dataset_uns: readYaml(output.output).uns
         ]
       }
+    )
+
+    // Precompute metric inputs that only depend on the unintegrated data, once
+    // per dataset: one component for the Python metrics, one for the R metrics.
+    | precompute_python_metric.run(
+      fromState: [input_unintegrated: "input_unintegrated"],
+      toState: [precomputed_python_metric: "output"]
+    )
+    | precompute_r_metric.run(
+      fromState: [input_unintegrated: "input_unintegrated"],
+      toState: [precomputed_r_metric: "output"]
     )
 
   /***************************
@@ -4094,7 +4119,9 @@ workflow run_wf {
       fromState: [
         input_unintegrated: "input_unintegrated",
         input_integrated_split1: "integrated_split1",
-        input_integrated_split2: "integrated_split2"
+        input_integrated_split2: "integrated_split2",
+        input_precomputed_python_metric: "precomputed_python_metric",
+        input_precomputed_r_metric: "precomputed_r_metric"
       ],
       toState: { id, output, state, comp ->
         state + [

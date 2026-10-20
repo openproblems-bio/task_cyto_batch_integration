@@ -160,7 +160,7 @@ cluster_and_calculate_mem <- function(
   colnames(expr) <- rownames(adata$var)
   expr <- expr[, lineage_markers]
 
-  print("Clustering with FlowSOM\n")
+  cat("Clustering with FlowSOM\n")
 
   fsom <- FlowSOM::FlowSOM(
     expr,
@@ -173,7 +173,7 @@ cluster_and_calculate_mem <- function(
   )
   cluster_id_per_cell <- paste0(label_prefix, FlowSOM::GetMetaclusters(fsom))
 
-  print("Calculating MEM scores\n")
+  cat("Calculating MEM scores\n")
   mem_score <- compute_mem_matrix(
     expr_matrix = expr,
     cluster_id_per_cell = cluster_id_per_cell
@@ -264,7 +264,7 @@ test_differential_abundance <- function(
     by = "sample"
   )
 
-  print("Testing differential abundance with Wilcoxon rank-sum test\n")
+  cat("Testing differential abundance with Wilcoxon rank-sum test\n")
   pvals <- sapply(clusters_to_test, function(cluster) {
     vals_a <- sample_prop_per_cluster$proportion[
       sample_prop_per_cluster$cluster == cluster & sample_prop_per_cluster$group == group_a

@@ -3312,6 +3312,70 @@ meta = [
         },
         {
           "type" : "file",
+          "name" : "--input_precomputed_python_metric",
+          "label" : "Precomputed Python metric",
+          "summary" : "Some precomputed results from unintegrated data that some Python metrics can reuse.",
+          "description" : "An AnnData containing precomputed results from unintegrated data that\nare used by some Python metrics. They are stored in the `uns` slot:\n  - functional_marker_preservation: biological groups, the (marker, cell_type)\n    pairs significant in both batches, and the per-batch Wilcoxon and Cohen's d\n    results on the unintegrated data.\n  - ratio_consistent_peaks: `unintegrated_peaks`, the number of peaks of every\n    marker per donor and cell type in split 1 and split 2 of the unintegrated\n    data, plus the standard deviation of each split's expression.\n",
+          "info" : {
+            "format" : {
+              "type" : "h5ad",
+              "uns" : [
+                {
+                  "type" : "object",
+                  "name" : "functional_marker_preservation",
+                  "description" : "For computing the functional marker preservation metric.",
+                  "required" : true
+                },
+                {
+                  "type" : "object",
+                  "name" : "ratio_consistent_peaks",
+                  "description" : "For computing the ratio consistent peaks metric.",
+                  "required" : true
+                }
+              ]
+            }
+          },
+          "example" : [
+            "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/precomputed_python_metric.h5ad"
+          ],
+          "must_exist" : true,
+          "create_parent" : true,
+          "required" : true,
+          "direction" : "input",
+          "multiple" : false,
+          "multiple_sep" : ";"
+        },
+        {
+          "type" : "file",
+          "name" : "--input_precomputed_r_metric",
+          "label" : "Precomputed R metric",
+          "summary" : "Some precomputed results from unintegrated data that some R metrics can reuse.",
+          "description" : "An AnnData containing precomputed results from unintegrated data that\nare used by some R metrics. They are stored in the `uns` slot:\n  - abundance_preservation:\n      - `parameters`: groups, batches, lineage markers, FlowSOM settings and\n        the significance threshold.\n      - `batch1_mem`: MEM scores of the unintegrated batch 1 clusters.\n      - `retained_cluster_b1`: the batch 1 clusters retained for scoring.\n      - `diagnostics`: not used by the metric. The cluster of each\n        unintegrated cell, which clusters are differentially abundant, the\n        batch 1 to batch 2 cluster matching and the cluster similarity matrix.\n",
+          "info" : {
+            "format" : {
+              "type" : "h5ad",
+              "uns" : [
+                {
+                  "type" : "object",
+                  "name" : "abundance_preservation",
+                  "description" : "For computing the abundance preservation metric.",
+                  "required" : true
+                }
+              ]
+            }
+          },
+          "example" : [
+            "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/precomputed_r_metric.h5ad"
+          ],
+          "must_exist" : true,
+          "create_parent" : true,
+          "required" : true,
+          "direction" : "input",
+          "multiple" : false,
+          "multiple_sep" : ";"
+        },
+        {
+          "type" : "file",
           "name" : "--output",
           "label" : "Score",
           "summary" : "File indicating the score of a metric.",
@@ -3514,7 +3578,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/metrics/flowsom_mapping_similarity",
     "viash_version" : "0.9.7",
-    "git_commit" : "cbd814a37df8541da2ad12db932d0b88f843aec8",
+    "git_commit" : "132e9e2f2205dc5dddafd77260779f6ae628ee35",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3638,6 +3702,8 @@ par <- list(
   "input_unintegrated" = $( if [ ! -z ${VIASH_PAR_INPUT_UNINTEGRATED+x} ]; then echo -n "'"; echo -n "$VIASH_PAR_INPUT_UNINTEGRATED" | sed "s#['\\\\]#\\\\\\\\&#g"; echo "'"; else echo NULL; fi ),
   "input_integrated_split1" = $( if [ ! -z ${VIASH_PAR_INPUT_INTEGRATED_SPLIT1+x} ]; then echo -n "'"; echo -n "$VIASH_PAR_INPUT_INTEGRATED_SPLIT1" | sed "s#['\\\\]#\\\\\\\\&#g"; echo "'"; else echo NULL; fi ),
   "input_integrated_split2" = $( if [ ! -z ${VIASH_PAR_INPUT_INTEGRATED_SPLIT2+x} ]; then echo -n "'"; echo -n "$VIASH_PAR_INPUT_INTEGRATED_SPLIT2" | sed "s#['\\\\]#\\\\\\\\&#g"; echo "'"; else echo NULL; fi ),
+  "input_precomputed_python_metric" = $( if [ ! -z ${VIASH_PAR_INPUT_PRECOMPUTED_PYTHON_METRIC+x} ]; then echo -n "'"; echo -n "$VIASH_PAR_INPUT_PRECOMPUTED_PYTHON_METRIC" | sed "s#['\\\\]#\\\\\\\\&#g"; echo "'"; else echo NULL; fi ),
+  "input_precomputed_r_metric" = $( if [ ! -z ${VIASH_PAR_INPUT_PRECOMPUTED_R_METRIC+x} ]; then echo -n "'"; echo -n "$VIASH_PAR_INPUT_PRECOMPUTED_R_METRIC" | sed "s#['\\\\]#\\\\\\\\&#g"; echo "'"; else echo NULL; fi ),
   "output" = $( if [ ! -z ${VIASH_PAR_OUTPUT+x} ]; then echo -n "'"; echo -n "$VIASH_PAR_OUTPUT" | sed "s#['\\\\]#\\\\\\\\&#g"; echo "'"; else echo NULL; fi )
 )
 meta <- list(
@@ -3691,7 +3757,7 @@ integrated_s2 <- anndata::read_h5ad(par[["input_integrated_split2"]]) |>
   subset_nocontrols() |>
   remove_unlabelled()
 
-print("Setting parameters\\\\n")
+cat("Setting parameters\\\\n")
 donor_list <- unique(integrated_s1\\$obs\\$donor)
 lineage_markers <- integrated_s1\\$var_names[
   integrated_s1\\$var\\$marker_type == "lineage"
@@ -3700,7 +3766,7 @@ n_clusters <- unintegrated\\$uns\\$parameter_num_clusters
 grid_xdim <- unintegrated\\$uns\\$parameter_som_xdim
 grid_ydim <- unintegrated\\$uns\\$parameter_som_ydim
 
-print("Computing mapping similarity\\\\n")
+cat("Computing mapping similarity\\\\n")
 fs_mapping_similarity_allres <- list()
 fsom_absdiff_by_donor_refsplit <- list()
 fs_mapping_similarity_all <- c()
@@ -3792,7 +3858,7 @@ for (donor in donor_list) {
 # compute average mapping similarity for all donors
 fs_mapping_similarity_avg <- mean(fs_mapping_similarity_all)
 
-print("Write output AnnData to file\\\\n")
+cat("Write output AnnData to file\\\\n")
 output <- anndata::AnnData(
   shape = c(0L, 0L),
   uns = list(

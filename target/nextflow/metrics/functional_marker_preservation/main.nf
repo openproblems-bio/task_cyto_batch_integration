@@ -3312,6 +3312,70 @@ meta = [
         },
         {
           "type" : "file",
+          "name" : "--input_precomputed_python_metric",
+          "label" : "Precomputed Python metric",
+          "summary" : "Some precomputed results from unintegrated data that some Python metrics can reuse.",
+          "description" : "An AnnData containing precomputed results from unintegrated data that\nare used by some Python metrics. They are stored in the `uns` slot:\n  - functional_marker_preservation: biological groups, the (marker, cell_type)\n    pairs significant in both batches, and the per-batch Wilcoxon and Cohen's d\n    results on the unintegrated data.\n  - ratio_consistent_peaks: `unintegrated_peaks`, the number of peaks of every\n    marker per donor and cell type in split 1 and split 2 of the unintegrated\n    data, plus the standard deviation of each split's expression.\n",
+          "info" : {
+            "format" : {
+              "type" : "h5ad",
+              "uns" : [
+                {
+                  "type" : "object",
+                  "name" : "functional_marker_preservation",
+                  "description" : "For computing the functional marker preservation metric.",
+                  "required" : true
+                },
+                {
+                  "type" : "object",
+                  "name" : "ratio_consistent_peaks",
+                  "description" : "For computing the ratio consistent peaks metric.",
+                  "required" : true
+                }
+              ]
+            }
+          },
+          "example" : [
+            "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/precomputed_python_metric.h5ad"
+          ],
+          "must_exist" : true,
+          "create_parent" : true,
+          "required" : true,
+          "direction" : "input",
+          "multiple" : false,
+          "multiple_sep" : ";"
+        },
+        {
+          "type" : "file",
+          "name" : "--input_precomputed_r_metric",
+          "label" : "Precomputed R metric",
+          "summary" : "Some precomputed results from unintegrated data that some R metrics can reuse.",
+          "description" : "An AnnData containing precomputed results from unintegrated data that\nare used by some R metrics. They are stored in the `uns` slot:\n  - abundance_preservation:\n      - `parameters`: groups, batches, lineage markers, FlowSOM settings and\n        the significance threshold.\n      - `batch1_mem`: MEM scores of the unintegrated batch 1 clusters.\n      - `retained_cluster_b1`: the batch 1 clusters retained for scoring.\n      - `diagnostics`: not used by the metric. The cluster of each\n        unintegrated cell, which clusters are differentially abundant, the\n        batch 1 to batch 2 cluster matching and the cluster similarity matrix.\n",
+          "info" : {
+            "format" : {
+              "type" : "h5ad",
+              "uns" : [
+                {
+                  "type" : "object",
+                  "name" : "abundance_preservation",
+                  "description" : "For computing the abundance preservation metric.",
+                  "required" : true
+                }
+              ]
+            }
+          },
+          "example" : [
+            "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/precomputed_r_metric.h5ad"
+          ],
+          "must_exist" : true,
+          "create_parent" : true,
+          "required" : true,
+          "direction" : "input",
+          "multiple" : false,
+          "multiple_sep" : ";"
+        },
+        {
+          "type" : "file",
           "name" : "--output",
           "label" : "Score",
           "summary" : "File indicating the score of a metric.",
@@ -3394,6 +3458,7 @@ meta = [
     }
   ],
   "info" : {
+    "precompute_type" : "python",
     "metrics" : [
       {
         "name" : "functional_marker_preservation_wilcoxon",
@@ -3522,7 +3587,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/metrics/functional_marker_preservation",
     "viash_version" : "0.9.7",
-    "git_commit" : "cbd814a37df8541da2ad12db932d0b88f843aec8",
+    "git_commit" : "132e9e2f2205dc5dddafd77260779f6ae628ee35",
     "git_remote" : "https://github.com/openproblems-bio/task_cyto_batch_integration"
   },
   "package_config" : {
@@ -3646,6 +3711,8 @@ par = {
   'input_unintegrated': $( if [ ! -z ${VIASH_PAR_INPUT_UNINTEGRATED+x} ]; then echo "r'${VIASH_PAR_INPUT_UNINTEGRATED//\\'/\\'\\"\\'\\"r\\'}'"; else echo None; fi ),
   'input_integrated_split1': $( if [ ! -z ${VIASH_PAR_INPUT_INTEGRATED_SPLIT1+x} ]; then echo "r'${VIASH_PAR_INPUT_INTEGRATED_SPLIT1//\\'/\\'\\"\\'\\"r\\'}'"; else echo None; fi ),
   'input_integrated_split2': $( if [ ! -z ${VIASH_PAR_INPUT_INTEGRATED_SPLIT2+x} ]; then echo "r'${VIASH_PAR_INPUT_INTEGRATED_SPLIT2//\\'/\\'\\"\\'\\"r\\'}'"; else echo None; fi ),
+  'input_precomputed_python_metric': $( if [ ! -z ${VIASH_PAR_INPUT_PRECOMPUTED_PYTHON_METRIC+x} ]; then echo "r'${VIASH_PAR_INPUT_PRECOMPUTED_PYTHON_METRIC//\\'/\\'\\"\\'\\"r\\'}'"; else echo None; fi ),
+  'input_precomputed_r_metric': $( if [ ! -z ${VIASH_PAR_INPUT_PRECOMPUTED_R_METRIC+x} ]; then echo "r'${VIASH_PAR_INPUT_PRECOMPUTED_R_METRIC//\\'/\\'\\"\\'\\"r\\'}'"; else echo None; fi ),
   'output': $( if [ ! -z ${VIASH_PAR_OUTPUT+x} ]; then echo "r'${VIASH_PAR_OUTPUT//\\'/\\'\\"\\'\\"r\\'}'"; else echo None; fi )
 }
 meta = {
@@ -3694,7 +3761,7 @@ integrated_s1, integrated_s2 = get_obs_var_for_integrated(
     integrated_s1, integrated_s2, unintegrated
 )
 
-print("Filtering integrated and unintegrated data", flush=True)
+print("Filtering integrated data", flush=True)
 # preprocess_adata_for_evaluation removes controls, unlabelled cells, and non-corrected
 # markers. The additional functional marker filter is specific to this metric.
 integrated_s1 = preprocess_adata_for_evaluation(integrated_s1)
@@ -3707,27 +3774,17 @@ integrated_s2 = integrated_s2[
     :, integrated_s2.var["marker_type"] == "functional"
 ].copy()
 
-unintegrated = preprocess_adata_for_evaluation(unintegrated)
-unintegrated = unintegrated[:, unintegrated.var["marker_type"] == "functional"].copy()
+precomputed = ad.read_h5ad(par["input_precomputed_python_metric"]).uns[
+    "functional_marker_preservation"
+]
 
-# Inferred once from the unintegrated data and reused everywhere below, so
-# "group A" and "group B" — and therefore the sign of every Cohen's d value —
-# mean the same thing regardless of which batch, split, or method run produced it.
-group_a, group_b = metric_helper.infer_groups(unintegrated)
+group_a = precomputed["group_a"]
+group_b = precomputed["group_b"]
 print(f"Group A: {group_a}, Group B: {group_b}", flush=True)
 
 # ── Compute mean expression per sample ──────────────────────────────────────
-# Done once per batch/split and reused for both Wilcoxon and Cohen's d.
+# Done once per split and reused for both Wilcoxon and Cohen's d.
 print("Computing mean expression per sample", flush=True)
-
-batches = unintegrated.obs["batch"].unique()
-
-mean_expr_unintegrated = {}
-for batch in batches:
-    print(f"  Unintegrated batch {batch}", flush=True)
-    mean_expr_unintegrated[batch] = metric_helper.compute_mean_expression_per_sample(
-        unintegrated[unintegrated.obs["batch"] == batch], layer="preprocessed"
-    )
 
 print("  Integrated split 1", flush=True)
 mean_expr_s1 = metric_helper.compute_mean_expression_per_sample(
@@ -3739,26 +3796,14 @@ mean_expr_s2 = metric_helper.compute_mean_expression_per_sample(
 )
 
 # ── Wilcoxon metric ──────────────────────────────────────────────────────────
-# Unintegrated baseline: group A vs B within each batch separately.
-# A pair enters the baseline only if significant in BOTH batches (intersection),
-# ensuring the group difference is not batch-specific.
-print("Wilcoxon — computing unintegrated baseline", flush=True)
-
-wilcoxon_unintegrated = {}
-sig_per_batch = {}
-for batch in batches:
-    results = metric_helper.run_wilcoxon_group_tests(
-        mean_expr_unintegrated[batch], group_a, group_b
-    )
-    sig_per_batch[batch] = metric_helper.get_significant_pairs(results)
-    wilcoxon_unintegrated[str(batch)] = results.to_dict(orient="list")
-    print(
-        f"  Batch {batch}: {len(sig_per_batch[batch])} significant (marker, cell_type) pairs",
-        flush=True,
-    )
-
-sig_unintegrated = sig_per_batch[batches[0]] & sig_per_batch[batches[1]]
-print(f"  Significant in both batches: {len(sig_unintegrated)}", flush=True)
+# Baseline: (marker, cell_type) pairs significant in both unintegrated batches.
+# The list of tuples comes back from h5ad as a 2D array, one row per pair.
+# Turn the rows back into a set of tuples so membership checks match whole pairs.
+sig_unintegrated = set(map(tuple, precomputed["sig_pairs"]))
+print(
+    f"Unintegrated pairs significant in both batches: {len(sig_unintegrated)}",
+    flush=True,
+)
 
 if len(sig_unintegrated) == 0:
     print(
@@ -3780,8 +3825,8 @@ else:
     # Only count pairs that were in the unintegrated baseline.
     sig_s1 = metric_helper.get_significant_pairs(results_s1) & sig_unintegrated
     sig_s2 = metric_helper.get_significant_pairs(results_s2) & sig_unintegrated
-    wilcoxon_s1 = results_s1.to_dict(orient="list")
-    wilcoxon_s2 = results_s2.to_dict(orient="list")
+    wilcoxon_s1 = results_s1
+    wilcoxon_s2 = results_s2
 
     # A pair is preserved only if significant in BOTH integrated splits.
     sig_integrated = sig_s1 & sig_s2
@@ -3795,7 +3840,8 @@ else:
 print(f"Wilcoxon metric: {wilcoxon_metric}", flush=True)
 
 # ── Cohen's d metric ─────────────────────────────────────────────────────────
-# Ground truth: Cohen's d computed per batch from unintegrated, then averaged across batches.
+# Ground truth: Cohen's d computed per batch from unintegrated, then averaged across
+# batches (precomputed by precompute_python_metric).
 # Integrated: Cohen's d computed per split (batch-agnostic). Each split is compared
 # individually to the ground truth — abs() is taken before averaging so that opposite-
 # direction errors in split 1 and split 2 cannot cancel each other out.
@@ -3806,7 +3852,7 @@ print(f"Wilcoxon metric: {wilcoxon_metric}", flush=True)
 # sig_integrated: effect size drift is tracked for every pair with a genuine baseline
 # group difference, even if that difference no longer reached significance after
 # integration, since that's exactly the kind of degradation this metric should catch.
-print("Cohen's d — computing unintegrated ground truth", flush=True)
+print("Cohen's d metric", flush=True)
 
 if len(sig_unintegrated) == 0:
     print(
@@ -3830,35 +3876,8 @@ if len(sig_unintegrated) == 0:
         ]
     )
 else:
-    mean_expr_unintegrated_sig = {
-        batch: metric_helper.filter_to_sig_pairs(mean_expr_unintegrated[batch], sig_unintegrated)
-        for batch in batches
-    }
     mean_expr_s1_sig = metric_helper.filter_to_sig_pairs(mean_expr_s1, sig_unintegrated)
     mean_expr_s2_sig = metric_helper.filter_to_sig_pairs(mean_expr_s2, sig_unintegrated)
-
-    cohens_d_unintegrated = {}
-    for batch in batches:
-        cohens_d_unintegrated[batch] = metric_helper.compute_cohens_d(
-            mean_expr_unintegrated_sig[batch], group_a, group_b
-        )
-        print(
-            f"  Batch {batch}: {len(cohens_d_unintegrated[batch])} (marker, cell_type) pairs",
-            flush=True,
-        )
-
-    # Average Cohen's d across the two batches.
-    # Inner join keeps only pairs present in both batches.
-    d_b1 = cohens_d_unintegrated[batches[0]][["marker", "cell_type", "cohens_d"]].rename(
-        columns={"cohens_d": "cohens_d_b1"}
-    )
-    d_b2 = cohens_d_unintegrated[batches[1]][["marker", "cell_type", "cohens_d"]].rename(
-        columns={"cohens_d": "cohens_d_b2"}
-    )
-    d_unintegrated_mean = d_b1.merge(d_b2, on=["marker", "cell_type"])
-    d_unintegrated_mean["cohens_d_mean_unintegrated"] = d_unintegrated_mean[
-        ["cohens_d_b1", "cohens_d_b2"]
-    ].mean(axis=1)
 
     print("Cohen's d — computing integrated splits", flush=True)
     d_s1 = metric_helper.compute_cohens_d(mean_expr_s1_sig, group_a, group_b)
@@ -3874,6 +3893,7 @@ else:
     d_s1_and_s2 = d_split1.merge(d_split2, on=["marker", "cell_type"])
 
     # Per pair: |d_s1 - d_unintegrated| and |d_s2 - d_unintegrated|, then average the two.
+    d_unintegrated_mean = precomputed["cohens_d_mean_unintegrated"]
     d_comparison = d_unintegrated_mean.merge(
         d_s1_and_s2,
         on=["marker", "cell_type"],
@@ -3899,7 +3919,7 @@ print("Write output AnnData to file", flush=True)
 #     had higher mean expression than group_b for that (marker, cell_type) pair.
 #
 #   wilcoxon section:
-#     sig_unintegrated / sig_split1 / sig_split2 / sig_integrated: sorted lists
+#     sig_split1 / sig_split2 / sig_integrated: sorted lists
 #       of (marker, cell_type) tuples significant at each stage.
 #     wilcoxon_results: raw test tables per comparison round with columns
 #       [marker, cell_type, group_a, group_b, u_statistic, pval].
@@ -3919,17 +3939,15 @@ uns = {
     "group_a": group_a,
     "group_b": group_b,
     # Wilcoxon
-    "sig_unintegrated": sorted(sig_unintegrated),
     "sig_split1": sorted(sig_s1),
     "sig_split2": sorted(sig_s2),
     "sig_integrated": sorted(sig_integrated),
     "wilcoxon_results": {
-        "unintegrated": wilcoxon_unintegrated,
         "split_1": wilcoxon_s1,
         "split_2": wilcoxon_s2,
     },
     # Cohen's d
-    "cohens_d_results": d_comparison.to_dict(orient="list"),
+    "cohens_d_results": d_comparison,
 }
 
 output = ad.AnnData(uns=uns)

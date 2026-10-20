@@ -446,9 +446,9 @@ function ViashDockerfile {
 FROM openproblems/base_python:1
 ENTRYPOINT []
 LABEL org.opencontainers.image.description="Companion container for running component metrics emd"
-LABEL org.opencontainers.image.created="2026-10-13T23:51:32Z"
+LABEL org.opencontainers.image.created="2026-10-20T09:21:15Z"
 LABEL org.opencontainers.image.source="https://github.com/openproblems-bio/task_cyto_batch_integration"
-LABEL org.opencontainers.image.revision="cbd814a37df8541da2ad12db932d0b88f843aec8"
+LABEL org.opencontainers.image.revision="132e9e2f2205dc5dddafd77260779f6ae628ee35"
 LABEL org.opencontainers.image.version="build_main"
 
 VIASHDOCKER
@@ -586,6 +586,42 @@ function ViashHelp {
   echo "        example:"
   echo "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/integrated_split2.h5ad"
   echo ""
+  echo "    --input_precomputed_python_metric"
+  echo "        type: file, required parameter, file must exist"
+  echo "        example:"
+  echo "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/precomputed_python_metric.h5ad"
+  echo "        An AnnData containing precomputed results from unintegrated data that"
+  echo "        are used by some Python metrics. They are stored in the \`uns\` slot:"
+  echo "          - functional_marker_preservation: biological groups, the (marker,"
+  echo "        cell_type)"
+  echo "            pairs significant in both batches, and the per-batch Wilcoxon and"
+  echo "        Cohen's d"
+  echo "            results on the unintegrated data."
+  echo "          - ratio_consistent_peaks: \`unintegrated_peaks\`, the number of peaks of"
+  echo "        every"
+  echo "            marker per donor and cell type in split 1 and split 2 of the"
+  echo "        unintegrated"
+  echo "            data, plus the standard deviation of each split's expression."
+  echo ""
+  echo "    --input_precomputed_r_metric"
+  echo "        type: file, required parameter, file must exist"
+  echo "        example:"
+  echo "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/precomputed_r_metric.h5ad"
+  echo "        An AnnData containing precomputed results from unintegrated data that"
+  echo "        are used by some R metrics. They are stored in the \`uns\` slot:"
+  echo "          - abundance_preservation:"
+  echo "              - \`parameters\`: groups, batches, lineage markers, FlowSOM settings"
+  echo "        and"
+  echo "                the significance threshold."
+  echo "              - \`batch1_mem\`: MEM scores of the unintegrated batch 1 clusters."
+  echo "              - \`retained_cluster_b1\`: the batch 1 clusters retained for"
+  echo "        scoring."
+  echo "              - \`diagnostics\`: not used by the metric. The cluster of each"
+  echo "                unintegrated cell, which clusters are differentially abundant,"
+  echo "        the"
+  echo "                batch 1 to batch 2 cluster matching and the cluster similarity"
+  echo "        matrix."
+  echo ""
   echo "    --output"
   echo "        type: file, required parameter, output, file must exist"
   echo "        example:"
@@ -672,6 +708,28 @@ while [[ $# -gt 0 ]]; do
         --input_integrated_split2=*)
             [ -n "$VIASH_PAR_INPUT_INTEGRATED_SPLIT2" ] && ViashError Bad arguments for option \'--input_integrated_split2=*\': \'$VIASH_PAR_INPUT_INTEGRATED_SPLIT2\' \& \'$2\' - you should provide exactly one argument for this option. && exit 1
             VIASH_PAR_INPUT_INTEGRATED_SPLIT2=$(ViashRemoveFlags "$1")
+            shift 1
+            ;;
+        --input_precomputed_python_metric)
+            [ -n "$VIASH_PAR_INPUT_PRECOMPUTED_PYTHON_METRIC" ] && ViashError Bad arguments for option \'--input_precomputed_python_metric\': \'$VIASH_PAR_INPUT_PRECOMPUTED_PYTHON_METRIC\' \& \'$2\' - you should provide exactly one argument for this option. && exit 1
+            VIASH_PAR_INPUT_PRECOMPUTED_PYTHON_METRIC="$2"
+            [ $# -lt 2 ] && ViashError Not enough arguments passed to --input_precomputed_python_metric. Use "--help" to get more information on the parameters. && exit 1
+            shift 2
+            ;;
+        --input_precomputed_python_metric=*)
+            [ -n "$VIASH_PAR_INPUT_PRECOMPUTED_PYTHON_METRIC" ] && ViashError Bad arguments for option \'--input_precomputed_python_metric=*\': \'$VIASH_PAR_INPUT_PRECOMPUTED_PYTHON_METRIC\' \& \'$2\' - you should provide exactly one argument for this option. && exit 1
+            VIASH_PAR_INPUT_PRECOMPUTED_PYTHON_METRIC=$(ViashRemoveFlags "$1")
+            shift 1
+            ;;
+        --input_precomputed_r_metric)
+            [ -n "$VIASH_PAR_INPUT_PRECOMPUTED_R_METRIC" ] && ViashError Bad arguments for option \'--input_precomputed_r_metric\': \'$VIASH_PAR_INPUT_PRECOMPUTED_R_METRIC\' \& \'$2\' - you should provide exactly one argument for this option. && exit 1
+            VIASH_PAR_INPUT_PRECOMPUTED_R_METRIC="$2"
+            [ $# -lt 2 ] && ViashError Not enough arguments passed to --input_precomputed_r_metric. Use "--help" to get more information on the parameters. && exit 1
+            shift 2
+            ;;
+        --input_precomputed_r_metric=*)
+            [ -n "$VIASH_PAR_INPUT_PRECOMPUTED_R_METRIC" ] && ViashError Bad arguments for option \'--input_precomputed_r_metric=*\': \'$VIASH_PAR_INPUT_PRECOMPUTED_R_METRIC\' \& \'$2\' - you should provide exactly one argument for this option. && exit 1
+            VIASH_PAR_INPUT_PRECOMPUTED_R_METRIC=$(ViashRemoveFlags "$1")
             shift 1
             ;;
         --output)
@@ -867,6 +925,14 @@ if [ -z ${VIASH_PAR_INPUT_INTEGRATED_SPLIT2+x} ]; then
   ViashError '--input_integrated_split2' is a required argument. Use "--help" to get more information on the parameters.
   exit 1
 fi
+if [ -z ${VIASH_PAR_INPUT_PRECOMPUTED_PYTHON_METRIC+x} ]; then
+  ViashError '--input_precomputed_python_metric' is a required argument. Use "--help" to get more information on the parameters.
+  exit 1
+fi
+if [ -z ${VIASH_PAR_INPUT_PRECOMPUTED_R_METRIC+x} ]; then
+  ViashError '--input_precomputed_r_metric' is a required argument. Use "--help" to get more information on the parameters.
+  exit 1
+fi
 if [ -z ${VIASH_PAR_OUTPUT+x} ]; then
   ViashError '--output' is a required argument. Use "--help" to get more information on the parameters.
   exit 1
@@ -907,6 +973,14 @@ if [ ! -z "$VIASH_PAR_INPUT_INTEGRATED_SPLIT1" ] && [ ! -e "$VIASH_PAR_INPUT_INT
 fi
 if [ ! -z "$VIASH_PAR_INPUT_INTEGRATED_SPLIT2" ] && [ ! -e "$VIASH_PAR_INPUT_INTEGRATED_SPLIT2" ]; then
   ViashError "Input file '$VIASH_PAR_INPUT_INTEGRATED_SPLIT2' does not exist."
+  exit 1
+fi
+if [ ! -z "$VIASH_PAR_INPUT_PRECOMPUTED_PYTHON_METRIC" ] && [ ! -e "$VIASH_PAR_INPUT_PRECOMPUTED_PYTHON_METRIC" ]; then
+  ViashError "Input file '$VIASH_PAR_INPUT_PRECOMPUTED_PYTHON_METRIC' does not exist."
+  exit 1
+fi
+if [ ! -z "$VIASH_PAR_INPUT_PRECOMPUTED_R_METRIC" ] && [ ! -e "$VIASH_PAR_INPUT_PRECOMPUTED_R_METRIC" ]; then
+  ViashError "Input file '$VIASH_PAR_INPUT_PRECOMPUTED_R_METRIC' does not exist."
   exit 1
 fi
 
@@ -1004,6 +1078,14 @@ if [ ! -z "$VIASH_PAR_INPUT_INTEGRATED_SPLIT2" ]; then
   VIASH_DIRECTORY_MOUNTS+=( "$(ViashDockerAutodetectMountArg "$VIASH_PAR_INPUT_INTEGRATED_SPLIT2")" )
   VIASH_PAR_INPUT_INTEGRATED_SPLIT2=$(ViashDockerAutodetectMount "$VIASH_PAR_INPUT_INTEGRATED_SPLIT2")
 fi
+if [ ! -z "$VIASH_PAR_INPUT_PRECOMPUTED_PYTHON_METRIC" ]; then
+  VIASH_DIRECTORY_MOUNTS+=( "$(ViashDockerAutodetectMountArg "$VIASH_PAR_INPUT_PRECOMPUTED_PYTHON_METRIC")" )
+  VIASH_PAR_INPUT_PRECOMPUTED_PYTHON_METRIC=$(ViashDockerAutodetectMount "$VIASH_PAR_INPUT_PRECOMPUTED_PYTHON_METRIC")
+fi
+if [ ! -z "$VIASH_PAR_INPUT_PRECOMPUTED_R_METRIC" ]; then
+  VIASH_DIRECTORY_MOUNTS+=( "$(ViashDockerAutodetectMountArg "$VIASH_PAR_INPUT_PRECOMPUTED_R_METRIC")" )
+  VIASH_PAR_INPUT_PRECOMPUTED_R_METRIC=$(ViashDockerAutodetectMount "$VIASH_PAR_INPUT_PRECOMPUTED_R_METRIC")
+fi
 if [ ! -z "$VIASH_PAR_OUTPUT" ]; then
   VIASH_DIRECTORY_MOUNTS+=( "$(ViashDockerAutodetectMountArg "$VIASH_PAR_OUTPUT")" )
   VIASH_PAR_OUTPUT=$(ViashDockerAutodetectMount "$VIASH_PAR_OUTPUT")
@@ -1086,6 +1168,8 @@ par = {
   'input_unintegrated': $( if [ ! -z ${VIASH_PAR_INPUT_UNINTEGRATED+x} ]; then echo "r'${VIASH_PAR_INPUT_UNINTEGRATED//\'/\'\"\'\"r\'}'"; else echo None; fi ),
   'input_integrated_split1': $( if [ ! -z ${VIASH_PAR_INPUT_INTEGRATED_SPLIT1+x} ]; then echo "r'${VIASH_PAR_INPUT_INTEGRATED_SPLIT1//\'/\'\"\'\"r\'}'"; else echo None; fi ),
   'input_integrated_split2': $( if [ ! -z ${VIASH_PAR_INPUT_INTEGRATED_SPLIT2+x} ]; then echo "r'${VIASH_PAR_INPUT_INTEGRATED_SPLIT2//\'/\'\"\'\"r\'}'"; else echo None; fi ),
+  'input_precomputed_python_metric': $( if [ ! -z ${VIASH_PAR_INPUT_PRECOMPUTED_PYTHON_METRIC+x} ]; then echo "r'${VIASH_PAR_INPUT_PRECOMPUTED_PYTHON_METRIC//\'/\'\"\'\"r\'}'"; else echo None; fi ),
+  'input_precomputed_r_metric': $( if [ ! -z ${VIASH_PAR_INPUT_PRECOMPUTED_R_METRIC+x} ]; then echo "r'${VIASH_PAR_INPUT_PRECOMPUTED_R_METRIC//\'/\'\"\'\"r\'}'"; else echo None; fi ),
   'output': $( if [ ! -z ${VIASH_PAR_OUTPUT+x} ]; then echo "r'${VIASH_PAR_OUTPUT//\'/\'\"\'\"r\'}'"; else echo None; fi )
 }
 meta = {
@@ -1226,6 +1310,12 @@ if [[ "$VIASH_ENGINE_TYPE" == "docker" ]]; then
   fi
   if [ ! -z "$VIASH_PAR_INPUT_INTEGRATED_SPLIT2" ]; then
     VIASH_PAR_INPUT_INTEGRATED_SPLIT2=$(ViashDockerStripAutomount "$VIASH_PAR_INPUT_INTEGRATED_SPLIT2")
+  fi
+  if [ ! -z "$VIASH_PAR_INPUT_PRECOMPUTED_PYTHON_METRIC" ]; then
+    VIASH_PAR_INPUT_PRECOMPUTED_PYTHON_METRIC=$(ViashDockerStripAutomount "$VIASH_PAR_INPUT_PRECOMPUTED_PYTHON_METRIC")
+  fi
+  if [ ! -z "$VIASH_PAR_INPUT_PRECOMPUTED_R_METRIC" ]; then
+    VIASH_PAR_INPUT_PRECOMPUTED_R_METRIC=$(ViashDockerStripAutomount "$VIASH_PAR_INPUT_PRECOMPUTED_R_METRIC")
   fi
   if [ ! -z "$VIASH_PAR_OUTPUT" ]; then
     VIASH_PAR_OUTPUT=$(ViashDockerStripAutomount "$VIASH_PAR_OUTPUT")
