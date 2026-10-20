@@ -4,11 +4,9 @@ name: combat
 label: ComBat
 summary: "ComBat batch correction using an empirical Bayes framework, parameterised by correction target"
 description: |
-  Corrects for batch effects by fitting a location/scale linear model per marker,
-  gaining statistical power via an empirical Bayes framework where information is
-  borrowed across markers. This uses the implementation in the R package sva.
+  Popular method using empirical Bayes frameworks to correct for batch effects in biological data.
+  Parametric adjustment enabled. This uses the implementation in the R package sva.
 
-  Control samples are removed before correction, as ComBat does not use them as anchors.
   `--target` selects whether batches are corrected towards reference batch 1 (`goal`,
   using `ref.batch = "1"`) or towards the pooled mean and variance across batches (`mid`,
   the default `ref.batch = NULL`).
