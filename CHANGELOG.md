@@ -209,6 +209,8 @@
 
 * Remove `metrics/bras` , `metrics/n_inconsitent_peaks` and `control_methods/shuffle_by_cell_type` and `control_methods/batch`
 
+* Switch to `sva::` implementation for `methods/combat` (PR #149)
+
 ## BUG FIXES
 
 * Change n_inconsistent_peaks output to float and add R2 to main.nf (PR #40).
