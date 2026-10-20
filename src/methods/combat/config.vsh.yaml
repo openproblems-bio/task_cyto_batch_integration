@@ -1,0 +1,55 @@
+__merge__: ../../api/comp_method.yaml
+
+name: combat
+label: ComBat
+summary: "ComBat batch correction using an empirical Bayes framework, parameterised by correction target"
+description: |
+  Corrects for batch effects by fitting a location/scale linear model per marker,
+  gaining statistical power via an empirical Bayes framework where information is
+  borrowed across markers. This uses the implementation in the R package sva.
+
+  Control samples are removed before correction, as ComBat does not use them as anchors.
+  `--target` selects whether batches are corrected towards reference batch 1 (`goal`,
+  using `ref.batch = "1"`) or towards the pooled mean and variance across batches (`mid`,
+  the default `ref.batch = NULL`).
+references:
+  doi: 10.1093/biostatistics/kxj037
+links:
+  documentation: https://bioconductor.org/packages/release/bioc/html/sva.html
+  repository: https://github.com/bioc/sva
+
+info:
+  variants:
+    no_controls_to_goal:
+      target: goal
+    no_controls_to_mid:
+      target: mid
+
+argument_groups:
+  - name: Parameter set
+    arguments:
+      - type: string
+        name: --target
+        choices: [goal, mid]
+        default: mid
+        description: Whether to correct batches towards reference batch 1 (`goal`) or towards the pooled mean across batches (`mid`).
+
+resources:
+  - type: r_script
+    path: script.R
+  - type: r_script
+    path: /src/utils/helper_functions.R
+
+engines:
+  - type: docker
+    image: openproblems/base_r:1
+    setup:
+      - type: r
+        bioc: sva
+        packages: [ lifecycle, vctrs, dplyr, rlang ]
+
+runners:
+  - type: executable
+  - type: nextflow
+    directives:
+      label: [midtime,midmem,midcpu]
