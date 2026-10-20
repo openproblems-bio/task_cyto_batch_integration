@@ -20,7 +20,7 @@ meta <- list(
 source(paste0(meta$resources_dir, "/helper_functions.R"))
 source(paste0(meta$resources_dir, "/helper.R"))
 
-print("Reading input files\n")
+cat("Reading input files\n")
 
 unintegrated <- anndata::read_h5ad(par[["input_unintegrated"]])
 
@@ -37,7 +37,7 @@ integrated_s2 <- anndata::read_h5ad(par[["input_integrated_split2"]]) |>
 # The unintegrated half of the metric (per-batch clustering, DA tests and
 # cluster matching) was pre-computed once per
 # dataset by the precompute_r_metric component.
-print("Reading precomputed unintegrated results\n")
+cat("Reading precomputed unintegrated results\n")
 precomputed <- anndata::read_h5ad(par[["input_precomputed_r_metric"]])$uns$abundance_preservation
 precomputed_param <- precomputed$parameters
 
@@ -69,7 +69,7 @@ if (length(retained_clusters_b1) == 0) {
   )
 }
 
-print("Clustering and running DA for each integrated split\n")
+cat("Clustering and running DA for each integrated split\n")
 result_s1 <- process_integrated_split(
   adata = integrated_s1,
   dataset_param = dataset_param,
@@ -89,14 +89,14 @@ result_s2 <- process_integrated_split(
   label_prefix = "split2_c"
 )
 
-print("Computing final score\n")
+cat("Computing final score\n")
 # Clusters in integrated are mapped to retained clusters in b1.
 # So it only makes sense for the final proportion to be calculated over the retained clusters in b1, not all clusters in b1.
 prop_still_da_s1 <- length(result_s1$da_results$significant) / length(retained_clusters_b1)
 prop_still_da_s2 <- length(result_s2$da_results$significant) / length(retained_clusters_b1)
 score <- mean(c(prop_still_da_s1, prop_still_da_s2))
 
-print("Write output AnnData to file\n")
+cat("Write output AnnData to file\n")
 # Everything below is grouped by the stage it came from, so a diagnosis never
 # needs to stitch loose vectors back together. Similarity matrices are written
 # as data frames because a plain matrix loses its dimnames in h5ad, which makes

@@ -19,22 +19,22 @@ source(paste0(meta$resources_dir, "/helper_functions.R"))
 # Viash copies it into resources_dir.
 source(paste0(meta$resources_dir, "/helper.R"))
 
-print("Reading input file\n")
+cat("Reading input file\n")
 unintegrated <- anndata::read_h5ad(par[["input_unintegrated"]]) |>
   subset_nocontrols()
 
 # ── Abundance preservation ──────────────────────────────────────────────────
 SIGNIFICANCE_THRESHOLD <- 0.1
 
-print("Setting parameters\n")
+cat("Setting parameters\n")
 fsom_param <- get_flowsom_parameters(unintegrated)
 dataset_param <- get_dataset_parameters(unintegrated)
 
-print("Cluster each unintegrated batch separately and compute MEM scores\n")
+cat("Cluster each unintegrated batch separately and compute MEM scores\n")
 unintegrated_b1 <- unintegrated[unintegrated$obs$batch == dataset_param$batch_1, ]$copy()
 unintegrated_b2 <- unintegrated[unintegrated$obs$batch == dataset_param$batch_2, ]$copy()
 
-print("Clustering and computing MEM scores for batch 1\n")
+cat("Clustering and computing MEM scores for batch 1\n")
 clustering_b1 <- cluster_and_calculate_mem(
   adata = unintegrated_b1,
   layer_name = "preprocessed",
@@ -42,7 +42,7 @@ clustering_b1 <- cluster_and_calculate_mem(
   fsom_param = fsom_param,
   label_prefix = paste0("batch", dataset_param$batch_1, "_c")
 )
-print("Clustering and computing MEM scores for batch 2\n")
+cat("Clustering and computing MEM scores for batch 2\n")
 clustering_b2 <- cluster_and_calculate_mem(
   adata = unintegrated_b2,
   layer_name = "preprocessed",
@@ -51,7 +51,7 @@ clustering_b2 <- cluster_and_calculate_mem(
   label_prefix = paste0("batch", dataset_param$batch_2, "_c")
 )
 
-print("Test which clusters are differentially abundant within each batch\n")
+cat("Test which clusters are differentially abundant within each batch\n")
 abundance_b1 <- test_differential_abundance(
   cluster_id_per_cell = clustering_b1$cluster_id_per_cell,
   sample_id_per_cell = unintegrated_b1$obs$sample,
@@ -73,7 +73,7 @@ abundance_b2 <- test_differential_abundance(
 DA_clusters_b1 <- abundance_b1$significant
 DA_clusters_b2 <- abundance_b2$significant
 
-print("Finding best matches for batch 1 clusters\n")
+cat("Finding best matches for batch 1 clusters\n")
 b1_cluster_matches <- find_cluster_match(
   mem_a = clustering_b1$mem,
   mem_b = clustering_b2$mem
@@ -102,7 +102,7 @@ retained_clusters_b1 <- cluster_b1_best_matches_filtered$cluster_a
 # on this dataset.
 print(sprintf("Retained %d batch 1 clusters\n", length(retained_clusters_b1)))
 
-print("Write output AnnData to file\n")
+cat("Write output AnnData to file\n")
 # Matrices are written as data frames because a plain matrix loses its
 # dimnames in h5ad, which makes the cluster labels unrecoverable.
 
