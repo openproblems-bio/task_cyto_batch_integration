@@ -91,6 +91,15 @@
 
 * Added `scripts/adhoc_runs/run_metric_adhoc.py` and `run_metric_adhoc.sh` for re-running a single metric against existing pipeline output during development, without re-running the full Nextflow pipeline. Patches the metric script's VIASH block with the given input/output paths and runs it as a subprocess; discovers `(dataset, method)` pairs from `<input-dir>/<dataset>/method_out/<method>_split1.h5ad` and supports skipping datasets/methods already processed (PR #126).
 
+* Added metric precompute components that precompute some information needed by some metrics from the unintegrated data (PR #144):
+  - `src/api`: Added `comp_precompute.yaml` for precompute components, and the file formats `file_precomputed_python_metric.yaml` and `file_precomputed_r_metric.yaml`. Metrics now require two new inputs: `--input_precomputed_python_metric` and `--input_precomputed_r_metric`.
+  - `src/data_processors`: Added `precompute_python_metric` (for `functional_marker_preservation` and `ratio_consistent_peaks`, one precompute module per metric) and `precompute_r_metric` (for `abundance_preservation`).
+  - `src/metrics`: `functional_marker_preservation`, `ratio_consistent_peaks` and `abundance_preservation` now read their unintegrated results from the precomputed files. 
+  Any uns that are only used for diagnostics and computed from unintegrated are now stored
+  in the precomputed files rather than the metric output.
+  - `src/workflows`: `run_benchmark` runs both precompute components for each dataset and passes both files to every metric. The metric then chooses whether to use it or not.
+  - `scripts/adhoc_runs`: The ad-hoc metric runners run the precompute once per dataset before running the metric.
+
 ## MAJOR CHANGES
 
 * Removed `methods/cytovi` from the benchmark. The implementation is preserved in the `add-cytovi-implementation` branch to be revisited in the near future (PR #124).
