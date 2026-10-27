@@ -443,12 +443,17 @@ function ViashDockerfile {
 
   if [[ "$engine_id" == "docker" ]]; then
     cat << 'VIASHDOCKER'
-FROM openproblems/base_python:1
+FROM openproblems/base_r:1
 ENTRYPOINT []
+RUN Rscript -e 'options(warn = 2); if (!requireNamespace("remotes", quietly = TRUE)) install.packages("remotes")' && \
+  Rscript -e 'options(warn = 2); if (!requireNamespace("BiocManager", quietly = TRUE)) install.packages("BiocManager")' && \
+  Rscript -e 'options(warn = 2); if (!requireNamespace("sva", quietly = TRUE)) BiocManager::install("sva")' && \
+  Rscript -e 'options(warn = 2); remotes::install_cran(c("lifecycle", "vctrs", "dplyr", "rlang"), repos = "https://cran.rstudio.com")'
+
 LABEL org.opencontainers.image.description="Companion container for running component methods combat"
-LABEL org.opencontainers.image.created="2026-10-20T09:21:15Z"
-LABEL org.opencontainers.image.source="https://github.com/brentp/combat.py"
-LABEL org.opencontainers.image.revision="132e9e2f2205dc5dddafd77260779f6ae628ee35"
+LABEL org.opencontainers.image.created="2026-10-27T12:27:27Z"
+LABEL org.opencontainers.image.source="https://github.com/bioc/sva"
+LABEL org.opencontainers.image.revision="14e16176322efb20ee107b6059fd6c24e3a3b135"
 LABEL org.opencontainers.image.version="build_main"
 
 VIASHDOCKER
@@ -568,9 +573,24 @@ VIASH_DOCKER_RUN_ARGS=(-i --rm)
 function ViashHelp {
   echo "combat build_main"
   echo ""
-  echo "Corrects for batch effects by fitting linear models, gains statistical power via"
-  echo "an EB framework where information is borrowed across genes."
-  echo "This uses the implementation combat.py"
+  echo "Popular method using empirical Bayes frameworks to correct for batch effects in"
+  echo "biological data."
+  echo "Parametric adjustment enabled. This uses the implementation in the R package"
+  echo "sva."
+  echo ""
+  echo "\`--target\` selects whether batches are corrected towards reference batch 1"
+  echo "(\`goal\`,"
+  echo "using \`ref.batch = \"1\"\`) or towards the pooled mean and variance across batches"
+  echo "(\`mid\`,"
+  echo "the default \`ref.batch = NULL\`)."
+  echo ""
+  echo "Parameter set:"
+  echo "    --target"
+  echo "        type: string"
+  echo "        default: mid"
+  echo "        choices: [ goal, mid ]"
+  echo "        Whether to correct batches towards reference batch 1 (\`goal\`) or towards"
+  echo "        the pooled mean across batches (\`mid\`)."
   echo ""
   echo "Arguments:"
   echo "    --input"
@@ -640,6 +660,17 @@ while [[ $# -gt 0 ]]; do
         --version)
             echo "combat build_main"
             exit
+            ;;
+        --target)
+            [ -n "$VIASH_PAR_TARGET" ] && ViashError Bad arguments for option \'--target\': \'$VIASH_PAR_TARGET\' \& \'$2\' - you should provide exactly one argument for this option. && exit 1
+            VIASH_PAR_TARGET="$2"
+            [ $# -lt 2 ] && ViashError Not enough arguments passed to --target. Use "--help" to get more information on the parameters. && exit 1
+            shift 2
+            ;;
+        --target=*)
+            [ -n "$VIASH_PAR_TARGET" ] && ViashError Bad arguments for option \'--target=*\': \'$VIASH_PAR_TARGET\' \& \'$2\' - you should provide exactly one argument for this option. && exit 1
+            VIASH_PAR_TARGET=$(ViashRemoveFlags "$1")
+            shift 1
             ;;
         --input)
             [ -n "$VIASH_PAR_INPUT" ] && ViashError Bad arguments for option \'--input\': \'$VIASH_PAR_INPUT\' \& \'$2\' - you should provide exactly one argument for this option. && exit 1
@@ -866,6 +897,11 @@ if [ -z ${VIASH_META_TEMP_DIR+x} ]; then
   exit 1
 fi
 
+# filling in defaults
+if [ -z ${VIASH_PAR_TARGET+x} ]; then
+  VIASH_PAR_TARGET="mid"
+fi
+
 # check whether required files exist
 if [ ! -z "$VIASH_PAR_INPUT" ] && [ ! -e "$VIASH_PAR_INPUT" ]; then
   ViashError "Input file '$VIASH_PAR_INPUT' does not exist."
@@ -946,6 +982,19 @@ if [[ -n "$VIASH_META_MEMORY_PIB" ]]; then
   fi
 fi
 
+# check whether value is belongs to a set of choices
+if [ ! -z "$VIASH_PAR_TARGET" ]; then
+  VIASH_PAR_TARGET_CHOICES=("goal;mid")
+  IFS=';'
+  set -f
+  if ! [[ ";${VIASH_PAR_TARGET_CHOICES[*]};" =~ ";$VIASH_PAR_TARGET;" ]]; then
+    ViashError '--target' specified value of \'$VIASH_PAR_TARGET\' is not in the list of allowed values. Use "--help" to get more information on the parameters.
+    exit 1
+  fi
+  set +f
+  unset IFS
+fi
+
 # create parent directories of output files, if so desired
 if [ ! -z "$VIASH_PAR_OUTPUT" ] && [ ! -d "$(dirname "$VIASH_PAR_OUTPUT")" ]; then
   mkdir -p "$(dirname "$VIASH_PAR_OUTPUT")"
@@ -1019,7 +1068,7 @@ fi
 ViashDebug "Running command: $(echo $VIASH_CMD)"
 cat << VIASHEOF | eval $VIASH_CMD
 set -e
-tempscript=\$(mktemp "$VIASH_META_TEMP_DIR/viash-run-combat-XXXXXX").py
+tempscript=\$(mktemp "$VIASH_META_TEMP_DIR/viash-run-combat-XXXXXX").R
 function clean_up {
   rm "\$tempscript"
 }
@@ -1030,96 +1079,94 @@ function interrupt {
 trap clean_up EXIT
 trap interrupt INT SIGINT
 cat > "\$tempscript" << 'VIASHMAIN'
-import sys
-
-import anndata as ad
-import numpy as np
-import scanpy as sc
+library(anndata)
+requireNamespace("sva", quietly = TRUE)
 
 ## VIASH START
 # The following code has been auto-generated by Viash.
-par = {
-  'input': $( if [ ! -z ${VIASH_PAR_INPUT+x} ]; then echo "r'${VIASH_PAR_INPUT//\'/\'\"\'\"r\'}'"; else echo None; fi ),
-  'output': $( if [ ! -z ${VIASH_PAR_OUTPUT+x} ]; then echo "r'${VIASH_PAR_OUTPUT//\'/\'\"\'\"r\'}'"; else echo None; fi )
-}
-meta = {
-  'name': $( if [ ! -z ${VIASH_META_NAME+x} ]; then echo "r'${VIASH_META_NAME//\'/\'\"\'\"r\'}'"; else echo None; fi ),
-  'functionality_name': $( if [ ! -z ${VIASH_META_FUNCTIONALITY_NAME+x} ]; then echo "r'${VIASH_META_FUNCTIONALITY_NAME//\'/\'\"\'\"r\'}'"; else echo None; fi ),
-  'resources_dir': $( if [ ! -z ${VIASH_META_RESOURCES_DIR+x} ]; then echo "r'${VIASH_META_RESOURCES_DIR//\'/\'\"\'\"r\'}'"; else echo None; fi ),
-  'executable': $( if [ ! -z ${VIASH_META_EXECUTABLE+x} ]; then echo "r'${VIASH_META_EXECUTABLE//\'/\'\"\'\"r\'}'"; else echo None; fi ),
-  'config': $( if [ ! -z ${VIASH_META_CONFIG+x} ]; then echo "r'${VIASH_META_CONFIG//\'/\'\"\'\"r\'}'"; else echo None; fi ),
-  'temp_dir': $( if [ ! -z ${VIASH_META_TEMP_DIR+x} ]; then echo "r'${VIASH_META_TEMP_DIR//\'/\'\"\'\"r\'}'"; else echo None; fi ),
-  'cpus': $( if [ ! -z ${VIASH_META_CPUS+x} ]; then echo "int(r'${VIASH_META_CPUS//\'/\'\"\'\"r\'}')"; else echo None; fi ),
-  'memory_b': $( if [ ! -z ${VIASH_META_MEMORY_B+x} ]; then echo "int(r'${VIASH_META_MEMORY_B//\'/\'\"\'\"r\'}')"; else echo None; fi ),
-  'memory_kb': $( if [ ! -z ${VIASH_META_MEMORY_KB+x} ]; then echo "int(r'${VIASH_META_MEMORY_KB//\'/\'\"\'\"r\'}')"; else echo None; fi ),
-  'memory_mb': $( if [ ! -z ${VIASH_META_MEMORY_MB+x} ]; then echo "int(r'${VIASH_META_MEMORY_MB//\'/\'\"\'\"r\'}')"; else echo None; fi ),
-  'memory_gb': $( if [ ! -z ${VIASH_META_MEMORY_GB+x} ]; then echo "int(r'${VIASH_META_MEMORY_GB//\'/\'\"\'\"r\'}')"; else echo None; fi ),
-  'memory_tb': $( if [ ! -z ${VIASH_META_MEMORY_TB+x} ]; then echo "int(r'${VIASH_META_MEMORY_TB//\'/\'\"\'\"r\'}')"; else echo None; fi ),
-  'memory_pb': $( if [ ! -z ${VIASH_META_MEMORY_PB+x} ]; then echo "int(r'${VIASH_META_MEMORY_PB//\'/\'\"\'\"r\'}')"; else echo None; fi ),
-  'memory_kib': $( if [ ! -z ${VIASH_META_MEMORY_KIB+x} ]; then echo "int(r'${VIASH_META_MEMORY_KIB//\'/\'\"\'\"r\'}')"; else echo None; fi ),
-  'memory_mib': $( if [ ! -z ${VIASH_META_MEMORY_MIB+x} ]; then echo "int(r'${VIASH_META_MEMORY_MIB//\'/\'\"\'\"r\'}')"; else echo None; fi ),
-  'memory_gib': $( if [ ! -z ${VIASH_META_MEMORY_GIB+x} ]; then echo "int(r'${VIASH_META_MEMORY_GIB//\'/\'\"\'\"r\'}')"; else echo None; fi ),
-  'memory_tib': $( if [ ! -z ${VIASH_META_MEMORY_TIB+x} ]; then echo "int(r'${VIASH_META_MEMORY_TIB//\'/\'\"\'\"r\'}')"; else echo None; fi ),
-  'memory_pib': $( if [ ! -z ${VIASH_META_MEMORY_PIB+x} ]; then echo "int(r'${VIASH_META_MEMORY_PIB//\'/\'\"\'\"r\'}')"; else echo None; fi )
-}
-dep = {
+# treat warnings as errors
+.viash_orig_warn <- options(warn = 2)
+
+par <- list(
+  "target" = $( if [ ! -z ${VIASH_PAR_TARGET+x} ]; then echo -n "'"; echo -n "$VIASH_PAR_TARGET" | sed "s#['\\]#\\\\&#g"; echo "'"; else echo NULL; fi ),
+  "input" = $( if [ ! -z ${VIASH_PAR_INPUT+x} ]; then echo -n "'"; echo -n "$VIASH_PAR_INPUT" | sed "s#['\\]#\\\\&#g"; echo "'"; else echo NULL; fi ),
+  "output" = $( if [ ! -z ${VIASH_PAR_OUTPUT+x} ]; then echo -n "'"; echo -n "$VIASH_PAR_OUTPUT" | sed "s#['\\]#\\\\&#g"; echo "'"; else echo NULL; fi )
+)
+meta <- list(
+  "name" = $( if [ ! -z ${VIASH_META_NAME+x} ]; then echo -n "'"; echo -n "$VIASH_META_NAME" | sed "s#['\\]#\\\\&#g"; echo "'"; else echo NULL; fi ),
+  "functionality_name" = $( if [ ! -z ${VIASH_META_FUNCTIONALITY_NAME+x} ]; then echo -n "'"; echo -n "$VIASH_META_FUNCTIONALITY_NAME" | sed "s#['\\]#\\\\&#g"; echo "'"; else echo NULL; fi ),
+  "resources_dir" = $( if [ ! -z ${VIASH_META_RESOURCES_DIR+x} ]; then echo -n "'"; echo -n "$VIASH_META_RESOURCES_DIR" | sed "s#['\\]#\\\\&#g"; echo "'"; else echo NULL; fi ),
+  "executable" = $( if [ ! -z ${VIASH_META_EXECUTABLE+x} ]; then echo -n "'"; echo -n "$VIASH_META_EXECUTABLE" | sed "s#['\\]#\\\\&#g"; echo "'"; else echo NULL; fi ),
+  "config" = $( if [ ! -z ${VIASH_META_CONFIG+x} ]; then echo -n "'"; echo -n "$VIASH_META_CONFIG" | sed "s#['\\]#\\\\&#g"; echo "'"; else echo NULL; fi ),
+  "temp_dir" = $( if [ ! -z ${VIASH_META_TEMP_DIR+x} ]; then echo -n "'"; echo -n "$VIASH_META_TEMP_DIR" | sed "s#['\\]#\\\\&#g"; echo "'"; else echo NULL; fi ),
+  "cpus" = $( if [ ! -z ${VIASH_META_CPUS+x} ]; then echo -n "as.integer('"; echo -n "$VIASH_META_CPUS" | sed "s#['\\]#\\\\&#g"; echo "')"; else echo NULL; fi ),
+  "memory_b" = $( if [ ! -z ${VIASH_META_MEMORY_B+x} ]; then echo -n "bit64::as.integer64('"; echo -n "$VIASH_META_MEMORY_B" | sed "s#['\\]#\\\\&#g"; echo "')"; else echo NULL; fi ),
+  "memory_kb" = $( if [ ! -z ${VIASH_META_MEMORY_KB+x} ]; then echo -n "bit64::as.integer64('"; echo -n "$VIASH_META_MEMORY_KB" | sed "s#['\\]#\\\\&#g"; echo "')"; else echo NULL; fi ),
+  "memory_mb" = $( if [ ! -z ${VIASH_META_MEMORY_MB+x} ]; then echo -n "bit64::as.integer64('"; echo -n "$VIASH_META_MEMORY_MB" | sed "s#['\\]#\\\\&#g"; echo "')"; else echo NULL; fi ),
+  "memory_gb" = $( if [ ! -z ${VIASH_META_MEMORY_GB+x} ]; then echo -n "bit64::as.integer64('"; echo -n "$VIASH_META_MEMORY_GB" | sed "s#['\\]#\\\\&#g"; echo "')"; else echo NULL; fi ),
+  "memory_tb" = $( if [ ! -z ${VIASH_META_MEMORY_TB+x} ]; then echo -n "bit64::as.integer64('"; echo -n "$VIASH_META_MEMORY_TB" | sed "s#['\\]#\\\\&#g"; echo "')"; else echo NULL; fi ),
+  "memory_pb" = $( if [ ! -z ${VIASH_META_MEMORY_PB+x} ]; then echo -n "bit64::as.integer64('"; echo -n "$VIASH_META_MEMORY_PB" | sed "s#['\\]#\\\\&#g"; echo "')"; else echo NULL; fi ),
+  "memory_kib" = $( if [ ! -z ${VIASH_META_MEMORY_KIB+x} ]; then echo -n "bit64::as.integer64('"; echo -n "$VIASH_META_MEMORY_KIB" | sed "s#['\\]#\\\\&#g"; echo "')"; else echo NULL; fi ),
+  "memory_mib" = $( if [ ! -z ${VIASH_META_MEMORY_MIB+x} ]; then echo -n "bit64::as.integer64('"; echo -n "$VIASH_META_MEMORY_MIB" | sed "s#['\\]#\\\\&#g"; echo "')"; else echo NULL; fi ),
+  "memory_gib" = $( if [ ! -z ${VIASH_META_MEMORY_GIB+x} ]; then echo -n "bit64::as.integer64('"; echo -n "$VIASH_META_MEMORY_GIB" | sed "s#['\\]#\\\\&#g"; echo "')"; else echo NULL; fi ),
+  "memory_tib" = $( if [ ! -z ${VIASH_META_MEMORY_TIB+x} ]; then echo -n "bit64::as.integer64('"; echo -n "$VIASH_META_MEMORY_TIB" | sed "s#['\\]#\\\\&#g"; echo "')"; else echo NULL; fi ),
+  "memory_pib" = $( if [ ! -z ${VIASH_META_MEMORY_PIB+x} ]; then echo -n "bit64::as.integer64('"; echo -n "$VIASH_META_MEMORY_PIB" | sed "s#['\\]#\\\\&#g"; echo "')"; else echo NULL; fi )
+)
+dep <- list(
   
-}
+)
+
+
+# restore original warn setting
+options(.viash_orig_warn)
+rm(.viash_orig_warn)
 
 ## VIASH END
 
-sys.path.append(meta["resources_dir"])
-from helper_functions import subset_nocontrols
+source(paste0(meta\$resources_dir, "/helper_functions.R"))
 
-print("Reading and preparing input files", flush=True)
-adata = ad.read_h5ad(par["input"])
+cat("Reading input files\\n")
+input <- anndata::read_h5ad(par[["input"]]) |>
+  subset_nocontrols()
 
-# Remove reference
-adata = subset_nocontrols(adata)
+cat("Subset data\\n")
+data_not_correct <- input[, !input\$var\$to_correct]
+data_to_correct <- input[, input\$var\$to_correct]
 
-print("Preprocess data", flush=True)
-markers_to_correct = adata.var[adata.var["to_correct"]].index.to_numpy()
-markers_not_correct = [
-    x for x in adata.var["to_correct"].index if x not in markers_to_correct
-]
-temp_var_index = [
-    *markers_to_correct,
-    *markers_not_correct,
-]  # temporary indexing : not corrected markers last
+# correct towards batch 1 (goal) or towards the pooled mean across batches (mid)
+ref_batch <- if (par[["target"]] == "goal") "1" else NULL
 
-adata_to_correct = adata[:, markers_to_correct].copy()
-adata_to_correct.X = adata_to_correct.layers[
-    "preprocessed"
-]  # sc.pp.combat operates only on .X
-
-print("Train model", flush=True)
-corrected_matrix = sc.pp.combat(adata_to_correct, key="batch", inplace=False)
-
-print("Aggregate data", flush=True)
-uncorrected_matrix = adata[:, markers_not_correct].layers["preprocessed"]
-integrated_matrix = np.concatenate([corrected_matrix, uncorrected_matrix], axis=1)
-
-print("Write output AnnData to file", flush=True)
-out_data = ad.AnnData(
-    obs=adata.obs[[]],
-    var=adata[:, temp_var_index].var[[]],
-    layers={"integrated": integrated_matrix},
-    uns={
-        "dataset_id": adata.uns["dataset_id"],
-        "method_id": meta["name"],
-        "parameters": {},
-    },
+cat("Run ComBat\\n")
+output <- sva::ComBat(
+  dat = Matrix::t(data_to_correct\$layers[["preprocessed"]]),
+  batch = data_to_correct\$obs\$batch,
+  ref.batch = ref_batch
 )
-print("Re-ordering markers", flush=True)
-out_data = out_data[:, adata.var_names]
 
-out_data.write_h5ad(par["output"], compression="gzip")
+cat("Preparing output Anndata\\n")
+output <- Matrix::t(output)
+output <- cbind(output, data_not_correct\$layers[["preprocessed"]])
 
-print(
-    "Written anndata of shape ", out_data.shape, " to file: ", par["output"], flush=True
+cat("Write output AnnData to file\\n")
+output <- anndata::AnnData(
+  obs = input\$obs[, integer(0)],
+  var = input\$var[colnames(output), integer(0)],
+  layers = list(integrated = output),
+  uns = list(
+    dataset_id = input\$uns\$dataset_id,
+    method_id = meta\$name,
+    parameters = list(target = par[["target"]])
+  )
 )
+
+# reorder the var in output
+output <- output[, input\$var_names]
+
+output\$write_h5ad(par[["output"]], compression = "gzip")
+
+cat("Written anndata of shape ", dim(output), " to file: ", par[["output"]], "\\n")
 VIASHMAIN
-python -B "\$tempscript" &
+Rscript "\$tempscript" &
 wait "\$!"
 
 VIASHEOF
