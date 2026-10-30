@@ -118,6 +118,7 @@ dependencies:
   - name: methods/cytonorm
   - name: methods/batchadjust
   - name: methods/rpca
+  - name: methods/control_quantile_mapping
   - name: metrics/emd
   - name: metrics/ratio_consistent_peaks
   - name: metrics/average_batch_r2

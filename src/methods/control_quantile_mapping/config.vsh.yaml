@@ -1,0 +1,67 @@
+__merge__: ../../api/comp_method.yaml
+
+name: control_quantile_mapping
+label: Control quantile mapping
+summary: "Per-population monotone quantile maps learned from replicate control samples, blended with an all-cells map"
+description: |
+  Control samples are aliquots of the same donor measured in every batch, so the differences between their
+  marker distributions across batches are technical. For every batch and marker, this method learns the monotone
+  quantile map that sends the control cells of that batch onto the donor's reference distribution (the 1D
+  Wasserstein barycenter over batches, i.e. a "mid" target), first globally and then per cell population
+  (k-means on the globally corrected lineage markers). Population maps are shrunk towards the global map by
+  n / (n + shrinkage) and averaged (weight `allcells_weight`) with the same quantile map computed from all cells of
+  the population, which keeps the correction stable when the controls are in a different biological state than
+  the other samples. The maps are applied to every cell of the batch; markers that are not to be corrected are
+  returned unchanged. Method designed with AI assistance (Claude, Anthropic).
+references:
+  doi:
+    - 10.1038/s41467-022-29383-5
+links:
+  repository: https://github.com/openproblems-bio/task_cyto_batch_integration
+  documentation: https://github.com/openproblems-bio/task_cyto_batch_integration
+
+arguments:
+  - type: integer
+    name: --n_clusters
+    default: 40
+    description: Number of k-means cell populations used for population-specific maps (0 = global maps only).
+  - type: integer
+    name: --n_quantiles
+    default: 51
+    description: Number of quantile knots (including the two end points, which are dropped) per map.
+  - type: double
+    name: --allcells_weight
+    default: 0.5
+    description: Weight of the all-cells population map in the blend with the control-derived map.
+  - type: double
+    name: --shrinkage
+    default: 200
+    description: Pseudo-count of control cells for shrinking population maps towards the global map.
+  - type: string
+    name: --target
+    default: mid
+    choices: [mid, goal]
+    description: Reference distribution, the barycenter over batches (mid) or batch 1 (goal).
+  - type: integer
+    name: --seed
+    default: 0
+    description: Random seed for k-means.
+
+resources:
+  - type: python_script
+    path: script.py
+
+engines:
+  - type: docker
+    image: openproblems/base_python:1
+    setup:
+      - type: python
+        packages:
+          - scikit-learn
+          - scipy
+
+runners:
+  - type: executable
+  - type: nextflow
+    directives:
+      label: [midtime, midmem, lowcpu]

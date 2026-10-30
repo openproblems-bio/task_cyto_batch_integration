@@ -21,6 +21,7 @@ methods = [
   harmonypy,
   limma_remove_batch_effect,
   rpca,
+  control_quantile_mapping,
 ]
 
 // construct list of metrics
