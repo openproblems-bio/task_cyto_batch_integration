@@ -100,7 +100,7 @@
   - `src/workflows`: `run_benchmark` runs both precompute components for each dataset and passes both files to every metric. The metric then chooses whether to use it or not.
   - `scripts/adhoc_runs`: The ad-hoc metric runners run the precompute once per dataset before running the metric.
 
-* Added `methods/control_quantile_mapping` component: per-population monotone quantile maps learned from the control samples, blended with an all-cells map (PR #TBD).
+* Added `methods/control_quantile_mapping` component: per-population monotone quantile maps learned from the control samples, blended with an all-cells map (PR #152).
 
 ## MAJOR CHANGES
 
