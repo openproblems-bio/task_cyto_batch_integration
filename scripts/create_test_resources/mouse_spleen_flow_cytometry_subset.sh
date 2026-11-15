@@ -19,10 +19,17 @@ DATASET_DIR=resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytomet
 
 mkdir -p $DATASET_DIR
 
+if [ ! -f "$RAW_DATA/common_dataset.h5ad" ]; then
+  echo "Fetch the raw dataset first"
+  exit 1
+fi
+
 python << HERE
 import anndata as ad
 
 adata = ad.read_h5ad("$RAW_DATA/common_dataset.h5ad")
+
+print(f"Original AnnData object: {adata}")
 
 # determine split from is_validation and is_control
 # if is_control >= 1 → 0
@@ -44,46 +51,69 @@ adata.uns["parameter_som_xdim"] = int(adata.uns.pop("parameter_flowsom_xdim"))
 adata.uns["parameter_som_ydim"] = int(adata.uns.pop("parameter_flowsom_ydim"))
 adata.uns["parameter_num_clusters"] = int(adata.uns.pop("parameter_flowsom_nclus"))
 
+print(f"New AnnData object: {adata}")
+
 # make sure the output is compressed
 adata.write_h5ad("$DATASET_DIR/common_dataset.h5ad", compression='gzip')
 HERE
 
 # process dataset
+echo "Processing dataset..."
 viash run src/data_processors/process_dataset/config.vsh.yaml -- \
   --input $DATASET_DIR/common_dataset.h5ad \
   --output_unintegrated $DATASET_DIR/unintegrated.h5ad \
   --output_censored_split1 $DATASET_DIR/censored_split1.h5ad \
   --output_censored_split2 $DATASET_DIR/censored_split2.h5ad
 
+# precompute the unintegrated results that metrics reuse
+echo "Precomputing values for Python metrics"
+viash run src/data_processors/precompute_python_metric/config.vsh.yaml -- \
+  --input_unintegrated $DATASET_DIR/unintegrated.h5ad \
+  --output $DATASET_DIR/precomputed_python_metric.h5ad
+
+echo "Precomputing values for R metrics"
+viash run src/data_processors/precompute_r_metric/config.vsh.yaml -- \
+  --input_unintegrated $DATASET_DIR/unintegrated.h5ad \
+  --output $DATASET_DIR/precomputed_r_metric.h5ad
+
 # run one method
+echo "Running one method on split 1"
 viash run src/methods/harmonypy/config.vsh.yaml -- \
   --input $DATASET_DIR/censored_split1.h5ad \
   --output $DATASET_DIR/integrated_split1.h5ad
 
 # run one method
+echo "Running one method on split 2"
 viash run src/methods/harmonypy/config.vsh.yaml -- \
   --input $DATASET_DIR/censored_split2.h5ad \
   --output $DATASET_DIR/integrated_split2.h5ad
 
 # run one metric
+echo "Running one metric"
 viash run src/metrics/emd/config.vsh.yaml -- \
     --input_unintegrated $DATASET_DIR/unintegrated.h5ad \
     --input_integrated_split1 $DATASET_DIR/integrated_split1.h5ad \
     --input_integrated_split2 $DATASET_DIR/integrated_split2.h5ad \
+    --input_precomputed_python_metric $DATASET_DIR/precomputed_python_metric.h5ad \
+    --input_precomputed_r_metric $DATASET_DIR/precomputed_r_metric.h5ad \
     --output $DATASET_DIR/score.h5ad
 
 # write manual state.yaml
+echo "Writing state.yaml"
 cat > $DATASET_DIR/state.yaml << HERE
 id: $DATASET_ID
 unintegrated: !file unintegrated.h5ad
 censored_split1: !file censored_split1.h5ad
 censored_split2: !file censored_split2.h5ad
+precomputed_python_metric: !file precomputed_python_metric.h5ad
+precomputed_r_metric: !file precomputed_r_metric.h5ad
 integrated_split1: !file integrated_split1.h5ad
 integrated_split2: !file integrated_split2.h5ad
 score: !file score.h5ad
 HERE
 
 # only run this if you have access to the openproblems-data bucket
+echo "Syncing to S3..."
 aws s3 sync --profile op \
   resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset \
   s3://openproblems-data/resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset \

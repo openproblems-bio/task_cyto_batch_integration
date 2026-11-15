@@ -19,6 +19,14 @@ arguments:
     __merge__: file_integrated_split2.yaml
     direction: input
     required: true
+  - name: "--input_precomputed_python_metric"
+    __merge__: file_precomputed_python_metric.yaml
+    direction: input
+    required: true
+  - name: "--input_precomputed_r_metric"
+    __merge__: file_precomputed_r_metric.yaml
+    direction: input
+    required: true
   - name: "--output"
     __merge__: file_score.yaml
     direction: output

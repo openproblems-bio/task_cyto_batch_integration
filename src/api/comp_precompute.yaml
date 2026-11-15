@@ -1,0 +1,20 @@
+namespace: "data_processors"
+info:
+  type: metric_precompute
+  type_info:
+    label: Metric precompute
+    summary: Precompute some information for metrics calculation from unintegrated data.
+    description: |
+      A component that computes, once per dataset, some information from 
+      the unintegrated data that a metric would otherwise recompute for every method.
+      Each precompute component declares its own `--output` file format.
+arguments:
+  - name: "--input_unintegrated"
+    __merge__: file_unintegrated.yaml
+    direction: input
+    required: true
+test_resources:
+  - type: python_script
+    path: /common/component_tests/run_and_check_output.py
+  - path: /resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset
+    dest: resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset

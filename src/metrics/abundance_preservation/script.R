@@ -8,6 +8,7 @@ par <- list(
   "input_unintegrated" = file.path(home_path, "unintegrated.h5ad"),
   "input_integrated_split1" = file.path(home_path, "integrated_split1.h5ad"),
   "input_integrated_split2" = file.path(home_path, "integrated_split2.h5ad"),
+  "input_precomputed_r_metric" = file.path(home_path, "precomputed_r_metric.h5ad"),
   "output" = file.path(home_path, "score.h5ad")
 )
 meta <- list(
@@ -19,9 +20,7 @@ meta <- list(
 source(paste0(meta$resources_dir, "/helper_functions.R"))
 source(paste0(meta$resources_dir, "/helper.R"))
 
-SIGNIFICANCE_THRESHOLD <- 0.1
-
-print("Reading input files\n")
+cat("Reading input files\n")
 
 unintegrated <- anndata::read_h5ad(par[["input_unintegrated"]])
 
@@ -35,101 +34,48 @@ integrated_s2 <- anndata::read_h5ad(par[["input_integrated_split2"]]) |>
   subset_markers_tocorrect() |>
   subset_nocontrols()
 
-print("Subsetting unintegrated data to remove control samples\n")
-unintegrated <- unintegrated |> subset_nocontrols()
+# The unintegrated half of the metric (per-batch clustering, DA tests and
+# cluster matching) was pre-computed once per
+# dataset by the precompute_r_metric component.
+cat("Reading precomputed unintegrated results\n")
+precomputed <- anndata::read_h5ad(par[["input_precomputed_r_metric"]])$uns$abundance_preservation
+precomputed_param <- precomputed$parameters
 
-print("Setting parameters\n")
+SIGNIFICANCE_THRESHOLD <- precomputed_param$significance_threshold
 
-fsom_param <- get_flowsom_parameters(unintegrated)
-
-# dataset specific parameters
-dataset_param <- get_dataset_parameters(unintegrated)
-
-print("Cluster each unintegrated batch separately and compute MEM scores\n")
-# cluster each batch separately and compute MEM scores
-
-unintegrated_b1 <- unintegrated[unintegrated$obs$batch == dataset_param$batch_1, ]$copy()
-unintegrated_b2 <- unintegrated[unintegrated$obs$batch == dataset_param$batch_2, ]$copy()
-
-print("Clustering and computing MEM scores for batch 1\n")
-clustering_b1 <- cluster_and_calculate_mem(
-  adata = unintegrated_b1,
-  layer_name = "preprocessed",
-  lineage_markers = dataset_param$lineage_markers,
-  fsom_param = fsom_param,
-  label_prefix = paste0("batch", dataset_param$batch_1, "_c")
+dataset_param <- list(
+  lineage_markers = precomputed_param$lineage_markers,
+  group_a = precomputed_param$group_a,
+  group_b = precomputed_param$group_b,
+  batch_1 = precomputed_param$batch_1,
+  batch_2 = precomputed_param$batch_2
 )
-clustering_b2 <- cluster_and_calculate_mem(
-  adata = unintegrated_b2,
-  layer_name = "preprocessed",
-  lineage_markers = dataset_param$lineage_markers,
-  fsom_param = fsom_param,
-  label_prefix = paste0("batch", dataset_param$batch_2, "_c")
+fsom_param <- list(
+  n_clusters = precomputed_param$n_clusters,
+  xdim = precomputed_param$som_xdim,
+  ydim = precomputed_param$som_ydim
 )
 
-print("Test which clusters are differentially abundant within each batch\n")
-abundance_b1 <- test_differential_abundance(
-  cluster_id_per_cell = clustering_b1$cluster_id_per_cell,
-  sample_id_per_cell = unintegrated_b1$obs$sample,
-  group_id_per_cell = unintegrated_b1$obs$group,
-  group_a = dataset_param$group_a,
-  group_b = dataset_param$group_b,
-  significance_threshold = SIGNIFICANCE_THRESHOLD
-)
-
-abundance_b2 <- test_differential_abundance(
-  cluster_id_per_cell = clustering_b2$cluster_id_per_cell,
-  sample_id_per_cell = unintegrated_b2$obs$sample,
-  group_id_per_cell = unintegrated_b2$obs$group,
-  group_a = dataset_param$group_a,
-  group_b = dataset_param$group_b,
-  significance_threshold = SIGNIFICANCE_THRESHOLD
-)
-
-# keep just clusters which are DA
-DA_clusters_b1 <- abundance_b1$significant
-DA_clusters_b2 <- abundance_b2$significant
-
-
-print("Finding best matches for batch 1 clusters\n")
-b1_cluster_matches <- find_cluster_match(
-  mem_a = clustering_b1$mem,
-  mem_b = clustering_b2$mem
-)
-cluster_b1_best_matches <- b1_cluster_matches$cluster_a_matches
-# keep only clusters which are we found "mutual" matches,
-# i.e., if b1 cluster 1 best match in b2 is cluster 2,
-# and b2 cluster 2 best match in b1 is cluster 1,
-# then this is mutual matches. Otherwise, there were some discrepancies in 
-# the matching that is hard to resolve (which one is the right one?)
-# in that case, we just drop them.
-cluster_b1_best_matches_filtered <- cluster_b1_best_matches[cluster_b1_best_matches$is_mutual, , drop = FALSE]
-
-# now we check which of the mutually matched clusters are differentially 
-# abundant in both batches
-cluster_b1_best_matches_filtered <- cluster_b1_best_matches_filtered[
-  cluster_b1_best_matches_filtered$cluster_a %in% DA_clusters_b1 &
-    cluster_b1_best_matches_filtered$best_match_b %in% DA_clusters_b2,
-  ,
-  drop = FALSE
-]
+# The MEM matrix was stored as a data frame to keep its cluster and marker labels.
+b1_mem <- as.matrix(precomputed$batch1_mem)
+retained_clusters_b1 <- precomputed$retained_cluster_b1
 
 # Nothing survived both filters, so there is nothing to score against. This
 # should not happen on a real dataset, so stop rather than report NaN.
-if (nrow(cluster_b1_best_matches_filtered) == 0) {
+if (length(retained_clusters_b1) == 0) {
   stop(
     "No batch 1 cluster was both mutually matched to a batch 2 cluster and ",
     "differentially abundant in both batches, so there is nothing to score."
   )
 }
 
-print("Clustering and running DA for each integrated split\n")
+cat("Clustering and running DA for each integrated split\n")
 result_s1 <- process_integrated_split(
   adata = integrated_s1,
   dataset_param = dataset_param,
   fsom_param = fsom_param,
-  b1_mem = clustering_b1$mem,
-  retained_cluster_b1 = cluster_b1_best_matches_filtered$cluster_a,
+  b1_mem = b1_mem,
+  retained_cluster_b1 = retained_clusters_b1,
   significance_threshold = SIGNIFICANCE_THRESHOLD,
   label_prefix = "split1_c"
 )
@@ -137,52 +83,25 @@ result_s2 <- process_integrated_split(
   adata = integrated_s2,
   dataset_param = dataset_param,
   fsom_param = fsom_param,
-  b1_mem = clustering_b1$mem,
-  retained_cluster_b1 = cluster_b1_best_matches_filtered$cluster_a,
+  b1_mem = b1_mem,
+  retained_cluster_b1 = retained_clusters_b1,
   significance_threshold = SIGNIFICANCE_THRESHOLD,
   label_prefix = "split2_c"
 )
 
-print("Computing final score\n")
+cat("Computing final score\n")
 # Clusters in integrated are mapped to retained clusters in b1.
 # So it only makes sense for the final proportion to be calculated over the retained clusters in b1, not all clusters in b1.
-retained_clusters_b1 <- cluster_b1_best_matches_filtered$cluster_a
-
 prop_still_da_s1 <- length(result_s1$da_results$significant) / length(retained_clusters_b1)
 prop_still_da_s2 <- length(result_s2$da_results$significant) / length(retained_clusters_b1)
 score <- mean(c(prop_still_da_s1, prop_still_da_s2))
 
-print("Write output AnnData to file\n")
+cat("Write output AnnData to file\n")
 # Everything below is grouped by the stage it came from, so a diagnosis never
 # needs to stitch loose vectors back together. Similarity matrices are written
 # as data frames because a plain matrix loses its dimnames in h5ad, which makes
 # the cluster labels unrecoverable.
-
-# One row per unintegrated cluster, saying whether it was differentially abundant.
-da_status_for_clusters_in_unintegrated <- rbind(
-  data.frame(
-    cluster_id = abundance_b1$clusters_tested,
-    batch = as.character(dataset_param$batch_1),
-    is_da = abundance_b1$clusters_tested %in% DA_clusters_b1,
-    stringsAsFactors = FALSE
-  ),
-  data.frame(
-    cluster_id = abundance_b2$clusters_tested,
-    batch = as.character(dataset_param$batch_2),
-    is_da = abundance_b2$clusters_tested %in% DA_clusters_b2,
-    stringsAsFactors = FALSE
-  )
-)
-
-# What each batch 1 cluster matched to in batch 2, and whether that was mutual.
-unintegrated_cluster_match_table <- data.frame(
-  cluster_b1 = cluster_b1_best_matches$cluster_a,
-  best_match_b2 = cluster_b1_best_matches$best_match_b,
-  b2_best_match_back_in_b1 = cluster_b1_best_matches$best_match_b_matching_a,
-  is_mutual = cluster_b1_best_matches$is_mutual,
-  row.names = NULL,
-  stringsAsFactors = FALSE
-)
+# The unintegrated results are in the precomputed file, not repeated here.
 
 # One row per retained batch 1 cluster per split. A retained cluster that no
 # split cluster mapped onto is never tested, and counts as not differentially
@@ -217,20 +136,6 @@ output <- anndata::AnnData(
       som_xdim = fsom_param$xdim,
       som_ydim = fsom_param$ydim,
       n_clusters = fsom_param$n_clusters
-    ),
-
-    unintegrated = list(
-      # cell_id and cluster_id indices are matching: cluster_id at index i belongs to cell_id at index i.
-      batch1_cell_id = rownames(unintegrated_b1$obs),
-      batch1_cluster_id = clustering_b1$cluster_id_per_cell,
-      batch2_cell_id = rownames(unintegrated_b2$obs),
-      batch2_cluster_id = clustering_b2$cluster_id_per_cell,
-      # which clusters in b1 and b2 are DA? or not DA?
-      which_clusters_are_da = da_status_for_clusters_in_unintegrated,
-      # rows are batch 1 clusters, columns are batch 2 clusters
-      b1_b2_cluster_similarity = as.data.frame(b1_cluster_matches$similarity),
-      cluster_match_table = unintegrated_cluster_match_table,
-      retained_cluster_b1 = retained_clusters_b1
     ),
 
     split1 = list(

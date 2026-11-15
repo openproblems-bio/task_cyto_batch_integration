@@ -6,6 +6,8 @@ name: functional_marker_preservation
 
 # Metadata for your component
 info:
+  # Reads its unintegrated results from the precompute_python_metric output
+  precompute_type: python
   metrics:
     - name: functional_marker_preservation_wilcoxon
       label: Functional Marker Preservation (Wilcoxon)

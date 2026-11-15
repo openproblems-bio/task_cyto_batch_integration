@@ -12,6 +12,7 @@ par = {
     "input_unintegrated": f"{base_dir}/input_unintegrated_1/unintegrated.h5ad",
     "input_integrated_split1": f"{base_dir}/input_integrated_split1_1/{filename}",
     "input_integrated_split2": f"{base_dir}/input_integrated_split2_1/{filename}",
+    "input_precomputed_python_metric": f"{base_dir}/precomputed_python_metric.h5ad",
     "output": "resources_test/task_cyto_batch_integration/ratio_inconsistent_peaks_score.h5ad",
 }
 meta = {
@@ -59,7 +60,14 @@ integrated_s2 = subset_nocontrols(integrated_s2)
 integrated_s2 = subset_markers_tocorrect(integrated_s2)
 integrated_s2 = remove_unlabelled(integrated_s2)
 
-donor_list = integrated_s1.obs["donor"].unique()
+# Peaks of the unintegrated data, per donor, cell type and marker, for split 1
+# and split 2. They don't depend on the method, so they're computed once per
+# dataset by the precompute_python_metric component. It also drops
+# (donor, cell type) combinations with fewer than 100 cells in either split.
+# The integrated splits hold the same cells, so the same ones are dropped here.
+unintegrated_peaks = ad.read_h5ad(par["input_precomputed_python_metric"]).uns[
+    "ratio_consistent_peaks"
+]["unintegrated_peaks"]
 
 print("Compute metric (per cell type)", flush=True)
 
@@ -83,172 +91,81 @@ case_details["header"].append(
     ]
 )
 
-for donor in donor_list:
-    # for testing only
-    # donor = donor_list[0]
+for (donor, celltype), peaks_per_marker in unintegrated_peaks.groupby(
+    ["donor", "cell_type"], sort=False, observed=True
+):
+    print(f"Processing donor {donor}, celltype {celltype}", flush=True)
 
-    print("Processing donor", donor, flush=True)
+    s1_view_ct = integrated_s1[
+        (integrated_s1.obs["donor"] == donor)
+        & (integrated_s1.obs["cell_type"] == celltype)
+    ]
+    s2_view_ct = integrated_s2[
+        (integrated_s2.obs["donor"] == donor)
+        & (integrated_s2.obs["cell_type"] == celltype)
+    ]
 
-    u_view = unintegrated[unintegrated.obs["donor"] == donor]
+    for unintegrated_marker in peaks_per_marker.itertuples():
+        marker = unintegrated_marker.marker
+        peaks_u_s1 = unintegrated_marker.n_peaks_s1
+        peaks_u_s2 = unintegrated_marker.n_peaks_s2
 
-    # process per split
-    s1_view = integrated_s1[integrated_s1.obs["donor"] == donor]
-    s2_view = integrated_s2[integrated_s2.obs["donor"] == donor]
+        print(f"Processing marker {marker} for celltype {celltype}", flush=True)
 
-    celltype_list = s1_view.obs["cell_type"].unique()
+        print("--------------------------------", flush=True)
+        print("Computing peaks for integrated", flush=True)
 
-    for celltype in celltype_list:
-        # for testing only
-        # celltype = celltype_list[0]
+        print("Standardising marker expression", flush=True)
+        # standardise marker expression based on pooled mean and sd of
+        # unscaled marker expression for integrated data for split 1 and 2
+        s1_unscaled = np.array(s1_view_ct[:, marker].layers["integrated"])
+        s2_unscaled = np.array(s2_view_ct[:, marker].layers["integrated"])
 
-        print(f"Processing celltype {celltype}", flush=True)
-
-        u_view_ct = u_view[u_view.obs["cell_type"] == celltype]
-        s1_view_ct = s1_view[s1_view.obs["cell_type"] == celltype]
-        s2_view_ct = s2_view[s2_view.obs["cell_type"] == celltype]
-
-        if s1_view_ct.shape[0] < 100 or s2_view_ct.shape[0] < 100:
-            print(f"Skipping celltype {celltype} and donor {donor}.", flush=True)
-            if s1_view_ct.shape[0] < 100:
-                print(
-                    f"Because n_cells in s1 is {s1_view_ct.shape[0]}, less than 100",
-                    flush=True,
-                )
-            else:
-                print(
-                    f"Because n_cells in s2 is {s2_view_ct.shape[0]}, less than 100",
-                    flush=True,
-                )
-            # TODO uncomment me when done
-            continue
-
-        # unintegrated for split 1
-        u_view_ct_s1 = u_view_ct[u_view_ct.obs["split"] == 1]
-        u_view_ct_s2 = u_view_ct[u_view_ct.obs["split"] == 2]
-
-        for marker in s1_view_ct.var.index:
-            # for testing only
-            # marker = u_view_ct.var.index[0]
-
-            print(f"Processing marker {marker} for celltype {celltype}", flush=True)
-
-            print("--------------------------------", flush=True)
-            print("Computing peaks for unintegrated", flush=True)
-
-            print("Standardising marker expression", flush=True)
-            # standardise marker expression based on pooled mean and sd of
-            # unscaled marker expression for unintegrated data for split 1 and 2
-            u_s1_unscaled = np.array(u_view_ct_s1[:, marker].layers["preprocessed"])
-            u_s2_unscaled = np.array(u_view_ct_s2[:, marker].layers["preprocessed"])
-
-            u_s1_scaled, u_s2_scaled = metric_helper.standardise_marker_expression(
-                u_s1_unscaled,
-                u_s2_unscaled,
-            )
-            print("Computing KDE density", flush=True)
-            density_dist_u_s1 = metric_helper.get_kde_density(
-                expression_array=u_s1_scaled
-            )
-            density_dist_u_s2 = metric_helper.get_kde_density(
-                expression_array=u_s2_scaled
-            )
-
-            print("Calling peaks", flush=True)
-
-            peaks_u_s1 = metric_helper.call_peaks(density_dist_u_s1)
-            peaks_u_s2 = metric_helper.call_peaks(density_dist_u_s2)
-
-            print("--------------------------------", flush=True)
-
-            print("\n", flush=True)
-
-            print("--------------------------------", flush=True)
-            print("Computing peaks for integrated", flush=True)
-
-            print("Standardising marker expression", flush=True)
-            # standardise marker expression based on pooled mean and sd of
-            # unscaled marker expression for unintegrated data for split 1 and 2
-            s1_unscaled = np.array(s1_view_ct[:, marker].layers["integrated"])
-            s2_unscaled = np.array(s2_view_ct[:, marker].layers["integrated"])
-
-            # if s1_unscaled or s2_unscaled is all zeros,
-            # but the uncorrected version is not, this is a guaranteed
-            # case 2 as corrected version is flat but the
-            # uncorrected version is not.
-            # we can detect this by calculating we can't calculate sd
-            if (np.std(s1_unscaled) == 0 and np.std(u_s1_unscaled) != 0) or (
-                np.std(s2_unscaled) == 0 and np.std(u_s2_unscaled) != 0
-            ):
-                print(
-                    f"WARNING: Marker {marker}, donor {donor}, cell type {celltype}: has no variance after integration, but does before. Automatic to case 2.",
-                    flush=True,
-                )
-                n_case2 += 1
-                case_details["case2"].append(
-                    [donor, celltype, marker, np.nan, np.nan, np.nan, np.nan]
-                )
-                continue
-
-            s1_scaled, s2_scaled = metric_helper.standardise_marker_expression(
-                s1_unscaled,
-                s2_unscaled,
-            )
-            print("Computing KDE density", flush=True)
-            density_dist_s1 = metric_helper.get_kde_density(s1_scaled)
-            density_dist_s2 = metric_helper.get_kde_density(s2_scaled)
-
-            print("Calling peaks", flush=True)
-
-            peaks_s1 = metric_helper.call_peaks(density_dist_s1)
-            peaks_s2 = metric_helper.call_peaks(density_dist_s2)
-
-            print("--------------------------------", flush=True)
-
-            print("\n", flush=True)
-
+        # if s1_unscaled or s2_unscaled is all zeros,
+        # but the uncorrected version is not, this is a guaranteed
+        # case 2 as corrected version is flat but the
+        # uncorrected version is not.
+        # we can detect this by calculating we can't calculate sd
+        if (np.std(s1_unscaled) == 0 and unintegrated_marker.sd_s1 != 0) or (
+            np.std(s2_unscaled) == 0 and unintegrated_marker.sd_s2 != 0
+        ):
             print(
-                f"Comparing peaks between unintegrated and integrated for {donor}, {celltype}, {marker}",
+                f"WARNING: Marker {marker}, donor {donor}, cell type {celltype}: has no variance after integration, but does before. Automatic to case 2.",
                 flush=True,
             )
+            n_case2 += 1
+            case_details["case2"].append(
+                [donor, celltype, marker, np.nan, np.nan, np.nan, np.nan]
+            )
+            continue
 
-            # case 1 or 2 where we have consistent peaks in unintegrated
-            if peaks_u_s1 == peaks_u_s2:
-                if peaks_s1 == peaks_u_s1 and peaks_u_s2 == peaks_s2:
-                    n_case1 += 1
-                    case_details["case1"].append(
-                        [
-                            donor,
-                            celltype,
-                            marker,
-                            peaks_u_s1,
-                            peaks_u_s2,
-                            peaks_s1,
-                            peaks_s2,
-                        ]
-                    )
-                else:
-                    n_case2 += 1
-                    case_details["case2"].append(
-                        [
-                            donor,
-                            celltype,
-                            marker,
-                            peaks_u_s1,
-                            peaks_u_s2,
-                            peaks_s1,
-                            peaks_s2,
-                        ]
-                    )
-            else:
-                print(
-                    "WARNING! Inconsistent peaks detected in unintegrated data (case NGT). Skipping calculation",
-                    flush=True,
-                )
-                print(
-                    f"Number of peaks in unintegrated split 1: {peaks_u_s1}, split 2: {peaks_u_s2}",
-                    flush=True,
-                )
-                case_details["case_NGT"].append(
+        s1_scaled, s2_scaled = metric_helper.standardise_marker_expression(
+            s1_unscaled,
+            s2_unscaled,
+        )
+        print("Computing KDE density", flush=True)
+        density_dist_s1 = metric_helper.get_kde_density(s1_scaled)
+        density_dist_s2 = metric_helper.get_kde_density(s2_scaled)
+
+        print("Calling peaks", flush=True)
+
+        peaks_s1 = metric_helper.call_peaks(density_dist_s1)
+        peaks_s2 = metric_helper.call_peaks(density_dist_s2)
+
+        print("--------------------------------", flush=True)
+
+        print("\n", flush=True)
+
+        print(
+            f"Comparing peaks between unintegrated and integrated for {donor}, {celltype}, {marker}",
+            flush=True,
+        )
+
+        # case 1 or 2 where we have consistent peaks in unintegrated
+        if peaks_u_s1 == peaks_u_s2:
+            if peaks_s1 == peaks_u_s1 and peaks_u_s2 == peaks_s2:
+                n_case1 += 1
+                case_details["case1"].append(
                     [
                         donor,
                         celltype,
@@ -259,9 +176,42 @@ for donor in donor_list:
                         peaks_s2,
                     ]
                 )
+            else:
+                n_case2 += 1
+                case_details["case2"].append(
+                    [
+                        donor,
+                        celltype,
+                        marker,
+                        peaks_u_s1,
+                        peaks_u_s2,
+                        peaks_s1,
+                        peaks_s2,
+                    ]
+                )
+        else:
+            print(
+                "WARNING! Inconsistent peaks detected in unintegrated data (case NGT). Skipping calculation",
+                flush=True,
+            )
+            print(
+                f"Number of peaks in unintegrated split 1: {peaks_u_s1}, split 2: {peaks_u_s2}",
+                flush=True,
+            )
+            case_details["case_NGT"].append(
+                [
+                    donor,
+                    celltype,
+                    marker,
+                    peaks_u_s1,
+                    peaks_u_s2,
+                    peaks_s1,
+                    peaks_s2,
+                ]
+            )
 
-            print("Done comparing peaks.", flush=True)
-            print("\n", flush=True)
+        print("Done comparing peaks.", flush=True)
+        print("\n", flush=True)
 
 print("Done processing all celltypes and donors", flush=True)
 print("Calculating ratio", flush=True)

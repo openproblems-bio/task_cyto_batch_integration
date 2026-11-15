@@ -50,7 +50,7 @@ info:
     one_control:
       controls: one
 
-# Component-specific parameters (optional)
+# Note: parameter optimization currently not supported — methods use the default parameter
 argument_groups:
   - name: "Parameter set"
     arguments:

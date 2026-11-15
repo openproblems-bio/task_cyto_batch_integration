@@ -47,6 +47,7 @@ info:
     to_mid:
       target: mid
 
+# Note: parameter optimization currently not supported — methods use the default parameter
 argument_groups:
   - name: Parameter set
     arguments:

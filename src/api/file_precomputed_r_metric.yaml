@@ -1,0 +1,24 @@
+type: file
+example: "resources_test/task_cyto_batch_integration/mouse_spleen_flow_cytometry_subset/precomputed_r_metric.h5ad"
+label: Precomputed R metric
+summary: Some precomputed results from unintegrated data that some R metrics can reuse.
+description: |
+  An AnnData containing precomputed results from unintegrated data that
+  are used by some R metrics. They are stored in the `uns` slot:
+    - abundance_preservation:
+        - `parameters`: groups, batches, lineage markers, FlowSOM settings and
+          the significance threshold.
+        - `batch1_mem`: MEM scores of the unintegrated batch 1 clusters.
+        - `retained_cluster_b1`: the batch 1 clusters retained for scoring.
+        - `diagnostics`: not used by the metric. The cluster of each
+          unintegrated cell, which clusters are differentially abundant, the
+          batch 1 to batch 2 cluster matching and the cluster similarity matrix.
+
+info:
+  format:
+    type: h5ad
+    uns:
+      - type: object
+        name: abundance_preservation
+        description: "For computing the abundance preservation metric."
+        required: true

@@ -37,7 +37,7 @@ integrated_s2 <- anndata::read_h5ad(par[["input_integrated_split2"]]) |>
   subset_nocontrols() |>
   remove_unlabelled()
 
-print("Setting parameters\n")
+cat("Setting parameters\n")
 donor_list <- unique(integrated_s1$obs$donor)
 lineage_markers <- integrated_s1$var_names[
   integrated_s1$var$marker_type == "lineage"
@@ -46,7 +46,7 @@ n_clusters <- unintegrated$uns$parameter_num_clusters
 grid_xdim <- unintegrated$uns$parameter_som_xdim
 grid_ydim <- unintegrated$uns$parameter_som_ydim
 
-print("Computing mapping similarity\n")
+cat("Computing mapping similarity\n")
 fs_mapping_similarity_allres <- list()
 fsom_absdiff_by_donor_refsplit <- list()
 fs_mapping_similarity_all <- c()
@@ -138,7 +138,7 @@ for (donor in donor_list) {
 # compute average mapping similarity for all donors
 fs_mapping_similarity_avg <- mean(fs_mapping_similarity_all)
 
-print("Write output AnnData to file\n")
+cat("Write output AnnData to file\n")
 output <- anndata::AnnData(
   shape = c(0L, 0L),
   uns = list(
