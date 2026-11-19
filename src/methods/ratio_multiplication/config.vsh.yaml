@@ -1,0 +1,44 @@
+__merge__: ../../api/comp_method.yaml
+
+name: ratio_multiplication
+label: Ratio Multiplication
+summary: "Corrects each marker in batch 2 so that its 99th percentile matches batch 1."
+description: |
+  For every marker, compute the 99th percentile in batch 1 (P1) and in batch 2 (P2),
+  then multiply all values of that marker in batch 2 by P1 / P2.
+references:
+  doi:
+    - 10.3389/fimmu.2019.02367
+
+links:
+  documentation: https://github.com/openproblems-bio/task_cyto_batch_integration
+  repository: https://github.com/openproblems-bio/task_cyto_batch_integration
+
+arguments:
+  - name: "--percentile"
+    type: double
+    default: 99
+    description: "Percentile used to compute the scaling coefficient P1 / P2."
+
+resources:
+  - type: python_script
+    path: script.py
+  - path: /src/utils/helper_functions.py
+  # Additional resources your script needs (optional)
+  # - type: file
+  #   path: weights.pt
+
+engines:
+  - type: docker
+    image: openproblems/base_python:1
+    # Add custom dependencies here (optional). For more information, see
+    # https://viash.io/reference/config/engines/docker/#setup .
+    # setup:
+    #   - type: python
+    #     packages: numpy<2
+
+runners:
+  - type: executable
+  - type: nextflow
+    directives:
+      label: [lowtime, lowmem, lowcpu]
